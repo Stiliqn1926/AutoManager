@@ -1,0 +1,8 @@
+{
+  "prisma.prismaPath": "backend\\node_modules\\prisma",
+  "prisma.fileWatcher": false,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "standard.enable": false
+}

@@ -1,0 +1,158 @@
+import { useState, type FormEvent } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '../../components/common/Button';
+
+interface OrderItem {
+  id: string;
+  type: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+interface FinalizeOrderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  orderNumber: string;
+  orderItems: OrderItem[];
+  totalPrice: number;
+  clientEmail: string;
+}
+
+const FinalizeOrderModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  orderNumber,
+  orderItems,
+  totalPrice,
+  clientEmail,
+}: FinalizeOrderModalProps) => {
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsFinalizing(true);
+    try {
+      await onConfirm();
+      onClose();
+    } catch  {
+      // Error handled by parent
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
+
+  const getItemTypeBadge = (type: string) => {
+    const styles = {
+      SERVICE: 'bg-blue-100 text-blue-800',
+      PART: 'bg-purple-100 text-purple-800',
+      OTHER: 'bg-gray-100 text-gray-800',
+    };
+    const labels = {
+      SERVICE: 'Услуга',
+      PART: 'Част',
+      OTHER: 'Друго',
+    };
+    return (
+      <span className={`px-2 py-1 rounded text-xs font-medium ${styles[type as keyof typeof styles]}`}>
+        {labels[type as keyof typeof labels]}
+      </span>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-borderSubtle px-6 py-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-textPrimary">Финализиране на поръчка</h2>
+            <p className="text-sm text-textSecondary mt-1">Поръчка {orderNumber}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={isFinalizing}
+            aria-label="Затвори"
+          >
+            <X className="w-5 h-5 text-textSecondary" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Важно:</strong> След потвърждение ще бъде генерирана PDF фактура и изпратена на клиента на адрес: <strong>{clientEmail}</strong>
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-textPrimary mb-3">Детайли на фактурата</h3>
+              <div className="border border-borderSubtle rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-mainBg">
+                    <tr>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Тип</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Описание</th>
+                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Кол.</th>
+                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Ед. цена</th>
+                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Общо</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderItems.map((item) => (
+                      <tr key={item.id} className="border-t border-borderSubtle">
+                        <td className="py-3 px-4">{getItemTypeBadge(item.type)}</td>
+                        <td className="py-3 px-4 text-textPrimary">{item.description}</td>
+                        <td className="py-3 px-4 text-right text-textSecondary">{item.quantity}</td>
+                        <td className="py-3 px-4 text-right text-textSecondary">{item.unitPrice.toFixed(2)} лв</td>
+                        <td className="py-3 px-4 text-right font-medium text-textPrimary">
+                          {item.totalPrice.toFixed(2)} лв
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-borderSubtle bg-mainBg">
+                      <td colSpan={4} className="py-4 px-4 text-right font-bold text-textPrimary text-lg">
+                        Обща сума:
+                      </td>
+                      <td className="py-4 px-4 text-right font-bold text-primary text-xl">
+                        {totalPrice.toFixed(2)} лв
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Внимание:</strong> След финализиране поръчката ще бъде маркирана като "Готова" и фактурата ще бъде изпратена незабавно.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6 pt-6 border-t border-borderSubtle">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              disabled={isFinalizing}
+            >
+              Отказ
+            </Button>
+            <Button type="submit" isLoading={isFinalizing}>
+              Потвърди и изпрати фактура
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default FinalizeOrderModal;

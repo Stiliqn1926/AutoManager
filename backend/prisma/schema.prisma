@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================
+// USER & AUTH MODELS
+// =====================
+
+enum UserRole {
+  ADMIN
+  CLIENT
+  MECHANIC
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      UserRole
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  serviceCompany     ServiceCompany?
+  client             Client?
+  worker             Worker?
+  refreshTokens      RefreshToken[]
+  passwordResets     PasswordReset[]
+  blacklistedTokens  BlacklistedToken[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_resets")
+}
+
+model BlacklistedToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  reason    String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("blacklisted_tokens")
+}
+
+// =====================
+// BUSINESS MODELS
+// =====================
+
+model ServiceCompany {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  phone       String
+  email       String
+  uniqueCode  String   @unique
+  bulstat     String?
+  vatNumber   String?
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clients         Client[]
+  workers         Worker[]
+  vehicles        Vehicle[]
+  orders          Order[]
+  orderItems      OrderItem[]
+  invoices        Invoice[]
+  schedules       Schedule[]
+  suppliers       Supplier[]
+  finances        Finance[]
+  pendingRequests PendingRequest[]
+
+  @@index([uniqueCode])
+  @@index([userId])
+  @@map("service_companies")
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  firstName String
+  lastName  String
+  phone     String
+  email     String?
+  address   String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  userId           String?  @unique
+  serviceCompanyId String
+  user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  serviceCompany   ServiceCompany   @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  vehicles      Vehicle[]
+  orders        Order[]
+  notifications Notification[]
+
+  @@unique([userId, serviceCompanyId])
+  @@index([serviceCompanyId])
+  @@index([phone])
+  @@index([email])
+  @@map("clients")
+}
+
+model Worker {
+  id             String    @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  specialization String 
+  skills         String?   @db.Text 
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  userId           String  @unique
+  serviceCompanyId String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceCompany   ServiceCompany  @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  orders    Order[]
+  schedules Schedule[]
+
+  @@index([serviceCompanyId])
+  @@index([userId])
+  @@map("workers")
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PendingRequest {
+  id              String        @id @default(uuid())
+  email           String
+  firstName       String
+  lastName        String
+  phone           String
+  specialization  String
+  status          RequestStatus @default(PENDING)
+  rejectionReason String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  serviceCompanyId String
+  serviceCompany   ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([serviceCompanyId])
+  @@index([status])
+  @@map("pending_requests")
+}
+
+// =====================
+// VEHICLE & ORDER MODELS
+// =====================
+
+model Vehicle {
+  id           String    @id @default(uuid())
+  brand        String
+  model        String
+  year         Int?
+  licensePlate String
+  vin          String?
+  color        String?
+  mileage      Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  clientId         String
+  serviceCompanyId String
+  client           Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  serviceCompany   ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@unique([licensePlate, serviceCompanyId])
+  @@index([clientId])
+  @@index([serviceCompanyId])
+  @@index([licensePlate])
+  @@map("vehicles")
+}
+
+enum OrderStatus {
+  WAITING
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber   String      @unique
+  description   String      @db.Text
+  diagnosis     String?     @db.Text
+  status        OrderStatus @default(WAITING)
+  startDate     DateTime?
+  endDate       DateTime?
+  completedDate DateTime?
+  totalPrice    Decimal?    @db.Decimal(10, 2)
+  notes         String?     @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  clientId         String
+  vehicleId        String
+  workerId         String?
+  serviceCompanyId String
+  supplierId       String?
+
+  client         Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  vehicle        Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  worker         Worker?        @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  supplier       Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  orderItems    OrderItem[]
+  invoices      Invoice[]
+  notifications Notification[]
+  schedules     Schedule[]
+
+  @@index([serviceCompanyId])
+  @@index([clientId])
+  @@index([vehicleId])
+  @@index([workerId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderItemType {
+  PART
+  LABOR
+  CONSUMABLE
+}
+
+model OrderItem {
+  id          String        @id @default(uuid())
+  type        OrderItemType
+  name        String
+  description String?       @db.Text
+  quantity    Int           @default(1)
+  unitPrice   Decimal       @db.Decimal(10, 2)
+  totalPrice  Decimal       @db.Decimal(10, 2)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  orderId          String
+  serviceCompanyId String
+
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([serviceCompanyId])
+  @@map("order_items")
+}
+
+model Invoice {
+  id            String    @id @default(uuid())
+  invoiceNumber String    @unique
+  subtotal      Decimal   @db.Decimal(10, 2)
+  tax           Decimal   @db.Decimal(10, 2)
+  total         Decimal   @db.Decimal(10, 2)
+  issueDate     DateTime  @default(now())
+  dueDate       DateTime?
+  isPaid        Boolean   @default(false)
+  paidDate      DateTime?
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orderId          String
+  serviceCompanyId String
+
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([serviceCompanyId])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([orderId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// =====================
+// SCHEDULE & SUPPLIER
+// =====================
+
+enum ScheduleStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+enum SchedulePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Schedule {
+  id                 String           @id @default(uuid())
+  title              String
+  description        String?          @db.Text
+
+  // Основна дата (за дневен / седмичен / месечен изглед)
+  date               DateTime
+
+  // Реални часове
+  startTime          DateTime
+  endTime            DateTime
+
+  status             ScheduleStatus   @default(SCHEDULED)
+  priority           SchedulePriority @default(NORMAL)
+
+  estimatedDuration  Int?
+  notes              String?          @db.Text
+  isCompleted        Boolean          @default(false)
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  // Relations
+  workerId           String?
+  orderId            String?
+  serviceCompanyId   String
+
+  worker             Worker?        @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  order              Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  serviceCompany     ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([serviceCompanyId])
+  @@index([workerId])
+  @@index([orderId])
+  @@index([date])
+  @@index([startTime])
+  @@index([status])
+  @@map("schedules")
+}
+
+enum SupplierType {
+  PARTS
+  CONSUMABLES
+  SERVICES
+  TIRES
+  OTHER
+}
+
+model Supplier {
+  id             String        @id @default(uuid())
+  name           String
+  type           SupplierType
+  contactPerson  String?
+  phonePrimary   String
+  phoneSecondary String?
+  email          String?
+  addressLine    String?
+  city           String?
+  eik            String?
+  vatNumber      String?
+  website        String?
+  notes          String?       @db.Text
+  deliveryNotes  String?       @db.Text
+  isActive       Boolean       @default(true)
+  isPreferred    Boolean       @default(false)
+  lastOrderDate  DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  serviceCompanyId String
+  serviceCompany   ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@index([serviceCompanyId])
+  @@index([isActive])
+  @@index([isPreferred])
+  @@map("suppliers")
+}
+
+// =====================
+// FINANCE
+// =====================
+
+enum FinanceType {
+  INCOME
+  EXPENSE
+}
+
+enum FinanceCategory {
+  PARTS
+  LABOR
+  CONSUMABLES
+  RENT
+  UTILITIES
+  SALARIES
+  TAXES
+  INSURANCE
+  MARKETING
+  MAINTENANCE
+  SUPPLIES
+  OTHER
+}
+
+model Finance {
+  id          String          @id @default(uuid())
+  type        FinanceType
+  category    FinanceCategory
+  amount      Decimal         @db.Decimal(10, 2)
+  description String?         @db.Text
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  serviceCompanyId String
+  serviceCompany   ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([serviceCompanyId])
+  @@index([type])
+  @@index([category])
+  @@index([date])
+  @@map("finances")
+}

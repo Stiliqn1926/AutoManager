@@ -1,0 +1,47 @@
+import type { LucideIcon } from 'lucide-react';
+
+type Props = {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  subtitle?: string;
+  trend?: 'up' | 'down';
+};
+
+const StatsCard = ({
+  icon: Icon,
+  label,
+  value,
+  subtitle,
+  trend,
+}: Props) => {
+  return (
+    <div className="bg-cardBg border border-borderSubtle rounded-2xl p-6 shadow-card">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
+            <Icon className="w-5 h-5" />
+          </div>
+          <span className="text-sm text-textSecondary">{label}</span>
+        </div>
+
+        {trend === 'up' && (
+          <span className="text-sm text-success font-medium">↑</span>
+        )}
+        {trend === 'down' && (
+          <span className="text-sm text-error font-medium">↓</span>
+        )}
+      </div>
+
+      <div className="text-3xl font-semibold text-textPrimary mb-1">
+        {value}
+      </div>
+
+      {subtitle && (
+        <div className="text-sm text-textMuted">{subtitle}</div>
+      )}
+    </div>
+  );
+};
+
+export default StatsCard;
