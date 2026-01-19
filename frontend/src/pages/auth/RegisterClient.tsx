@@ -17,6 +17,9 @@ import {
 
 const RegisterClient = () => {
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -34,6 +37,20 @@ const RegisterClient = () => {
     setErrors({});
 
     const newErrors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'Името е задължително';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Фамилията е задължителна';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Телефонният номер е задължителен';
+    } else if (!/^[0-9+\s()-]+$/.test(formData.phone)) {
+      newErrors.phone = 'Невалиден телефонен номер';
+    }
 
     const emailError = validateEmail(formData.email);
     if (emailError) newErrors.email = emailError;
@@ -65,15 +82,18 @@ const RegisterClient = () => {
     setIsLoading(true);
 
     try {
-      // Step 1: Register the user (CLIENT role)
-      await api.post('/auth/register', {
+      // Step 1: Register the user (CLIENT role) with firstName, lastName, phone
+      await api.post('/auth/register-client', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
         email: formData.email,
         password: formData.password,
         role: 'CLIENT',
       });
 
       // Step 2: Login
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, 'CLIENT');
 
       toast.success('Регистрацията е успешна!');
       navigate('/client/dashboard');
@@ -128,6 +148,37 @@ const RegisterClient = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
+              label="Име *"
+              type="text"
+              value={formData.firstName}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
+              error={errors.firstName}
+            />
+
+            <Input
+              label="Фамилия *"
+              type="text"
+              value={formData.lastName}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+              error={errors.lastName}
+            />
+
+            <Input
+              label="Телефонен номер *"
+              type="tel"
+              value={formData.phone}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              error={errors.phone}
+              placeholder="+359 88 123 4567"
+            />
+
+            <Input
               label="Имейл *"
               type="email"
               value={formData.email}
@@ -169,8 +220,6 @@ const RegisterClient = () => {
                   Съгласявам се с{' '}
                   <a
                     href="/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:text-primary-700 hover:underline transition-colors"
                   >
                     общите условия

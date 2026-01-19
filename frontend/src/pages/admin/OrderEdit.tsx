@@ -83,11 +83,11 @@ const OrderEdit = () => {
   }, [id, navigate]);
 
   const handleAddItem = () => {
-    setOrderItems([
-      ...orderItems,
-      { type: 'SERVICE', description: '', quantity: 1, unitPrice: 0 },
-    ]);
-  };
+  setOrderItems([
+    ...orderItems,
+    { type: 'LABOR', description: '', quantity: 1, unitPrice: 0 }, 
+  ]);
+};
 
   const handleRemoveItem = (index: number) => {
     setOrderItems(orderItems.filter((_, i) => i !== index));
@@ -300,9 +300,9 @@ const OrderEdit = () => {
                       className="w-full px-2 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       aria-label={`Тип на ред ${index + 1}`}
                     >
-                      <option value="SERVICE">Услуга</option>
+                       <option value="LABOR">Услуга</option> 
                       <option value="PART">Част</option>
-                      <option value="OTHER">Друго</option>
+                       <option value="CONSUMABLE">Консуматив</option>
                     </select>
                   </div>
 
@@ -312,7 +312,7 @@ const OrderEdit = () => {
                     </label>
                     <input
                       type="text"
-                      value={item.description}
+                      value={item.description || ''}
                       onChange={(e) =>
                         handleItemChange(
                           index,
@@ -332,7 +332,7 @@ const OrderEdit = () => {
                     </label>
                     <input
                       type="number"
-                      value={item.quantity}
+                      value={item.quantity || 0}
                       onChange={(e) =>
                         handleItemChange(
                           index,
@@ -354,7 +354,7 @@ const OrderEdit = () => {
                     </label>
                     <input
                       type="number"
-                      value={item.unitPrice}
+                      value={item.unitPrice || 0}
                       onChange={(e) =>
                         handleItemChange(
                           index,

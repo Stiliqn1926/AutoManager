@@ -12,6 +12,14 @@ interface AuthRequest extends Request {
   };
 }
 
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Unknown error';
+};
+
 // Create Vehicle (ADMIN добавя автомобил към клиент)
 export const createVehicle = async (
   req: AuthRequest,
@@ -27,7 +35,7 @@ export const createVehicle = async (
       vin,
       color,
       mileage,
-                } = req.body;
+    } = req.body;
     const userId = req.user!.userId;
 
     // Вземи serviceCompanyId на ADMIN
@@ -65,7 +73,7 @@ export const createVehicle = async (
         vin,
         color,
         mileage,
-                        clientId,
+        clientId,
         serviceCompanyId: serviceCompany.id,
       },
     });
@@ -155,10 +163,21 @@ export const getVehicleById = async (
     const vehicle = await prisma.vehicle.findUnique({
       where: { id },
       include: {
-        client: true,
+        client: {
+          include: {
+            user: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
         orders: {
           include: {
             orderItems: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
           },
         },
       },
@@ -196,7 +215,7 @@ export const updateVehicle = async (
       vin,
       color,
       mileage,
-                } = req.body;
+    } = req.body;
     const userId = req.user!.userId;
 
     // Вземи serviceCompanyId
@@ -234,7 +253,7 @@ export const updateVehicle = async (
         vin,
         color,
         mileage,
-                      },
+      },
     });
 
     res.status(200).json({
@@ -280,14 +299,27 @@ export const deleteVehicle = async (
       return;
     }
 
-    const updatedVehicle = await prisma.vehicle.update({
+    // Провери дали има свързани поръчки
+    const ordersCount = await prisma.order.count({
+      where: { vehicleId: id },
+    });
+
+    if (ordersCount > 0) {
+      res.status(400).json({
+        message: `Не може да изтриете този автомобил, защото има ${ordersCount} свързани поръчки`,
+        hasOrders: true,
+        ordersCount,
+      });
+      return;
+    }
+
+    // Няма поръчки - изтрий напълно
+    await prisma.vehicle.delete({
       where: { id },
-      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({
-      message: 'Vehicle deactivated successfully',
-      vehicle: updatedVehicle,
+      message: 'Автомобилът е изтрит успешно',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -340,8 +372,8 @@ export const uploadVehicleImage = async (
       vehicle,
       imageUrl,
     });
-  } catch (error: any) {
-    res.status(500).json({ message: 'Грешка при качване на снимка', error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ message: 'Грешка при качване на снимка', error: getErrorMessage(error) });
   }
 };
 
@@ -381,7 +413,267 @@ export const deleteVehicleImage = async (
       message: 'Vehicle image deletion not supported (no imageUrl field in model)',
       vehicle,
     });
-  } catch (error: any) {
-    res.status(500).json({ message: 'Грешка при изтриване на снимка', error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ message: 'Грешка при изтриване на снимка', error: getErrorMessage(error) });
+  }
+}; 
+
+// ============================================
+// GET MECHANIC VEHICLES (само автомобили с поръчки при механика)
+// ============================================
+export const getMechanicVehicles = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+
+    // Вземи worker профил
+    const worker = await prisma.worker.findUnique({
+      where: { userId },
+    });
+
+    if (!worker) {
+      res.status(404).json({ message: 'Worker profile not found' });
+      return;
+    }
+
+    // Параметри за търсене и филтриране
+    const { search, activeOnly } = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    if (!worker.serviceCompanyId) {
+      // Няма активен сервиз - върни празни данни вместо 400
+      res.status(200).json({
+        vehicles: [],
+        pagination: { totalItems: 0, totalPages: 0, currentPage: page, itemsPerPage: limit },
+      });
+      return;
+    }
+
+    // Store serviceCompanyId in a local variable for TypeScript
+    const serviceCompanyId = worker.serviceCompanyId;
+    const { skip, take } = getPagination(page, limit);
+
+    // Намери всички vehicleId-та от поръчки на механика
+    const ordersByMechanic = await prisma.order.findMany({
+      where: {
+        workerId: worker.id,
+        serviceCompanyId: serviceCompanyId,
+      },
+      select: {
+        vehicleId: true,
+      },
+      distinct: ['vehicleId'],
+    });
+
+    const vehicleIds = ordersByMechanic.map(o => o.vehicleId);
+
+    if (vehicleIds.length === 0) {
+      res.status(200).json({
+        vehicles: [],
+        pagination: { totalItems: 0, totalPages: 0, currentPage: 1, itemsPerPage: limit },
+      });
+      return;
+    }
+
+    // Филтри за търсене
+    const whereClause: any = {
+      id: { in: vehicleIds },
+      serviceCompanyId: serviceCompanyId,
+    };
+
+    // Търсене по номер или марка/модел
+    if (search) {
+      whereClause.OR = [
+        { licensePlate: { contains: search as string, mode: 'insensitive' } },
+        { brand: { contains: search as string, mode: 'insensitive' } },
+        { model: { contains: search as string, mode: 'insensitive' } },
+      ];
+    }
+
+    // Филтър за активни поръчки
+    if (activeOnly === 'true') {
+      const vehiclesWithActiveOrders = await prisma.order.findMany({
+        where: {
+          workerId: worker.id,
+          serviceCompanyId: serviceCompanyId,
+          status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+        },
+        select: {
+          vehicleId: true,
+        },
+        distinct: ['vehicleId'],
+      });
+
+      const activeVehicleIds = vehiclesWithActiveOrders.map(o => o.vehicleId);
+      whereClause.id = { in: activeVehicleIds };
+    }
+
+    const totalItems = await prisma.vehicle.count({ where: whereClause });
+
+    const vehicles = await prisma.vehicle.findMany({
+      where: whereClause,
+      skip,
+      take,
+      include: {
+        client: {
+          select: {
+            firstName: true,
+            lastName: true,
+            phone: true,
+          },
+        },
+        orders: {
+          where: {
+            workerId: worker.id,
+            serviceCompanyId: serviceCompanyId,
+            status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+          },
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: {
+            orders: true,
+          },
+        },
+      },
+      orderBy: {
+        brand: 'asc',
+      },
+    });
+
+    // Добави последна поръчка и статус
+    const vehiclesWithStatus = await Promise.all(
+      vehicles.map(async (vehicle) => {
+        const lastOrder = await prisma.order.findFirst({
+          where: {
+            vehicleId: vehicle.id,
+            workerId: worker.id,
+            serviceCompanyId: serviceCompanyId,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: {
+            createdAt: true,
+          },
+        });
+
+        return {
+          ...vehicle,
+          hasActiveOrder: vehicle.orders.length > 0,
+          activeOrdersCount: vehicle.orders.length,
+          lastOrderDate: lastOrder?.createdAt || null,
+        };
+      })
+    );
+
+    const pagination = getPaginationMeta(totalItems, page, limit);
+
+    res.status(200).json({ vehicles: vehiclesWithStatus, pagination });
+  } catch (error) {
+    console.error('Get mechanic vehicles error:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// ============================================
+// GET MECHANIC VEHICLE BY ID (само неговите поръчки)
+// ============================================
+export const getMechanicVehicleById = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+
+    // Вземи worker профил
+    const worker = await prisma.worker.findUnique({
+      where: { userId },
+    });
+
+    if (!worker) {
+      res.status(404).json({ message: 'Worker profile not found' });
+      return;
+    }
+
+    if (!worker.serviceCompanyId) {
+      res.status(400).json({ message: 'No active service company' });
+      return;
+    }
+
+    // Store serviceCompanyId in a local variable for TypeScript
+    const serviceCompanyId = worker.serviceCompanyId;
+
+    // Провери дали автомобилът има поръчки при механика
+    const hasOrders = await prisma.order.findFirst({
+      where: {
+        vehicleId: id,
+        workerId: worker.id,
+        serviceCompanyId: serviceCompanyId,
+      },
+    });
+
+    if (!hasOrders) {
+      res.status(403).json({ message: 'No access to this vehicle' });
+      return;
+    }
+
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id },
+      include: {
+        client: {
+          include: {
+            user: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
+        orders: {
+          where: {
+            workerId: worker.id,
+          },
+          include: {
+            orderItems: {
+              select: {
+                id: true,
+                type: true,
+                description: true,
+                quantity: true,
+                unitPrice: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!vehicle) {
+      res.status(404).json({ message: 'Vehicle not found' });
+      return;
+    }
+
+    // Провери ownership
+    if (vehicle.serviceCompanyId !== serviceCompanyId) {
+      res.status(403).json({ message: 'Forbidden' });
+      return;
+    }
+
+    res.status(200).json({ vehicle });
+  } catch (error) {
+    console.error('Get mechanic vehicle error:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };

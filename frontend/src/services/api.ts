@@ -3,24 +3,30 @@
  * API SERVICE С АВТОМАТИЧЕН TOKEN REFRESH
  * ============================================
  *
- * ПРОМЕНИ:
- * 1. Добавено withCredentials: true - за изпращане на httpOnly cookies
- * 2. Автоматичен refresh на access token при 401 error
- * 3. Retry на failed request след refresh
+ * 🆕 httpOnly Cookie Strategy:
+ * - withCredentials: true изпраща cookies автоматично
+ * - accessToken и refreshToken са в httpOnly cookies
+ * - НЕ използваме localStorage за токени!
  *
  * КАК РАБОТИ REFRESH FLOW:
- * 1. Правим API request с access token
+ * 1. Правим API request (браузърът изпраща accessToken cookie)
  * 2. Ако получим 401 (токенът е изтекъл):
- *    a. Викаме /auth/refresh (refresh token се изпраща автоматично в cookie)
- *    b. Получаваме нов access token
- *    c. Запазваме го в localStorage
- *    d. Retry-ваме оригиналната заявка с новия токен
+ *    a. Викаме /auth/refresh (refreshToken cookie се изпраща автоматично)
+ *    b. Backend връща нов accessToken cookie
+ *    c. Retry-ваме оригиналната заявка (с новия accessToken cookie)
  * 3. Ако refresh fail-не (refresh token също е изтекъл):
- *    a. Logout user-а
- *    b. Redirect към login
+ *    a. Изчистваме user от localStorage
+ *    b. Redirect към начална страница (/)
  */
 
 import axios from 'axios';
+
+// Разширяваме axios config типа за да добавим custom property
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipAutoLogout?: boolean;
+  }
+}
 
 // Базов URL на backend
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -36,13 +42,11 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor - добавя token към всяка заявка
+// Request interceptor
+// 🆕 НЕ добавяме Authorization header - токените са в cookies!
+// Браузърът автоматично изпраща cookies с withCredentials: true
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
@@ -65,10 +69,9 @@ api.interceptors.response.use(
       // Ако вече сме правили refresh или това Е refresh request-а, logout
       if (isRefreshing || originalRequest.url === '/auth/refresh') {
         // Refresh token също е изтекъл или невалиден
-        // Изчистваме всичко и redirect към login
-        localStorage.removeItem('token');
+        // 🆕 Изчистваме само user и redirect към начална страница
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/';
         return Promise.reject(error);
       }
 
@@ -77,28 +80,51 @@ api.interceptors.response.use(
 
       try {
         // Викаме /auth/refresh
-        // Refresh token се изпраща автоматично в httpOnly cookie
-        const response = await api.post('/auth/refresh');
-        const { accessToken } = response.data;
-
-        // Запазваме новия access token
-        localStorage.setItem('token', accessToken);
-
-        // Обновяваме Authorization header на оригиналната заявка
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // 🆕 Refresh token се изпраща автоматично в httpOnly cookie
+        // Backend връща нов accessToken cookie
+        await api.post('/auth/refresh');
 
         // Reset flag
         isRefreshing = false;
 
-        // Retry оригиналната заявка с новия токен
+        // 🆕 Retry оригиналната заявка
+        // Новият accessToken cookie се изпраща автоматично
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh fail-на - logout
         isRefreshing = false;
-        localStorage.removeItem('token');
+        // 🆕 Изчистваме само user и redirect към начална страница
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/';
         return Promise.reject(refreshError);
+      }
+    }
+
+    // 🆕 Проверка дали заявката иска да skip-не auto-logout
+    // Използва се за endpoint-и които СПЕЦИАЛНО проверяват за активен сервиз
+    const skipAutoLogout = originalRequest.skipAutoLogout === true;
+
+    // Проверяваме дали грешката е 403 (Forbidden) - механик изтрит от админ
+    if (error.response?.status === 403 && !skipAutoLogout) {
+      const errorCode = error.response?.data?.code;
+
+      // Ако механикът е изтрит или няма активен сервиз, logout
+      if (errorCode === 'NO_ACTIVE_SERVICE' || errorCode === 'NO_ACTIVE_MEMBERSHIP' || errorCode === 'WORKER_DELETED') {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+    }
+
+    // Проверяваме дали грешката е 404 - Worker profile not found
+    if (error.response?.status === 404 && !skipAutoLogout) {
+      const errorCode = error.response?.data?.code;
+
+      // Ако Worker профилът е изтрит, logout
+      if (errorCode === 'WORKER_NOT_FOUND') {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(error);
       }
     }
 

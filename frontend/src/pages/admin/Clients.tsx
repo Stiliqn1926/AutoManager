@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, Edit, UserX, UserCheck, ChevronUp, ChevronDown } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -10,16 +10,27 @@ interface Client {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string; // 🆕 За pending клиенти (когато user е null)
   address: string | null;
   isActive: boolean;
   createdAt: string;
-  user: {
+  user?: {
     email: string;
-  };
+  } | null; // 🆕 Може да е null за pending клиенти
   _count?: {
     vehicles: number;
     orders: number;
   };
+  isPending?: boolean; // 🆕 За pending клиенти от PendingRequest
+}
+
+interface PendingClientRequest {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  email: string;
+  createdAt: string;
 }
 
 type SortField =
@@ -39,14 +50,49 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
 
   const navigate = useNavigate();
 
   const fetchClients = async () => {
     try {
+      // Зареди активни и неактивни клиенти
       const response = await api.get('/clients');
-      setClients(response.data.clients || []);
+      const activeClients = (response.data.clients || []).map((c: Client) => ({
+        ...c,
+        isPending: false,
+      }));
+
+      // Зареди pending заявки
+      const pendingResponse = await api.get('/pending-requests');
+      const pendingRequests: PendingClientRequest[] = Array.isArray(
+        pendingResponse.data?.clientRequests
+      )
+        ? pendingResponse.data.clientRequests
+        : [];
+
+      // Преобразувай pending requests в Client формат
+      const pendingClients: Client[] = pendingRequests.map((req) => ({
+        id: req.id,
+        firstName: req.firstName || req.email.split('@')[0],
+        lastName: req.lastName || '',
+        phone: req.phone || '',
+        email: req.email, // 🆕 Добавено за fallback
+        address: null,
+        isActive: false,
+        createdAt: req.createdAt,
+        user: {
+          email: req.email,
+        },
+        _count: {
+          vehicles: 0,
+          orders: 0,
+        },
+        isPending: true,
+      }));
+
+      // Комбинирай и постави pending отгоре
+      setClients([...pendingClients, ...activeClients]);
     } catch {
       toast.error('Грешка при зареждане на клиенти');
     } finally {
@@ -82,14 +128,15 @@ const Clients = () => {
 
   const filteredClients = (() => {
     const filtered = clients.filter((client) => {
-      const matchesSearch = `${client.firstName} ${client.lastName} ${client.phone} ${client.user.email}`
+      const matchesSearch = `${client.firstName} ${client.lastName} ${client.phone} ${client.user?.email || ''}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
       const matchesStatus =
         filterStatus === 'all' ||
-        (filterStatus === 'active' && client.isActive) ||
-        (filterStatus === 'inactive' && !client.isActive);
+        (filterStatus === 'pending' && client.isPending) ||
+        (filterStatus === 'active' && client.isActive && !client.isPending) ||
+        (filterStatus === 'inactive' && !client.isActive && !client.isPending);
 
       return matchesSearch && matchesStatus;
     });
@@ -104,8 +151,8 @@ const Clients = () => {
           bValue = `${b.firstName} ${b.lastName}`;
           break;
         case 'email':
-          aValue = a.user.email;
-          bValue = b.user.email;
+          aValue = a.user?.email || '';
+          bValue = b.user?.email || '';
           break;
         case 'phone':
           aValue = a.phone;
@@ -194,13 +241,14 @@ const Clients = () => {
               aria-label="Филтър по статус на клиент"
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')
+                setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending')
               }
               className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички статуси</option>
               <option value="active">Активни</option>
               <option value="inactive">Неактивни</option>
+              <option value="pending">Чака одобрение</option>
             </select>
           </div>
 
@@ -243,16 +291,19 @@ const Clients = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredClients.map((client) => (
+                  filteredClients.map((client) => {
+                    const isClickable = !client.isPending; // Кликаем само ако НЕ е pending
+
+                    return (
                     <tr
                       key={client.id}
-                      className="border-b hover:bg-mainBg cursor-pointer"
-                      onClick={() => navigate(`/admin/clients/${client.id}`)}
+                      className={`border-b ${isClickable ? 'hover:bg-mainBg cursor-pointer' : 'opacity-75'}`}
+                      onClick={isClickable ? () => navigate(`/admin/clients/${client.id}`) : undefined}
                     >
                       <td className="px-4 py-4 font-medium">
                         {client.firstName} {client.lastName}
                       </td>
-                      <td className="px-4 py-4">{client.user.email}</td>
+                      <td className="px-4 py-4">{client.user?.email || client.email || '-'}</td>
                       <td className="px-4 py-4">{client.phone}</td>
                       <td className="px-4 py-4">{client._count?.vehicles || 0}</td>
                       <td className="px-4 py-4">{client._count?.orders || 0}</td>
@@ -262,12 +313,14 @@ const Clients = () => {
                       <td className="px-4 py-4">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            client.isActive
+                            client.isPending
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : client.isActive
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          {client.isActive ? 'Активен' : 'Неактивен'}
+                          {client.isPending ? 'Чака одобрение' : client.isActive ? 'Активен' : 'Неактивен'}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-right">
@@ -275,39 +328,53 @@ const Clients = () => {
                           className="flex justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            aria-label="Редактирай клиент"
-                            title="Редактирай"
-                            onClick={() =>
-                              navigate(`/admin/clients/${client.id}/edit`)
-                            }
-                            className="p-2 rounded-lg hover:bg-gray-100"
-                          >
-                            <Edit className="w-4 h-4 text-primary" />
-                          </button>
+                          {client.isPending ? (
+                            // Pending клиенти - без бутони (одобрението е в Settings)
+                            <span className="text-xs text-textSecondary italic">
+                              Одобрете в Settings
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                aria-label="Редактирай клиент"
+                                title="Редактирай"
+                                onClick={() =>
+                                  navigate(`/admin/clients/${client.id}/edit`)
+                                }
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                              >
+                                <Edit className="w-4 h-4 text-primary" />
+                              </button>
 
-                          <button
-                            aria-label={
-                              client.isActive
-                                ? 'Деактивирай клиент'
-                                : 'Активирай клиент'
-                            }
-                            title={client.isActive ? 'Деактивирай' : 'Активирай'}
-                            onClick={() =>
-                              handleDeactivate(
-                                client.id,
-                                `${client.firstName} ${client.lastName}`,
-                                client.isActive
-                              )
-                            }
-                            className="p-2 rounded-lg hover:bg-gray-100"
-                          >
-                            <Trash2 className="w-4 h-4 text-error" />
-                          </button>
+                              <button
+                                aria-label={
+                                  client.isActive
+                                    ? 'Деактивирай клиент'
+                                    : 'Активирай клиент'
+                                }
+                                title={client.isActive ? 'Деактивирай' : 'Активирай'}
+                                onClick={() =>
+                                  handleDeactivate(
+                                    client.id,
+                                    `${client.firstName} ${client.lastName}`,
+                                    client.isActive
+                                  )
+                                }
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                              >
+                                {client.isActive ? (
+                                  <UserX className="w-4 h-4 text-orange-600" />
+                                ) : (
+                                  <UserCheck className="w-4 h-4 text-green-600" />
+                                )}
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>

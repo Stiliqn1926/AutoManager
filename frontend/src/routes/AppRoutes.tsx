@@ -64,9 +64,27 @@ import Settings from '../pages/admin/Settings';
 
 // ================= MECHANIC PAGES =================
 import MechanicDashboard from '../pages/mechanic/Dashboard';
+import MechanicClients from '../pages/mechanic/Clients';
+import MechanicClientDetails from '../pages/mechanic/ClientDetails';
+import MechanicVehicles from '../pages/mechanic/Vehicles';
+import MechanicVehicleDetails from '../pages/mechanic/VehicleDetails';
+import MechanicOrders from '../pages/mechanic/Orders';
+import MechanicOrderDetails from '../pages/mechanic/OrderDetails';
+import MechanicSchedule from '../pages/mechanic/Schedule';
+import MechanicProfile from '../pages/mechanic/Profile';
+import ServiceSettings from '../pages/mechanic/ServiceSettings';
 
 // ================= CLIENT PAGES =================
 import ClientDashboard from '../pages/client/Dashboard';
+import ServiceCompanies from '../pages/client/ServiceCompanies';
+import ClientVehicles from '../pages/client/Vehicles';
+import ClientVehicleDetails from '../pages/client/VehicleDetails';
+import ClientOrders from '../pages/client/Orders';
+import ClientOrderDetails from '../pages/client/OrderDetails';
+import ClientInvoices from '../pages/client/Invoices';
+import ClientNotifications from '../pages/client/Notifications';
+import ClientProfile from '../pages/client/Profile';
+
 
 // ================= NOT FOUND =================
 import NotFound from '../pages/NotFound';
@@ -432,12 +450,168 @@ export const AppRoutes = () => {
         }
       />
 
+      {/* -------- Clients -------- */}
+      <Route
+        path="/mechanic/clients"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicClients />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mechanic/clients/:id"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicClientDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* -------- Vehicles -------- */}
+      <Route
+        path="/mechanic/vehicles"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicVehicles />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mechanic/vehicles/:id"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicVehicleDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* -------- Orders -------- */}
+      <Route
+        path="/mechanic/orders"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mechanic/orders/:id"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicOrderDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* -------- Schedule -------- */}
+      <Route
+        path="/mechanic/schedule"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicSchedule />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* -------- Profile -------- */}
+      <Route
+        path="/mechanic/profile"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <MechanicProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* -------- Service Settings -------- */}
+      <Route
+        path="/mechanic/service-settings"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MECHANIC]}>
+            <ServiceSettings />
+          </ProtectedRoute>
+        }
+      />
+
       {/* ================= CLIENT ================= */}
       <Route
         path="/client/dashboard"
         element={
           <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
             <ClientDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/service-companies"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ServiceCompanies />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/vehicles"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientVehicles />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/vehicles/:id"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientVehicleDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/orders"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientOrders />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/orders/:id"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientOrderDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/invoices"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientInvoices />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/notifications"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientNotifications />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/profile"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientProfile />
           </ProtectedRoute>
         }
       />

@@ -62,10 +62,12 @@ const Vehicles = () => {
 
     try {
       await api.delete(`/vehicles/${id}`);
-      toast.success('Автомобилът е изтрит');
+      toast.success('Автомобилът е изтрит успешно');
       fetchVehicles();
-    } catch {
-      toast.error('Грешка при изтриване');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const errorMessage = err.response?.data?.message || 'Грешка при изтриване';
+      toast.error(errorMessage);
     }
   };
 
@@ -259,3 +261,4 @@ const Vehicles = () => {
 };
 
 export default Vehicles;
+

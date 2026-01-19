@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Edit,
-  Trash2,
   ChevronUp,
   ChevronDown,
   Info,
+  UserCheck,
+  UserX,
+  Trash2,
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
+import ReassignWorkerModal from '../../components/admin/ReassignWorkerModal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -18,11 +21,16 @@ interface Worker {
   lastName: string;
   phone: string;
   specialization: string | null;
-  skills: string | null; // ✅ ДОБАВЕНО
+  skills: string | null;
   isActive: boolean;
   user: {
     email: string;
   };
+  // ✅ Membership информация
+  membershipStatus: 'ACTIVE' | 'PENDING' | 'INACTIVE';
+  isCurrentlyActive: boolean;
+  leftAt: string | null;
+  joinedAt: string;
 }
 
 type SortField = 'name' | 'phone' | 'email' | 'specialization' | 'status';
@@ -36,7 +44,13 @@ const Workers = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [filterSpecialization, setFilterSpecialization] = useState('');
   const [filterStatus, setFilterStatus] =
-    useState<'all' | 'active' | 'inactive'>('all');
+    useState<'all' | 'active' | 'inactive' | 'pending' | 'left'>('all');
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [workerToDelete, setWorkerToDelete] = useState<{
+    id: string;
+    name: string;
+    tasksData: any;
+  } | null>(null);
 
   const navigate = useNavigate();
 
@@ -55,17 +69,63 @@ const Workers = () => {
     fetchWorkers();
   }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${name}?`)) return;
+  // ✅ 1. Toggle Active/Inactive (отпуска)
+  const handleToggleActive = async (id: string, name: string, isActive: boolean) => {
+    const action = isActive ? 'деактивирате' : 'активирате';
+    if (!window.confirm(`Сигурни ли сте, че искате да ${action} ${name}?`)) return;
+
+    try {
+      await api.put(`/workers/${id}/toggle-active`);
+      toast.success(`Работникът е ${isActive ? 'деактивиран' : 'активиран'}`);
+      fetchWorkers();
+    } catch {
+      toast.error('Грешка при промяна на статус');
+    }
+  };
+
+  // ✅ 2. Delete from Service (изтриване от списъка)
+  const handleDeleteFromService = async (id: string, name: string) => {
+    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${name} от списъка?\n\nМеханикът ще бъде премахнат от списъка с работници, но профилът му ще остане в системата.`)) return;
 
     try {
       await api.delete(`/workers/${id}`);
-      toast.success('Работникът е изтрит');
+      toast.success('Работникът е изтрит от списъка');
+      fetchWorkers();
+    } catch (error: any) {
+      // Провери дали има активни задачи
+      if (error.response?.data?.hasActiveTasks) {
+        // Покажи modal за преназначаване
+        setWorkerToDelete({
+          id,
+          name,
+          tasksData: error.response.data,
+        });
+        setShowReassignModal(true);
+      } else {
+        toast.error('Грешка при изтриване');
+      }
+    }
+  };
+
+  // ✅ 3. Permanent Delete (изтриване на напуснал механик от таблицата)
+  const handlePermanentDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Сигурни ли сте, че искате да изтриете НАПЪЛНО ${name} от таблицата?\n\nМеханикът ще бъде премахнат напълно от списъка и няма да се показва дори като "Напуснал".`)) return;
+
+    try {
+      await api.delete(`/workers/${id}/permanent`);
+      toast.success('Механикът е изтрит напълно от таблицата');
       fetchWorkers();
     } catch {
       toast.error('Грешка при изтриване');
     }
   };
+
+  const handleReassignSuccess = () => {
+    setShowReassignModal(false);
+    setWorkerToDelete(null);
+    fetchWorkers();
+  };
+
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -91,8 +151,10 @@ const Workers = () => {
 
       const matchesStatus =
         filterStatus === 'all' ||
-        (filterStatus === 'active' && worker.isActive) ||
-        (filterStatus === 'inactive' && !worker.isActive);
+        (filterStatus === 'active' && worker.membershipStatus === 'ACTIVE' && worker.isActive) ||
+        (filterStatus === 'inactive' && worker.membershipStatus === 'ACTIVE' && !worker.isActive) ||
+        (filterStatus === 'pending' && worker.membershipStatus === 'PENDING') ||
+        (filterStatus === 'left' && worker.membershipStatus === 'INACTIVE' && worker.leftAt);
 
       return matchesSearch && matchesSpecialization && matchesStatus;
     });
@@ -192,13 +254,15 @@ const Workers = () => {
               aria-label="Филтрирај по статус"
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')
+                setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending' | 'left')
               }
               className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички статуси</option>
               <option value="active">Активни</option>
               <option value="inactive">Неактивни</option>
+              <option value="pending">Изчакващи одобрение</option>
+              <option value="left">Напуснали</option>
             </select>
           </div>
 
@@ -232,83 +296,182 @@ const Workers = () => {
               </thead>
 
               <tbody>
-                {filteredWorkers.map((worker) => (
-                  <tr
-                    key={worker.id}
-                    className="border-b hover:bg-mainBg cursor-pointer"
-                    onClick={() => navigate(`/admin/workers/${worker.id}`)}
-                  >
-                    <td className="px-4 py-4 font-medium">
-                      {worker.firstName} {worker.lastName}
-                    </td>
-                    <td className="px-4 py-4">{worker.phone}</td>
-                    <td className="px-4 py-4">{worker.user.email}</td>
-
-                    {/* ✅ Специализация + skills tooltip */}
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <span>{worker.specialization || '-'}</span>
-                        {worker.skills && (
-                          <span
-                            title={worker.skills}
-                            className="text-textMuted"
-                          >
-                            <Info className="w-4 h-4" />
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          worker.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {worker.isActive ? 'Активен' : 'Неактивен'}
-                      </span>
-                    </td>
-
-                    <td
-                      className="px-4 py-4 text-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          aria-label="Редактирај работник"
-                          onClick={() =>
-                            navigate(`/admin/workers/${worker.id}/edit`)
-                          }
-                          className="p-2 rounded-lg hover:bg-gray-100"
-                        >
-                          <Edit className="w-4 h-4 text-primary" />
-                        </button>
-
-                        <button
-                          type="button"
-                          aria-label="Избриши работник"
-                          onClick={() =>
-                            handleDelete(
-                              worker.id,
-                              `${worker.firstName} ${worker.lastName}`
-                            )
-                          }
-                          className="p-2 rounded-lg hover:bg-gray-100"
-                        >
-                          <Trash2 className="w-4 h-4 text-error" />
-                        </button>
-                      </div>
+                {filteredWorkers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-12 text-textSecondary">
+                      Няма намерени работници
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredWorkers.map((worker) => {
+                    const isLeft = worker.membershipStatus === 'INACTIVE' && worker.leftAt;
+                    const isPending = worker.membershipStatus === 'PENDING';
+                    const isClickable = !isLeft && !isPending; // Кликаем само ако е ACTIVE
+
+                    return (
+                    <tr
+                      key={worker.id}
+                      className={`border-b ${isClickable ? 'hover:bg-mainBg cursor-pointer' : ''} ${isLeft ? 'opacity-60' : ''}`}
+                      onClick={isClickable ? () => navigate(`/admin/workers/${worker.id}`) : undefined}
+                    >
+                      <td className="px-4 py-4 font-medium">
+                        {worker.firstName} {worker.lastName}
+                      </td>
+                      <td className="px-4 py-4">{worker.phone}</td>
+                      <td className="px-4 py-4">{worker.user.email}</td>
+
+                      {/* ✅ Специализация + skills tooltip */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <span>{worker.specialization || '-'}</span>
+                          {worker.skills && (
+                            <span
+                              title={worker.skills}
+                              className="text-textMuted"
+                            >
+                              <Info className="w-4 h-4" />
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        {worker.membershipStatus === 'PENDING' ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Изчаква одобрение
+                          </span>
+                        ) : worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Напуснал
+                          </span>
+                        ) : worker.isActive ? (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Активен
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Неактивен
+                          </span>
+                        )}
+                      </td>
+
+                      <td
+                        className="px-4 py-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex justify-end gap-2">
+                          {/* Напуснали механици - само бутон "Изтрий напълно" */}
+                          {worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
+                            <button
+                              type="button"
+                              aria-label="Изтрий напълно"
+                              onClick={() =>
+                                handlePermanentDelete(
+                                  worker.id,
+                                  `${worker.firstName} ${worker.lastName}`
+                                )
+                              }
+                              className="p-2 rounded-lg hover:bg-red-50"
+                              title="Изтрий напълно от таблицата (не се показва повече)"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          ) : worker.membershipStatus === 'PENDING' ? (
+                            // Чакащи одобрение - само бутон Delete
+                            <button
+                              type="button"
+                              aria-label="Изтрий работник"
+                              onClick={() =>
+                                handleDeleteFromService(
+                                  worker.id,
+                                  `${worker.firstName} ${worker.lastName}`
+                                )
+                              }
+                              className="p-2 rounded-lg hover:bg-gray-100"
+                              title="Изтрий от списъка (премахва от сервиза)"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          ) : (
+                            // ACTIVE механици - Edit, Toggle и Delete
+                            <>
+                              {/* Бутон 1: Edit (само за ACTIVE) */}
+                              <button
+                                type="button"
+                                aria-label="Редактирај работник"
+                                onClick={() =>
+                                  navigate(`/admin/workers/${worker.id}/edit`)
+                                }
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                                title="Редактирай"
+                              >
+                                <Edit className="w-4 h-4 text-primary" />
+                              </button>
+
+                              {/* Бутон 2: Toggle Active/Inactive (само за ACTIVE members) */}
+                              <button
+                                type="button"
+                                aria-label={worker.isActive ? "Деактивирай работник" : "Активирай работник"}
+                                onClick={() =>
+                                  handleToggleActive(
+                                    worker.id,
+                                    `${worker.firstName} ${worker.lastName}`,
+                                    worker.isActive
+                                  )
+                                }
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                                title={worker.isActive ? "Деактивирай (отпуска, болничен)" : "Активирай работник"}
+                              >
+                                {worker.isActive ? (
+                                  <UserX className="w-4 h-4 text-orange-600" />
+                                ) : (
+                                  <UserCheck className="w-4 h-4 text-green-600" />
+                                )}
+                              </button>
+
+                              {/* Бутон 3: Delete (изтрий от списъка) */}
+                              <button
+                                type="button"
+                                aria-label="Изтрий работник"
+                                onClick={() =>
+                                  handleDeleteFromService(
+                                    worker.id,
+                                    `${worker.firstName} ${worker.lastName}`
+                                  )
+                                }
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                                title="Изтрий от списъка (премахва от сервиза)"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {/* Reassign Worker Modal */}
+      {showReassignModal && workerToDelete && (
+        <ReassignWorkerModal
+          isOpen={showReassignModal}
+          onClose={() => {
+            setShowReassignModal(false);
+            setWorkerToDelete(null);
+          }}
+          onSuccess={handleReassignSuccess}
+          workerId={workerToDelete.id}
+          workerName={workerToDelete.name}
+          tasksData={workerToDelete.tasksData}
+        />
+      )}
     </MainLayout>
   );
 };

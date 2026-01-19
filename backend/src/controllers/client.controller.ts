@@ -39,6 +39,10 @@ export const createClient = async (
         res.status(404).json({ message: 'Worker profile not found' });
         return;
       }
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
+        return;
+      }
       serviceCompanyId = worker.serviceCompanyId;
     } else {
       res.status(403).json({ message: 'Forbidden' });
@@ -99,18 +103,35 @@ export const getAllClients = async (
         res.status(404).json({ message: 'Worker profile not found' });
         return;
       }
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 403
+        const pagination = getPaginationMeta(0, page, limit);
+        res.status(200).json({ clients: [], pagination });
+        return;
+      }
       serviceCompanyId = worker.serviceCompanyId;
     } else {
       res.status(403).json({ message: 'Forbidden' });
       return;
     }
 
+    // За dashboard (без pagination) показваме само активни клиенти с userId
+    // За пълния списък показваме всички
+    const showOnlyActive = !req.query.page && !req.query.limit;
+
+    const whereClause = showOnlyActive
+      ? {
+          serviceCompanyId,
+          userId: { not: null }, // Само клиенти с userId (не pending)
+        }
+      : { serviceCompanyId };
+
     const totalItems = await prisma.client.count({
-      where: { serviceCompanyId },
+      where: whereClause,
     });
 
     const clients = await prisma.client.findMany({
-      where: { serviceCompanyId },
+      where: whereClause,
       skip,
       take,
       include: {
@@ -164,6 +185,10 @@ export const getClientById = async (
       });
       if (!worker) {
         res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
         return;
       }
       serviceCompanyId = worker.serviceCompanyId;
@@ -238,6 +263,10 @@ export const updateClient = async (
         res.status(404).json({ message: 'Worker profile not found' });
         return;
       }
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
+        return;
+      }
       serviceCompanyId = worker.serviceCompanyId;
     } else {
       res.status(403).json({ message: 'Forbidden' });
@@ -306,6 +335,10 @@ export const deleteClient = async (
       });
       if (!worker) {
         res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
         return;
       }
       serviceCompanyId = worker.serviceCompanyId;
@@ -411,12 +444,10 @@ export const addToService = async (
     }
 
     // Провери дали вече не е добавен
-    const existingClient = await prisma.client.findUnique({
+    const existingClient = await prisma.client.findFirst({
       where: {
-        userId_serviceCompanyId: {
-          userId,
-          serviceCompanyId: serviceCompany.id,
-        },
+        userId,
+        serviceCompanyId: serviceCompany.id,
       },
     });
 

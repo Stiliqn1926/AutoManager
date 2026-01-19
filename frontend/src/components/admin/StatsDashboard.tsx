@@ -1,5 +1,5 @@
 import StatsCard from './StatsCard';
-import { ClipboardList, TrendingDown, TrendingUp, Users, Wrench } from 'lucide-react';
+import { ClipboardList, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface Stats {
   totalOrders: number;

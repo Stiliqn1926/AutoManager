@@ -1,8 +1,7 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { X } from 'lucide-react';
-import { format } from 'date-fns';
-import { bg } from 'date-fns/locale';
 import api from '../../services/api';
+import axios from 'axios';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import toast from 'react-hot-toast';
@@ -24,11 +23,19 @@ interface EditTaskModalProps {
   onSuccess: () => void;
 }
 
-const EditTaskModal = ({
-  scheduleId,
-  onClose,
-  onSuccess,
-}: EditTaskModalProps) => {
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || fallback;
+  }
+
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  return fallback;
+};
+
+const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) => {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [formData, setFormData] = useState({
@@ -96,6 +103,17 @@ const EditTaskModal = ({
       return;
     }
 
+    // Проверка за минали дати
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const taskDate = new Date(formData.date);
+    taskDate.setHours(0, 0, 0, 0);
+
+    if (taskDate < today) {
+      toast.error('Не можете да редактирате задачи с минали дати');
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -119,8 +137,8 @@ const EditTaskModal = ({
       toast.success('Задачата е обновена');
       onSuccess();
       onClose();
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Грешка при обновяване на задача';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Greshka pri obnovyavane na zadacha');
       toast.error(errorMessage);
     } finally {
       setIsSaving(false);
@@ -152,9 +170,7 @@ const EditTaskModal = ({
       <div className="bg-cardBg rounded-2xl shadow-card max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-textPrimary">
-            Редактиране на задача
-          </h2>
+          <h2 className="text-xl font-bold text-textPrimary">Редактиране на задача</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -178,14 +194,21 @@ const EditTaskModal = ({
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-textPrimary mb-2">
+            <label
+              htmlFor="schedule-description"
+              className="block text-sm font-medium text-textPrimary mb-2"
+              title="Описание"
+            >
               Описание
             </label>
             <textarea
+              id="schedule-description"
               value={formData.description}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData({ ...formData, description: e.target.value })
               }
+              placeholder="Въведи описание"
+              title="Описание"
               className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
             />
@@ -227,14 +250,21 @@ const EditTaskModal = ({
           {/* Worker and Order */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-textPrimary mb-2">
+              <label
+                htmlFor="schedule-worker"
+                className="block text-sm font-medium text-textPrimary mb-2"
+                title="Механик"
+              >
                 Механик
               </label>
               <select
+                id="schedule-worker"
                 value={formData.workerId}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, workerId: e.target.value })
                 }
+                title="Избери механик"
+                aria-label="Избери механик"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">Избери механик</option>
@@ -247,14 +277,21 @@ const EditTaskModal = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-textPrimary mb-2">
+              <label
+                htmlFor="schedule-order"
+                className="block text-sm font-medium text-textPrimary mb-2"
+                title="Свързана поръчка"
+              >
                 Свързана поръчка
               </label>
               <select
+                id="schedule-order"
                 value={formData.orderId}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, orderId: e.target.value })
                 }
+                title="Избери поръчка"
+                aria-label="Избери поръчка"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">Избери поръчка</option>
@@ -270,14 +307,21 @@ const EditTaskModal = ({
           {/* Status and Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-textPrimary mb-2">
+              <label
+                htmlFor="schedule-status"
+                className="block text-sm font-medium text-textPrimary mb-2"
+                title="Статус"
+              >
                 Статус *
               </label>
               <select
+                id="schedule-status"
                 value={formData.status}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
+                title="Избери статус"
+                aria-label="Избери статус"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
@@ -290,14 +334,21 @@ const EditTaskModal = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-textPrimary mb-2">
+              <label
+                htmlFor="schedule-priority"
+                className="block text-sm font-medium text-textPrimary mb-2"
+                title="Приоритет"
+              >
                 Приоритет *
               </label>
               <select
+                id="schedule-priority"
                 value={formData.priority}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, priority: e.target.value })
                 }
+                title="Избери приоритет"
+                aria-label="Избери приоритет"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
@@ -323,14 +374,21 @@ const EditTaskModal = ({
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-textPrimary mb-2">
+            <label
+              htmlFor="schedule-notes"
+              className="block text-sm font-medium text-textPrimary mb-2"
+              title="Бележки"
+            >
               Бележки
             </label>
             <textarea
+              id="schedule-notes"
               value={formData.notes}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
+              placeholder="Въведи бележки"
+              title="Бележки"
               className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
             />
@@ -338,12 +396,7 @@ const EditTaskModal = ({
 
           {/* Actions */}
           <div className="flex gap-3 mt-6">
-            <Button
-              type="button"
-              onClick={onClose}
-              fullWidth
-              variant="secondary"
-            >
+            <Button type="button" onClick={onClose} fullWidth variant="secondary">
               Отказ
             </Button>
             <Button type="submit" fullWidth isLoading={isSaving}>

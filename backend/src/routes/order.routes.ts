@@ -12,6 +12,7 @@ import {
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
 import { validate } from '../middleware/validation.middleware';
+import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 import { createOrderSchema, updateOrderStatusSchema } from '../validators/schemas';
 
 const router = Router();
@@ -20,7 +21,12 @@ const router = Router();
 router.use(authenticate);
 
 // POST /api/orders - Създай поръчка с валидация (ADMIN и MECHANIC)
-router.post('/', authorize('ADMIN', 'MECHANIC'), validate(createOrderSchema), createOrder);
+router.post(
+  '/',
+  authorize('ADMIN', 'MECHANIC'),
+  validate(createOrderSchema),
+  createOrder
+);
 
 // GET /api/orders - Вземи поръчки (ADMIN вижда всички, MECHANIC само своите)
 router.get('/', authorize('ADMIN', 'MECHANIC'), getAllOrders);
@@ -33,6 +39,14 @@ router.put('/:id', authorize('ADMIN', 'MECHANIC'), updateOrder);
 
 // PUT /api/orders/:id/status - Обнови статус с валидация (ADMIN и MECHANIC с ограничения)
 router.put(
+  '/:id/status',
+  authorize('ADMIN', 'MECHANIC'),
+  validate(updateOrderStatusSchema),
+  updateOrderStatus
+);
+
+// PATCH /api/orders/:id/status - Обнови статус с валидация (ADMIN и MECHANIC с ограничения)
+router.patch(
   '/:id/status',
   authorize('ADMIN', 'MECHANIC'),
   validate(updateOrderStatusSchema),

@@ -42,15 +42,21 @@ export const generateRefreshToken = (): string => {
  * @param userId - ID на user-а
  * @returns Обект с token string и expiration date
  */
-export const createRefreshToken = async (userId: string) => {
-  // Генерираме уникален token
+export const createRefreshToken = async (
+  userId: string,
+  days: number = 30,
+  expiresAtOverride?: Date
+) => {
+  // ?????????? ???????? token
   const token = generateRefreshToken();
 
-  // Изчисляваме кога ще изтече (30 дни)
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // Добавяме 30 дни
+  // ?????????? ???? ?? ???????? (?? ???????????? days ??????)
+  const expiresAt = expiresAtOverride ? new Date(expiresAtOverride) : new Date();
+  if (!expiresAtOverride) {
+    expiresAt.setDate(expiresAt.getDate() + days);
+  }
 
-  // Запазваме в базата
+  // ????????? refresh token ? ??????
   const refreshToken = await prisma.refreshToken.create({
     data: {
       token,
@@ -74,25 +80,22 @@ export const createRefreshToken = async (userId: string) => {
  * @returns RefreshToken обект или null ако е невалиден
  */
 export const validateRefreshToken = async (token: string) => {
-  // Търсим токена в базата
+  // ?????? refresh token ? ??????
   const refreshToken = await prisma.refreshToken.findUnique({
-    where: {
-      token,
-      // Проверяваме дали не е изтекъл (expiresAt >= now)
-      expiresAt: { gte: new Date() }
-    },
-    // Включваме user данните
+    where: { token },
     include: {
       user: true,
     },
   });
 
-  // Ако не е намерен или е изтекъл - връщаме null
   if (!refreshToken) {
     return null;
   }
 
-  // Допълнителна проверка - дали user-ът е активен
+  if (refreshToken.revokedAt || refreshToken.expiresAt < new Date()) {
+    return null;
+  }
+
   if (!refreshToken.user.isActive) {
     return null;
   }
@@ -111,8 +114,9 @@ export const validateRefreshToken = async (token: string) => {
  */
 export const revokeRefreshToken = async (token: string) => {
   try {
-    await prisma.refreshToken.delete({
-      where: { token },
+    await prisma.refreshToken.updateMany({
+      where: { token, revokedAt: null },
+      data: { revokedAt: new Date() },
     });
   } catch (error) {
     // Ако токенът не съществува, не е проблем
@@ -131,8 +135,9 @@ export const revokeRefreshToken = async (token: string) => {
  * @param userId - ID на user-а
  */
 export const revokeAllUserRefreshTokens = async (userId: string) => {
-  await prisma.refreshToken.deleteMany({
-    where: { userId },
+  await prisma.refreshToken.updateMany({
+    where: { userId, revokedAt: null },
+    data: { revokedAt: new Date() },
   });
 };
 

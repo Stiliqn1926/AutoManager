@@ -88,6 +88,17 @@ export const createSchedule = async (
       return;
     }
 
+    // Проверка за минали дати
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const taskDate = new Date(scheduleDate);
+    taskDate.setHours(0, 0, 0, 0);
+
+    if (taskDate < today) {
+      res.status(400).json({ message: 'Cannot create tasks for past dates' });
+      return;
+    }
+
     if (end.getTime() <= start.getTime()) {
   res.status(400).json({
     message: 'Крайният час трябва да е след началния час',
@@ -188,7 +199,13 @@ export const getAllSchedules = async (
         res.status(404).json({ message: 'Worker profile not found' });
         return;
       }
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 400
+        res.status(200).json({ schedules: [] });
+        return;
+      }
       where.workerId = worker.id;
+      where.serviceCompanyId = worker.serviceCompanyId;
     }
 
     const totalItems = await prisma.schedule.count({ where });
@@ -231,36 +248,55 @@ export const getAllSchedules = async (
 export const getWeeklySchedule = async (
   req: AuthRequest,
   res: Response
-): Promise<void> => {
-  try {
-    const { weekStart } = req.query;
-    const userId = req.user!.userId;
+      ): Promise<void> => {
+     try {
+      const { weekStart } = req.query;
+      const { userId, role } = req.user!;
 
-    if (!weekStart || isNaN(Date.parse(weekStart as string))) {
-      res.status(400).json({ message: 'Invalid weekStart' });
-      return;
+       if (!weekStart || isNaN(Date.parse(weekStart as string))) {
+        res.status(400).json({ message: 'Invalid weekStart' });
+        return;
     }
 
-    const company = await prisma.serviceCompany.findUnique({
-      where: { userId },
-    });
+  const start = new Date(weekStart as string);
+   start.setHours(0, 0, 0, 0);
 
-    if (!company) {
-      res.status(404).json({ message: 'Service company not found' });
-      return;
+  const end = new Date(start);
+   end.setDate(end.getDate() + 7);
+
+    const where: any = {
+      date: { gte: start, lt: end },
+    };
+
+    // ✅ ЛОГИКА ЗА РОЛЯ
+    if (role === 'ADMIN') {
+      const company = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!company) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      where.serviceCompanyId = company.id;
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker) {
+        res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 400
+        res.status(200).json({ schedules: [] });
+        return;
+      }
+      where.workerId = worker.id;
+      where.serviceCompanyId = worker.serviceCompanyId;
     }
-
-    const start = new Date(weekStart as string);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(start);
-    end.setDate(end.getDate() + 7);
 
     const schedules = await prisma.schedule.findMany({
-      where: {
-        serviceCompanyId: company.id,
-        date: { gte: start, lt: end },
-      },
+      where,
       include: {
         worker: {
           select: {
@@ -273,6 +309,19 @@ export const getWeeklySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                licensePlate: true,
+              },
+            },
+            client: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },
@@ -295,19 +344,10 @@ export const getDailySchedule = async (
 ): Promise<void> => {
   try {
     const { date } = req.query;
-    const userId = req.user!.userId;
+    const { userId, role } = req.user!;
 
     if (!date || isNaN(Date.parse(date as string))) {
       res.status(400).json({ message: 'Invalid date' });
-      return;
-    }
-
-    const company = await prisma.serviceCompany.findUnique({
-      where: { userId },
-    });
-
-    if (!company) {
-      res.status(404).json({ message: 'Service company not found' });
       return;
     }
 
@@ -317,11 +357,39 @@ export const getDailySchedule = async (
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
 
+    const where: any = {
+      date: { gte: start, lt: end },
+    };
+
+    // ✅ ЛОГИКА ЗА РОЛЯ
+    if (role === 'ADMIN') {
+      const company = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!company) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      where.serviceCompanyId = company.id;
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker) {
+        res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 400
+        res.status(200).json({ schedules: [] });
+        return;
+      }
+      where.workerId = worker.id;
+      where.serviceCompanyId = worker.serviceCompanyId;
+    }
+
     const schedules = await prisma.schedule.findMany({
-      where: {
-        serviceCompanyId: company.id,
-        date: { gte: start, lt: end },
-      },
+      where,
       include: {
         worker: {
           select: {
@@ -334,6 +402,19 @@ export const getDailySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                licensePlate: true,
+              },
+            },
+            client: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },
@@ -356,7 +437,7 @@ export const getMonthlySchedule = async (
 ): Promise<void> => {
   try {
     const { year, month } = req.query;
-    const userId = req.user!.userId;
+    const { userId, role } = req.user!;
 
     const y = Number(year);
     const m = Number(month) - 1;
@@ -366,23 +447,42 @@ export const getMonthlySchedule = async (
       return;
     }
 
-    const company = await prisma.serviceCompany.findUnique({
-      where: { userId },
-    });
-
-    if (!company) {
-      res.status(404).json({ message: 'Service company not found' });
-      return;
-    }
-
     const start = new Date(y, m, 1);
     const end = new Date(y, m + 1, 1);
 
+    const where: any = {
+      date: { gte: start, lt: end },
+    };
+
+    // ✅ ЛОГИКА ЗА РОЛЯ
+    if (role === 'ADMIN') {
+      const company = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!company) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      where.serviceCompanyId = company.id;
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker) {
+        res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 400
+        res.status(200).json({ schedules: [] });
+        return;
+      }
+      where.workerId = worker.id;
+      where.serviceCompanyId = worker.serviceCompanyId;
+    }
+
     const schedules = await prisma.schedule.findMany({
-      where: {
-        serviceCompanyId: company.id,
-        date: { gte: start, lt: end },
-      },
+      where,
       include: {
         worker: {
           select: {
@@ -395,6 +495,19 @@ export const getMonthlySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                licensePlate: true,
+              },
+            },
+            client: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },
@@ -507,6 +620,18 @@ export const updateSchedule = async (
     // Валидация на дати
     if ((newStart && isNaN(newStart.getTime())) || (newEnd && isNaN(newEnd.getTime()))) {
       res.status(400).json({ message: 'Invalid date format' });
+      return;
+    }
+
+    // Проверка за минали дати
+    const finalScheduleDate = scheduleDate ?? existingSchedule.date;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const taskDate = new Date(finalScheduleDate);
+    taskDate.setHours(0, 0, 0, 0);
+
+    if (taskDate < today) {
+      res.status(400).json({ message: 'Cannot update tasks for past dates' });
       return;
     }
 

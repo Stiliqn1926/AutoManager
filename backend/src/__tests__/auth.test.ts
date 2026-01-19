@@ -1,14 +1,15 @@
-import request from 'supertest';
-import app from '../app';
+import { createTestAgent } from './setup';
 
 describe('Auth Endpoints', () => {
   describe('POST /api/auth/register', () => {
     it('should register a new ADMIN user', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/register')
         .send({
           email: `admin${Date.now()}@test.com`,
-          password: 'password123',
+          password: 'Password123!',
           role: 'ADMIN',
         });
 
@@ -16,14 +17,23 @@ describe('Auth Endpoints', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body).toHaveProperty('user');
       expect(response.body.user.role).toBe('ADMIN');
+
+      // ✅ Проверка за httpOnly cookies
+      const cookies = response.headers['set-cookie'] as unknown as string[] | undefined;
+      expect(cookies).toBeDefined();
+      expect(Array.isArray(cookies)).toBe(true);
+      expect(cookies?.some((c: string) => c.startsWith('accessToken='))).toBe(true);
+      expect(cookies?.some((c: string) => c.startsWith('refreshToken='))).toBe(true);
     });
 
     it('should fail with invalid email', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/register')
         .send({
           email: 'invalid-email',
-          password: 'password123',
+          password: 'Password123!',
           role: 'ADMIN',
         });
 
@@ -32,7 +42,9 @@ describe('Auth Endpoints', () => {
     });
 
     it('should fail with short password', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/register')
         .send({
           email: `admin-short-${Date.now()}@test.com`,
@@ -47,12 +59,14 @@ describe('Auth Endpoints', () => {
 
   describe('POST /api/auth/login', () => {
     let testEmail: string;
-    const testPassword = 'password123';
+    const testPassword = 'Password123!';
 
     beforeAll(async () => {
       // Създай test user преди login тестовете
+      const agent = createTestAgent();
       testEmail = `login-${Date.now()}@test.com`;
-      await request(app).post('/api/auth/register').send({
+
+      await agent.post('/api/auth/register').send({
         email: testEmail,
         password: testPassword,
         role: 'ADMIN',
@@ -60,7 +74,9 @@ describe('Auth Endpoints', () => {
     });
 
     it('should login with valid credentials', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/login')
         .send({
           email: testEmail,
@@ -68,13 +84,21 @@ describe('Auth Endpoints', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('token');
-      expect(response.body).toHaveProperty('user');
+      expect(response.body).toHaveProperty('user');  // ✅ БЕЗ token check
       expect(response.body.user.email).toBe(testEmail);
+
+      // ✅ Проверка за httpOnly cookies
+      const cookies = response.headers['set-cookie'] as unknown as string[] | undefined;
+      expect(cookies).toBeDefined();
+      expect(Array.isArray(cookies)).toBe(true);
+      expect(cookies?.some((c: string) => c.startsWith('accessToken='))).toBe(true);
+      expect(cookies?.some((c: string) => c.startsWith('refreshToken='))).toBe(true);
     });
 
     it('should fail with wrong password', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/login')
         .send({
           email: testEmail,
@@ -85,11 +109,13 @@ describe('Auth Endpoints', () => {
     });
 
     it('should fail with non-existent email', async () => {
-      const response = await request(app)
+      const agent = createTestAgent();
+
+      const response = await agent
         .post('/api/auth/login')
         .send({
           email: `nonexistent-${Date.now()}@test.com`,
-          password: 'password123',
+          password: 'Password123!',
         });
 
       expect(response.status).toBe(401);

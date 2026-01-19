@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { PasswordInput } from '../../components/common/PasswordInput';
@@ -23,8 +21,6 @@ import {
 const Register = () => {
   const [step, setStep] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [companyData, setCompanyData] = useState({
     companyName: '',
@@ -128,10 +124,9 @@ const Register = () => {
 
       const response = await api.post('/auth/register-admin', payload);
       // 🆕 Backend връща accessToken вместо token
-      const { accessToken, user, serviceCompany } = response.data;
+      const { user, serviceCompany } = response.data;
 
-      // Set token and user directly without calling login again
-      localStorage.setItem('token', accessToken);
+      // Set user directly without calling login again
       localStorage.setItem('user', JSON.stringify(user));
 
       // Reload to update auth context
@@ -328,8 +323,6 @@ const Register = () => {
                     Съгласявам се с{' '}
                     <a
                       href="/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-primary hover:text-primary-700 hover:underline transition-colors"
                     >
                       общите условия

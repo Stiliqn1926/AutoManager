@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/generateToken';
+import prisma from '../config/database';
 // Импортираме функцията за проверка на blacklist
 import { isTokenBlacklisted } from '../utils/tokenUtils';
 
@@ -52,7 +53,7 @@ export const authenticate = async (
   try {
     // 1. Извличаме токена от Authorization header
     // Format: "Bearer <token>"
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies?.accessToken;
 
     if (!token) {
       res.status(401).json({ message: 'No token provided' });
@@ -77,6 +78,18 @@ export const authenticate = async (
       res.status(401).json({
         message: 'Token has been revoked. Please login again.',
       });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+
+    if (!user || !user.isActive) {
+      res.status(401).json({ message: 'Invalid or expired token' });
+      return;
+    }
+
+    if (decoded.tokenVersion === undefined || decoded.tokenVersion !== user.tokenVersion) {
+      res.status(401).json({ message: 'Token has been revoked. Please login again.' });
       return;
     }
 

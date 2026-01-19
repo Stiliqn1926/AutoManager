@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Edit,
-  Trash2,
+  UserX,
+  UserCheck,
   Mail,
   Phone,
   MapPin,
@@ -20,12 +21,13 @@ interface Client {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string;  // 🆕 ДОБАВЕНО за fallback
   address: string | null;
   isActive: boolean;
   createdAt: string;
-  user: {
+  user?: {  // 🆕 Nullable
     email: string;
-  };
+  } | null;
   vehicles?: {
     id: string;
     brand: string;
@@ -74,7 +76,7 @@ const ClientDetails = () => {
       return;
 
     try {
-      await api.patch(`/clients/${id}`, { isActive: !client.isActive });
+      await api.patch(`/clients/${id}/toggle-active`);
       toast.success(
         `Клиентът е ${client.isActive ? 'деактивиран' : 'активиран'}`
       );
@@ -158,9 +160,21 @@ const ClientDetails = () => {
               Редактирай
             </Button>
 
-            <Button variant="danger" onClick={handleToggleStatus}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              {client.isActive ? 'Деактивирай' : 'Активирай'}
+            <Button
+              variant={client.isActive ? 'danger' : 'success'}
+              onClick={handleToggleStatus}
+            >
+              {client.isActive ? (
+                <>
+                  <UserX className="w-4 h-4 mr-2" />
+                  Деактивирай
+                </>
+              ) : (
+                <>
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  Активирай
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -178,7 +192,9 @@ const ClientDetails = () => {
                   <Mail className="w-5 h-5 text-textMuted" />
                   <div>
                     <p className="text-sm text-textSecondary">Email</p>
-                    <p className="font-medium">{client.user.email}</p>
+                    <p className="font-medium">
+                      {client.user?.email || client.email || 'Няма email'}
+                    </p>
                   </div>
                 </div>
 
@@ -210,20 +226,22 @@ const ClientDetails = () => {
               </h2>
 
               {client.vehicles?.length ? (
-                client.vehicles.map((v) => (
-                  <div
-                    key={v.id}
-                    onClick={() => navigate(`/admin/vehicles/${v.id}`)}
-                    className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
-                  >
-                    <p className="font-medium">
-                      {v.brand} {v.model}
-                    </p>
-                    <p className="text-sm text-textSecondary">
-                      {v.licensePlate}
-                    </p>
-                  </div>
-                ))
+                <div className="space-y-2">
+                  {client.vehicles.map((v) => (
+                    <div
+                      key={v.id}
+                      onClick={() => navigate(`/admin/vehicles/${v.id}`)}
+                      className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
+                    >
+                      <p className="font-medium">
+                        {v.brand} {v.model}
+                      </p>
+                      <p className="text-sm text-textSecondary">
+                        {v.licensePlate}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <p className="text-textSecondary">
                   Няма регистрирани автомобили
@@ -239,23 +257,25 @@ const ClientDetails = () => {
               </h2>
 
               {client.orders?.length ? (
-                client.orders.slice(0, 5).map((o) => (
-                  <div
-                    key={o.id}
-                    onClick={() => navigate(`/admin/orders/${o.id}`)}
-                    className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
-                  >
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="font-medium">{o.orderNumber}</p>
-                        <p className="text-sm text-textSecondary">
-                          {new Date(o.createdAt).toLocaleDateString('bg-BG')}
-                        </p>
+                <div className="space-y-2">
+                  {client.orders.slice(0, 5).map((o) => (
+                    <div
+                      key={o.id}
+                      onClick={() => navigate(`/admin/orders/${o.id}`)}
+                      className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{o.orderNumber}</p>
+                          <p className="text-sm text-textSecondary">
+                            {new Date(o.createdAt).toLocaleDateString('bg-BG')}
+                          </p>
+                        </div>
+                        {getStatusBadge(o.status)}
                       </div>
-                      {getStatusBadge(o.status)}
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <p className="text-textSecondary">Няма поръчки</p>
               )}

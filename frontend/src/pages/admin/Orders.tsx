@@ -17,7 +17,7 @@ interface Order {
   id: string;
   orderNumber: string;
   status: string;
-  totalPrice: number;
+  totalPrice: number | string | null;
   isPaid: boolean;
   startDate: string | null;
   endDate: string | null;
@@ -118,8 +118,8 @@ const Orders = () => {
           bValue = b.status;
           break;
         case 'totalPrice':
-          aValue = a.totalPrice;
-          bValue = b.totalPrice;
+          aValue = a.totalPrice ?? 0;
+          bValue = b.totalPrice ?? 0;
           break;
         case 'startDate':
           aValue = a.startDate ? new Date(a.startDate).getTime() : 0;
@@ -297,7 +297,7 @@ const Orders = () => {
                         {getStatusBadge(order.status)}
                       </td>
                       <td className="px-4 py-4 font-medium">
-                        {order.totalPrice.toFixed(2)} лв
+                        {Number(order.totalPrice || 0).toFixed(2)} лв
                       </td>
                       <td className="px-4 py-4">
                         {order.startDate

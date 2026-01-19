@@ -292,8 +292,6 @@ const RegisterMechanic = () => {
                   Съгласявам се с{' '}
                   <a
                     href="/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:text-primary-700 hover:underline transition-colors"
                   >
                     общите условия

@@ -23,7 +23,8 @@ interface PendingRequest {
   firstName: string;
   lastName: string;
   phone: string;
-  specialization: string;
+  specialization: string; 
+  requestType: string;
   status: string;
   createdAt: string;
 }
@@ -31,6 +32,7 @@ interface PendingRequest {
 const Settings = () => {
   const [company, setCompany] = useState<ServiceCompany | null>(null);
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [clientRequests, setClientRequests] = useState<PendingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -66,7 +68,8 @@ const Settings = () => {
         vatNumber: companyData.vatNumber || '',
       });
 
-      setPendingRequests(requestsRes.data.requests || []);
+      setPendingRequests(requestsRes.data.mechanicRequests || []);  
+      setClientRequests(requestsRes.data.clientRequests || []);     
     } catch (error) {
       console.error('Settings fetch error:', error);
       toast.error('Грешка при зареждане на данни');
@@ -120,7 +123,9 @@ const Settings = () => {
     if (!confirm('Сигурни ли сте, че искате да отхвърлите тази заявка?')) return;
 
     try {
-      await api.patch(`/pending-requests/${requestId}/reject`);
+      await api.patch(`/pending-requests/${requestId}/reject`, {
+        rejectionReason: null
+      });
       toast.success('Заявката е отхвърлена');
       fetchData();
     } catch (error) {
@@ -231,7 +236,7 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Pending Requests */}
+        {/* Pending Mechanic Requests */}
         <div className="bg-cardBg rounded-2xl shadow-card p-6">
           <h2 className="text-xl font-semibold text-textPrimary mb-6">
             Чакащи заявки за механици
@@ -277,6 +282,49 @@ const Settings = () => {
           ) : (
             <p className="text-center text-textSecondary py-8">
               Няма чакащи заявки за механици
+            </p>
+          )}
+        </div>
+
+        {/* Pending Client Requests */}
+        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+          <h2 className="text-xl font-semibold text-textPrimary mb-6">
+            Чакащи заявки за клиенти
+            {clientRequests.length > 0 && (
+              <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded-full">
+                {clientRequests.length}
+              </span>
+            )}
+          </h2>
+
+          {clientRequests.length > 0 ? (
+            <div className="space-y-4">
+              {clientRequests.map((request) => (
+                <div
+                  key={request.id}
+                  className="border border-borderSubtle rounded-lg p-4 flex items-center justify-between"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-textPrimary">
+                      {request.email}
+                    </h3>
+                    <p className="text-xs text-textSecondary mt-2">
+                      Дата на заявка: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleApprove(request.id)}>Одобри</Button>
+                    <Button variant="secondary" onClick={() => handleReject(request.id)}>
+                      Отхвърли
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-textSecondary py-8">
+              Няма чакащи заявки за клиенти
             </p>
           )}
         </div>

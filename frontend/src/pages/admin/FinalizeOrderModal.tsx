@@ -47,20 +47,25 @@ const FinalizeOrderModal = ({
     }
   };
 
-  const getItemTypeBadge = (type: string) => {
-    const styles = {
-      SERVICE: 'bg-blue-100 text-blue-800',
-      PART: 'bg-purple-100 text-purple-800',
-      OTHER: 'bg-gray-100 text-gray-800',
+  const getItemTypeBadge = (type: string | null | undefined) => {
+    const styles: Record<string, string> = {
+      LABOR: 'bg-slate-100 text-slate-700',
+      PART: 'bg-slate-100 text-slate-700',
+      CONSUMABLE: 'bg-slate-100 text-slate-700',
+      OTHER: 'bg-slate-100 text-slate-700',
     };
-    const labels = {
-      SERVICE: 'Услуга',
+    const labels: Record<string, string> = {
+      LABOR: 'Услуга',
       PART: 'Част',
+      CONSUMABLE: 'Консуматив',
       OTHER: 'Друго',
     };
+    const displayType = type || 'OTHER';
+    const label = labels[displayType] || displayType || 'Неизвестно';
+    const style = styles[displayType] || 'bg-slate-100 text-slate-700';
     return (
-      <span className={`px-2 py-1 rounded text-xs font-medium ${styles[type as keyof typeof styles]}`}>
-        {labels[type as keyof typeof labels]}
+      <span className={`px-2 py-1 rounded text-xs font-medium ${style}`}>
+        {label}
       </span>
     );
   };
@@ -110,9 +115,9 @@ const FinalizeOrderModal = ({
                         <td className="py-3 px-4">{getItemTypeBadge(item.type)}</td>
                         <td className="py-3 px-4 text-textPrimary">{item.description}</td>
                         <td className="py-3 px-4 text-right text-textSecondary">{item.quantity}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary">{item.unitPrice.toFixed(2)} лв</td>
+                        <td className="py-3 px-4 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} лв</td>
                         <td className="py-3 px-4 text-right font-medium text-textPrimary">
-                          {item.totalPrice.toFixed(2)} лв
+                          {Number(item.totalPrice || 0).toFixed(2)} лв
                         </td>
                       </tr>
                     ))}
@@ -121,7 +126,7 @@ const FinalizeOrderModal = ({
                         Обща сума:
                       </td>
                       <td className="py-4 px-4 text-right font-bold text-primary text-xl">
-                        {totalPrice.toFixed(2)} лв
+                        {Number(totalPrice || 0).toFixed(2)} лв
                       </td>
                     </tr>
                   </tbody>

@@ -12,7 +12,14 @@ import { validateEmail } from '../../utils/validation';
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const role = searchParams.get('role') || 'service';
+  const roleParam = searchParams.get('role') || 'service';
+  const expectedRole = roleParam === 'admin'
+    ? 'ADMIN'
+    : roleParam === 'mechanic'
+      ? 'MECHANIC'
+      : roleParam === 'client'
+        ? 'CLIENT'
+        : null;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,10 +51,15 @@ const Login = () => {
       return;
     }
 
+    if (!expectedRole) {
+      toast.error('\u041c\u043e\u043b\u044f, \u0438\u0437\u0431\u0435\u0440\u0435\u0442\u0435 \u0440\u043e\u043b\u044f \u0437\u0430 \u0432\u0445\u043e\u0434.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login(email, password, rememberMe);
+      await login(email, password, expectedRole, rememberMe);
       toast.success('Успешен вход!');
       navigate('/');
     } catch (error) {
@@ -75,7 +87,7 @@ const Login = () => {
   };
 
   const getRoleContent = () => {
-    switch (role) {
+    switch (roleParam) {
       case 'admin':
         return {
           title: 'Вход за Администратор',

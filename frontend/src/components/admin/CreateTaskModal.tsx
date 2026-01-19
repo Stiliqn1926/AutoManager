@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { format } from 'date-fns';
 import { bg } from 'date-fns/locale';
 import api from '../../services/api';
+import axios from 'axios';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import toast from 'react-hot-toast';
@@ -14,16 +15,23 @@ interface Worker {
   isAvailable?: boolean;
 }
 
-interface Schedule {
-  id: string;
-  workerId: string;
-}
-
 interface CreateTaskModalProps {
   selectedDate: Date;
   onClose: () => void;
   onSuccess: () => void;
 }
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || fallback;
+  }
+
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  return fallback;
+};
 
 const CreateTaskModal = ({
   selectedDate,
@@ -74,6 +82,17 @@ const CreateTaskModal = ({
       return;
     }
 
+    // Проверка за минали дати
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected < today) {
+      toast.error('Не можете да създавате задачи за минали дни');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -91,8 +110,8 @@ const CreateTaskModal = ({
       toast.success('Задачата е създадена');
       onSuccess();
       onClose();
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Грешка при създаване на задача';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Greshka pri suzdavane na zadacha');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -239,3 +258,6 @@ const CreateTaskModal = ({
 };
 
 export default CreateTaskModal;
+
+
+

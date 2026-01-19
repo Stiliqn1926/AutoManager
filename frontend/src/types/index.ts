@@ -35,26 +35,31 @@ export interface User {
 }
 
 /// Auth context - ЕДИН ЕДИНСТВЕН!
+// 🆕 Махнато token - сега токените са в httpOnly cookies
 export interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;  // С rememberMe
-  logout: () => void;
+  login: (
+    email: string,
+    password: string,
+    role: UserRole,
+    rememberMe?: boolean
+  ) => Promise<void>;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
 
 // Login response от backend
+// 🆕 Махнато token - сега токените са в httpOnly cookies
 export interface LoginResponse {
   message: string;
-  token: string;
   user: User;
 }
 
 // Register response от backend
+// 🆕 Махнато token - сега токените са в httpOnly cookies
 export interface RegisterResponse {
   message: string;
-  token: string;
   user: User;
 }
 

@@ -218,7 +218,9 @@ const OrdersCalendar = () => {
                   className="text-xs p-1 rounded cursor-pointer bg-purple-100 text-purple-800"
                   title={schedule.worker ? `${schedule.worker.firstName} ${schedule.worker.lastName}` : schedule.title}
                 >
-                  {schedule.title}
+                  {schedule.worker
+                    ? `${schedule.title} - ${schedule.worker.firstName} ${schedule.worker.lastName}`
+                    : schedule.title}
                 </div>
               ))}
             </div>

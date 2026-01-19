@@ -1,0 +1,419 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
+  Code,
+  Plus,
+  Check,
+  Clock,
+  LogOut,
+  ArrowRightLeft,
+  AlertCircle,
+} from 'lucide-react';
+import axios from 'axios';
+import MainLayout from '../../components/layout/MainLayout';
+import { useActiveService } from '../../hooks/useActiveService';
+import {
+  getMechanicServiceCompanies,
+  getActiveServiceCompany,
+  requestServiceCompany,
+  switchServiceCompany,
+  cancelPendingRequest,
+  leaveServiceCompany,
+} from '../../services/mechanicService';
+import type {
+  MechanicServiceCompany,
+  ActiveServiceCompanyResponse,
+} from '../../types/mechanic';
+import toast from 'react-hot-toast';
+
+const ServiceSettings = () => {
+  const { checkActiveService } = useActiveService();
+  const [activeService, setActiveService] = useState<ActiveServiceCompanyResponse['serviceCompany'] | null>(null);
+  const [serviceCompanies, setServiceCompanies] = useState<MechanicServiceCompany[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [uniqueCode, setUniqueCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const companiesData = await getMechanicServiceCompanies();
+      setServiceCompanies(companiesData.serviceCompanies);
+
+      // Опитай да вземеш активния сервиз (може да няма)
+      try {
+        const activeData = await getActiveServiceCompany();
+        setActiveService(activeData.serviceCompany);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { code?: string } } };
+        if (err.response?.data?.code === 'NO_ACTIVE_SERVICE' || err.response?.data?.code === 'NO_ACTIVE_MEMBERSHIP') {
+          setActiveService(null);
+        } else {
+          throw error;
+        }
+      }
+    } catch {
+      toast.error('Грешка при зареждане на сервизи');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRequestService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uniqueCode.trim()) {
+      toast.error('Моля, въведете код на сервиз');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await requestServiceCompany(uniqueCode);
+      toast.success('Заявката е изпратена успешно');
+      setUniqueCode('');
+      setShowAddForm(false);
+      await fetchData();
+      await checkActiveService();
+    } catch (error: unknown) {
+      const message = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? 'Грешка при изпращане на заявка'
+        : 'Грешка при изпращане на заявка';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSwitchService = async (serviceCompanyId: string) => {
+    try {
+      await switchServiceCompany(serviceCompanyId);
+      toast.success('Активният сервиз е сменен успешно');
+      await fetchData();
+      await checkActiveService();
+    } catch {
+      toast.error('Грешка при смяна на сервиз');
+    }
+  };
+
+  const handleCancelRequest = async (membershipId: string) => {
+    if (!confirm('Сигурни ли сте, че искате да откажете тази заявка?')) {
+      return;
+    }
+
+    try {
+      await cancelPendingRequest(membershipId);
+      toast.success('Заявката е отказана успешно');
+      await fetchData();
+      await checkActiveService();
+    } catch (error: unknown) {
+      const message = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? 'Грешка при отказ на заявка'
+        : 'Грешка при отказ на заявка';
+      toast.error(message);
+    }
+  };
+
+  const handleLeaveService = async (membershipId: string) => {
+    if (!confirm('Сигурни ли сте, че искате да напуснете този сервиз?')) {
+      return;
+    }
+
+    try {
+      await leaveServiceCompany(membershipId);
+      toast.success('Напуснахте сервиза успешно');
+      await fetchData();
+      await checkActiveService();
+    } catch (error: unknown) {
+      const message = axios.isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message ?? 'Грешка при напускане на сервиз'
+        : 'Грешка при напускане на сервиз';
+      toast.error(message);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <Check className="w-4 h-4" />
+            Активен
+          </span>
+        );
+      case 'PENDING':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+            <Clock className="w-4 h-4" />
+            Чака одобрение
+          </span>
+        );
+      case 'INACTIVE':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+            Неактивен
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('bg-BG', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  return (
+    <MainLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-textPrimary">Сервиз</h1>
+          <p className="text-textSecondary mt-1">
+            Управление на принадлежността към сервизи
+          </p>
+        </div>
+
+        {activeService && (
+          <div className="bg-gradient-to-r from-primary to-primary-700 rounded-2xl shadow-card p-6 text-white">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="w-6 h-6" />
+              <h2 className="text-2xl font-bold">Активен сервиз</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <Building2 className="w-5 h-5 mt-1 opacity-80" />
+                <div>
+                  <div className="text-sm opacity-80">Име на сервиза</div>
+                  <div className="text-lg font-semibold">{activeService.name}</div>
+                </div>
+              </div>
+
+              {activeService.address && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 mt-1 opacity-80" />
+                  <div>
+                    <div className="text-sm opacity-80">Адрес</div>
+                    <div className="text-lg font-semibold">{activeService.address}</div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 mt-1 opacity-80" />
+                <div>
+                  <div className="text-sm opacity-80">Телефон</div>
+                  <a
+                    href={`tel:${activeService.phone}`}
+                    className="text-lg font-semibold hover:underline"
+                  >
+                    {activeService.phone}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 mt-1 opacity-80" />
+                <div>
+                  <div className="text-sm opacity-80">Имейл</div>
+                  <a
+                    href={`mailto:${activeService.email}`}
+                    className="text-lg font-semibold hover:underline"
+                  >
+                    {activeService.email}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Добави нов сервиз
+          </button>
+        </div>
+
+        {showAddForm && (
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Code className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold text-textPrimary">
+                Заявка за нов сервиз
+              </h2>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  Въведете уникалния код на сервиза, предоставен от администратора.
+                  След изпращане на заявката, тя ще бъде разгледана от администратора.
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleRequestService} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-textSecondary mb-2">
+                  Уникален код на сервиз *
+                </label>
+                <input
+                  type="text"
+                  value={uniqueCode}
+                  onChange={(e) => setUniqueCode(e.target.value)}
+                  placeholder="Напр. ABC-12345"
+                  className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Изпраща се...' : 'Изпрати заявка'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setUniqueCode('');
+                  }}
+                  className="px-6 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300"
+                >
+                  Отказ
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold text-textPrimary">
+              Моите сервизи ({serviceCompanies.length})
+            </h2>
+          </div>
+
+          {serviceCompanies.length === 0 ? (
+            <div className="text-center py-12 text-textSecondary">
+              <Building2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p>Все още не сте член на нито един сервиз</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {serviceCompanies.map((membership) => {
+                // Активен сервиз е този който е ACTIVE status И съвпада с activeService?.id
+                const isActiveService = membership.status === 'ACTIVE' &&
+                  activeService &&
+                  membership.serviceCompany.id === activeService.id;
+
+                return (
+                <div
+                  key={membership.id}
+                  className={`border rounded-lg p-4 ${
+                    isActiveService
+                      ? 'border-primary bg-primary-50'
+                      : 'border-borderSubtle'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold text-textPrimary text-lg">
+                        {membership.serviceCompany.name}
+                      </h3>
+                      <p className="text-sm text-textSecondary">
+                        {membership.serviceCompany.address}
+                      </p>
+                    </div>
+                    {getStatusBadge(membership.status)}
+                  </div>
+
+                  <div className="space-y-2 text-sm text-textSecondary mb-3">
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      {membership.serviceCompany.phone}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      {membership.serviceCompany.email}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Присъединен: {formatDate(membership.joinedAt)}
+                    </div>
+                  </div>
+
+                  {membership.status === 'PENDING' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleCancelRequest(membership.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Откажи заявката
+                      </button>
+                    </div>
+                  )}
+
+                  {membership.status === 'ACTIVE' && (
+                    <div className="flex gap-2">
+                      {membership.serviceCompany.id !== activeService?.id && (
+                        <button
+                          onClick={() => handleSwitchService(membership.serviceCompany.id)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-700"
+                        >
+                          <ArrowRightLeft className="w-4 h-4" />
+                          Активирай
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleLeaveService(membership.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Напусни
+                      </button>
+                    </div>
+                  )}
+                </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default ServiceSettings;

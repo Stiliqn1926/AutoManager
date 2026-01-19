@@ -10,12 +10,14 @@ import {
   resetPassword,
   registerAdminWithCompany,
   resendPasswordResetCode,
+  deleteAccount,
 } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validation.middleware';
 import {
   registerSchema,
   loginSchema,
+  registerClientSchema,
   registerMechanicSchema,
   registerAdminWithCompanySchema,
   addServiceCompanyToClientSchema,
@@ -26,6 +28,9 @@ const router = Router();
 
 // POST /api/auth/register - Общ register (ADMIN, CLIENT) с валидация
 router.post('/register', validate(registerSchema), register);
+
+// POST /api/auth/register-client - Register Client с име, фамилия, телефон
+router.post('/register-client', validate(registerClientSchema), register);
 
 // POST /api/auth/register-admin - Register Admin + Service Company
 router.post(
@@ -68,5 +73,8 @@ router.post('/reset-password', resetPassword);
 
 // POST /api/auth/resend-reset-code
 router.post('/resend-reset-code', resendPasswordResetCode);
+
+// DELETE /api/auth/delete-account - Self-service account deletion
+router.delete('/delete-account', authenticate, deleteAccount);
 
 export default router;

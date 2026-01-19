@@ -57,7 +57,7 @@ import crypto from 'crypto';
 import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/hashPassword';
 import { generateToken } from '../utils/generateToken';
-import { validateEmailDomain } from '../utils/emailDnsValidation';
+import { validateEmailDomain, isEmailUnique } from '../utils/emailValidator';
 import logger from '../services/logger.service';
 // Импортираме token utility функциите
 import {
@@ -73,7 +73,7 @@ import {
 // ============================================
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, firstName, lastName, phone } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -100,15 +100,50 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+    // 🆕 Ако е CLIENT, създаваме и Client запис (БЕЗ serviceCompanyId)
+    if (role === 'CLIENT') {
+      await prisma.client.create({
+        data: {
+          firstName: firstName || '',
+          lastName: lastName || '',
+          phone: phone || '',
+          email: email,
+          userId: user.id,
+          // serviceCompanyId ще се добави по-късно вътре в системата
+        },
+      });
+    }
+
+    // 🆕 Създаваме tokens и ги изпращаме като httpOnly cookies (като при login)
+    const accessToken = generateToken(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        tokenVersion: user.tokenVersion,
+      },
+      '15m'
+    );
+
+    const refreshToken = await createRefreshToken(user.id, 30); // 30 дни
+
+    // Изпращаме tokens като httpOnly cookies
+    res.cookie('refreshToken', refreshToken.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
     });
 
+    // 🆕 БЕЗ token в JSON response (консистентно с login)
     res.status(201).json({
       message: 'User registered successfully',
-      token,
       user: {
         id: user.id,
         email: user.email,
@@ -167,12 +202,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  */
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, rememberMe } = req.body;
+    const { email, password, rememberMe, role: expectedRole } = req.body;
 
     // 1. Намираме user-а
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    if (!user.isActive) {
+      res.status(403).json({ message: '\u0410\u043a\u0430\u0443\u043d\u0442\u044a\u0442 \u0435 \u0434\u0435\u0430\u043a\u0442\u0438\u0432\u0438\u0440\u0430\u043d.' });
       return;
     }
 
@@ -182,6 +222,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
+
+    // Role validation - only if expectedRole is provided
+if (expectedRole && expectedRole !== user.role) {
+  res.status(403).json({ message: 'Избраната роля не съвпада с профила.' });
+  return;
+}
 
     // 3. Вземаме serviceCompanyId ако е нужно
     let serviceCompanyId: string | undefined;
@@ -195,7 +241,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
       });
-      serviceCompanyId = worker?.serviceCompanyId;
+      // Worker може да не съществува ако е pending approval
+      // В този случай serviceCompanyId остава undefined
+      if (worker) {
+        serviceCompanyId = worker.serviceCompanyId ?? undefined;
+      }
     }
 
     // 4. Създаваме ACCESS TOKEN (кратък живот - 15 минути)
@@ -205,6 +255,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         userId: user.id,
         email: user.email,
         role: user.role,
+        tokenVersion: user.tokenVersion,
         serviceCompanyId,
       },
       '15m' // 15 минути!
@@ -212,7 +263,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // 5. Създаваме REFRESH TOKEN (дълъг живот - 30 дни)
     // Този токен се запазва в DB и се използва за обновяване
-    const refreshToken = await createRefreshToken(user.id);
+    const refreshDays = rememberMe ? 30 : 1;
+    const refreshToken = await createRefreshToken(user.id, refreshDays);
 
     // 6. 🆕 Изпращаме refresh token като httpOnly cookie
     // httpOnly означава че JavaScript НЕ МОЖЕ да чете cookie-то
@@ -221,18 +273,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true, // JavaScript НЕ МОЖЕ да чете това cookie
       secure: process.env.NODE_ENV === 'production', // Само HTTPS в production
       sameSite: 'strict', // Защита от CSRF attacks
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дни в milliseconds
+      maxAge: refreshDays * 24 * 60 * 60 * 1000, // 30 дни в milliseconds
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 ??????
     });
 
-    // 7. Връщаме response
+    // 7. 🆕 Връщаме response БЕЗ токени в JSON
+    // Токените са в httpOnly cookies, не ги изпращаме в JSON!
     res.status(200).json({
       message: 'Login successful',
-      // Access token - за API заявки (кратък живот)
-      accessToken,
-      // Кога изтича access token
-      accessTokenExpiresIn: '15m',
-      // Refresh token вече НЕ го връщаме в JSON - той е в cookie!
-      // refreshToken: refreshToken.token, // ❌ Махнахме това
       user: {
         id: user.id,
         email: user.email,
@@ -287,8 +340,15 @@ interface AuthRequest extends Request {
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // 1. Вземаме userId от authenticated request
-    const userId = req.user?.userId;
-    if (!userId) {
+    let userId = req.user?.userId;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!userId && refreshToken) {
+      const refreshData = await validateRefreshToken(refreshToken);
+      userId = refreshData?.user.id;
+    }
+
+    if (!userId && !refreshToken) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
@@ -300,7 +360,6 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
 
     // 3. 🆕 Вземаме refresh token от httpOnly cookie
     // Сега refresh token идва от cookie, не от request body
-    const refreshToken = req.cookies.refreshToken;
 
     // 4. Изтриваме refresh token от DB (ако е подаден)
     // Това прави невъзможно обновяването на access token
@@ -308,14 +367,28 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
       await revokeRefreshToken(refreshToken);
     }
 
-    // 5. Добавяме access token в blacklist
+    // 5. ????????? ??? access token (15 ??????)
     // Това прави невъзможно използването му за API заявки
     if (accessToken) {
       await blacklistToken(accessToken, 'logout');
     }
 
     // 6. 🆕 Изтриваме refresh token cookie
-    // Това изтрива cookie-то от browser-а
+    // Това изтрива cookie-то от browser-а    
+    if (userId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { tokenVersion: { increment: 1 } },
+      });
+    }
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -328,6 +401,74 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     });
   } catch (error) {
     logger.error('Logout error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ============================================
+// DELETE ACCOUNT (Self-Service)
+// ============================================
+export const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const worker = await prisma.worker.findUnique({
+      where: { userId },
+      include: {
+        mechanicServiceCompanies: true,
+      },
+    });
+
+    if (worker) {
+      const activeCount = worker.mechanicServiceCompanies.filter(
+        (m) => m.status === 'ACTIVE'
+      ).length;
+
+      if (activeCount > 0) {
+        res.status(400).json({
+          message: 'Cannot delete account. You have active service memberships. Please leave all services first.',
+          activeServicesCount: activeCount,
+        });
+        return;
+      }
+
+      await prisma.worker.update({
+        where: { id: worker.id },
+        data: { deletedAt: new Date() },
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false },
+    });
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.status(200).json({
+      message: 'Account deleted successfully',
+    });
+  } catch (error) {
+    logger.error('Delete account error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -370,8 +511,7 @@ export const refreshToken = async (
   res: Response
 ): Promise<void> => {
   try {
-    // 1. 🆕 Вземаме refresh token от httpOnly cookie
-    // Сега не идва от body, а от cookie за по-добра сигурност
+    // 1. Get refresh token from httpOnly cookie
     const token = req.cookies.refreshToken;
 
     if (!token) {
@@ -379,22 +519,41 @@ export const refreshToken = async (
       return;
     }
 
-    // 2. Валидираме refresh token
-    // Проверява се:
-    // - Съществува ли в DB?
-    // - Не е ли изтекъл?
-    // - User-ът активен ли е?
-    const refreshTokenData = await validateRefreshToken(token);
+    const refreshRecord = await prisma.refreshToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
-    if (!refreshTokenData) {
+    if (!refreshRecord || refreshRecord.expiresAt < new Date()) {
       res.status(401).json({ message: 'Invalid or expired refresh token' });
       return;
     }
 
-    // 3. Вземаме user данни
-    const user = refreshTokenData.user;
+    if (refreshRecord.revokedAt) {
+      await revokeAllUserRefreshTokens(refreshRecord.userId);
+      await prisma.user.update({
+        where: { id: refreshRecord.userId },
+        data: { tokenVersion: { increment: 1 } },
+      });
+      res
+        .status(401)
+        .json({ message: 'Refresh token reuse detected. Please login again.' });
+      return;
+    }
 
-    // 4. Вземаме serviceCompanyId ако е нужно
+    if (!refreshRecord.user.isActive) {
+      await revokeAllUserRefreshTokens(refreshRecord.userId);
+      await prisma.user.update({
+        where: { id: refreshRecord.userId },
+        data: { tokenVersion: { increment: 1 } },
+      });
+      res.status(403).json({ message: 'Акаунтът е деактивиран.' });
+      return;
+    }
+
+    const user = refreshRecord.user;
+
+    // 4. Load serviceCompanyId when needed
     let serviceCompanyId: string | undefined;
 
     if (user.role === 'ADMIN') {
@@ -406,26 +565,61 @@ export const refreshToken = async (
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
       });
-      serviceCompanyId = worker?.serviceCompanyId;
+      // Worker може да не съществува ако е pending approval
+      // В този случай serviceCompanyId остава undefined
+      if (worker) {
+        serviceCompanyId = worker.serviceCompanyId ?? undefined;
+      }
     }
 
-    // 5. Създаваме НОВ access token (fresh 15 minutes)
+    // 5. Create new access token (15 minutes)
     const newAccessToken = generateToken(
       {
         userId: user.id,
         email: user.email,
         role: user.role,
+        tokenVersion: user.tokenVersion,
         serviceCompanyId,
       },
       '15m'
     );
 
-    // 6. Връщаме новия access token
-    // Refresh token остава същият (single-use rotation е optional)
+    // 6. Refresh token rotation - keep original expiry
+    const refreshMaxAgeMs = refreshRecord.expiresAt.getTime() - Date.now();
+    if (refreshMaxAgeMs <= 0) {
+      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      return;
+    }
+
+    const newRefreshToken = await createRefreshToken(
+      user.id,
+      0,
+      refreshRecord.expiresAt
+    );
+
+    await prisma.refreshToken.update({
+      where: { id: refreshRecord.id },
+      data: { revokedAt: new Date(), replacedByToken: newRefreshToken.token },
+    });
+
+    res.cookie('refreshToken', newRefreshToken.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: refreshMaxAgeMs,
+    });
+
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // 🆕 Връщаме response БЕЗ accessToken в JSON
+    // Новият accessToken е в httpOnly cookie
     res.status(200).json({
       message: 'Token refreshed successfully',
-      accessToken: newAccessToken,
-      accessTokenExpiresIn: '15m',
     });
   } catch (error) {
     logger.error('Refresh token error:', error);
@@ -477,7 +671,7 @@ export const registerMechanic = async (
 
     const hashedPassword = await hashPassword(password);
 
-    // Use transaction to create user and pending request together
+    // Use transaction to create user, worker, and pending request together
     const user = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
@@ -487,15 +681,41 @@ export const registerMechanic = async (
         },
       });
 
+      // Създай Worker веднага (isActive: false - чака одобрение)
+      const worker = await tx.worker.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          specialization: specialization ?? '',
+          skills: skills ?? null,
+          userId: newUser.id,
+          serviceCompanyId: serviceCompany.id,
+          isActive: false, // Чака одобрение от admin
+        },
+      });
+
+      // Създай PendingRequest (за admin approval flow)
       await tx.pendingRequest.create({
         data: {
           email,
           firstName,
           lastName,
           phone,
-          specialization,
+          specialization: specialization ?? '',
+          skills: skills ?? null,
           status: 'PENDING',
           serviceCompanyId: serviceCompany.id,
+        },
+      });
+
+      // Създай MechanicServiceCompany запис (status: PENDING)
+      await tx.mechanicServiceCompany.create({
+        data: {
+          workerId: worker.id,
+          serviceCompanyId: serviceCompany.id,
+          status: 'PENDING', // Чака одобрение
         },
       });
 
@@ -844,6 +1064,7 @@ export const registerAdminWithCompany = async (
         userId: user.id,
         email: user.email,
         role: user.role,
+        tokenVersion: user.tokenVersion,
         serviceCompanyId: serviceCompany.id,
       },
       '15m'
@@ -860,9 +1081,17 @@ export const registerAdminWithCompany = async (
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // 🆕 Връщаме response БЕЗ accessToken в JSON
+    // accessToken е в httpOnly cookie
     res.status(201).json({
       message: 'Admin and service company created successfully',
-      accessToken, // 🆕 връщаме accessToken вместо token
       user: {
         id: user.id,
         email: user.email,
@@ -880,4 +1109,3 @@ export const registerAdminWithCompany = async (
     res.status(500).json({ message: 'Server error' });
   }
 };
-

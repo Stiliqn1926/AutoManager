@@ -65,6 +65,11 @@ export const getAllNotifications = async (
         return;
       }
 
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
+        return;
+      }
+
       const totalItems = await prisma.notification.count({
         where: {
           client: {
@@ -149,6 +154,11 @@ export const getUnreadCount = async (
 
       if (!worker) {
         res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
         return;
       }
 

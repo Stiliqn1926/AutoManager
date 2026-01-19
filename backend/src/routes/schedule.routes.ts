@@ -14,6 +14,7 @@ import {
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
 import { validate } from '../middleware/validation.middleware';
+import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 import {
   createScheduleSchema,
   updateScheduleSchema,
@@ -42,9 +43,9 @@ router.get(
   getAllSchedules
 );
 
-router.get('/weekly', authorize('ADMIN'), getWeeklySchedule);
-router.get('/daily', authorize('ADMIN'), getDailySchedule);
-router.get('/monthly', authorize('ADMIN'), getMonthlySchedule);
+router.get('/weekly', authorize('ADMIN', 'MECHANIC'), getWeeklySchedule);
+router.get('/daily', authorize('ADMIN', 'MECHANIC'), getDailySchedule);
+router.get('/monthly', authorize('ADMIN', 'MECHANIC'), getMonthlySchedule);
 
 router.get('/:id', authorize('ADMIN', 'MECHANIC'), getScheduleById);
 

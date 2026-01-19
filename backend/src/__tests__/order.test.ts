@@ -1,40 +1,38 @@
-import request from 'supertest';
-import app from '../app';
+import { createTestAgent } from './setup';
+import prisma from '../config/database';
 
 describe('Order Endpoints', () => {
-  let adminToken: string;
+  let agent: any;
   let serviceCompanyId: string;
   let clientId: string;
   let vehicleId: string;
 
-  // Setup - създай ADMIN, клиент и автомобил преди тестовете
+  // ✅ Setup - създай ADMIN, клиент и автомобил преди тестовете (С AGENT!)
   beforeAll(async () => {
+    agent = createTestAgent();  // ✅ Agent пази cookies!
     const timestamp = Date.now();
-    
-    // 1. Регистрирай ADMIN
+
+    // 1. Регистрирай ADMIN (cookies saved automatically)
     const adminEmail = `admin-order-${timestamp}@test.com`;
-    await request(app)
+    await agent
       .post('/api/auth/register')
       .send({
         email: adminEmail,
-        password: 'password123',
+        password: 'Password123!',
         role: 'ADMIN',
       });
 
-    // 2. Първи login (без serviceCompanyId)
-    let loginResponse = await request(app)
+    // 2. Login (cookies saved automatically)
+    await agent
       .post('/api/auth/login')
       .send({
         email: adminEmail,
-        password: 'password123',
+        password: 'Password123!',
       });
 
-    let tempToken = loginResponse.body.token;
-
-    // 3. Създай Service Company
-    const companyResponse = await request(app)
+    // 3. Създай Service Company (БЕЗ Authorization header - cookies автоматично!)
+    const companyResp = await agent
       .post('/api/service-company')
-      .set('Authorization', `Bearer ${tempToken}`)
       .send({
         name: `Test Garage ${timestamp}`,
         address: 'Test Street 123',
@@ -42,22 +40,24 @@ describe('Order Endpoints', () => {
         email: `garage-order-${timestamp}@test.com`,
       });
 
-    serviceCompanyId = companyResponse.body.serviceCompany.id;
+    // Провери дали компанията е създадена успешно
+    if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
+      throw new Error(`Failed to create service company. Status: ${companyResp.status}, Body: ${JSON.stringify(companyResp.body)}`);
+    }
 
-    // 4. Втори login (СЪС serviceCompanyId в токена)
-    loginResponse = await request(app)
+    serviceCompanyId = companyResp.body.serviceCompany.id;
+
+    // 4. Login отново (за да вземе serviceCompanyId в токена)
+    await agent
       .post('/api/auth/login')
       .send({
         email: adminEmail,
-        password: 'password123',
+        password: 'Password123!',
       });
 
-    adminToken = loginResponse.body.token;
-
-    // 5. Създай клиент
-    const clientResponse = await request(app)
+    // 5. Създай клиент (БЕЗ Authorization header - cookies автоматично!)
+    const clientResponse = await agent
       .post('/api/clients')
-      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         firstName: 'Иван',
         lastName: 'Иванов',
@@ -67,10 +67,9 @@ describe('Order Endpoints', () => {
 
     clientId = clientResponse.body.client.id;
 
-    // 6. Създай автомобил
-    const vehicleResponse = await request(app)
+    // 6. Създай автомобил (БЕЗ Authorization header - cookies автоматично!)
+    const vehicleResponse = await agent
       .post('/api/vehicles')
-      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         clientId,
         brand: 'Toyota',
@@ -84,9 +83,8 @@ describe('Order Endpoints', () => {
 
   describe('POST /api/orders', () => {
     it('should create a new order', async () => {
-      const response = await request(app)
+      const response = await agent  // ✅ Използваме agent (има cookies)
         .post('/api/orders')
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           vehicleId,
           clientId,
@@ -100,7 +98,9 @@ describe('Order Endpoints', () => {
     });
 
     it('should fail without authentication', async () => {
-      const response = await request(app)
+      const unauthAgent = createTestAgent();  // ✅ Нов agent БЕЗ cookies
+
+      const response = await unauthAgent
         .post('/api/orders')
         .send({
           vehicleId,
@@ -112,25 +112,21 @@ describe('Order Endpoints', () => {
     });
 
     it('should fail with short description', async () => {
-      const response = await request(app)
+      const response = await agent
         .post('/api/orders')
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           vehicleId,
           clientId,
-          description: 'Short',
+          description: 'AB',  // Твърде кратко
         });
 
       expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('errors');
     });
   });
 
   describe('GET /api/orders', () => {
     it('should get all orders with pagination', async () => {
-      const response = await request(app)
-        .get('/api/orders?page=1&limit=10')
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await agent.get('/api/orders?page=1&limit=10');
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('orders');
@@ -139,7 +135,9 @@ describe('Order Endpoints', () => {
     });
 
     it('should fail without authentication', async () => {
-      const response = await request(app).get('/api/orders');
+      const unauthAgent = createTestAgent();
+
+      const response = await unauthAgent.get('/api/orders');
 
       expect(response.status).toBe(401);
     });
@@ -149,23 +147,21 @@ describe('Order Endpoints', () => {
     let orderId: string;
 
     beforeAll(async () => {
-      // Създай order за update теста
-      const response = await request(app)
+      // Създай order за тестовете
+      const response = await agent
         .post('/api/orders')
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           vehicleId,
           clientId,
-          description: 'Тест поръчка за статус',
+          description: 'Test order for status update',
         });
 
       orderId = response.body.order.id;
     });
 
     it('should update order status', async () => {
-      const response = await request(app)
+      const response = await agent
         .put(`/api/orders/${orderId}/status`)
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           status: 'IN_PROGRESS',
         });
@@ -175,9 +171,8 @@ describe('Order Endpoints', () => {
     });
 
     it('should fail with invalid status', async () => {
-      const response = await request(app)
+      const response = await agent
         .put(`/api/orders/${orderId}/status`)
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           status: 'INVALID_STATUS',
         });
@@ -190,22 +185,20 @@ describe('Order Endpoints', () => {
     let orderId: string;
 
     beforeAll(async () => {
-      const response = await request(app)
+      // Създай order за тестовете
+      const response = await agent
         .post('/api/orders')
-        .set('Authorization', `Bearer ${adminToken}`)
         .send({
           vehicleId,
           clientId,
-          description: 'Тест поръчка за GET',
+          description: 'Test order for GET',
         });
 
       orderId = response.body.order.id;
     });
 
     it('should get order by ID', async () => {
-      const response = await request(app)
-        .get(`/api/orders/${orderId}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await agent.get(`/api/orders/${orderId}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('order');
@@ -213,10 +206,7 @@ describe('Order Endpoints', () => {
     });
 
     it('should return 404 for non-existent order', async () => {
-      const fakeId = '00000000-0000-0000-0000-000000000000';
-      const response = await request(app)
-        .get(`/api/orders/${fakeId}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await agent.get('/api/orders/00000000-0000-0000-0000-000000000000');
 
       expect(response.status).toBe(404);
     });

@@ -11,7 +11,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   verbose: true,
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'], 
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.test.json'

@@ -23,6 +23,7 @@ model User {
   password  String
   role      UserRole
   isActive  Boolean  @default(true)
+  tokenVersion Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -43,6 +44,8 @@ model RefreshToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
+  revokedAt DateTime?
+  replacedByToken String?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -115,6 +118,7 @@ model ServiceCompany {
   suppliers       Supplier[]
   finances        Finance[]
   pendingRequests PendingRequest[]
+  mechanicServiceCompanies MechanicServiceCompany[]
 
   @@index([uniqueCode])
   @@index([userId])
@@ -134,19 +138,19 @@ model Client {
   deletedAt DateTime?
 
   userId           String?  @unique
-  serviceCompanyId String
+  serviceCompanyId String?
   user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  serviceCompany   ServiceCompany   @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  serviceCompany   ServiceCompany?  @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
 
   vehicles      Vehicle[]
   orders        Order[]
   notifications Notification[]
 
-  @@unique([userId, serviceCompanyId])
   @@index([serviceCompanyId])
   @@index([phone])
   @@index([email])
-  @@map("clients")
+  @@map("clients") 
+  @@unique([userId, serviceCompanyId]) 
 }
 
 model Worker {
@@ -155,24 +159,30 @@ model Worker {
   lastName       String
   email          String
   phone          String
-  specialization String 
-  skills         String?   @db.Text 
+  specialization String
+  skills         String?   @db.Text
   isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
   userId           String  @unique
-  serviceCompanyId String
+  serviceCompanyId String?
   user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  serviceCompany   ServiceCompany  @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  serviceCompany   ServiceCompany? @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
 
   orders    Order[]
   schedules Schedule[]
+  mechanicServiceCompanies MechanicServiceCompany[]
 
   @@index([serviceCompanyId])
   @@index([userId])
   @@map("workers")
+}
+
+enum RequestType {
+  MECHANIC
+  CLIENT
 }
 
 enum RequestStatus {
@@ -183,11 +193,13 @@ enum RequestStatus {
 
 model PendingRequest {
   id              String        @id @default(uuid())
+  requestType     RequestType   @default(MECHANIC)  // 🆕 ДОБАВЕНО
   email           String
   firstName       String
   lastName        String
   phone           String
-  specialization  String
+  specialization  String?       // 🆕 Nullable (само за MECHANIC)
+  skills          String?       @db.Text
   status          RequestStatus @default(PENDING)
   rejectionReason String?
   createdAt       DateTime      @default(now())
@@ -198,7 +210,39 @@ model PendingRequest {
 
   @@index([serviceCompanyId])
   @@index([status])
+  @@index([requestType])  // 🆕 ДОБАВЕНО
   @@map("pending_requests")
+}
+
+// =====================
+// MECHANIC ↔ SERVICE COMPANY (MANY-TO-MANY)
+// =====================
+
+enum MembershipStatus {
+  ACTIVE
+  PENDING
+  INACTIVE
+}
+
+model MechanicServiceCompany {
+  id        String           @id @default(uuid())
+  status    MembershipStatus @default(PENDING)
+  joinedAt  DateTime         @default(now())
+  leftAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  workerId         String
+  serviceCompanyId String
+
+  worker         Worker         @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@unique([workerId, serviceCompanyId])
+  @@index([workerId])
+  @@index([serviceCompanyId])
+  @@index([status])
+  @@map("mechanic_service_companies")
 }
 
 // =====================
@@ -241,18 +285,19 @@ enum OrderStatus {
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  orderNumber   String      @unique
-  description   String      @db.Text
-  diagnosis     String?     @db.Text
-  status        OrderStatus @default(WAITING)
+  id            String           @id @default(uuid())
+  orderNumber   String           @unique
+  description   String           @db.Text
+  diagnosis     String?          @db.Text
+  status        OrderStatus      @default(WAITING)
+  priority      SchedulePriority @default(NORMAL)
   startDate     DateTime?
   endDate       DateTime?
   completedDate DateTime?
-  totalPrice    Decimal?    @db.Decimal(10, 2)
-  notes         String?     @db.Text
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  totalPrice    Decimal?         @db.Decimal(10, 2)
+  notes         String?          @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
 
   clientId         String
@@ -320,6 +365,7 @@ model Invoice {
   dueDate       DateTime?
   isPaid        Boolean   @default(false)
   paidDate      DateTime?
+  paymentMethod String?
   notes         String?   @db.Text
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

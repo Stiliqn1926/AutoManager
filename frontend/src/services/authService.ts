@@ -46,8 +46,8 @@ export const registerMechanic = async (data: RegisterMechanicData) => {
 };
 
 // LOGIN
-export const login = async (email: string, password: string, rememberMe: boolean = false): Promise<LoginResponse> => {
-  const response = await api.post('/auth/login', { email, password, rememberMe });
+export const login = async (email: string, password: string, role: 'ADMIN' | 'MECHANIC' | 'CLIENT', rememberMe: boolean = false): Promise<LoginResponse> => {
+  const response = await api.post('/auth/login', { email, password, role, rememberMe });
   return response.data;
 };
 

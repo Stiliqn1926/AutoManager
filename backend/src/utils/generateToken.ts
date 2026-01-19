@@ -11,6 +11,7 @@ export interface TokenPayload {
   email: string;
   role: string;
   serviceCompanyId?: string;
+  tokenVersion?: number;
   // JWT стандартни claims (добавени автоматично)
   exp?: number; // Expiration time (Unix timestamp)
   iat?: number; // Issued at (Unix timestamp)

@@ -208,7 +208,7 @@ const VehicleDetails = () => {
                   {vehicle.client.firstName} {vehicle.client.lastName}
                 </p>
                 <p className="text-sm text-textSecondary">{vehicle.client.phone}</p>
-                <p className="text-sm text-textSecondary">{vehicle.client.user.email}</p>
+                <p className="text-sm text-textSecondary">{vehicle.client.user?.email || 'Няма email'}</p>
               </div>
             </div>
 
@@ -233,7 +233,7 @@ const VehicleDetails = () => {
                           <p className="text-sm text-textSecondary">
                             {new Date(order.createdAt).toLocaleDateString('bg-BG')}
                           </p>
-                          <p className="font-medium">{order.totalPrice.toFixed(2)} лв</p>
+                          <p className="font-medium">{Number(order.totalPrice || 0).toFixed(2)} лв</p>
                         </div>
                         {getStatusBadge(order.status)}
                       </div>

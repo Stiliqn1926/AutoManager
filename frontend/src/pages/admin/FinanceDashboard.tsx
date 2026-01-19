@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { TrendingUp, TrendingDown, DollarSign, CreditCard, Plus } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '../../components/common/Button';
@@ -21,6 +21,7 @@ const FinanceDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState<'all' | 'month' | 'week'>('month');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -53,7 +54,7 @@ const FinanceDashboard = () => {
 
   useEffect(() => {
     fetchSummary();
-  }, [fetchSummary]);
+  }, [fetchSummary, location]);
 
   const getPeriodLabel = () => {
     switch (period) {

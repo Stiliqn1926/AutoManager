@@ -50,7 +50,7 @@ export const createFinance = async (
       message: 'Транзакцията е добавена успешно',
       finance,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating finance:', error);
     res.status(500).json({ message: 'Грешка при създаване на транзакция' });
   }
@@ -103,7 +103,7 @@ export const getAllFinances = async (
       finances,
       pagination,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching finances:', error);
     res.status(500).json({ message: 'Грешка при зареждане на транзакциите' });
   }
@@ -131,22 +131,22 @@ export const getFinanceSummary = async (
       if (endDate) dateFilter.lte = new Date(endDate as string);
     }
 
-    // 1. ПРИХОДИ ОТ COMPLETED ПОРЪЧКИ
-    const completedOrders = await prisma.order.findMany({
+    // 1. ПРИХОДИ ОТ ПЛАТЕНИ ПОРЪЧКИ (базирано на Invoice.isPaid)
+    const paidInvoices = await prisma.invoice.findMany({
       where: {
         serviceCompanyId,
-        status: 'COMPLETED',
+        isPaid: true,
         ...(Object.keys(dateFilter).length > 0 && {
-          completedDate: dateFilter,
+          paidDate: dateFilter,
         }),
       },
       select: {
-        totalPrice: true,
+        total: true,
       },
     });
 
-    const orderRevenue = completedOrders.reduce(
-      (sum, order) => sum + Number(order.totalPrice || 0),
+    const orderRevenue = paidInvoices.reduce(
+      (sum, invoice) => sum + Number(invoice.total || 0),
       0
     );
 
@@ -177,11 +177,23 @@ export const getFinanceSummary = async (
     const totalIncome = orderRevenue + otherIncome;
     const profit = totalIncome - totalExpense;
 
-    const paidOrdersCount = completedOrders.length;
+    // Брой платени поръчки (поръчки с платени фактури)
+    const paidOrdersCount = await prisma.invoice.count({
+      where: {
+        serviceCompanyId,
+        isPaid: true,
+      },
+    });
+
+    // Брой неплатени поръчки (поръчки без платена фактура или фактура изобщо)
     const unpaidOrdersCount = await prisma.order.count({
       where: {
         serviceCompanyId,
-        status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+        invoices: {
+          none: {
+            isPaid: true,
+          },
+        },
       },
     });
 
@@ -196,7 +208,7 @@ export const getFinanceSummary = async (
         unpaidOrdersCount,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching finance summary:', error);
     res.status(500).json({ message: 'Грешка при изчисляване на обобщението' });
   }
@@ -223,7 +235,7 @@ export const getFinanceById = async (
     }
 
     res.status(200).json({ finance });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching finance by ID:', error);
     res.status(500).json({ message: 'Грешка при зареждане на транзакцията' });
   }
@@ -267,7 +279,7 @@ export const updateFinance = async (
       message: 'Транзакцията е актуализирана успешно',
       finance: updatedFinance,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating finance:', error);
     res.status(500).json({ message: 'Грешка при актуализиране на транзакцията' });
   }
@@ -298,8 +310,9 @@ export const deleteFinance = async (
     logger.info(`Finance deleted: ${id}`);
 
     res.status(200).json({ message: 'Транзакцията е изтрита успешно' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error deleting finance:', error);
     res.status(500).json({ message: 'Грешка при изтриване на транзакцията' });
   }
 };
+

@@ -1,36 +1,107 @@
 import { useAuth } from '../../hooks/useAuth';
+import { useServiceCompany } from '../../hooks/useServiceCompany';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, ChevronDown, Bell } from 'lucide-react';
 import { UserRole } from '../../types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { 
+    serviceCompanies, 
+    selectedServiceCompany, 
+    setSelectedServiceCompany, 
+    isLoading: isLoadingCompanies 
+  } = useServiceCompany();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
+    const controller = new AbortController();
+
+    const fetchPendingCount = async (signal?: AbortSignal) => {
       try {
-        const response = await api.get('/pending-requests');
+        const response = await api.get('/pending-requests', { signal });
         setPendingCount(response.data.requests?.length || 0);
-      } catch {
+      } catch (error: unknown) {
+        // Ignore abort errors (component unmounted)
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
         setPendingCount(0);
       }
     };
 
     if (user?.role === UserRole.ADMIN) {
-      fetchPendingCount();
-      // ✅ Refresh само на 2 минути (120 000 ms) - не на всеки 30 секунди
-      const interval = setInterval(fetchPendingCount, 120000);
-      return () => clearInterval(interval);
+      fetchPendingCount(controller.signal);
+      // Refresh на 2 минути
+      const interval = setInterval(() => fetchPendingCount(controller.signal), 120000);
+      return () => {
+        clearInterval(interval);
+        controller.abort();
+      };
     }
+
+    return () => {
+      controller.abort();
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchUnreadNotifications = async (signal?: AbortSignal) => {
+      if (user?.role === UserRole.CLIENT) {
+        try {
+          const response = await api.get('/client/notifications', { signal });
+          setUnreadNotifications(response.data.unreadCount || 0);
+        } catch (error: unknown) {
+          if (error instanceof Error && error.name === 'AbortError') {
+            return;
+          }
+          setUnreadNotifications(0);
+        }
+      }
+    };
+
+    if (user?.role === UserRole.CLIENT) {
+      fetchUnreadNotifications(controller.signal);
+      const interval = setInterval(() => fetchUnreadNotifications(controller.signal), 120000);
+      return () => {
+        clearInterval(interval);
+        controller.abort();
+      };
+    }
+
+    return () => {
+      controller.abort();
+    };
   }, [user]);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
+  };
+
+  const handleServiceCompanyChange = (companyId: string) => {
+    setSelectedServiceCompany(companyId);
+    setIsDropdownOpen(false);
   };
 
   const getRoleBadge = () => {
@@ -61,8 +132,63 @@ const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex items-center justify-between p-6">
-        {/* Лява част – умишлено празна */}
-        <div />
+        {/* Лява част – Service Company Dropdown (само за CLIENT) */}
+        <div>
+          {user?.role === UserRole.CLIENT && (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                disabled={isLoadingCompanies || serviceCompanies.length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoadingCompanies ? (
+                  <span className="text-sm text-gray-600">Зареждане...</span>
+                ) : selectedServiceCompany ? (
+                  <>
+                    <span className="text-sm font-medium text-gray-900">
+                      {selectedServiceCompany.name}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </>
+                ) : (
+                  <span className="text-sm text-gray-600">Няма сервизи</span>
+                )}
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && serviceCompanies.length > 0 && (
+                <div className="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="p-2">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                      Изберете сервиз
+                    </div>
+                    {serviceCompanies.map(({ serviceCompany }) => (
+                      <button
+                        key={serviceCompany.id}
+                        onClick={() => handleServiceCompanyChange(serviceCompany.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                          selectedServiceCompany?.id === serviceCompany.id
+                            ? 'bg-primary/10 border border-primary'
+                            : ''
+                        }`}
+                      >
+                        <div className="font-medium text-sm text-gray-900">
+                          {serviceCompany.name}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {serviceCompany.address || 'Няма адрес'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {serviceCompany.phone}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Дясна част – User info + Settings + Logout */}
         <div className="flex items-center gap-4">
@@ -72,6 +198,21 @@ const Header = () => {
             </div>
             {getRoleBadge()}
           </div>
+
+          {user?.role === UserRole.CLIENT && (
+            <button
+              onClick={() => navigate('/client/notifications')}
+              className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
+              title="????????"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadNotifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  {unreadNotifications}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* Settings Button (само за ADMIN) */}
           {user?.role === UserRole.ADMIN && (

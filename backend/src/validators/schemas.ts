@@ -25,6 +25,40 @@ export const registerSchema = Joi.object({
   }),
 });
 
+export const registerClientSchema = Joi.object({
+  firstName: Joi.string().required().messages({
+    'any.required': 'Името е задължително',
+    'string.empty': 'Името е задължително',
+  }),
+  lastName: Joi.string().required().messages({
+    'any.required': 'Фамилията е задължителна',
+    'string.empty': 'Фамилията е задължителна',
+  }),
+  phone: Joi.string()
+    .pattern(/^[0-9+\s()-]+$/)
+    .required()
+    .messages({
+      'any.required': 'Телефонният номер е задължителен',
+      'string.empty': 'Телефонният номер е задължителен',
+      'string.pattern.base': 'Невалиден телефонен номер',
+    }),
+  email: Joi.string().email().required().messages({
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
+  }),
+  password: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
+    .required()
+    .messages({
+      'string.min': 'Паролата трябва да е поне 8 символа',
+      'string.pattern.base':
+        'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
+      'any.required': 'Паролата е задължителна',
+    }),
+  role: Joi.string().valid('CLIENT').default('CLIENT').optional(),
+});
+
 export const loginSchema = Joi.object({
   email: Joi.string().email().required().messages({
     'string.email': 'Невалиден имейл адрес',
@@ -33,6 +67,7 @@ export const loginSchema = Joi.object({
   password: Joi.string().required().messages({
     'any.required': 'Паролата е задължителна',
   }),
+  role: Joi.string().valid('ADMIN', 'MECHANIC', 'CLIENT').optional(),
   rememberMe: Joi.boolean().optional(),
 });
 

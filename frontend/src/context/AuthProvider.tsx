@@ -9,7 +9,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // Инициализираме state директно със стойностите от localStorage
+  // 🆕 Инициализираме само user state от localStorage
+  // Токените са в httpOnly cookies, не се съхраняват в localStorage!
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) return null;
@@ -19,13 +20,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
       // Ако JSON е корумпиран, изчистваме localStorage
       localStorage.removeItem('user');
-      localStorage.removeItem('token');
       return null;
     }
-  });
-
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('token');
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -34,15 +30,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    * Login функция
    * @param email
    * @param password
+   * @param role - ролята за която влизаме (ADMIN, MECHANIC, CLIENT)
    * @param rememberMe
    *
-   * ПРОМЕНИ:
-   * - Сега backend връща accessToken вместо token
-   * - Refresh token вече НЕ идва в JSON - той е в httpOnly cookie
+   * 🆕 ПРОМЕНИ:
+   * - Backend връща само user в JSON
+   * - accessToken и refreshToken са в httpOnly cookies
+   * - НЕ запазваме токени в localStorage!
    */
   const login = async (
     email: string,
     password: string,
+    role: string,
     rememberMe: boolean = false
   ) => {
     setIsLoading(true);
@@ -50,21 +49,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await api.post('/auth/login', {
         email,
         password,
+        role,
         rememberMe,
       });
 
-      // 🆕 Backend връща accessToken (не token)
-      // Refresh token е в httpOnly cookie и не го виждаме тук
-      const { accessToken, user: userData } = response.data;
+      // 🆕 Backend връща само user (токените са в cookies)
+      const { user: userData } = response.data;
 
-      // Запазваме в state
-      setToken(accessToken);
+      // Запазваме само user в state и localStorage
       setUser(userData);
-
-      // Запазваме в localStorage
-      localStorage.setItem('token', accessToken);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
+      // 🔥 ВАЖНО: Re-throw грешката за да я хване Login.tsx!
+      setIsLoading(false);
       throw error;
     } finally {
       setIsLoading(false);
@@ -74,35 +71,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Logout функция
    *
-   * ПРОМЕНИ:
-   * - Сега викаме /auth/logout endpoint
-   * - Backend изтрива refresh token от DB
-   * - Backend добавя access token в blacklist
-   * - Backend изтрива refresh token cookie
+   * 🆕 OPTIMISTIC LOGOUT:
+   * - Първо изчистваме локалния state (мигновен logout)
+   * - Изчистваме localStorage
+   * - Викаме backend logout endpoint за cleanup
+   * - Redirect-ваме към root "/" (страница за избор на роля)
    */
   const logout = async () => {
+    // 🔥 OPTIMISTIC: Първо изчистваме user (незабавен logout)
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('selectedServiceCompanyId');
+
+    // После cleanup в background
     try {
       // Викаме backend logout endpoint
-      // Това ще изтрие refresh token от DB и cookie
+      // Това ще изтрие tokens от DB и cookies
       await api.post('/auth/logout');
     } catch (error) {
-      // Дори ако logout fail-не, локално изчистваме
-      console.error('Logout error:', error);
-    } finally {
-      // Изчистваме local state и localStorage
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Грешката не е критична - user е вече logout-нат локално
+      console.error('Logout cleanup error:', error);
     }
+
+    // Редирект-ваме към root "/" (страница за избор на роля)
+    window.location.href = '/';
   };
 
-  // Проверка дали потребителят е authenticated
-  const isAuthenticated = Boolean(token && user);
+  // 🆕 Проверка дали потребителят е authenticated
+  // Сега проверяваме само дали има user (токените са в cookies)
+  const isAuthenticated = Boolean(user);
 
   const value = {
     user,
-    token,
     login,
     logout,
     isAuthenticated,

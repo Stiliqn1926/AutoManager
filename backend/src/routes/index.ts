@@ -23,7 +23,10 @@ router.use('/auth', authRoutes);
 // Service Company routes
 router.use('/service-company', serviceCompanyRoutes);
 
-// Worker routes
+// Worker routes (Mechanic operations)
+router.use('/worker', workerRoutes);
+
+// Workers routes (Admin operations)
 router.use('/workers', workerRoutes);
 
 // Client routes

@@ -55,7 +55,12 @@ export const createOrder = async (
         res.status(404).json({ message: 'Worker profile not found' });
         return;
       }
-      
+
+      if (!worker.serviceCompanyId) {
+        res.status(403).json({ message: 'No active service company' });
+        return;
+      }
+
       serviceCompanyId = worker.serviceCompanyId;
       assignedWorkerId = worker.id;
     } else {
@@ -132,17 +137,27 @@ export const getAllOrders = async (
         return;
       }
 
+      if (!worker.serviceCompanyId) {
+        // Няма активен сервиз - върни празни данни вместо 400
+        const pagination = getPaginationMeta(0, page, limit);
+        res.status(200).json({ orders: [], pagination });
+        return;
+      }
+
       whereClause.workerId = worker.id;
+      whereClause.serviceCompanyId = worker.serviceCompanyId;
     } else {
       res.status(403).json({ message: 'Forbidden' });
       return;
     }
 
     // Add status filter if provided
-    if (statusFilter) {
-      const statuses = statusFilter.split(',').map(s => s.trim());
-      whereClause.status = { in: statuses };
-    }
+    // Add status filter if provided
+if (statusFilter) {
+  type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
+  const statuses = statusFilter.split(',').map(s => s.trim()) as OrderStatus[];
+  whereClause.status = { in: statuses };
+}
 
     const totalItems = await prisma.order.count({ where: whereClause });
 
@@ -244,7 +259,16 @@ export const getOrderById = async (
       }
     }
 
-    res.status(200).json({ order });
+    // Map invoice data to order for frontend compatibility
+    const firstInvoice = order.invoices?.[0];
+    const orderWithPayment = {
+      ...order,
+      isPaid: firstInvoice?.isPaid || false,
+      paidAt: firstInvoice?.paidDate || null,
+      paymentMethod: firstInvoice?.paymentMethod || null,
+    };
+
+    res.status(200).json({ order: orderWithPayment });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -257,13 +281,17 @@ export const updateOrder = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const {
-      description,
-      status,
-      workerId,
-      totalPrice,
-      orderItems
-    } = req.body;
+   const {
+  diagnosis,        // ✅ не description
+  notes,            // ✅ добави
+  status,
+  workerId,
+  startDate,        // ✅ добави
+  endDate,          // ✅ добави
+  isPaid,           // ✅ добави
+  paymentMethod,    // ✅ добави
+  orderItems
+} = req.body;
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
@@ -328,14 +356,16 @@ export const updateOrder = async (
     const updatedOrder = await prisma.$transaction(async (tx) => {
       // Обнови основната поръчка
       const updated = await tx.order.update({
-        where: { id },
-        data: {
-          description,
-          status,
-          workerId: userRole === 'ADMIN' ? workerId : undefined,
-          totalPrice,
-        },
-      });
+  where: { id },
+  data: {
+    diagnosis,
+    notes,
+    status,
+    workerId: userRole === 'ADMIN' ? (workerId || null) : undefined,
+    startDate: startDate ? new Date(startDate) : null,
+    endDate: endDate ? new Date(endDate) : null,        
+  },
+});
 
       // ✅ УПРАВЛЕНИЕ НА ГРАФИК при смяна на механик
       if (userRole === 'ADMIN' && workerId !== undefined) {
@@ -354,7 +384,7 @@ export const updateOrder = async (
             data: {
               date: startTime,
               title: `Поръчка ${order.orderNumber}`,
-              description: description || order.description,
+              description: diagnosis || order.description,
               startTime,
               endTime,
               workerId,
@@ -375,16 +405,17 @@ export const updateOrder = async (
         // Създай новите order items
         if (orderItems.length > 0) {
           await tx.orderItem.createMany({
-            data: orderItems.map((item: any) => ({
-              orderId: id,
-              type: item.type,
-              name: item.description,
-              quantity: Number(item.quantity),
-              unitPrice: Number(item.unitPrice),
-              totalPrice: Number(item.quantity) * Number(item.unitPrice),
-              serviceCompanyId: order.serviceCompanyId,
-            })),
-          });
+          data: orderItems.map((item: any) => ({
+          orderId: id,
+          type: item.type || 'LABOR',
+          name: item.description || 'Без описание',
+          description: item.description,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice),
+          totalPrice: Number(item.quantity) * Number(item.unitPrice),
+         serviceCompanyId: order.serviceCompanyId,
+        })),
+   });
         }
 
         // Обнови totalPrice на поръчката
@@ -402,6 +433,24 @@ export const updateOrder = async (
         });
       }
 
+      // Ако е ADMIN и е променена isPaid статуса, обнови Invoice
+      if (userRole === 'ADMIN' && isPaid !== undefined) {
+        const existingInvoice = await tx.invoice.findFirst({
+          where: { orderId: id },
+        });
+
+        if (existingInvoice) {
+          await tx.invoice.update({
+            where: { id: existingInvoice.id },
+            data: {
+              isPaid,
+              paidDate: isPaid ? new Date() : null,
+              paymentMethod: isPaid ? (paymentMethod || null) : null,
+            },
+          });
+        }
+      }
+
       return updated;
     });
 
@@ -417,12 +466,22 @@ export const updateOrder = async (
           },
         },
         worker: true,
+        invoices: true,
       },
     });
 
+    // Map invoice data to order for frontend compatibility
+    const firstInvoice = finalOrder?.invoices?.[0];
+    const orderWithPayment = {
+      ...finalOrder,
+      isPaid: firstInvoice?.isPaid || false,
+      paidAt: firstInvoice?.paidDate || null,
+      paymentMethod: firstInvoice?.paymentMethod || null,
+    };
+
     res.status(200).json({
       message: 'Order updated successfully',
-      order: finalOrder,
+      order: orderWithPayment,
     });
   } catch (error) {
     console.error('Update order error:', error);
