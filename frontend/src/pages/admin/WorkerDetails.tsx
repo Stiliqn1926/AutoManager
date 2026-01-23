@@ -13,7 +13,10 @@ interface Worker {
   phone: string;
   specialization: string | null;
   skills: string | null;
-  createdAt: string; // 👈 използваме createdAt
+  createdAt: string;
+  membershipStatus: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  joinedAt: string;
+  leftAt: string | null;
   user: {
     email: string;
   };
@@ -44,20 +47,29 @@ const WorkerDetails = () => {
   const handleDelete = async () => {
     if (!worker) return;
 
-    if (
-      !window.confirm(
-        `Сигурни ли сте, че искате да изтриете ${worker.firstName} ${worker.lastName}?`
-      )
-    ) {
+    const isActive = worker.membershipStatus === 'ACTIVE';
+    const confirmMessage = isActive
+      ? `Сигурни ли сте, че искате да премахнете ${worker.firstName} ${worker.lastName} от сервиза?`
+      : `Сигурни ли сте, че искате да изтриете напълно ${worker.firstName} ${worker.lastName}?`;
+
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
     try {
-      await api.delete(`/workers/${id}`);
-      toast.success('Работникът е изтрит');
+      if (isActive) {
+        // Премахни от сервиз (маркирай като INACTIVE)
+        await api.post(`/workers/${id}/remove-from-service`);
+        toast.success('Механикът е премахнат от сервиза');
+      } else {
+        // Изтрий напълно
+        await api.delete(`/workers/${id}/permanent`);
+        toast.success('Механикът е изтрит напълно');
+      }
       navigate('/admin/workers');
-    } catch {
-      toast.error('Грешка при изтриване');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Грешка при операцията';
+      toast.error(errorMessage);
     }
   };
 
@@ -104,13 +116,9 @@ const WorkerDetails = () => {
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={() => navigate(`/admin/workers/${id}/edit`)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Редактирай
-            </Button>
             <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Изтрий
+              <Trash2 className="w-4 h-4" />
+              {worker.membershipStatus === 'ACTIVE' ? 'Премахни от сервиз' : 'Изтрий'}
             </Button>
           </div>
         </div>

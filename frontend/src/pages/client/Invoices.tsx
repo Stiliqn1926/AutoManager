@@ -87,7 +87,7 @@ const Invoices = () => {
   };
 
   const formatMoney = (value: string) => {
-    return `${Number(value).toFixed(2)} лв.`;
+    return `${Number(value).toFixed(2)} €`;
   };
 
   const filteredInvoices = invoices.filter((inv) => {

@@ -15,6 +15,7 @@ interface Worker {
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
 }
 
 interface Schedule {
@@ -71,14 +72,16 @@ const Schedules = () => {
     const styles = {
       SCHEDULED: 'bg-blue-100 text-blue-800',
       IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-      COMPLETED: 'bg-green-100 text-green-800',
+      READY: 'bg-green-100 text-green-800',
+      COMPLETED: 'bg-gray-100 text-gray-800',
       CANCELLED: 'bg-red-100 text-red-800',
       DELAYED: 'bg-orange-100 text-orange-800',
     };
     const labels = {
       SCHEDULED: 'Планирана',
       IN_PROGRESS: 'В процес',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
       CANCELLED: 'Отменена',
       DELAYED: 'Забавена',
     };
@@ -171,19 +174,19 @@ const Schedules = () => {
           </div>
           <div className="flex gap-3">
             <Button onClick={() => navigate('/admin/schedules/daily')}>
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-4 h-4" />
               Дневен изглед
             </Button>
             <Button onClick={() => navigate('/admin/schedules/weekly')}>
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-4 h-4" />
               Седмичен изглед
             </Button>
             <Button onClick={() => navigate('/admin/schedules/monthly')}>
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-4 h-4" />
               Месечен изглед
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>
@@ -214,7 +217,8 @@ const Schedules = () => {
               <option value="">Всички статуси</option>
               <option value="SCHEDULED">Планирана</option>
               <option value="IN_PROGRESS">В процес</option>
-              <option value="COMPLETED">Завършена</option>
+              <option value="READY">Готова за плащане</option>
+              <option value="COMPLETED">Платена</option>
               <option value="CANCELLED">Отменена</option>
               <option value="DELAYED">Забавена</option>
             </select>
@@ -295,7 +299,7 @@ const Schedules = () => {
                           : '-'}
                       </td>
                       <td className="py-3 px-4 text-textSecondary">
-                        {schedule.order ? schedule.order.orderNumber : '-'}
+                        {schedule.order ? schedule.order.displayOrderNumber || schedule.order.orderNumber : '-'}
                       </td>
                       <td className="py-3 px-4">{getPriorityBadge(schedule.priority)}</td>
                       <td className="py-3 px-4">{getStatusBadge(schedule.status)}</td>

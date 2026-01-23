@@ -10,6 +10,7 @@ import {
   Calendar,
   FileText,
   CreditCard,
+  Check,
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '../../components/common/Button';
@@ -29,6 +30,7 @@ interface OrderItem {
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber: string | null;
   status: string;
   totalPrice: number;
   isPaid: boolean;
@@ -94,7 +96,7 @@ const OrderDetails = () => {
 
   const handleDelete = async () => {
     if (!order) return;
-    if (!confirm(`Сигурни ли сте, че искате да изтриете поръчка ${order.orderNumber}?`)) return;
+    if (!confirm(`Сигурни ли сте, че искате да изтриете поръчка ${order.displayOrderNumber || order.orderNumber}?`)) return;
 
     try {
       await api.delete(`/orders/${id}`);
@@ -128,12 +130,12 @@ const OrderDetails = () => {
     const labels = {
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
-      READY: 'Готова',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
       CANCELLED: 'Отказана',
     };
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[status as keyof typeof styles]}`}>
+      <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${styles[status as keyof typeof styles]}`}>
         {labels[status as keyof typeof labels]}
       </span>
     );
@@ -196,38 +198,43 @@ const OrderDetails = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">
-              Поръчка {order.orderNumber}
+            <h1 className="text-3xl font-bold text-textPrimary" title={`Системен ID: ${order.orderNumber}`}>
+              Поръчка {order.displayOrderNumber || order.orderNumber}
             </h1>
             <p className="text-textSecondary mt-1">{getStatusBadge(order.status)}</p>
           </div>
 
           <div className="flex gap-3">
-            {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
-              <>
-                {(order.status === 'IN_PROGRESS' || order.status === 'READY') && !order.invoiceUrl && (
-                  <Button onClick={() => setShowFinalizeModal(true)}>
-                    <FileText className="w-4 h-4 mr-2" />
-                    Финализирай и изпрати фактура
-                  </Button>
-                )}
-                <Button onClick={() => navigate(`/admin/orders/${id}/edit`)}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Редактирай
+            {order.invoiceUrl ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                <Check className="w-4 h-4" />
+                <span className="text-sm font-medium">Фактурата е изпратена</span>
+              </div>
+            ) : (
+              (order.status === 'IN_PROGRESS' || order.status === 'READY') && (
+                <Button onClick={() => setShowFinalizeModal(true)}>
+                  <FileText className="w-4 h-4" />
+                  Финализирай и изпрати фактура
                 </Button>
-              </>
+              )
+            )}
+            {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
+              <Button onClick={() => navigate(`/admin/orders/${id}/edit`)}>
+                <Edit className="w-4 h-4" />
+                Редактирай
+              </Button>
             )}
             {order.invoiceUrl && (
               <Button
                 onClick={() => window.open(order.invoiceUrl!, '_blank')}
                 variant="secondary"
               >
-                <FileText className="w-4 h-4 mr-2" />
+                <FileText className="w-4 h-4" />
                 Свали фактура
               </Button>
             )}
             <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
@@ -353,10 +360,10 @@ const OrderDetails = () => {
                           <td className="py-3 px-3 text-textPrimary">{item.description}</td>
                           <td className="py-3 px-3 text-right text-textSecondary">{item.quantity}</td>
                           <td className="py-3 px-3 text-right text-textSecondary">
-                            {Number(item.unitPrice || 0).toFixed(2)} лв
+                            {Number(item.unitPrice || 0).toFixed(2)} €
                           </td>
                           <td className="py-3 px-3 text-right font-medium text-textPrimary">
-                            {Number(item.totalPrice || 0).toFixed(2)} лв
+                            {Number(item.totalPrice || 0).toFixed(2)} €
                           </td>
                         </tr>
                       ))}
@@ -365,7 +372,7 @@ const OrderDetails = () => {
                           Обща сума:
                         </td>
                         <td className="py-3 px-3 text-right font-bold text-primary text-lg">
-                          {Number(order.totalPrice || 0).toFixed(2)} лв
+                          {Number(order.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
                     </tbody>
@@ -403,7 +410,7 @@ const OrderDetails = () => {
                 )}
                 {order.endDate && (
                   <div>
-                    <p className="text-sm text-textSecondary">Очаквана дата</p>
+                    <p className="text-sm text-textSecondary">Краен срок</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(order.endDate).toLocaleDateString('bg-BG')}
                     </p>
@@ -430,7 +437,7 @@ const OrderDetails = () => {
                 <div>
                   <p className="text-sm text-textSecondary">Статус</p>
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${
                       order.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}
                   >
@@ -454,7 +461,7 @@ const OrderDetails = () => {
                 <div>
                   <p className="text-sm text-textSecondary">Обща сума</p>
                   <div className="text-2xl font-bold text-primary">
-                  <div>{Number(order.totalPrice || 0).toFixed(2)} лв</div>
+                  <div>{Number(order.totalPrice || 0).toFixed(2)} €</div>
                   </div>
                 </div>
               </div>
@@ -469,7 +476,7 @@ const OrderDetails = () => {
           isOpen={showFinalizeModal}
           onClose={() => setShowFinalizeModal(false)}
           onConfirm={handleFinalize}
-          orderNumber={order.orderNumber}
+          orderNumber={order.displayOrderNumber || order.orderNumber}
           orderItems={order.orderItems}
           totalPrice={order.totalPrice}
           clientEmail={order.client.user?.email || order.client.email || ''}

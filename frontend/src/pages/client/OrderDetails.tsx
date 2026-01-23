@@ -41,6 +41,7 @@ interface OrderDetailsData {
   order: {
     id: string;
     orderNumber: string;
+    displayOrderNumber?: string | null;
     description: string;
     diagnosis: string | null;
     status: string;
@@ -97,9 +98,9 @@ const OrderDetails = () => {
     const statusConfig: Record<string, { label: string; className: string }> = {
       WAITING: { label: 'Изчакване', className: 'bg-yellow-100 text-yellow-800' },
       IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'Завършен', className: 'bg-gray-100 text-gray-800' },
-      CANCELLED: { label: 'Отказан', className: 'bg-red-100 text-red-800' },
+      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отказана', className: 'bg-red-100 text-red-800' },
     };
 
     const config = statusConfig[status] || {
@@ -109,7 +110,7 @@ const OrderDetails = () => {
 
     return (
       <span
-        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${config.className}`}
+        className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${config.className}`}
       >
         {config.label}
       </span>
@@ -131,7 +132,7 @@ const OrderDetails = () => {
 
     return (
       <span
-        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${config.className}`}
+        className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${config.className}`}
       >
         {config.label}
       </span>
@@ -170,7 +171,7 @@ const OrderDetails = () => {
 
   const formatMoney = (value: string | null) => {
     if (!value) return '—';
-    return `${Number(value).toFixed(2)} лв.`;
+    return `${Number(value).toFixed(2)} €`;
   };
 
   if (isLoading) {
@@ -210,7 +211,7 @@ const OrderDetails = () => {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-bold text-textPrimary">
-                {data.orderNumber}
+                {data.displayOrderNumber || data.orderNumber}
               </h1>
               {getStatusBadge(data.status)}
               {getPriorityBadge(data.priority)}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -18,28 +18,78 @@ import {
   validateCheckbox,
 } from '../../utils/validation';
 
+const STORAGE_KEY_COMPANY = 'registerCompanyData';
+const STORAGE_KEY_ADMIN = 'registerAdminData';
+
 const Register = () => {
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number>(() => {
+    const saved = localStorage.getItem('registerStep');
+    return saved ? parseInt(saved) : 1;
+  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [companyData, setCompanyData] = useState({
-    companyName: '',
-    companyAddress: '',
-    companyPhone: '',
-    companyEmail: '',
-    bulstat: '',
-    vatNumber: '',
-    description: '',
+  const [companyData, setCompanyData] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_COMPANY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {
+          companyName: '',
+          companyAddress: '',
+          companyPhone: '',
+          companyEmail: '',
+          bulstat: '',
+          vatNumber: '',
+          description: '',
+        };
+      }
+    }
+    return {
+      companyName: '',
+      companyAddress: '',
+      companyPhone: '',
+      companyEmail: '',
+      bulstat: '',
+      vatNumber: '',
+      description: '',
+    };
   });
 
-  const [adminData, setAdminData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const [adminData, setAdminData] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_ADMIN);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {
+          email: '',
+          password: '',
+          confirmPassword: '',
+        };
+      }
+    }
+    return {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    };
   });
 
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_COMPANY, JSON.stringify(companyData));
+  }, [companyData]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_ADMIN, JSON.stringify(adminData));
+  }, [adminData]);
+
+  useEffect(() => {
+    localStorage.setItem('registerStep', step.toString());
+  }, [step]);
 
   const handleStep1Next = (e: FormEvent) => {
     e.preventDefault();
@@ -129,6 +179,11 @@ const Register = () => {
       // Set user directly without calling login again
       localStorage.setItem('user', JSON.stringify(user));
 
+      // Clear registration data
+      localStorage.removeItem(STORAGE_KEY_COMPANY);
+      localStorage.removeItem(STORAGE_KEY_ADMIN);
+      localStorage.removeItem('registerStep');
+
       // Reload to update auth context
       toast.success(
         `Сервизът е създаден! Уникален код: ${serviceCompany.uniqueCode}`
@@ -163,7 +218,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mainBg flex">
+    <div className="h-screen bg-mainBg flex overflow-hidden">
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar text-white p-12 flex-col justify-center shadow-sidebar">
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
@@ -178,8 +233,8 @@ const Register = () => {
         </p>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8">
+      <div className="w-full lg:w-1/2 flex justify-center overflow-y-auto py-8 px-8">
+        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8 my-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-textPrimary mb-2">
               {step === 1
@@ -322,10 +377,12 @@ const Register = () => {
                   <span className="text-sm text-textSecondary">
                     Съгласявам се с{' '}
                     <a
-                      href="/terms"
+                      href="/terms?returnTo=/register"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-primary hover:text-primary-700 hover:underline transition-colors"
                     >
-                      общите условия
+                      общите условия и поверителност
                     </a>
                   </span>
                 }

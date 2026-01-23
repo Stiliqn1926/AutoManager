@@ -20,12 +20,10 @@ import AdminDashboard from '../pages/admin/Dashboard';
 // Workers
 import Workers from '../pages/admin/Workers';
 import WorkerDetails from '../pages/admin/WorkerDetails';
-import WorkerEdit from '../pages/admin/WorkerEdit';
 
 // Clients
 import Clients from '../pages/admin/Clients';
 import ClientDetails from '../pages/admin/ClientDetails';
-import ClientEdit from '../pages/admin/ClientEdit';
 
 // Vehicles
 import Vehicles from '../pages/admin/Vehicles';
@@ -209,14 +207,6 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/admin/workers/:id/edit"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-            <WorkerEdit />
-          </ProtectedRoute>
-        }
-      />
 
       {/* -------- Clients -------- */}
       <Route
@@ -232,14 +222,6 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
             <ClientDetails />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/clients/:id/edit"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-            <ClientEdit />
           </ProtectedRoute>
         }
       />

@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber: string | null;
   status: string;
   totalPrice: number | string | null;
   isPaid: boolean;
@@ -44,6 +45,7 @@ type SortField =
   | 'status'
   | 'totalPrice'
   | 'startDate'
+  | 'endDate'
   | 'updatedAt';
 
 type SortOrder = 'asc' | 'desc';
@@ -85,7 +87,7 @@ const Orders = () => {
 
   const filteredOrders = (() => {
     const filtered = orders.filter((order) => {
-      const matchesSearch = `${order.orderNumber} ${order.client.firstName} ${order.client.lastName} ${order.vehicle.licensePlate}`
+      const matchesSearch = `${order.displayOrderNumber || order.orderNumber} ${order.client.firstName} ${order.client.lastName} ${order.vehicle.licensePlate}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -106,8 +108,8 @@ const Orders = () => {
 
       switch (sortField) {
         case 'orderNumber':
-          aValue = a.orderNumber;
-          bValue = b.orderNumber;
+          aValue = a.displayOrderNumber || a.orderNumber;
+          bValue = b.displayOrderNumber || b.orderNumber;
           break;
         case 'client':
           aValue = `${a.client.firstName} ${a.client.lastName}`;
@@ -124,6 +126,10 @@ const Orders = () => {
         case 'startDate':
           aValue = a.startDate ? new Date(a.startDate).getTime() : 0;
           bValue = b.startDate ? new Date(b.startDate).getTime() : 0;
+          break;
+        case 'endDate':
+          aValue = a.endDate ? new Date(a.endDate).getTime() : 0;
+          bValue = b.endDate ? new Date(b.endDate).getTime() : 0;
           break;
         case 'updatedAt':
           aValue = new Date(a.updatedAt).getTime();
@@ -166,8 +172,8 @@ const Orders = () => {
     const labels: Record<string, string> = {
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
-      READY: 'Готова',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
       CANCELLED: 'Отказана',
     };
 
@@ -198,7 +204,7 @@ const Orders = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-textPrimary">Поръчки</h1>
           <Button onClick={() => navigate('/admin/orders/create')}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4" />
             Нова поръчка
           </Button>
         </div>
@@ -227,8 +233,8 @@ const Orders = () => {
               <option value="all">Всички статуси</option>
               <option value="WAITING">Изчакване</option>
               <option value="IN_PROGRESS">В процес</option>
-              <option value="READY">Готова</option>
-              <option value="COMPLETED">Завършена</option>
+              <option value="READY">Готова за плащане</option>
+              <option value="COMPLETED">Платена</option>
               <option value="CANCELLED">Отказана</option>
             </select>
 
@@ -255,6 +261,7 @@ const Orders = () => {
                     { key: 'status', label: 'Статус' },
                     { key: 'totalPrice', label: 'Сума' },
                     { key: 'startDate', label: 'Начална дата' },
+                    { key: 'endDate', label: 'Краен срок' },
                   ].map(({ key, label }) => (
                     <th
                       key={key}
@@ -276,7 +283,7 @@ const Orders = () => {
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-textSecondary">
+                    <td colSpan={7} className="text-center py-12 text-textSecondary">
                       Няма намерени поръчки
                     </td>
                   </tr>
@@ -287,8 +294,8 @@ const Orders = () => {
                       className="border-b hover:bg-mainBg cursor-pointer"
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
                     >
-                      <td className="px-4 py-4 font-medium">
-                        {order.orderNumber}
+                      <td className="px-4 py-4 font-medium" title={`Системен ID: ${order.orderNumber}`}>
+                        {order.displayOrderNumber || order.orderNumber}
                       </td>
                       <td className="px-4 py-4">
                         {order.client.firstName} {order.client.lastName}
@@ -297,11 +304,16 @@ const Orders = () => {
                         {getStatusBadge(order.status)}
                       </td>
                       <td className="px-4 py-4 font-medium">
-                        {Number(order.totalPrice || 0).toFixed(2)} лв
+                        {Number(order.totalPrice || 0).toFixed(2)} €
                       </td>
                       <td className="px-4 py-4">
                         {order.startDate
                           ? new Date(order.startDate).toLocaleDateString('bg-BG')
+                          : '-'}
+                      </td>
+                      <td className="px-4 py-4">
+                        {order.endDate
+                          ? new Date(order.endDate).toLocaleDateString('bg-BG')
                           : '-'}
                       </td>
                       <td className="px-4 py-4 text-right">

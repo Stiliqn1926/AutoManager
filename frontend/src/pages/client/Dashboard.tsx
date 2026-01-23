@@ -25,6 +25,7 @@ interface DashboardData {
   activeOrdersList: {
     id: string;
     orderNumber: string;
+    displayOrderNumber?: string | null;
     description: string;
     status: string;
     totalPrice: string | null;
@@ -44,6 +45,7 @@ interface DashboardData {
     isRead: boolean;
     createdAt: string;
     orderNumber: string | null;
+    displayOrderNumber?: string | null;
   }[];
 }
 
@@ -286,7 +288,7 @@ const ClientDashboard = () => {
                     {order.totalPrice && (
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4" />
-                        {order.totalPrice} лв.
+                        {order.totalPrice} €
                       </div>
                     )}
                   </div>
@@ -330,7 +332,7 @@ const ClientDashboard = () => {
                   </p>
                   {activity.orderNumber && (
                     <span className="inline-block mt-2 text-xs font-mono text-primary">
-                      Поръчка: {activity.orderNumber}
+                      Поръчка: {activity.displayOrderNumber || activity.orderNumber}
                     </span>
                   )}
                 </div>

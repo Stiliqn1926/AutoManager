@@ -93,7 +93,7 @@ export const emailTemplates = {
         Фактура <strong>${invoiceNumber}</strong> за поръчка
         <strong>${orderNumber}</strong> е готова.
       </p>
-      <p style="font-size: 18px; color: #f97316;"><strong>Обща сума: ${total.toFixed(2)} лв</strong></p>
+      <p style="font-size: 18px; color: #f97316;"><strong>Обща сума: ${total.toFixed(2)} €</strong></p>
       <p>📎 Фактурата е прикачена към този имейл като PDF файл.</p>
       <p>Моля, платете фактурата при получаване на автомобила.</p>
       <br />

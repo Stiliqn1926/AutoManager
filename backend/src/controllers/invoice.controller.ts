@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { sendEmail, emailTemplates } from '../services/email.service';
 // Environment constants
-const DEFAULT_TAX_RATE = parseFloat(process.env.DEFAULT_TAX_RATE || '0.20');
+const DEFAULT_TAX_RATE = 0;
 
 interface AuthRequest extends Request {
   user?: {
@@ -39,7 +39,7 @@ export const createInvoice = async (
 ): Promise<void> => {
   try {
     const { orderId } = req.params;
-    const { tax, notes } = req.body;
+    const { notes } = req.body;
     const userId = req.user!.userId;
 
     // Вземи serviceCompanyId
@@ -87,11 +87,9 @@ export const createInvoice = async (
       return sum + Number(item.totalPrice);
     }, 0);
 
-    // Изчисли ДДС (ако tax не е подаден, по подразбиране 20%)
-    const taxAmount = tax !== undefined ? tax : subtotal * DEFAULT_TAX_RATE;
-
-    // Изчисли total
-    const total = subtotal + taxAmount;
+    // No VAT
+    const taxAmount = DEFAULT_TAX_RATE;
+    const total = subtotal;
 
     // Генерирай invoice number
     const invoiceNumber = await generateInvoiceNumber(serviceCompany.id);
@@ -117,7 +115,7 @@ export const createInvoice = async (
           title: 'Нова фактура',
           message: `Фактура ${invoiceNumber} е готова. Сума: ${total.toFixed(
             2
-          )} лв`,
+          )} €`,
           clientId: order.clientId,
         },
       });
@@ -228,7 +226,7 @@ export const updateInvoice = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { tax, notes, dueDate } = req.body;
+    const { notes, dueDate } = req.body;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -251,11 +249,9 @@ export const updateInvoice = async (
       return sum + Number(item.totalPrice);
     }, 0);
 
-    // Изчисли ДДС
-    const taxAmount = tax !== undefined ? tax : subtotal * DEFAULT_TAX_RATE;
-
-    // Изчисли total
-    const total = subtotal + taxAmount;
+    // No VAT
+    const taxAmount = DEFAULT_TAX_RATE;
+    const total = subtotal;
 
     const updatedInvoice = await prisma.invoice.update({
       where: { id },

@@ -15,6 +15,7 @@ interface Worker {
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
 }
 
 interface EditTaskModalProps {
@@ -297,7 +298,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
                 <option value="">Избери поръчка</option>
                 {orders.map((order) => (
                   <option key={order.id} value={order.id}>
-                    {order.orderNumber}
+                    {order.displayOrderNumber || order.orderNumber}
                   </option>
                 ))}
               </select>
@@ -327,7 +328,8 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               >
                 <option value="SCHEDULED">Планирана</option>
                 <option value="IN_PROGRESS">В процес</option>
-                <option value="COMPLETED">Завършена</option>
+                <option value="READY">Готова за плащане</option>
+                <option value="COMPLETED">Платена</option>
                 <option value="CANCELLED">Отменена</option>
                 <option value="DELAYED">Забавена</option>
               </select>

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
-  Edit,
   UserX,
   UserCheck,
   Mail,
@@ -37,6 +36,7 @@ interface Client {
   orders?: {
     id: string;
     orderNumber: string;
+    displayOrderNumber: string | null;
     status: string;
     createdAt: string;
   }[];
@@ -110,8 +110,8 @@ const ClientDetails = () => {
     const map = {
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
-      READY: 'Готова',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
     };
 
     const colors = {
@@ -155,23 +155,18 @@ const ClientDetails = () => {
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={() => navigate(`/admin/clients/${id}/edit`)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Редактирай
-            </Button>
-
             <Button
               variant={client.isActive ? 'danger' : 'success'}
               onClick={handleToggleStatus}
             >
               {client.isActive ? (
                 <>
-                  <UserX className="w-4 h-4 mr-2" />
+                  <UserX className="w-4 h-4" />
                   Деактивирай
                 </>
               ) : (
                 <>
-                  <UserCheck className="w-4 h-4 mr-2" />
+                  <UserCheck className="w-4 h-4" />
                   Активирай
                 </>
               )}
@@ -266,7 +261,7 @@ const ClientDetails = () => {
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium">{o.orderNumber}</p>
+                          <p className="font-medium">{o.displayOrderNumber || o.orderNumber}</p>
                           <p className="text-sm text-textSecondary">
                             {new Date(o.createdAt).toLocaleDateString('bg-BG')}
                           </p>

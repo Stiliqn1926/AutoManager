@@ -39,6 +39,7 @@ interface Vehicle {
   orders?: Array<{
     id: string;
     orderNumber: string;
+    displayOrderNumber: string | null;
     status: string;
     createdAt: string;
     totalPrice: number;
@@ -88,13 +89,13 @@ const VehicleDetails = () => {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      ACTIVE: 'bg-green-100 text-green-800',
-      IN_SERVICE: 'bg-blue-100 text-blue-800',
-      ARCHIVED: 'bg-gray-100 text-gray-800',
-      WAITING: 'bg-yellow-100 text-yellow-800',
-      IN_PROGRESS: 'bg-blue-100 text-blue-800',
-      READY: 'bg-green-100 text-green-800',
-      COMPLETED: 'bg-gray-100 text-gray-800',
+      ACTIVE: 'text-green-700',
+      IN_SERVICE: 'text-blue-700',
+      ARCHIVED: 'text-gray-600',
+      WAITING: 'text-yellow-700',
+      IN_PROGRESS: 'text-blue-700',
+      READY: 'text-green-700',
+      COMPLETED: 'text-gray-600',
     };
 
     const labels: Record<string, string> = {
@@ -103,16 +104,12 @@ const VehicleDetails = () => {
       ARCHIVED: 'Архивиран',
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
-      READY: 'Готова',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
     };
 
     return (
-      <span
-        className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-          styles[status] || 'bg-gray-100 text-gray-800'
-        }`}
-      >
+      <span className={`text-sm font-medium ${styles[status] || 'text-gray-600'}`}>
         {labels[status] || status}
       </span>
     );
@@ -162,13 +159,15 @@ const VehicleDetails = () => {
 
           <div className="flex gap-3">
             <Button onClick={() => navigate(`/admin/vehicles/${id}/edit`)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <Edit className="w-4 h-4" />
               Редактирай
             </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Изтрий
-            </Button>
+            {(!vehicle.orders || vehicle.orders.length === 0) && (
+              <Button variant="danger" onClick={handleDelete}>
+                <Trash2 className="w-4 h-4" />
+                Изтрий
+              </Button>
+            )}
           </div>
         </div>
 
@@ -229,11 +228,11 @@ const VehicleDetails = () => {
                     >
                       <div className="flex justify-between">
                         <div>
-                          <p className="font-medium">{order.orderNumber}</p>
+                          <p className="font-medium">{order.displayOrderNumber || order.orderNumber}</p>
                           <p className="text-sm text-textSecondary">
                             {new Date(order.createdAt).toLocaleDateString('bg-BG')}
                           </p>
-                          <p className="font-medium">{Number(order.totalPrice || 0).toFixed(2)} лв</p>
+                          <p className="font-medium">{Number(order.totalPrice || 0).toFixed(2)} €</p>
                         </div>
                         {getStatusBadge(order.status)}
                       </div>

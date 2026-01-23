@@ -18,6 +18,7 @@ export interface ClientStatistics {
   lastOrderDate: {
     id: string;
     orderNumber: string;
+  displayOrderNumber?: string | null;
     completedDate: string;
   } | null;
 }
@@ -25,6 +26,7 @@ export interface ClientStatistics {
 export interface ClientOrder {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   status: string;
   description: string;
   priority: string;
@@ -52,6 +54,7 @@ export interface ClientAppointment {
   status: string;
   order: {
     orderNumber: string;
+  displayOrderNumber?: string | null;
     status: string;
   } | null;
 }

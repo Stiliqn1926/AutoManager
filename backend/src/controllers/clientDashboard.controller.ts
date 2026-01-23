@@ -43,6 +43,7 @@ export const getClientProfile = async (
         lastName: client.lastName,
         phone: client.phone,
         address: client.address,
+        createdAt: client.createdAt,
       },
     });
   } catch (error) {
@@ -377,9 +378,14 @@ export const getClientVehicles = async (
         vin: v.vin,
         color: v.color,
         mileage: v.mileage,
+        updatedAt: v.updatedAt,
+        _count: {
+          orders: v.orders.length,
+        },
         serviceHistory: v.orders.map((order) => ({
           id: order.id,
           orderNumber: order.orderNumber,
+          displayOrderNumber: order.displayOrderNumber,
           description: order.description,
           status: order.status,
           totalPrice: order.totalPrice,
@@ -470,6 +476,7 @@ export const getClientVehicleById = async (req: AuthRequest, res: Response): Pro
     serviceHistory: vehicle.orders.map((order) => ({
       id: order.id,
       orderNumber: order.orderNumber,
+      displayOrderNumber: order.displayOrderNumber,
       description: order.description,
       status: order.status,
       totalPrice: order.totalPrice,
@@ -541,6 +548,7 @@ export const getClientActiveOrders = async (
       activeOrders: activeOrders.map(order => ({
         id: order.id,
         orderNumber: order.orderNumber,
+      displayOrderNumber: order.displayOrderNumber,
         description: order.description,
         status: order.status,
         totalPrice: order.totalPrice,
@@ -628,6 +636,7 @@ export const getClientOrderById = async (
       order: {
         id: order.id,
         orderNumber: order.orderNumber,
+      displayOrderNumber: order.displayOrderNumber,
         description: order.description,
         diagnosis: order.diagnosis,
         status: order.status,
@@ -706,6 +715,7 @@ export const getClientOrderHistory = async (
       orderHistory: completedOrders.map(order => ({
         id: order.id,
         orderNumber: order.orderNumber,
+      displayOrderNumber: order.displayOrderNumber,
         description: order.description,
         status: order.status,
         totalPrice: order.totalPrice,
@@ -778,6 +788,7 @@ export const getClientInvoices = async (
         order: {
           id: o.id,
           orderNumber: o.orderNumber,
+          displayOrderNumber: o.displayOrderNumber,
           description: o.description,
           vehicle: o.vehicle,
           items: o.orderItems,
@@ -812,6 +823,14 @@ export const getClientNotifications = async (
     const notifications = await prisma.notification.findMany({
       where: {
         clientId: { in: clients.map(c => c.id) },
+      },
+      include: {
+        order: {
+          select: {
+            orderNumber: true,
+            displayOrderNumber: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: 20,
@@ -937,6 +956,7 @@ export const getClientDashboardOverview = async (
         order: {
           select: {
             orderNumber: true,
+            displayOrderNumber: true,
           },
         },
       },
@@ -951,6 +971,7 @@ export const getClientDashboardOverview = async (
       activeOrdersList: activeOrders.map(order => ({
         id: order.id,
         orderNumber: order.orderNumber,
+        displayOrderNumber: order.displayOrderNumber,
         description: order.description,
         status: order.status,
         totalPrice: order.totalPrice,
@@ -968,6 +989,7 @@ export const getClientDashboardOverview = async (
         isRead: notification.isRead,
         createdAt: notification.createdAt,
         orderNumber: notification.order?.orderNumber || null,
+        displayOrderNumber: notification.order?.displayOrderNumber || null,
       })),
     });
   } catch (error) {

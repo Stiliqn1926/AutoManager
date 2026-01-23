@@ -13,6 +13,7 @@ export interface MechanicWorker {
 export interface MechanicOrder {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   status: string;
   description: string;
   priority: string;
@@ -39,6 +40,7 @@ export interface MechanicSchedule {
   status: string;
   order: {
     orderNumber: string;
+  displayOrderNumber?: string | null;
     status: string;
   } | null;
 }
@@ -72,6 +74,7 @@ export interface MechanicClientVehicle {
 export interface MechanicClientOrder {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   status: string;
   description: string;
   priority: string;
@@ -173,6 +176,7 @@ export interface MechanicVehicleOrderItem {
 export interface MechanicVehicleOrder {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   status: string;
   description: string;
   priority: string;
@@ -235,6 +239,7 @@ export interface MechanicOrderItem {
 export interface MechanicOrderDetails {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   status: string;
   description: string;
   priority: string;
@@ -298,6 +303,7 @@ export interface MechanicScheduleItem {
   order: {
     id: string;
     orderNumber: string;
+  displayOrderNumber?: string | null;
     vehicle: {
       brand: string;
       model: string;
@@ -335,6 +341,7 @@ export interface MechanicScheduleDetails {
   order: {
     id: string;
     orderNumber: string;
+  displayOrderNumber?: string | null;
     client: {
       firstName: string;
       lastName: string;
@@ -374,6 +381,7 @@ export interface MechanicStatistics {
   lastCompletedOrder: {
     id: string;
     orderNumber: string;
+  displayOrderNumber?: string | null;
     completedDate: string;
   } | null;
   ordersToday: number;

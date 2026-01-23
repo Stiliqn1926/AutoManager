@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   description: string;
   status: string;
   totalPrice: string | null;
@@ -68,7 +69,9 @@ const Orders = () => {
     const statusConfig: Record<string, { label: string; className: string }> = {
       WAITING: { label: 'Изчакване', className: 'bg-yellow-100 text-yellow-800' },
       IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
+      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отказана', className: 'bg-red-100 text-red-800' },
     };
 
     const config = statusConfig[status] || {
@@ -78,7 +81,7 @@ const Orders = () => {
 
     return (
       <span
-        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${config.className}`}
+        className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${config.className}`}
       >
         {config.label}
       </span>
@@ -95,13 +98,13 @@ const Orders = () => {
 
   const formatMoney = (value: string | null) => {
     if (!value) return '—';
-    return `${Number(value).toFixed(2)} лв.`;
+    return `${Number(value).toFixed(2)} €`;
   };
 
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      order.orderNumber.toLowerCase().includes(searchLower) ||
+      (order.displayOrderNumber || order.orderNumber).toLowerCase().includes(searchLower) ||
       order.description.toLowerCase().includes(searchLower) ||
       order.vehicle.brand.toLowerCase().includes(searchLower) ||
       order.vehicle.model.toLowerCase().includes(searchLower) ||
@@ -234,7 +237,7 @@ const Orders = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-textPrimary">
-                          {order.orderNumber}
+                          {order.displayOrderNumber || order.orderNumber}
                         </span>
                         {getStatusBadge(order.status)}
                       </div>

@@ -158,7 +158,14 @@ export const getWorkerById = async (
       return;
     }
 
-    res.status(200).json({ worker });
+    res.status(200).json({
+      worker: {
+        ...worker,
+        membershipStatus: membership.status,
+        joinedAt: membership.joinedAt,
+        leftAt: membership.leftAt,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -491,6 +498,7 @@ export const deleteWorker = async (
         select: {
           id: true,
           orderNumber: true,
+          displayOrderNumber: true,
           status: true,
           description: true,
         },
@@ -813,6 +821,7 @@ export const getWorkersAvailability = async (
             order: {
               select: {
                 orderNumber: true,
+                displayOrderNumber: true,
                 status: true,
               },
             },
@@ -837,6 +846,7 @@ export const getWorkersAvailability = async (
             startTime: s.startTime,
             endTime: s.endTime,
             orderNumber: s.order?.orderNumber,
+            displayOrderNumber: s.order?.displayOrderNumber,
           })),
         };
       })
@@ -892,7 +902,7 @@ export const getMechanicProfile = async (
 };
 
 // ============================================
-// UPDATE MECHANIC PROFILE (ограничено - само skills и description)
+// UPDATE MECHANIC PROFILE (firstName, lastName, phone, specialization, skills)
 // ============================================
 export const updateMechanicProfile = async (
   req: AuthRequest,
@@ -900,7 +910,7 @@ export const updateMechanicProfile = async (
 ): Promise<void> => {
   try {
     const userId = req.user!.userId;
-    const { skills } = req.body;
+    const { firstName, lastName, phone, specialization, skills } = req.body;
 
     const worker = await prisma.worker.findUnique({
       where: { userId },
@@ -914,6 +924,10 @@ export const updateMechanicProfile = async (
     const updatedWorker = await prisma.worker.update({
       where: { id: worker.id },
       data: {
+        ...(firstName !== undefined && { firstName }),
+        ...(lastName !== undefined && { lastName }),
+        ...(phone !== undefined && { phone }),
+        ...(specialization !== undefined && { specialization }),
         ...(skills !== undefined && { skills }),
       },
       select: {
@@ -1016,6 +1030,7 @@ export const getMechanicStatistics = async (
       select: {
         id: true,
         orderNumber: true,
+        displayOrderNumber: true,
         completedDate: true,
       },
     });

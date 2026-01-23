@@ -16,6 +16,7 @@ interface Worker {
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
 }
 
 interface ScheduleFormData {
@@ -191,15 +192,20 @@ const ScheduleCreate = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Дата *"
-                type="date"
-                value={formData.date}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-                required
-              />
+              <div>
+                <Input
+                  label="Дата *"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
+                  required
+                />
+                <p className="text-xs text-textMuted mt-1">
+                  Синхронизира се с краен срок на поръчката
+                </p>
+              </div>
 
               <div>
                 <label htmlFor="priority" className="block text-sm font-medium text-textPrimary mb-2">
@@ -281,7 +287,7 @@ const ScheduleCreate = () => {
                   <option value="">Изберете поръчка</option>
                   {orders.map((order) => (
                     <option key={order.id} value={order.id}>
-                      {order.orderNumber}
+                      {order.displayOrderNumber || order.orderNumber}
                     </option>
                   ))}
                 </select>

@@ -24,4 +24,10 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/*
-!prisma/migrations/.gitkeep
+!prisma/migrations/.gitkeep 
+
+# PDF
+backend/uploads/invoices/*.pdf
+backend/uploads/vehicles/*.jpg
+backend/uploads/vehicles/*.png 
+uploads/invoices/**/*.pdf

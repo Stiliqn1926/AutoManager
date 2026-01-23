@@ -4,6 +4,7 @@ import { Clock } from 'lucide-react';
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber: string | null;
   status: string;
   vehicle: {
     brand: string;
@@ -35,7 +36,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
     const labels: Record<string, string> = {
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
-      READY: 'Готова',
+      READY: 'Готова за плащане',
     };
 
     return (
@@ -82,7 +83,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                 </p>
                 <p className="text-sm text-textSecondary">
                   {order.client.firstName} {order.client.lastName} •{' '}
-                  {order.orderNumber}
+                  {order.displayOrderNumber || order.orderNumber}
                 </p>
               </div>
 

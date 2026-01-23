@@ -285,9 +285,10 @@ enum OrderStatus {
 }
 
 model Order {
-  id            String           @id @default(uuid())
-  orderNumber   String           @unique
-  description   String           @db.Text
+  id                 String           @id @default(uuid())
+  orderNumber        String           @unique
+  displayOrderNumber String?
+  description        String           @db.Text
   diagnosis     String?          @db.Text
   status        OrderStatus      @default(WAITING)
   priority      SchedulePriority @default(NORMAL)
@@ -409,6 +410,7 @@ model Notification {
 enum ScheduleStatus {
   SCHEDULED
   IN_PROGRESS
+  READY
   COMPLETED
   CANCELLED
   DELAYED

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
@@ -19,17 +19,39 @@ import {
   validateCheckbox,
 } from '../../utils/validation';
 
+const STORAGE_KEY = 'registerMechanicFormData';
+
 const RegisterMechanic = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    specialization: '',
-    skills: '',
-    uniqueCode: '',
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {
+          email: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          specialization: '',
+          skills: '',
+          uniqueCode: '',
+        };
+      }
+    }
+    return {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
+      phone: '',
+      specialization: '',
+      skills: '',
+      uniqueCode: '',
+    };
   });
 
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
@@ -38,6 +60,10 @@ const RegisterMechanic = () => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -108,6 +134,7 @@ const RegisterMechanic = () => {
 
       await api.post('/auth/register-mechanic', payload);
 
+      localStorage.removeItem(STORAGE_KEY);
       setIsSuccess(true);
       toast.success(
         'Заявката е изпратена! Чакайте одобрение от администратор.'
@@ -166,7 +193,7 @@ const RegisterMechanic = () => {
   }
 
   return (
-    <div className="min-h-screen bg-mainBg flex">
+    <div className="h-screen bg-mainBg flex overflow-hidden">
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar text-white p-12 flex-col justify-center shadow-sidebar">
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
@@ -180,8 +207,8 @@ const RegisterMechanic = () => {
         </p>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8">
+      <div className="w-full lg:w-1/2 flex justify-center overflow-y-auto py-8 px-8">
+        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8 my-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-textPrimary mb-2">
               Регистрация
@@ -291,10 +318,12 @@ const RegisterMechanic = () => {
                 <span className="text-sm text-textSecondary">
                   Съгласявам се с{' '}
                   <a
-                    href="/terms"
+                    href="/terms?returnTo=/register-mechanic"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary hover:text-primary-700 hover:underline transition-colors"
                   >
-                    общите условия
+                    общите условия и поверителност
                   </a>
                 </span>
               }

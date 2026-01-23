@@ -223,6 +223,37 @@ export const createVehicleSchema = Joi.object({
   engineSize: Joi.string().max(20).optional(),
 });
 
+export const updateVehicleSchema = Joi.object({
+  brand: Joi.string().min(2).max(50).required().messages({
+    'any.required': 'Марката е задължителна',
+  }),
+  model: Joi.string().min(1).max(50).required(),
+  year: Joi.number()
+    .integer()
+    .min(1900)
+    .max(new Date().getFullYear() + 1)
+    .optional()
+    .messages({
+      'number.min': 'Годината не може да е преди 1900',
+      'number.max': 'Годината не може да е в бъдещето',
+    }),
+  licensePlate: Joi.string().min(5).max(15).required().messages({
+    'any.required': 'Регистрационният номер е задължителен',
+  }),
+  vin: Joi.string().length(17).optional().allow('').messages({
+    'string.length': 'VIN номерът трябва да е точно 17 символа',
+  }),
+  color: Joi.string().max(30).optional().allow(''),
+  mileage: Joi.number().integer().min(0).max(999999).optional().messages({
+    'number.min': 'Километражът не може да е отрицателен',
+  }),
+  status: Joi.string().valid('ACTIVE', 'IN_SERVICE', 'ARCHIVED').optional(),
+  fuelType: Joi.string()
+    .valid('Бензин', 'Дизел', 'Газ', 'Хибрид', 'Електро')
+    .optional(),
+  engineSize: Joi.string().max(20).optional().allow(''),
+});
+
 // ============================================
 // REGISTER ADMIN WITH COMPANY
 // ============================================
@@ -323,15 +354,25 @@ export const createInvoiceSchema = Joi.object({
 
 export const createScheduleSchema = Joi.object({
   title: Joi.string().min(3).max(100).required(),
-  description: Joi.string().max(500).optional(),
+  description: Joi.string().max(500).optional().allow('', null),
+  date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).optional(),
   startTime: Joi.date().iso().required().messages({
     'date.format': 'Невалиден формат на начален час',
   }),
   endTime: Joi.date().iso().greater(Joi.ref('startTime')).required().messages({
     'date.greater': 'Крайният час трябва да е след началния',
   }),
-  workerId: Joi.string().uuid().optional(),
-}); 
+  workerId: Joi.string().uuid().optional().allow('', null),
+  orderId: Joi.string().uuid().optional().allow('', null),
+  status: Joi.string()
+    .valid('SCHEDULED', 'IN_PROGRESS', 'READY', 'COMPLETED', 'CANCELLED', 'DELAYED')
+    .optional(),
+  priority: Joi.string()
+    .valid('LOW', 'NORMAL', 'HIGH', 'URGENT')
+    .optional(),
+  estimatedDuration: Joi.number().integer().min(1).optional().allow(null),
+  notes: Joi.string().max(1000).optional().allow('', null),
+});
 
 // ================================
 // UPDATE SCHEDULE SCHEMA  ✅ НОВО
@@ -339,36 +380,27 @@ export const createScheduleSchema = Joi.object({
 
 export const updateScheduleSchema = Joi.object({
   title: Joi.string().min(3).max(100).optional(),
-  description: Joi.string().max(500).optional(),
+  description: Joi.string().max(500).optional().allow('', null),
 
-  date: Joi.date().iso().optional(),
+  date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).optional(),
 
- startTime: Joi.date().iso().optional(),
- endTime: Joi.date()
-  .iso()
-  .greater(Joi.ref('startTime'))
-  .when('startTime', {
-    is: Joi.exist(),
-    then: Joi.date().iso().greater(Joi.ref('startTime')),
-    otherwise: Joi.date().iso(),
-  })
-  .optional(),
+  startTime: Joi.date().iso().optional(),
+  endTime: Joi.date().iso().optional(),
 
-
-  workerId: Joi.string().uuid().optional().allow(null),
-  orderId: Joi.string().uuid().optional().allow(null),
+  workerId: Joi.string().uuid().optional().allow('', null),
+  orderId: Joi.string().uuid().optional().allow('', null),
 
   status: Joi.string()
-    .valid('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'DELAYED')
+    .valid('SCHEDULED', 'IN_PROGRESS', 'READY', 'COMPLETED', 'CANCELLED', 'DELAYED')
     .optional(),
 
   priority: Joi.string()
     .valid('LOW', 'NORMAL', 'HIGH', 'URGENT')
     .optional(),
 
-  estimatedDuration: Joi.number().integer().min(1).optional().allow(null),
+  estimatedDuration: Joi.number().integer().min(1).optional().allow(null, ''),
 
-  notes: Joi.string().max(1000).optional().allow(null),
+  notes: Joi.string().max(1000).optional().allow('', null),
 }).min(1);
 
 
@@ -389,8 +421,8 @@ export const createFinanceSchema = Joi.object({
       'any.required': 'Категорията е задължителна',
     }),
   amount: Joi.number().min(0.01).max(999999.99).required().messages({
-    'number.min': 'Сумата трябва да е поне 0.01 лв.',
-    'number.max': 'Сумата не може да е повече от 999999.99 лв.',
+    'number.min': 'Сумата трябва да е поне 0.01 €.',
+    'number.max': 'Сумата не може да е повече от 999999.99 €.',
     'any.required': 'Сумата е задължителна',
   }),
   description: Joi.string().min(5).max(500).required().messages({

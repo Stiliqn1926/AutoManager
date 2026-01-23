@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -15,14 +15,33 @@ import {
   validateCheckbox,
 } from '../../utils/validation';
 
+const STORAGE_KEY = 'registerClientFormData';
+
 const RegisterClient = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        };
+      }
+    }
+    return {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    };
   });
 
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
@@ -31,6 +50,10 @@ const RegisterClient = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -95,6 +118,7 @@ const RegisterClient = () => {
       // Step 2: Login
       await login(formData.email, formData.password, 'CLIENT');
 
+      localStorage.removeItem(STORAGE_KEY);
       toast.success('Регистрацията е успешна!');
       navigate('/client/dashboard');
     } catch (error) {
@@ -125,7 +149,7 @@ const RegisterClient = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mainBg flex">
+    <div className="h-screen bg-mainBg flex overflow-hidden">
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar text-white p-12 flex-col justify-center shadow-sidebar">
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
@@ -137,8 +161,8 @@ const RegisterClient = () => {
         </p>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8">
+      <div className="w-full lg:w-1/2 flex justify-center overflow-y-auto py-8 px-8">
+        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8 my-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-textPrimary mb-2">
               Създайте акаунт
@@ -219,10 +243,12 @@ const RegisterClient = () => {
                 <span className="text-sm text-textSecondary">
                   Съгласявам се с{' '}
                   <a
-                    href="/terms"
+                    href="/terms?returnTo=/register-client"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary hover:text-primary-700 hover:underline transition-colors"
                   >
-                    общите условия
+                    общите условия и поверителност
                   </a>
                 </span>
               }

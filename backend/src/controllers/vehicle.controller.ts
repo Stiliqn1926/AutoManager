@@ -215,6 +215,7 @@ export const updateVehicle = async (
       vin,
       color,
       mileage,
+      status,
     } = req.body;
     const userId = req.user!.userId;
 
@@ -248,11 +249,12 @@ export const updateVehicle = async (
       data: {
         brand,
         model,
-        year,
+        ...(year !== undefined && { year }),
         licensePlate,
-        vin,
-        color,
-        mileage,
+        ...(vin !== undefined && { vin: vin || null }),
+        ...(color !== undefined && { color: color || null }),
+        ...(mileage !== undefined && { mileage }),
+        ...(status !== undefined && { status }),
       },
     });
 
@@ -478,22 +480,10 @@ export const getMechanicVehicles = async (
       return;
     }
 
-    // Филтри за търсене
-    const whereClause: any = {
-      id: { in: vehicleIds },
-      serviceCompanyId: serviceCompanyId,
-    };
+    // Определи списъка с ID-та за филтриране
+    let allowedVehicleIds: string[] = vehicleIds;
 
-    // Търсене по номер или марка/модел
-    if (search) {
-      whereClause.OR = [
-        { licensePlate: { contains: search as string, mode: 'insensitive' } },
-        { brand: { contains: search as string, mode: 'insensitive' } },
-        { model: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-
-    // Филтър за активни поръчки
+    // Филтър за активни поръчки - пресичане на ID-та
     if (activeOnly === 'true') {
       const vehiclesWithActiveOrders = await prisma.order.findMany({
         where: {
@@ -508,7 +498,23 @@ export const getMechanicVehicles = async (
       });
 
       const activeVehicleIds = vehiclesWithActiveOrders.map(o => o.vehicleId);
-      whereClause.id = { in: activeVehicleIds };
+      // Пресечи с вече намерените ID-та
+      allowedVehicleIds = allowedVehicleIds.filter(id => activeVehicleIds.includes(id));
+    }
+
+    // Филтри за търсене
+    const whereClause: any = {
+      id: { in: allowedVehicleIds },
+      serviceCompanyId: serviceCompanyId,
+    };
+
+    // Търсене по номер или марка/модел
+    if (search) {
+      whereClause.OR = [
+        { licensePlate: { contains: search as string, mode: 'insensitive' } },
+        { brand: { contains: search as string, mode: 'insensitive' } },
+        { model: { contains: search as string, mode: 'insensitive' } },
+      ];
     }
 
     const totalItems = await prisma.vehicle.count({ where: whereClause });

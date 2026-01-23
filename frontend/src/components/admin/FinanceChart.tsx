@@ -88,7 +88,7 @@ const FinanceChart = () => {
                 border: '1px solid #e5e7eb',
                 borderRadius: '8px'
               }}
-           formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(2)} лв.` : '0.00 лв.'}
+           formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'}
             />
             <Legend />
             <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />

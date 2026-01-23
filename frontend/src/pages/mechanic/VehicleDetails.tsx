@@ -342,7 +342,7 @@ const MechanicVehicleDetails = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-textPrimary">
-                            {order.orderNumber}
+                            {order.displayOrderNumber || order.orderNumber}
                           </div>
                           <div className="text-xs text-textSecondary flex items-center gap-1">
                             <Calendar className="w-3 h-3" />

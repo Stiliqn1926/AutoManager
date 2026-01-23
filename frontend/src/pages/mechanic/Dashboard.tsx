@@ -12,14 +12,51 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import StatsCard from '../../components/admin/StatsCard';
+import ScheduleDetailsModal from '../../components/mechanic/ScheduleDetailsModal';
 import { getMechanicDashboard } from '../../services/mechanicService';
 import type { MechanicDashboardData } from '../../types/mechanic';
 import toast from 'react-hot-toast';
+
+interface ScheduleTaskForModal {
+  id: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  title?: string;
+  description?: string;
+  order?: {
+    id: string;
+    orderNumber: string;
+    description?: string;
+    client: {
+      firstName: string;
+      lastName: string;
+      phone?: string;
+    };
+    vehicle: {
+      brand: string;
+      model: string;
+      licensePlate: string;
+    };
+  };
+}
 
 const MechanicDashboard = () => {
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<MechanicDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<ScheduleTaskForModal | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleTaskClick = (task: ScheduleTaskForModal) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTask(null);
+  };
 
   // ✅ САМО ЕДНА заявка, САМО веднъж
   useEffect(() => {
@@ -41,10 +78,15 @@ const MechanicDashboard = () => {
   // Status badge helper
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      WAITING: { label: 'Чакащ', className: 'bg-yellow-100 text-yellow-800' },
+      // Order statuses
+      WAITING: { label: 'Изчакване', className: 'bg-yellow-100 text-yellow-800' },
       IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
-      SCHEDULED: { label: 'Планирано', className: 'bg-gray-100 text-gray-800' },
+      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отказана', className: 'bg-red-100 text-red-800' },
+      // Schedule statuses
+      SCHEDULED: { label: 'Планирана', className: 'bg-blue-100 text-blue-800' },
+      DELAYED: { label: 'Забавена', className: 'bg-orange-100 text-orange-800' },
     };
 
     const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
@@ -289,7 +331,7 @@ const MechanicDashboard = () => {
                     <div
                       key={task.id}
                       className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
-                      onClick={() => navigate(`/mechanic/schedule/${task.id}`)}
+                      onClick={() => handleTaskClick(task as ScheduleTaskForModal)}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -306,7 +348,7 @@ const MechanicDashboard = () => {
                       )}
                       {task.order && (
                         <div className="text-xs text-primary font-medium">
-                          Поръчка: {task.order.orderNumber}
+                          Поръчка: {task.order.displayOrderNumber || task.order.orderNumber}
                         </div>
                       )}
                     </div>
@@ -333,7 +375,7 @@ const MechanicDashboard = () => {
                     <div
                       key={task.id}
                       className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
-                      onClick={() => navigate(`/mechanic/schedule/${task.id}`)}
+                      onClick={() => handleTaskClick(task as ScheduleTaskForModal)}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="text-xs text-textSecondary">{formatDate(task.startTime)}</div>
@@ -348,7 +390,7 @@ const MechanicDashboard = () => {
                       <h3 className="text-sm font-semibold text-textPrimary mb-1">{task.title}</h3>
                       {task.order && (
                         <div className="text-xs text-primary font-medium">
-                          Поръчка: {task.order.orderNumber}
+                          Поръчка: {task.order.displayOrderNumber || task.order.orderNumber}
                         </div>
                       )}
                     </div>
@@ -359,6 +401,13 @@ const MechanicDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal за детайли на задача */}
+      <ScheduleDetailsModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        schedule={selectedTask}
+      />
     </MainLayout>
   );
 };

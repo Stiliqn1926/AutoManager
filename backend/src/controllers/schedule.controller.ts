@@ -153,10 +153,19 @@ export const createSchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
           },
         },
       },
     });
+
+    // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок на поръчката
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { endDate: scheduleDate },
+      });
+    }
 
     res.status(201).json({ schedule });
   } catch (error) {
@@ -226,6 +235,7 @@ export const getAllSchedules = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
           },
         },
       },
@@ -309,6 +319,7 @@ export const getWeeklySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
             vehicle: {
               select: {
                 brand: true,
@@ -402,6 +413,7 @@ export const getDailySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
             vehicle: {
               select: {
                 brand: true,
@@ -495,6 +507,7 @@ export const getMonthlySchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
             vehicle: {
               select: {
                 brand: true,
@@ -546,6 +559,7 @@ export const getScheduleById = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
             client: {
               select: {
                 firstName: true,
@@ -592,6 +606,7 @@ export const updateSchedule = async (
         endTime: true,
         date: true,
         workerId: true,
+        orderId: true,
       },
     });
 
@@ -693,10 +708,46 @@ export const updateSchedule = async (
           select: {
             id: true,
             orderNumber: true,
+            displayOrderNumber: true,
           },
         },
       },
     });
+
+    // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок и статус на поръчката
+    const finalOrderId = orderId !== undefined ? (orderId || null) : existingSchedule.orderId;
+
+    if (finalOrderId) {
+      const orderUpdateData: any = {};
+
+      // Синхронизирай дата
+      if (scheduleDate) {
+        orderUpdateData.endDate = scheduleDate;
+      } else if (newStart) {
+        orderUpdateData.endDate = newStart;
+      }
+
+      // Синхронизирай статус
+      if (status !== undefined) {
+        const statusMap: any = {
+          'SCHEDULED': 'WAITING',
+          'IN_PROGRESS': 'IN_PROGRESS',
+          'COMPLETED': 'READY',
+          'CANCELLED': 'CANCELLED',
+          'DELAYED': 'IN_PROGRESS',
+        };
+        if (statusMap[status]) {
+          orderUpdateData.status = statusMap[status];
+        }
+      }
+
+      if (Object.keys(orderUpdateData).length > 0) {
+        await prisma.order.update({
+          where: { id: finalOrderId },
+          data: orderUpdateData,
+        });
+      }
+    }
 
     res.status(200).json({ schedule });
   } catch (error) {

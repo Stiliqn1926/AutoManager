@@ -103,7 +103,7 @@ const FinanceDashboard = () => {
               Всички транзакции
             </Button>
             <Button onClick={() => navigate('/admin/finances/create')}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Добави транзакция
             </Button>
           </div>
@@ -120,7 +120,7 @@ const FinanceDashboard = () => {
                 <CreditCard className="w-5 h-5 text-blue-600" />
               </div>
               <p className="text-2xl font-bold text-blue-900">
-                {Number(summary?.orderRevenue || 0).toFixed(2)} лв.
+                {Number(summary?.orderRevenue || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-blue-600 mt-1">
                 {summary?.paidOrdersCount || 0} платени поръчки
@@ -134,7 +134,7 @@ const FinanceDashboard = () => {
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
               <p className="text-2xl font-bold text-green-900">
-                {Number(summary?.otherIncome || 0).toFixed(2)} лв.
+                {Number(summary?.otherIncome || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-green-600 mt-1">Ръчно въведени</p>
             </div>
@@ -146,7 +146,7 @@ const FinanceDashboard = () => {
                 <TrendingDown className="w-5 h-5 text-red-600" />
               </div>
               <p className="text-2xl font-bold text-red-900">
-                {Number(summary?.totalExpense || 0).toFixed(2)} лв.
+                {Number(summary?.totalExpense || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-red-600 mt-1">Общо разходи</p>
             </div>
@@ -160,7 +160,7 @@ const FinanceDashboard = () => {
                 <DollarSign className={`w-5 h-5 ${isProfitable ? 'text-primary' : 'text-gray-600'}`} />
               </div>
               <p className={`text-2xl font-bold ${isProfitable ? 'text-primary' : 'text-gray-900'}`}>
-                {profit.toFixed(2)} лв.
+                {profit.toFixed(2)} €
               </p>
               <p className={`text-xs mt-1 ${isProfitable ? 'text-primary' : 'text-gray-600'}`}>
                 {isProfitable ? 'Положителна' : 'Отрицателна'}
@@ -174,7 +174,7 @@ const FinanceDashboard = () => {
               <div>
                 <p className="text-sm text-textSecondary mb-1">Общо приходи</p>
                 <p className="text-xl font-semibold text-textPrimary">
-                  {Number(summary?.totalIncome || 0).toFixed(2)} лв.
+                  {Number(summary?.totalIncome || 0).toFixed(2)} €
                 </p>
               </div>
               <div>

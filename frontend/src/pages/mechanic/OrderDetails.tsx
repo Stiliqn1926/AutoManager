@@ -147,7 +147,7 @@ const MechanicOrderDetails = () => {
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">Поръчка {order.orderNumber}</h1>
+            <h1 className="text-3xl font-bold text-textPrimary">Поръчка {order.displayOrderNumber || order.orderNumber}</h1>
             <p className="text-textSecondary mt-1">Детайли за поръчката</p>
           </div>
           {getStatusBadge(order.status)}
@@ -326,9 +326,9 @@ const MechanicOrderDetails = () => {
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">
                           <span>Количество: {item.quantity}</span>
-                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} лв</span>
+                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
-                            Общо: {Number(item.totalPrice || 0).toFixed(2)} лв
+                            Общо: {Number(item.totalPrice || 0).toFixed(2)} €
                           </span>
                         </div>
                       </div>
@@ -375,9 +375,9 @@ const MechanicOrderDetails = () => {
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">
                           <span>Количество: {item.quantity}</span>
-                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} лв</span>
+                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
-                            Общо: {Number(item.totalPrice || 0).toFixed(2)} лв
+                            Общо: {Number(item.totalPrice || 0).toFixed(2)} €
                           </span>
                         </div>
                       </div>
@@ -442,7 +442,7 @@ const MechanicOrderDetails = () => {
               <div className="pt-4 border-t border-borderSubtle">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-medium text-textSecondary">Обща стойност:</span>
-                  <span className="text-2xl font-bold text-primary">{Number(order.totalPrice || 0).toFixed(2)} лв</span>
+                  <span className="text-2xl font-bold text-primary">{Number(order.totalPrice || 0).toFixed(2)} €</span>
                 </div>
               </div>
             )}

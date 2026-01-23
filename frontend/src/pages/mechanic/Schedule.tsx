@@ -388,7 +388,7 @@ const MechanicSchedule = () => {
                                 }}
                                 className="text-primary hover:underline font-medium"
                               >
-                                Поръчка {schedule.order.orderNumber}
+                                Поръчка {schedule.order.displayOrderNumber || schedule.order.orderNumber}
                               </button>
                             </div>
                             <div className="flex items-center gap-1">
@@ -580,7 +580,7 @@ const MechanicSchedule = () => {
                           }}
                           className="font-semibold text-primary hover:underline"
                         >
-                          {selectedSchedule.order.orderNumber}
+                          {selectedSchedule.order.displayOrderNumber || selectedSchedule.order.orderNumber}
                         </button>
                       </div>
                       <div>

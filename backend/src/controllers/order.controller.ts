@@ -14,12 +14,31 @@ interface AuthRequest extends Request {
   };
 }
 
-// Generate unique order number
-const generateOrderNumber = async (serviceCompanyId: string): Promise<string> => {
+// Generate unique order number (системен ID - за вътрешна логика)
+const generateOrderNumber = async (): Promise<string> => {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 10000);
-  
+
   return `AUTO-${timestamp}-${random}`;
+};
+
+// Generate display order number (човешки номер за UI)
+const generateDisplayOrderNumber = async (serviceCompanyId: string): Promise<string> => {
+  const lastOrder = await prisma.order.findFirst({
+    where: { serviceCompanyId },
+    orderBy: { createdAt: 'desc' },
+    select: { displayOrderNumber: true },
+  });
+
+  let nextNum = 1;
+  if (lastOrder?.displayOrderNumber) {
+    const match = lastOrder.displayOrderNumber.match(/(\d+)$/);
+    if (match) {
+      nextNum = parseInt(match[1], 10) + 1;
+    }
+  }
+
+  return `#${nextNum}`;
 };
 
 // Create Order (ADMIN или MECHANIC)
@@ -68,13 +87,15 @@ export const createOrder = async (
       return;
     }
 
-    const orderNumber = await generateOrderNumber(serviceCompanyId);
+    const orderNumber = await generateOrderNumber();
+    const displayOrderNumber = await generateDisplayOrderNumber(serviceCompanyId);
 
     // ✅ ТРАНЗАКЦИЯ: Създаване на поръчка (БЕЗ автоматичен график)
     const result = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
           orderNumber,
+          displayOrderNumber,
           description,
           vehicleId,
           clientId,
@@ -363,36 +384,45 @@ export const updateOrder = async (
     status,
     workerId: userRole === 'ADMIN' ? (workerId || null) : undefined,
     startDate: startDate ? new Date(startDate) : null,
-    endDate: endDate ? new Date(endDate) : null,        
+    endDate: endDate ? new Date(endDate) : null,
   },
 });
 
-      // ✅ УПРАВЛЕНИЕ НА ГРАФИК при смяна на механик
-      if (userRole === 'ADMIN' && workerId !== undefined) {
-        // Изтрий стария график (ако има)
-        await tx.schedule.deleteMany({
+      // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок в график
+      if (endDate) {
+        await tx.schedule.updateMany({
           where: { orderId: id },
+          data: { date: new Date(endDate) },
         });
+      }
 
-        // Създай нов график, ако има възложен механик
-        if (workerId) {
-          const startTime = new Date();
-          const endTime = new Date();
-          endTime.setHours(endTime.getHours() + 4);
-
-          await tx.schedule.create({
+      // ✅ СИНХРОНИЗАЦИЯ: Обнови статус в график
+      if (status) {
+        const statusMap: any = {
+          'WAITING': 'SCHEDULED',
+          'IN_PROGRESS': 'IN_PROGRESS',
+          'READY': 'COMPLETED',
+          'COMPLETED': 'COMPLETED',
+          'CANCELLED': 'CANCELLED',
+        };
+        if (statusMap[status]) {
+          await tx.schedule.updateMany({
+            where: { orderId: id },
             data: {
-              date: startTime,
-              title: `Поръчка ${order.orderNumber}`,
-              description: diagnosis || order.description,
-              startTime,
-              endTime,
-              workerId,
-              serviceCompanyId: order.serviceCompanyId,
-              orderId: id,
+              status: statusMap[status],
+              ...(status === 'COMPLETED' && { isCompleted: true }),
             },
           });
         }
+      }
+
+      // ✅ УПРАВЛЕНИЕ НА ГРАФИК при смяна на механик
+      if (userRole === 'ADMIN' && workerId !== undefined) {
+        // Обнови механика в съществуващия график (вместо да го трие)
+        await tx.schedule.updateMany({
+          where: { orderId: id },
+          data: { workerId: workerId || null },
+        });
       }
 
       // Ако има orderItems, обнови ги
@@ -433,8 +463,8 @@ export const updateOrder = async (
         });
       }
 
-      // Ако е ADMIN и е променена isPaid статуса, обнови Invoice
-      if (userRole === 'ADMIN' && isPaid !== undefined) {
+      // ✅ АВТОМАТИЧНО МАРКИРАНЕ КАТО ПЛАТЕНА при статус COMPLETED
+      if (userRole === 'ADMIN' && status === 'COMPLETED') {
         const existingInvoice = await tx.invoice.findFirst({
           where: { orderId: id },
         });
@@ -443,9 +473,25 @@ export const updateOrder = async (
           await tx.invoice.update({
             where: { id: existingInvoice.id },
             data: {
-              isPaid,
-              paidDate: isPaid ? new Date() : null,
-              paymentMethod: isPaid ? (paymentMethod || null) : null,
+              isPaid: true,
+              paidDate: new Date(),
+              paymentMethod: paymentMethod || existingInvoice.paymentMethod || null,
+            },
+          });
+        }
+      }
+
+      // Обнови метод на плащане независимо от статус
+      if (userRole === 'ADMIN' && paymentMethod !== undefined) {
+        const existingInvoice = await tx.invoice.findFirst({
+          where: { orderId: id },
+        });
+
+        if (existingInvoice && status !== 'COMPLETED') {
+          await tx.invoice.update({
+            where: { id: existingInvoice.id },
+            data: {
+              paymentMethod: paymentMethod || null,
             },
           });
         }
@@ -562,7 +608,7 @@ export const updateOrderStatus = async (
         await tx.notification.create({
           data: {
             title: status === 'READY' ? 'Поръчката е готова' : 'Поръчката е завършена',
-            message: `Вашата поръчка ${order.orderNumber} е ${status === 'READY' ? 'готова за плащане' : 'завършена и платена'}.`,
+            message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е ${status === 'READY' ? 'готова за плащане' : 'завършена и платена'}.`,
             clientId: order.clientId,
           },
         });
@@ -589,13 +635,13 @@ export const updateOrderStatus = async (
             await sendEmail(
               client.user.email,
               'Поръчката е готова за плащане',
-              emailTemplates.orderReady(order.orderNumber, vehicleInfo)
+              emailTemplates.orderReady(order.displayOrderNumber || order.orderNumber, vehicleInfo)
             );
           } else if (status === 'COMPLETED') {
             await sendEmail(
               client.user.email,
               'Поръчката е завършена',
-              emailTemplates.orderCompleted(order.orderNumber, vehicleInfo)
+              emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
             );
           }
         } catch (emailError) {
@@ -657,7 +703,7 @@ export const completeOrder = async (
       await tx.notification.create({
         data: {
           title: 'Поръчката е завършена',
-          message: `Вашата поръчка ${order.orderNumber} е завършена и платена. Благодарим ви!`,
+          message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е завършена и платена. Благодарим ви!`,
           clientId: order.clientId,
         },
       });
@@ -681,7 +727,7 @@ export const completeOrder = async (
         await sendEmail(
           client.user.email,
           'Поръчката е завършена',
-          emailTemplates.orderCompleted(order.orderNumber, vehicleInfo)
+          emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
         );
       } catch (emailError) {
         console.error('Failed to send email:', emailError);
@@ -837,9 +883,8 @@ export const finalizeOrder = async (
     const invoiceUrl = `/uploads/invoices/${fileName}`;
 
     const subtotal = Number(order.totalPrice) || 0;
-    const taxRate = 0.20;
-    const tax = subtotal * taxRate;
-    const total = subtotal + tax;
+    const tax = 0;
+    const total = subtotal;
 
     const invoice = await prisma.$transaction(async (tx) => {
       const createdInvoice = await tx.invoice.create({
@@ -881,7 +926,7 @@ export const finalizeOrder = async (
     await prisma.notification.create({
       data: {
         title: 'Фактурата е готова',
-        message: `Вашата фактура за поръчка ${order.orderNumber} е готова за преглед.`,
+        message: `Вашата фактура за поръчка ${order.displayOrderNumber || order.orderNumber} е готова за преглед.`,
         clientId: order.clientId,
       },
     });
@@ -891,7 +936,7 @@ export const finalizeOrder = async (
         await sendEmail(
           order.client.user.email,
           'Фактурата е готова',
-          emailTemplates.invoiceReady(invoiceNumber, total, order.orderNumber),
+          emailTemplates.invoiceReady(invoiceNumber, total, order.displayOrderNumber || order.orderNumber),
           [
             {
               filename: fileName,

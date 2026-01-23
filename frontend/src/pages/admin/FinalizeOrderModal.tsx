@@ -115,9 +115,9 @@ const FinalizeOrderModal = ({
                         <td className="py-3 px-4">{getItemTypeBadge(item.type)}</td>
                         <td className="py-3 px-4 text-textPrimary">{item.description}</td>
                         <td className="py-3 px-4 text-right text-textSecondary">{item.quantity}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} лв</td>
+                        <td className="py-3 px-4 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} €</td>
                         <td className="py-3 px-4 text-right font-medium text-textPrimary">
-                          {Number(item.totalPrice || 0).toFixed(2)} лв
+                          {Number(item.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
                     ))}
@@ -126,7 +126,7 @@ const FinalizeOrderModal = ({
                         Обща сума:
                       </td>
                       <td className="py-4 px-4 text-right font-bold text-primary text-xl">
-                        {Number(totalPrice || 0).toFixed(2)} лв
+                        {Number(totalPrice || 0).toFixed(2)} €
                       </td>
                     </tr>
                   </tbody>

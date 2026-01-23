@@ -1,5 +1,4 @@
 import { X, Clock, Calendar, User, Car, FileText, CheckCircle2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface ScheduleTask {
   id: string;
@@ -11,6 +10,7 @@ interface ScheduleTask {
   order?: {
     id: string;
     orderNumber: string;
+    displayOrderNumber?: string | null;
     description?: string;
     client: {
       firstName: string;
@@ -32,8 +32,6 @@ interface ScheduleDetailsModalProps {
 }
 
 const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModalProps) => {
-  const navigate = useNavigate();
-
   if (!isOpen || !schedule) return null;
 
   const formatTime = (dateString: string) => {
@@ -57,23 +55,20 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
     const statusConfig: Record<string, { label: string; className: string }> = {
       SCHEDULED: { label: 'Планирана', className: 'bg-blue-100 text-blue-800' },
       IN_PROGRESS: { label: 'В процес', className: 'bg-yellow-100 text-yellow-800' },
-      COMPLETED: { label: 'Завършена', className: 'bg-green-100 text-green-800' },
+      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
       CANCELLED: { label: 'Отменена', className: 'bg-red-100 text-red-800' },
+      DELAYED: { label: 'Забавена', className: 'bg-orange-100 text-orange-800' },
     };
 
     const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
 
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${config.className}`}>
-        {status === 'COMPLETED' && <CheckCircle2 className="w-3 h-3" />}
+        {(status === 'COMPLETED' || status === 'READY') && <CheckCircle2 className="w-3 h-3" />}
         {config.label}
       </span>
     );
-  };
-
-  const handleViewFullDetails = () => {
-    navigate(`/mechanic/schedule/${schedule.id}`);
-    onClose();
   };
 
   return (
@@ -95,6 +90,8 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Затвори"
+              title="Затвори"
             >
               <X className="w-5 h-5 text-textSecondary" />
             </button>
@@ -140,7 +137,7 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
                   <div className="flex-1">
                     <label className="text-sm font-medium text-textSecondary">Поръчка</label>
                     <p className="text-base font-semibold text-textPrimary mt-1">
-                      #{schedule.order.orderNumber}
+                      {schedule.order.displayOrderNumber || schedule.order.orderNumber}
                     </p>
                   </div>
                 </div>
@@ -205,20 +202,14 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
 
         {/* Actions */}
         <div className="sticky bottom-0 bg-white border-t border-borderSubtle px-6 py-4 rounded-b-2xl">
-          <div className="flex gap-3">
-            <button
-              onClick={handleViewFullDetails}
-              className="flex-1 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
-            >
-              Отвори пълния преглед
-            </button>
-            <button
-              onClick={onClose}
-              className="px-6 py-3 border border-borderSubtle rounded-lg font-medium hover:bg-gray-50 transition-colors"
-            >
-              Затвори
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            aria-label="Затвори"
+          >
+            Затвори
+          </button>
         </div>
       </div>
     </div>

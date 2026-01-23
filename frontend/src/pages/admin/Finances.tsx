@@ -143,7 +143,7 @@ const Finances = () => {
               Финансов преглед
             </Button>
             <Button onClick={() => navigate('/admin/finances/create')}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Добави транзакция
             </Button>
           </div>
@@ -234,7 +234,7 @@ const Finances = () => {
                           }`}
                         >
                           {finance.type === 'INCOME' ? '+' : '-'}
-                          {Number(finance.amount).toFixed(2)} лв.
+                          {Number(finance.amount).toFixed(2)} €
                         </span>
                       </td>
                       <td className="py-3 px-4">

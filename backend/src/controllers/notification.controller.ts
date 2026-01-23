@@ -46,6 +46,14 @@ export const getAllNotifications = async (
         where: { clientId: { in: clientIds } },
         skip,
         take,
+        include: {
+          order: {
+            select: {
+              orderNumber: true,
+              displayOrderNumber: true,
+            },
+          },
+        },
         orderBy: {
           createdAt: 'desc',
         },

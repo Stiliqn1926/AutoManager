@@ -83,8 +83,12 @@ export const getAllClients = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const { skip, take } = getPagination(page, limit);
 
+    // Search и filter параметри
+    const { search, activeOnly } = req.query;
+
     // Вземи serviceCompanyId
     let serviceCompanyId: string;
+    let workerId: string | null = null;
 
     if (req.user!.role === 'ADMIN') {
       const serviceCompany = await prisma.serviceCompany.findUnique({
@@ -110,21 +114,86 @@ export const getAllClients = async (
         return;
       }
       serviceCompanyId = worker.serviceCompanyId;
+      workerId = worker.id;
     } else {
       res.status(403).json({ message: 'Forbidden' });
       return;
+    }
+
+    // За механик - намери клиентите с поръчки при него
+    let clientIdsForMechanic: string[] | null = null;
+    if (req.user!.role === 'MECHANIC' && workerId) {
+      const ordersForMechanic = await prisma.order.findMany({
+        where: {
+          workerId: workerId,
+          serviceCompanyId: serviceCompanyId,
+        },
+        select: {
+          clientId: true,
+        },
+        distinct: ['clientId'],
+      });
+      clientIdsForMechanic = ordersForMechanic.map(o => o.clientId);
+
+      if (clientIdsForMechanic.length === 0) {
+        const pagination = getPaginationMeta(0, page, limit);
+        res.status(200).json({ clients: [], pagination });
+        return;
+      }
     }
 
     // За dashboard (без pagination) показваме само активни клиенти с userId
     // За пълния списък показваме всички
     const showOnlyActive = !req.query.page && !req.query.limit;
 
-    const whereClause = showOnlyActive
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereClause: any = showOnlyActive
       ? {
           serviceCompanyId,
           userId: { not: null }, // Само клиенти с userId (не pending)
         }
       : { serviceCompanyId };
+
+    // Определи списъка с ID-та за филтриране
+    let allowedClientIds: string[] | null = clientIdsForMechanic;
+
+    // Филтър за активни поръчки (само за механик) - пресичане на ID-та
+    if (activeOnly === 'true' && workerId) {
+      const clientsWithActiveOrders = await prisma.order.findMany({
+        where: {
+          workerId: workerId,
+          serviceCompanyId: serviceCompanyId,
+          status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+        },
+        select: {
+          clientId: true,
+        },
+        distinct: ['clientId'],
+      });
+
+      const activeClientIds = clientsWithActiveOrders.map(o => o.clientId);
+
+      // Пресечи с вече намерените ID-та ако има такива
+      if (allowedClientIds) {
+        allowedClientIds = allowedClientIds.filter(id => activeClientIds.includes(id));
+      } else {
+        allowedClientIds = activeClientIds;
+      }
+    }
+
+    // Приложи филтъра по ID-та
+    if (allowedClientIds) {
+      whereClause.id = { in: allowedClientIds };
+    }
+
+    // Търсене по име или телефон
+    if (search) {
+      whereClause.OR = [
+        { firstName: { contains: search as string, mode: 'insensitive' } },
+        { lastName: { contains: search as string, mode: 'insensitive' } },
+        { phone: { contains: search as string } },
+      ];
+    }
 
     const totalItems = await prisma.client.count({
       where: whereClause,
@@ -135,24 +204,69 @@ export const getAllClients = async (
       skip,
       take,
       include: {
-        vehicles: true,
+        vehicles: {
+          where: {
+            serviceCompanyId: serviceCompanyId,
+            deletedAt: null,
+          },
+        },
+        orders: {
+          where: {
+            serviceCompanyId: serviceCompanyId,
+            ...(workerId ? { workerId: workerId } : {}),
+          },
+        },
         user: {
           select: {
             email: true,
           },
         },
-        _count: {
-          select: {
-            vehicles: true,
-            orders: true,
-          },
-        },
       },
     });
 
+    // Добави _count и активни поръчки мануално от филтрираните масиви
+    const clientsWithCount = await Promise.all(
+      clients.map(async (client) => {
+        // Брой активни поръчки
+        const activeOrdersCount = workerId
+          ? await prisma.order.count({
+              where: {
+                clientId: client.id,
+                workerId: workerId,
+                serviceCompanyId: serviceCompanyId,
+                status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+              },
+            })
+          : 0;
+
+        // Последна поръчка
+        const lastOrder = workerId
+          ? await prisma.order.findFirst({
+              where: {
+                clientId: client.id,
+                workerId: workerId,
+                serviceCompanyId: serviceCompanyId,
+              },
+              orderBy: { createdAt: 'desc' },
+              select: { createdAt: true },
+            })
+          : null;
+
+        return {
+          ...client,
+          _count: {
+            vehicles: client.vehicles.length,
+            orders: client.orders.length,
+          },
+          activeOrdersCount,
+          lastOrderDate: lastOrder?.createdAt || null,
+        };
+      })
+    );
+
     const pagination = getPaginationMeta(totalItems, page, limit);
 
-    res.status(200).json({ clients, pagination });
+    res.status(200).json({ clients: clientsWithCount, pagination });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -200,17 +314,20 @@ export const getClientById = async (
     const client = await prisma.client.findUnique({
       where: { id },
       include: {
-        vehicles: true,
-        orders: true,
+        vehicles: {
+          where: {
+            serviceCompanyId: serviceCompanyId,
+            deletedAt: null,
+          },
+        },
+        orders: {
+          where: {
+            serviceCompanyId: serviceCompanyId,
+          },
+        },
         user: {
           select: {
             email: true,
-          },
-        },
-        _count: {
-          select: {
-            vehicles: true,
-            orders: true,
           },
         },
       },
@@ -227,7 +344,16 @@ export const getClientById = async (
       return;
     }
 
-    res.status(200).json({ client });
+    // Добави _count мануално от филтрираните масиви
+    const clientWithCount = {
+      ...client,
+      _count: {
+        vehicles: client.vehicles.length,
+        orders: client.orders.length,
+      },
+    };
+
+    res.status(200).json({ client: clientWithCount });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -308,7 +434,7 @@ export const updateClient = async (
   }
 };
 
-// Delete Client (деактивира)
+// Delete Client (изтрива напълно само ако няма поръчки и автомобили)
 export const deleteClient = async (
   req: AuthRequest,
   res: Response
@@ -317,39 +443,31 @@ export const deleteClient = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
-    let serviceCompanyId: string;
-
-    if (req.user!.role === 'ADMIN') {
-      const serviceCompany = await prisma.serviceCompany.findUnique({
-        where: { userId },
-      });
-      if (!serviceCompany) {
-        res.status(404).json({ message: 'Service company not found' });
-        return;
-      }
-      serviceCompanyId = serviceCompany.id;
-    } else if (req.user!.role === 'MECHANIC') {
-      const worker = await prisma.worker.findUnique({
-        where: { userId },
-      });
-      if (!worker) {
-        res.status(404).json({ message: 'Worker profile not found' });
-        return;
-      }
-      if (!worker.serviceCompanyId) {
-        res.status(403).json({ message: 'No active service company' });
-        return;
-      }
-      serviceCompanyId = worker.serviceCompanyId;
-    } else {
-      res.status(403).json({ message: 'Forbidden' });
+    // Само ADMIN може да изтрива клиенти
+    if (req.user!.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Само администратори могат да изтриват клиенти' });
       return;
     }
 
-    // Провери ownership
+    const serviceCompany = await prisma.serviceCompany.findUnique({
+      where: { userId },
+    });
+    if (!serviceCompany) {
+      res.status(404).json({ message: 'Service company not found' });
+      return;
+    }
+
+    // Провери ownership и вземи броя на поръчки/автомобили
     const client = await prisma.client.findUnique({
       where: { id },
+      include: {
+        _count: {
+          select: {
+            vehicles: true,
+            orders: true,
+          },
+        },
+      },
     });
 
     if (!client) {
@@ -357,19 +475,26 @@ export const deleteClient = async (
       return;
     }
 
-    if (client.serviceCompanyId !== serviceCompanyId) {
+    if (client.serviceCompanyId !== serviceCompany.id) {
       res.status(403).json({ message: 'Forbidden' });
       return;
     }
 
-    const updatedClient = await prisma.client.update({
+    // Провери дали има поръчки или автомобили
+    if (client._count.vehicles > 0 || client._count.orders > 0) {
+      res.status(400).json({
+        message: 'Не може да изтриете клиент с поръчки или автомобили. Деактивирайте го вместо това.'
+      });
+      return;
+    }
+
+    // Изтрий клиента напълно
+    await prisma.client.delete({
       where: { id },
-      data: { isActive: false },
     });
 
     res.status(200).json({
-      message: 'Client deactivated successfully',
-      client: updatedClient,
+      message: 'Клиентът е изтрит успешно',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });

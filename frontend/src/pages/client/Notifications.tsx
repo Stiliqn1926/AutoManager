@@ -27,6 +27,7 @@ interface Notification {
   orderId: string | null;
   order?: {
     orderNumber: string;
+    displayOrderNumber?: string | null;
   } | null;
 }
 
@@ -263,7 +264,7 @@ const Notifications = () => {
                         <span>{formatDateTime(notification.createdAt)}</span>
                         {notification.order && (
                           <span className="font-mono text-primary">
-                            {notification.order.orderNumber}
+                            {notification.order.displayOrderNumber || notification.order.orderNumber}
                           </span>
                         )}
                       </div>

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
-  Edit,
   ChevronUp,
   ChevronDown,
   Info,
@@ -372,7 +371,6 @@ const Workers = () => {
                                 )
                               }
                               className="p-2 rounded-lg hover:bg-red-50"
-                              title="Изтрий напълно от таблицата (не се показва повече)"
                             >
                               <Trash2 className="w-4 h-4 text-red-600" />
                             </button>
@@ -388,27 +386,13 @@ const Workers = () => {
                                 )
                               }
                               className="p-2 rounded-lg hover:bg-gray-100"
-                              title="Изтрий от списъка (премахва от сервиза)"
                             >
                               <Trash2 className="w-4 h-4 text-red-600" />
                             </button>
                           ) : (
-                            // ACTIVE механици - Edit, Toggle и Delete
+                            // ACTIVE механици - Toggle и Delete
                             <>
-                              {/* Бутон 1: Edit (само за ACTIVE) */}
-                              <button
-                                type="button"
-                                aria-label="Редактирај работник"
-                                onClick={() =>
-                                  navigate(`/admin/workers/${worker.id}/edit`)
-                                }
-                                className="p-2 rounded-lg hover:bg-gray-100"
-                                title="Редактирай"
-                              >
-                                <Edit className="w-4 h-4 text-primary" />
-                              </button>
-
-                              {/* Бутон 2: Toggle Active/Inactive (само за ACTIVE members) */}
+                              {/* Бутон 1: Toggle Active/Inactive (само за ACTIVE members) */}
                               <button
                                 type="button"
                                 aria-label={worker.isActive ? "Деактивирай работник" : "Активирай работник"}
@@ -420,7 +404,6 @@ const Workers = () => {
                                   )
                                 }
                                 className="p-2 rounded-lg hover:bg-gray-100"
-                                title={worker.isActive ? "Деактивирай (отпуска, болничен)" : "Активирай работник"}
                               >
                                 {worker.isActive ? (
                                   <UserX className="w-4 h-4 text-orange-600" />
@@ -429,7 +412,7 @@ const Workers = () => {
                                 )}
                               </button>
 
-                              {/* Бутон 3: Delete (изтрий от списъка) */}
+                              {/* Бутон 2: Delete (изтрий от списъка) */}
                               <button
                                 type="button"
                                 aria-label="Изтрий работник"
@@ -440,7 +423,6 @@ const Workers = () => {
                                   )
                                 }
                                 className="p-2 rounded-lg hover:bg-gray-100"
-                                title="Изтрий от списъка (премахва от сервиза)"
                               >
                                 <Trash2 className="w-4 h-4 text-red-600" />
                               </button>

@@ -34,7 +34,7 @@ const StatsDashboard = ({ stats }: StatsDashboardProps) => {
       <StatsCard
         icon={TrendingUp}
         label="Приходи"
-        value={`${stats.totalRevenue.toLocaleString()} лв.`}
+        value={`${stats.totalRevenue.toLocaleString()} €`}
         subtitle="Общо"
         trend="up"
       />
@@ -42,7 +42,7 @@ const StatsDashboard = ({ stats }: StatsDashboardProps) => {
       <StatsCard
         icon={TrendingDown}
         label="Разходи"
-        value={`${stats.totalExpenses.toLocaleString()} лв.`}
+        value={`${stats.totalExpenses.toLocaleString()} €`}
         subtitle="Общо"
         trend="down"
       />

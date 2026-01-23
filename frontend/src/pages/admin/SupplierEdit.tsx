@@ -288,7 +288,7 @@ const SupplierEdit = () => {
                     }
                     className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
-                    placeholder="Доставка в същия ден, минимална поръчка 50 лв..."
+                    placeholder="Доставка в същия ден, минимална поръчка 50 €..."
                     aria-label="Условия за доставка"
                   />
                 </div>

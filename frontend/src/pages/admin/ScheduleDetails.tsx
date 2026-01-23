@@ -16,6 +16,7 @@ interface Worker {
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   client: {
     firstName: string;
     lastName: string;
@@ -97,14 +98,16 @@ const ScheduleDetails = () => {
     const styles = {
       SCHEDULED: 'bg-blue-100 text-blue-800',
       IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-      COMPLETED: 'bg-green-100 text-green-800',
+      READY: 'bg-green-100 text-green-800',
+      COMPLETED: 'bg-gray-100 text-gray-800',
       CANCELLED: 'bg-red-100 text-red-800',
       DELAYED: 'bg-orange-100 text-orange-800',
     };
     const labels = {
       SCHEDULED: 'Планирана',
       IN_PROGRESS: 'В процес',
-      COMPLETED: 'Завършена',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
       CANCELLED: 'Отменена',
       DELAYED: 'Забавена',
     };
@@ -184,12 +187,12 @@ const ScheduleDetails = () => {
             )}
             {schedule.status !== 'COMPLETED' && (
               <Button onClick={() => navigate(`/admin/schedules/${id}/edit`)}>
-                <Edit className="w-4 h-4 mr-2" />
+                <Edit className="w-4 h-4" />
                 Редактирай
               </Button>
             )}
             <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
@@ -227,7 +230,7 @@ const ScheduleDetails = () => {
                   onClick={() => navigate(`/admin/orders/${schedule.order!.id}`)}
                   className="p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                 >
-                  <p className="font-medium text-textPrimary">{schedule.order.orderNumber}</p>
+                  <p className="font-medium text-textPrimary">{schedule.order.displayOrderNumber || schedule.order.orderNumber}</p>
                   <p className="text-sm text-textSecondary mt-1">
                     Клиент: {schedule.order.client.firstName} {schedule.order.client.lastName}
                   </p>

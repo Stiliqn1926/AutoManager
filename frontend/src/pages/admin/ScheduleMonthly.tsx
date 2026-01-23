@@ -169,7 +169,7 @@ const ScheduleMonthly = () => {
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>

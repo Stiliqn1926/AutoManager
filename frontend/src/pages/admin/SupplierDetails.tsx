@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   createdAt: string;
   totalPrice: number | null;
 }
@@ -178,19 +179,19 @@ const SupplierDetails = () => {
 
           <div className="flex gap-3">
             <Button variant="secondary" onClick={handleTogglePreferred}>
-              <Star className="w-4 h-4 mr-2" />
+              <Star className="w-4 h-4" />
               {supplier.isPreferred ? 'Премахни от предпочитани' : 'Маркирай като предпочитан'}
             </Button>
             <Button variant="secondary" onClick={handleToggleActive}>
-              <Power className="w-4 h-4 mr-2" />
+              <Power className="w-4 h-4" />
               {supplier.isActive ? 'Деактивирай' : 'Активирай'}
             </Button>
             <Button onClick={() => navigate(`/admin/suppliers/${id}/edit`)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <Edit className="w-4 h-4" />
               Редактирай
             </Button>
             <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
@@ -337,13 +338,13 @@ const SupplierDetails = () => {
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
                       className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                     >
-                      <p className="font-medium text-textPrimary">{order.orderNumber}</p>
+                      <p className="font-medium text-textPrimary">{order.displayOrderNumber || order.orderNumber}</p>
                       <p className="text-sm text-textSecondary">
                         {new Date(order.createdAt).toLocaleDateString('bg-BG')}
                       </p>
                       {order.totalPrice && (
                         <p className="text-sm font-medium text-primary">
-                          {Number(order.totalPrice).toFixed(2)} лв.
+                          {Number(order.totalPrice).toFixed(2)} €
                         </p>
                       )}
                     </div>

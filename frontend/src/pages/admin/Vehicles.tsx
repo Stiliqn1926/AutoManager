@@ -156,7 +156,7 @@ const Vehicles = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-textPrimary">Автомобили</h1>
           <Button onClick={() => navigate('/admin/vehicles/create')}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4" />
             Добави автомобил
           </Button>
         </div>
@@ -231,6 +231,7 @@ const Vehicles = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
+                            type="button"
                             aria-label="Редактирай автомобил"
                             title="Редактирай"
                             onClick={() => navigate(`/admin/vehicles/${vehicle.id}/edit`)}
@@ -238,14 +239,17 @@ const Vehicles = () => {
                           >
                             <Edit className="w-4 h-4 text-primary" />
                           </button>
-                          <button
-                            aria-label="Изтрий автомобил"
-                            title="Изтрий"
-                            onClick={() => handleDelete(vehicle.id, vehicle.licensePlate)}
-                            className="p-2 rounded-lg hover:bg-gray-100"
-                          >
-                            <Trash2 className="w-4 h-4 text-error" />
-                          </button>
+                          {(vehicle._count?.orders === 0) && (
+                            <button
+                              type="button"
+                              aria-label="Изтрий автомобил"
+                              title="Изтрий"
+                              onClick={() => handleDelete(vehicle.id, vehicle.licensePlate)}
+                              className="p-2 rounded-lg hover:bg-gray-100"
+                            >
+                              <Trash2 className="w-4 h-4 text-error" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

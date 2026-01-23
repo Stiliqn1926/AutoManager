@@ -17,8 +17,8 @@ interface OrderItem {
   id?: string;
   type: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
+  quantity: number | string;
+  unitPrice: number | string;
 }
 
 interface OrderFormData {
@@ -28,7 +28,6 @@ interface OrderFormData {
   notes: string;
   startDate: string;
   endDate: string;
-  isPaid: boolean;
   paymentMethod: string;
 }
 
@@ -45,7 +44,6 @@ const OrderEdit = () => {
     notes: '',
     startDate: '',
     endDate: '',
-    isPaid: false,
     paymentMethod: '',
   });
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -66,7 +64,6 @@ const OrderEdit = () => {
           notes: order.notes || '',
           startDate: order.startDate ? order.startDate.split('T')[0] : '',
           endDate: order.endDate ? order.endDate.split('T')[0] : '',
-          isPaid: order.isPaid,
           paymentMethod: order.paymentMethod || '',
         });
         setOrderItems(order.orderItems || []);
@@ -83,11 +80,11 @@ const OrderEdit = () => {
   }, [id, navigate]);
 
   const handleAddItem = () => {
-  setOrderItems([
-    ...orderItems,
-    { type: 'LABOR', description: '', quantity: 1, unitPrice: 0 }, 
-  ]);
-};
+    setOrderItems([
+      ...orderItems,
+      { type: 'LABOR', description: '', quantity: '', unitPrice: '' },
+    ]);
+  };
 
   const handleRemoveItem = (index: number) => {
     setOrderItems(orderItems.filter((_, i) => i !== index));
@@ -112,7 +109,6 @@ const OrderEdit = () => {
         status: formData.status,
         diagnosis: formData.diagnosis,
         notes: formData.notes,
-        isPaid: formData.isPaid,
         ...(formData.workerId && { workerId: formData.workerId }),
         ...(formData.startDate && { startDate: formData.startDate }),
         ...(formData.endDate && { endDate: formData.endDate }),
@@ -192,8 +188,8 @@ const OrderEdit = () => {
                 >
                   <option value="WAITING">Изчакване</option>
                   <option value="IN_PROGRESS">В процес</option>
-                  <option value="READY">Готова</option>
-                  <option value="COMPLETED">Завършена</option>
+                  <option value="READY">Готова за плащане</option>
+                  <option value="COMPLETED">Платена</option>
                   <option value="CANCELLED">Отказана</option>
                 </select>
               </div>
@@ -230,7 +226,7 @@ const OrderEdit = () => {
               />
 
               <Input
-                label="Очаквана дата"
+                label="Краен срок"
                 type="date"
                 value={formData.endDate}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -280,7 +276,7 @@ const OrderEdit = () => {
                 Детайли на поръчката
               </h2>
               <Button type="button" onClick={handleAddItem}>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4" />
                 Добави ред
               </Button>
             </div>
@@ -332,12 +328,12 @@ const OrderEdit = () => {
                     </label>
                     <input
                       type="number"
-                      value={item.quantity || 0}
+                      value={item.quantity || ''}
                       onChange={(e) =>
                         handleItemChange(
                           index,
                           'quantity',
-                          parseFloat(e.target.value) || 0
+                          e.target.value ? parseFloat(e.target.value) : ''
                         )
                       }
                       placeholder="Кол."
@@ -354,12 +350,12 @@ const OrderEdit = () => {
                     </label>
                     <input
                       type="number"
-                      value={item.unitPrice || 0}
+                      value={item.unitPrice || ''}
                       onChange={(e) =>
                         handleItemChange(
                           index,
                           'unitPrice',
-                          parseFloat(e.target.value) || 0
+                          e.target.value ? parseFloat(e.target.value) : ''
                         )
                       }
                       placeholder="Цена"
@@ -396,49 +392,30 @@ const OrderEdit = () => {
             <h2 className="text-lg font-semibold text-textPrimary mb-4">
               Плащане
             </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <input
-                  id="isPaid"
-                  type="checkbox"
-                  checked={formData.isPaid}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setFormData({
-                      ...formData,
-                      isPaid: e.target.checked,
-                    })
-                  }
-                  className="w-4 h-4 text-primary border-borderSubtle rounded focus:ring-primary"
-                  aria-label="Поръчката е платена"
-                />
-                <label htmlFor="isPaid" className="text-sm font-medium text-textPrimary">
-                  Платена
-                </label>
-              </div>
-
-              <div>
-                <label htmlFor="paymentMethod" className="block text-sm font-medium text-textPrimary mb-2">
-                  Метод на плащане
-                </label>
-                <select
-                  id="paymentMethod"
-                  value={formData.paymentMethod}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setFormData({
-                      ...formData,
-                      paymentMethod: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  disabled={!formData.isPaid}
-                  aria-label="Метод на плащане"
-                >
-                  <option value="">Избери метод</option>
-                  <option value="CASH">Кеш</option>
-                  <option value="CARD">Карта</option>
-                  <option value="BANK_TRANSFER">Банков превод</option>
-                </select>
-              </div>
+            <div className="max-w-md">
+              <label htmlFor="paymentMethod" className="block text-sm font-medium text-textPrimary mb-2">
+                Метод на плащане
+              </label>
+              <select
+                id="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                  setFormData({
+                    ...formData,
+                    paymentMethod: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label="Метод на плащане"
+              >
+                <option value="">Избери метод</option>
+                <option value="CASH">Кеш</option>
+                <option value="CARD">Карта</option>
+                <option value="BANK_TRANSFER">Банков превод</option>
+              </select>
+              <p className="text-xs text-textMuted mt-1">
+                Автоматично се маркира като платена при статус "Платена"
+              </p>
             </div>
           </div>
 

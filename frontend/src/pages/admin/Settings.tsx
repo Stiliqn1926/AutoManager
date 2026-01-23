@@ -167,7 +167,7 @@ const Settings = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-textPrimary">Фирмени данни</h2>
             <Button onClick={() => setIsEditModalOpen(true)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <Edit className="w-4 h-4" />
               Редактирай
             </Button>
           </div>
@@ -223,12 +223,12 @@ const Settings = () => {
             <Button onClick={handleCopyCode} variant="secondary">
               {isCopied ? (
                 <>
-                  <Check className="w-4 h-4 mr-2" />
+                  <Check className="w-4 h-4" />
                   Копирано
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 mr-2" />
+                  <Copy className="w-4 h-4" />
                   Копирай
                 </>
               )}

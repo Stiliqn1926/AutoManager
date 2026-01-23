@@ -104,6 +104,7 @@ export const getDashboardOverview = async (
             select: {
               status: true,
               orderNumber: true,
+              displayOrderNumber: true,
             }
           },
         },
@@ -464,6 +465,7 @@ export const getMechanicDashboard = async (
           order: {
             select: {
               orderNumber: true,
+              displayOrderNumber: true,
               status: true,
             },
           },
@@ -487,6 +489,7 @@ export const getMechanicDashboard = async (
           order: {
             select: {
               orderNumber: true,
+              displayOrderNumber: true,
               status: true,
             },
           },

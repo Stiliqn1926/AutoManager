@@ -14,7 +14,7 @@ import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
-import { createVehicleSchema } from '../validators/schemas';
+import { createVehicleSchema, updateVehicleSchema } from '../validators/schemas';
 import { uploadVehicleImage as multerUpload } from '../config/multer';
 
 const router = Router();
@@ -47,7 +47,7 @@ router.get('/', getAllVehicles);
 router.get('/:id', getVehicleById);
 
 // PUT /api/vehicles/:id - Обнови автомобил с валидация
-router.put('/:id', validate(createVehicleSchema), updateVehicle);
+router.put('/:id', validate(updateVehicleSchema), updateVehicle);
 
 // DELETE /api/vehicles/:id - Деактивирай автомобил
 router.delete('/:id', deleteVehicle);

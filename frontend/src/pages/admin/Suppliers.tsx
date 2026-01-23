@@ -109,7 +109,7 @@ const Suppliers = () => {
             </p>
           </div>
           <Button onClick={() => navigate('/admin/suppliers/create')}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4" />
             Добави доставчик
           </Button>
         </div>

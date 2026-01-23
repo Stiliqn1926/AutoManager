@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Edit, UserX, UserCheck, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, UserX, UserCheck, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -114,6 +114,18 @@ const Clients = () => {
       fetchClients();
     } catch {
       toast.error('Грешка при промяна на статус');
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${name}? Това действие е необратимо.`)) return;
+
+    try {
+      await api.delete(`/clients/${id}`);
+      toast.success('Клиентът е изтрит успешно');
+      fetchClients();
+    } catch {
+      toast.error('Грешка при изтриване на клиент');
     }
   };
 
@@ -336,17 +348,7 @@ const Clients = () => {
                           ) : (
                             <>
                               <button
-                                aria-label="Редактирай клиент"
-                                title="Редактирай"
-                                onClick={() =>
-                                  navigate(`/admin/clients/${client.id}/edit`)
-                                }
-                                className="p-2 rounded-lg hover:bg-gray-100"
-                              >
-                                <Edit className="w-4 h-4 text-primary" />
-                              </button>
-
-                              <button
+                                type="button"
                                 aria-label={
                                   client.isActive
                                     ? 'Деактивирай клиент'
@@ -368,6 +370,22 @@ const Clients = () => {
                                   <UserCheck className="w-4 h-4 text-green-600" />
                                 )}
                               </button>
+                              {(client._count?.vehicles === 0 && client._count?.orders === 0) && (
+                                <button
+                                  type="button"
+                                  aria-label="Изтрий клиент"
+                                  title="Изтрий"
+                                  onClick={() =>
+                                    handleDelete(
+                                      client.id,
+                                      `${client.firstName} ${client.lastName}`
+                                    )
+                                  }
+                                  className="p-2 rounded-lg hover:bg-gray-100"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-600" />
+                                </button>
+                              )}
                             </>
                           )}
                         </div>

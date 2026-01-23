@@ -250,7 +250,7 @@ const OrderCreate = () => {
                 }
               />
               <Input
-                label="Очаквана дата"
+                label="Краен срок"
                 type="date"
                 value={formData.endDate}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
