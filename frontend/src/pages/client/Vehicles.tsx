@@ -70,11 +70,17 @@ const Vehicles = () => {
   };
 
   const filteredVehicles = useMemo(() => {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
     const filtered = vehicles.filter((v) => {
-      const haystack = `${v.licensePlate} ${v.brand} ${v.model} ${v.vin ?? ''}`
-        .toLowerCase()
-        .trim();
-      return haystack.includes(searchTerm.toLowerCase().trim());
+      if (tokens.length === 0) return true;
+      const fields = [
+        v.licensePlate,
+        v.brand,
+        v.model,
+        v.vin ?? '',
+      ].map((value) => value.toLowerCase());
+      return tokens.every((token) => fields.some((field) => field.startsWith(token)));
     });
 
     filtered.sort((a, b) => {

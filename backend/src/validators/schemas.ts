@@ -312,6 +312,8 @@ export const createOrderSchema = Joi.object({
     'any.required': 'Описанието е задължително',
   }),
   workerId: Joi.string().uuid().optional(),
+  startDate: Joi.date().iso().optional().allow('', null),
+  endDate: Joi.date().iso().optional().allow('', null),
 });
 
 export const updateOrderStatusSchema = Joi.object({

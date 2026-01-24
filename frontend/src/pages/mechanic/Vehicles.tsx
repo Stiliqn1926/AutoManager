@@ -62,16 +62,25 @@ const MechanicVehicles = () => {
   const filteredVehicles = useMemo(() => {
     const searchLower = searchTerm.toLowerCase().trim();
     const searchNormalized = normalizePhone(searchTerm);
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
 
     let filtered = vehicles.filter((vehicle) => {
       // Търсене по рег. номер, марка, модел или име на клиент
-      const textSearch = `${vehicle.licensePlate} ${vehicle.brand} ${vehicle.model} ${vehicle.client?.firstName || ''} ${vehicle.client?.lastName || ''}`
-        .toLowerCase();
-      const matchesText = textSearch.includes(searchLower);
+      const fields = [
+        vehicle.licensePlate,
+        vehicle.brand,
+        vehicle.model,
+        vehicle.client?.firstName || '',
+        vehicle.client?.lastName || '',
+      ].map((value) => value.toLowerCase());
+
+      const matchesText = tokens.length === 0
+        ? true
+        : tokens.every((token) => fields.some((field) => field.startsWith(token)));
 
       // Търсене по телефон на клиент (нормализирано)
       const clientPhoneNormalized = normalizePhone(vehicle.client?.phone || '');
-      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.includes(searchNormalized);
+      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.startsWith(searchNormalized);
 
       const matchesSearch = matchesText || matchesPhone;
 
@@ -88,8 +97,8 @@ const MechanicVehicles = () => {
 
       switch (sortField) {
         case 'vehicle':
-          aValue = `${a.brand} ${a.model}`.toLowerCase();
-          bValue = `${b.brand} ${b.model}`.toLowerCase();
+          aValue = `${a.model} ${a.brand}`.toLowerCase();
+          bValue = `${b.model} ${b.brand}`.toLowerCase();
           break;
         case 'licensePlate':
           aValue = a.licensePlate.toLowerCase();

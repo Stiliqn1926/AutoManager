@@ -102,14 +102,17 @@ const Orders = () => {
   };
 
   const filteredOrders = orders.filter((order) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (order.displayOrderNumber || order.orderNumber).toLowerCase().includes(searchLower) ||
-      order.description.toLowerCase().includes(searchLower) ||
-      order.vehicle.brand.toLowerCase().includes(searchLower) ||
-      order.vehicle.model.toLowerCase().includes(searchLower) ||
-      order.vehicle.licensePlate.toLowerCase().includes(searchLower)
-    );
+    const searchLower = searchTerm.toLowerCase().trim();
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return true;
+    const fields = [
+      order.displayOrderNumber || order.orderNumber,
+      order.description,
+      order.vehicle.brand,
+      order.vehicle.model,
+      order.vehicle.licensePlate,
+    ].map((value) => value.toLowerCase());
+    return tokens.every((token) => fields.some((field) => field.startsWith(token)));
   });
 
   if (isLoading) {

@@ -246,7 +246,7 @@ export interface MechanicOrderDetails {
   createdAt: string;
   completedDate: string | null;
   totalPrice: number | null;
-  diagnosticNotes: string | null;
+  diagnosis: string | null;
   vehicle: {
     id: string;
     brand: string;

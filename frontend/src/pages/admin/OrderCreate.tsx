@@ -88,6 +88,14 @@ const OrderCreate = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      if (end < start) {
+        toast.error('Крайният срок не може да е преди началната дата.');
+        return;
+      }
+    }
     setIsSaving(true);
 
     try {

@@ -27,7 +27,7 @@ const MechanicOrderDetails = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<MechanicOrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [diagnosticNotes, setDiagnosticNotes] = useState('');
+  const [diagnosis, setDiagnosis] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
   const fetchOrderDetails = useCallback(async () => {
@@ -37,7 +37,7 @@ const MechanicOrderDetails = () => {
     try {
       const data = await getMechanicOrderById(id);
       setOrder(data.order);
-      setDiagnosticNotes(data.order.diagnosticNotes || '');
+      setDiagnosis(data.order.diagnosis || '');
     } catch {
       toast.error('Грешка при зареждане на данни');
       navigate('/mechanic/orders');
@@ -66,7 +66,7 @@ const MechanicOrderDetails = () => {
     if (!id) return;
 
     try {
-      await updateMechanicOrder(id, { diagnosticNotes });
+      await updateMechanicOrder(id, { diagnosis });
       toast.success('Диагностичните бележки са запазени');
       setIsEditingNotes(false);
       fetchOrderDetails();
@@ -261,8 +261,8 @@ const MechanicOrderDetails = () => {
               {isEditingNotes ? (
                 <div className="space-y-2">
                   <textarea
-                    value={diagnosticNotes}
-                    onChange={(e) => setDiagnosticNotes(e.target.value)}
+                    value={diagnosis}
+                    onChange={(e) => setDiagnosis(e.target.value)}
                     rows={5}
                     className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Въведи диагностични бележки..."
@@ -278,7 +278,7 @@ const MechanicOrderDetails = () => {
                     <button
                       onClick={() => {
                         setIsEditingNotes(false);
-                        setDiagnosticNotes(order.diagnosticNotes || '');
+                        setDiagnosis(order.diagnosis || '');
                       }}
                       className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
                     >
@@ -289,7 +289,7 @@ const MechanicOrderDetails = () => {
                 </div>
               ) : (
                 <p className="text-base text-textPrimary bg-gray-50 p-4 rounded-lg">
-                  {diagnosticNotes || 'Няма диагностични бележки'}
+                  {diagnosis || 'Няма диагностични бележки'}
                 </p>
               )}
             </div>

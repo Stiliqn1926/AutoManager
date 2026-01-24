@@ -114,9 +114,17 @@ const Schedules = () => {
 
   const filteredAndSorted = schedules
     .filter((schedule) => {
-      const matchesSearch =
-        schedule.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (schedule.worker && `${schedule.worker.firstName} ${schedule.worker.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()));
+      const searchLower = searchTerm.toLowerCase().trim();
+      const tokens = searchLower.split(/\s+/).filter(Boolean);
+      const matchesSearch = tokens.length === 0
+        ? true
+        : tokens.every((token) =>
+          [
+            schedule.title,
+            schedule.worker?.firstName || '',
+            schedule.worker?.lastName || '',
+          ].some((value) => value.toLowerCase().startsWith(token))
+        );
       const matchesStatus = !statusFilter || schedule.status === statusFilter;
       const matchesPriority = !priorityFilter || schedule.priority === priorityFilter;
       return matchesSearch && matchesStatus && matchesPriority;

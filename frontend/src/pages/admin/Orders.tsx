@@ -87,9 +87,18 @@ const Orders = () => {
 
   const filteredOrders = (() => {
     const filtered = orders.filter((order) => {
-      const matchesSearch = `${order.displayOrderNumber || order.orderNumber} ${order.client.firstName} ${order.client.lastName} ${order.vehicle.licensePlate}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      const searchLower = searchTerm.toLowerCase().trim();
+      const tokens = searchLower.split(/\s+/).filter(Boolean);
+      const matchesSearch = tokens.length === 0
+        ? true
+        : tokens.every((token) =>
+          [
+            order.displayOrderNumber || order.orderNumber,
+            order.client.firstName,
+            order.client.lastName,
+            order.vehicle.licensePlate,
+          ].some((value) => value.toLowerCase().startsWith(token))
+        );
 
       const matchesStatus =
         filterStatus === 'all' || order.status === filterStatus;

@@ -24,22 +24,6 @@ const RoleSelection = () => {
             className="group bg-cardBg border border-borderSubtle rounded-2xl p-10 text-left shadow-card transition-all hover:border-primary hover:shadow-lg focus:outline-none"
           >
             <div className="flex items-start gap-5">
-              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary-50 text-primary">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M14.7 6.3a1 1 0 010 1.4l-1.4 1.4a1 1 0 01-1.4 0L9.3 7.7a1 1 0 010-1.4l1.4-1.4a1 1 0 011.4 0l2.6 2.6zM7 21h10a2 2 0 002-2v-7l-5-5H7a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-
               <div>
                 <h2 className="text-2xl font-semibold text-textPrimary mb-2">
                   Вход за Сервиз
@@ -62,22 +46,6 @@ const RoleSelection = () => {
             className="group bg-cardBg border border-borderSubtle rounded-2xl p-10 text-left shadow-card transition-all hover:border-primary hover:shadow-lg focus:outline-none"
           >
             <div className="flex items-start gap-5">
-              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary-50 text-primary">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5.121 17.804A9 9 0 1118.364 4.56 9 9 0 015.12 17.804z"
-                  />
-                </svg>
-              </div>
-
               <div>
                 <h2 className="text-2xl font-semibold text-textPrimary mb-2">
                   Вход за Клиент

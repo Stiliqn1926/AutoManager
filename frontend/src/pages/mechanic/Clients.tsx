@@ -62,18 +62,27 @@ const MechanicClients = () => {
   const filteredClients = useMemo(() => {
     const searchLower = searchTerm.toLowerCase().trim();
     const searchNormalized = normalizePhone(searchTerm);
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
 
     let filtered = clients.filter((client) => {
+      const hasSearch = tokens.length > 0 || searchNormalized.length > 0;
+
       // Търсене по име или имейл
-      const nameEmail = `${client.firstName} ${client.lastName} ${client.email || ''} ${client.user?.email || ''}`
-        .toLowerCase();
-      const matchesNameEmail = nameEmail.includes(searchLower);
+      const fields = [
+        client.firstName,
+        client.lastName,
+        client.email || '',
+        client.user?.email || '',
+      ].map((value) => value.toLowerCase());
+      const matchesNameEmail = tokens.length === 0
+        ? false
+        : tokens.every((token) => fields.some((field) => field.startsWith(token)));
 
       // Търсене по телефон (нормализирано)
       const clientPhoneNormalized = normalizePhone(client.phone || '');
-      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.includes(searchNormalized);
+      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.startsWith(searchNormalized);
 
-      const matchesSearch = matchesNameEmail || matchesPhone;
+      const matchesSearch = !hasSearch || matchesNameEmail || matchesPhone;
 
       // Филтър за активни поръчки
       const matchesActive = !activeOnly || client.activeOrdersCount > 0;

@@ -255,7 +255,7 @@ const ServiceCompanies = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {allCompanies.map((company) => {
               const isSelected = selectedServiceCompany?.id === company.serviceCompany.id;
               const isActive = company.status === 'ACTIVE';
@@ -317,17 +317,8 @@ const ServiceCompanies = () => {
                   </div>
 
                   {/* Действия */}
-                  <div className="flex gap-2">
-                    {isActive && !isSelected && (
-                      <button
-                        onClick={() => handleSelectServiceCompany(company.serviceCompany.id)}
-                        className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-                      >
-                        Избери
-                      </button>
-                    )}
-
-                    {isPending && (
+                  {isPending ? (
+                    <div className="flex">
                       <button
                         onClick={() => handleCancelPendingRequest(company.clientId, company.serviceCompany.name)}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
@@ -335,19 +326,34 @@ const ServiceCompanies = () => {
                         <XCircle className="w-4 h-4" />
                         Откажи заявката
                       </button>
-                    )}
-
-                    {isActive && (
-                      <button
-                        onClick={() => handleLeaveServiceCompany(company.clientId, company.serviceCompany.name)}
-                        className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
-                        title="Напусни сервиз"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        {isSelected ? 'Напусни' : ''}
-                      </button>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 items-center gap-2">
+                      <div />
+                      <div className="flex justify-center">
+                        {isActive && !isSelected && (
+                          <button
+                            onClick={() => handleSelectServiceCompany(company.serviceCompany.id)}
+                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                          >
+                            Избери
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex justify-end">
+                        {isActive && (
+                          <button
+                            onClick={() => handleLeaveServiceCompany(company.clientId, company.serviceCompany.name)}
+                            className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
+                            title="Напусни сервиз"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            {isSelected ? 'Напусни' : ''}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

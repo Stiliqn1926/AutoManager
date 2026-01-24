@@ -137,16 +137,24 @@ const Workers = () => {
 
   const filteredWorkers = (() => {
     const filtered = workers.filter((worker) => {
-      const matchesSearch = `${worker.firstName} ${worker.lastName} ${worker.phone}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      const searchLower = searchTerm.toLowerCase().trim();
+      const tokens = searchLower.split(/\s+/).filter(Boolean);
+      const matchesSearch = tokens.length === 0
+        ? true
+        : tokens.every((token) =>
+          [
+            worker.firstName,
+            worker.lastName,
+            worker.phone,
+          ].some((value) => value.toLowerCase().startsWith(token))
+        );
 
       const matchesSpecialization =
         !filterSpecialization ||
         (worker.specialization &&
           worker.specialization
             .toLowerCase()
-            .includes(filterSpecialization.toLowerCase()));
+            .startsWith(filterSpecialization.toLowerCase()));
 
       const matchesStatus =
         filterStatus === 'all' ||

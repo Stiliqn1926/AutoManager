@@ -70,13 +70,18 @@ const Suppliers = () => {
   };
 
   const filteredSuppliers = suppliers.filter((supplier) => {
-    const matchesSearch =
-      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.phonePrimary.includes(searchTerm) ||
-      (supplier.email &&
-        supplier.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (supplier.contactPerson &&
-        supplier.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()));
+    const searchLower = searchTerm.toLowerCase().trim();
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
+    const matchesSearch = tokens.length === 0
+      ? true
+      : tokens.every((token) =>
+        [
+          supplier.name,
+          supplier.phonePrimary,
+          supplier.email || '',
+          supplier.contactPerson || '',
+        ].some((value) => value.toLowerCase().startsWith(token))
+      );
 
     const matchesType = !typeFilter || supplier.type === typeFilter;
     const matchesActive =

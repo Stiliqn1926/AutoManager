@@ -150,16 +150,31 @@ const Clients = () => {
   const filteredClients = (() => {
     const searchLower = searchTerm.toLowerCase().trim();
     const searchNormalized = normalizePhone(searchTerm);
+    const tokens = searchLower.split(/\s+/).filter(Boolean);
 
     const filtered = clients.filter((client) => {
+      if (tokens.length === 0 && searchNormalized.length === 0) {
+        return (
+          filterStatus === 'all' ||
+          (filterStatus === 'pending' && client.isPending) ||
+          (filterStatus === 'active' && client.isActive && !client.isPending) ||
+          (filterStatus === 'inactive' && !client.isActive && !client.isPending)
+        );
+      }
+
       // Търсене по име или имейл
-      const nameEmail = `${client.firstName} ${client.lastName} ${client.user?.email || ''}`
-        .toLowerCase();
-      const matchesNameEmail = nameEmail.includes(searchLower);
+      const fields = [
+        client.firstName,
+        client.lastName,
+        client.user?.email || client.email || '',
+      ].map((value) => value.toLowerCase());
+      const matchesNameEmail = tokens.length === 0
+        ? false
+        : tokens.every((token) => fields.some((field) => field.startsWith(token)));
 
       // Търсене по телефон (нормализирано)
       const clientPhoneNormalized = normalizePhone(client.phone || '');
-      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.includes(searchNormalized);
+      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.startsWith(searchNormalized);
 
       const matchesSearch = matchesNameEmail || matchesPhone;
 

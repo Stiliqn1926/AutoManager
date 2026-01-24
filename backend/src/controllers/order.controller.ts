@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { OrderStatus, Prisma } from '@prisma/client';
 import prisma from '../config/database';
 import { sendEmail, emailTemplates } from '../services/email.service';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
@@ -43,7 +44,7 @@ export const createOrder = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { vehicleId, clientId, description, workerId } = req.body;
+    const { vehicleId, clientId, description, workerId, startDate, endDate } = req.body;
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
@@ -83,6 +84,15 @@ export const createOrder = async (
       return;
     }
 
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (end < start) {
+        res.status(400).json({ message: 'End date cannot be before start date' });
+        return;
+      }
+    }
+
     const orderNumber = await generateOrderNumber();
     const displayOrderNumber = await generateDisplayOrderNumber(serviceCompanyId);
 
@@ -96,6 +106,8 @@ export const createOrder = async (
           clientId,
           workerId: assignedWorkerId,
           serviceCompanyId,
+          ...(startDate && { startDate: new Date(startDate) }),
+          ...(endDate && { endDate: new Date(endDate) }),
         },
         include: {
           vehicle: true,
@@ -358,17 +370,62 @@ export const updateOrder = async (
       }
     }
 
+    if (orderItems && Array.isArray(orderItems)) {
+      const hasInvalidItem = orderItems.some((item: any) => {
+        const quantity = Number(item?.quantity);
+        const unitPrice = Number(item?.unitPrice);
+        return !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice <= 0;
+      });
+
+      if (hasInvalidItem) {
+        res.status(400).json({ message: 'Quantity and unit price are required for order items' });
+        return;
+      }
+    }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (end < start) {
+        res.status(400).json({ message: 'End date cannot be before start date' });
+        return;
+      }
+    }
+
     const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updateData: Prisma.OrderUpdateInput = {};
+
+      if (diagnosis !== undefined) {
+        updateData.diagnosis = diagnosis;
+      }
+
+      if (notes !== undefined) {
+        updateData.notes = notes;
+      }
+
+      if (status !== undefined) {
+        updateData.status = status as OrderStatus;
+      }
+
+      if (userRole === 'ADMIN') {
+        if (workerId) {
+          updateData.worker = { connect: { id: workerId } };
+        } else if (workerId === '') {
+          updateData.worker = { disconnect: true };
+        }
+      }
+
+      if (startDate !== undefined) {
+        updateData.startDate = startDate ? new Date(startDate) : null;
+      }
+
+      if (endDate !== undefined) {
+        updateData.endDate = endDate ? new Date(endDate) : null;
+      }
+
       const updated = await tx.order.update({
         where: { id },
-        data: {
-          diagnosis,
-          notes,
-          status,
-          workerId: userRole === 'ADMIN' ? (workerId || null) : undefined,
-          startDate: startDate ? new Date(startDate) : null,
-          endDate: endDate ? new Date(endDate) : null,
-        },
+        data: updateData,
       });
 
       // Sync schedule deadline

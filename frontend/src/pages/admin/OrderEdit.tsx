@@ -102,6 +102,27 @@ const OrderEdit = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      if (end < start) {
+        toast.error('Крайният срок не може да е преди началната дата.');
+        return;
+      }
+    }
+    const hasInvalidItem = orderItems.some((item) => {
+      const hasDescription = item.description.trim() !== '';
+      if (!hasDescription) return false;
+      const quantity = Number(item.quantity);
+      const unitPrice = Number(item.unitPrice);
+      return !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice <= 0;
+    });
+
+    if (hasInvalidItem) {
+      toast.error('Попълнете количество и цена за всички добавени услуги/части/консумативи.');
+      return;
+    }
+
     setIsSaving(true);
 
     try {

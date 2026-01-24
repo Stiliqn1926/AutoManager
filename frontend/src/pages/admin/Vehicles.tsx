@@ -83,11 +83,17 @@ const Vehicles = () => {
   /* ✅ const вместо let */
   const filteredVehicles = (() => {
     const filtered = vehicles.filter((vehicle) => {
-      const matchesSearch = `${vehicle.licensePlate} ${vehicle.brand} ${vehicle.model} ${vehicle.client.firstName} ${vehicle.client.lastName}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
+      const searchLower = searchTerm.toLowerCase().trim();
+      const tokens = searchLower.split(/\s+/).filter(Boolean);
+      if (tokens.length === 0) return true;
+      const fields = [
+        vehicle.licensePlate,
+        vehicle.brand,
+        vehicle.model,
+        vehicle.client.firstName,
+        vehicle.client.lastName,
+      ].map((value) => value.toLowerCase());
+      return tokens.every((token) => fields.some((field) => field.startsWith(token)));
     });
 
     filtered.sort((a, b) => {

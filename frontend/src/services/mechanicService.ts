@@ -170,7 +170,7 @@ export const updateMechanicOrder = async (
   orderId: string,
   data: {
     description?: string;
-    diagnosticNotes?: string;
+    diagnosis?: string;
   }
 ): Promise<{ message: string; order: MechanicOrderDetails }> => {
   const response = await api.put(`/orders/${orderId}`, data);
