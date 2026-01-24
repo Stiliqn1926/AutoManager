@@ -20,7 +20,8 @@
       "Bash(timeout 5 npm run dev:*)",
       "Bash(npm run build:*)",
       "Bash(npx eslint:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npx prisma validate:*)"
     ]
   }
 }

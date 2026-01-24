@@ -9,7 +9,6 @@ interface AuthRequest extends Request {
   };
 }
 
-// Add Order Item (ADMIN добавя част/труд/консуматив към поръчка)
 export const addOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -18,10 +17,8 @@ export const addOrderItem = async (
     const { orderId } = req.params;
     const { type, name, quantity, unitPrice, description } = req.body;
 
-    // Изчисли totalPrice
     const totalPrice = quantity * unitPrice;
 
-    // Get order to access serviceCompanyId
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       select: { serviceCompanyId: true },
@@ -32,7 +29,6 @@ export const addOrderItem = async (
       return;
     }
 
-    // Създай OrderItem
     const orderItem = await prisma.orderItem.create({
       data: {
         type,
@@ -46,7 +42,6 @@ export const addOrderItem = async (
       },
     });
 
-    // Обнови totalPrice на поръчката
     await updateOrderTotalPrice(orderId);
 
     res.status(201).json({
@@ -58,7 +53,6 @@ export const addOrderItem = async (
   }
 };
 
-// Get Order Items (всички елементи на поръчка)
 export const getOrderItems = async (
   req: AuthRequest,
   res: Response
@@ -68,9 +62,7 @@ export const getOrderItems = async (
 
     const orderItems = await prisma.orderItem.findMany({
       where: { orderId },
-      orderBy: {
-        createdAt: 'asc',
-      },
+      orderBy: { createdAt: 'asc' },
     });
 
     res.status(200).json({ orderItems });
@@ -79,7 +71,6 @@ export const getOrderItems = async (
   }
 };
 
-// Update Order Item
 export const updateOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -88,7 +79,6 @@ export const updateOrderItem = async (
     const { id } = req.params;
     const { type, name, quantity, unitPrice, description } = req.body;
 
-    // Изчисли totalPrice
     const totalPrice = quantity * unitPrice;
 
     const updatedItem = await prisma.orderItem.update({
@@ -103,11 +93,10 @@ export const updateOrderItem = async (
       },
     });
 
-    // Обнови totalPrice на поръчката
     const orderItem = await prisma.orderItem.findUnique({
       where: { id },
     });
-    
+
     if (orderItem) {
       await updateOrderTotalPrice(orderItem.orderId);
     }
@@ -121,7 +110,6 @@ export const updateOrderItem = async (
   }
 };
 
-// Delete Order Item
 export const deleteOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -142,7 +130,6 @@ export const deleteOrderItem = async (
       where: { id },
     });
 
-    // Обнови totalPrice на поръчката
     await updateOrderTotalPrice(orderItem.orderId);
 
     res.status(200).json({
@@ -153,7 +140,6 @@ export const deleteOrderItem = async (
   }
 };
 
-// Helper function: Update Order Total Price
 const updateOrderTotalPrice = async (orderId: string): Promise<void> => {
   const orderItems = await prisma.orderItem.findMany({
     where: { orderId },

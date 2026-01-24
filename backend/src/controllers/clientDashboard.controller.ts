@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
+import path from 'path';
+import fs from 'fs';
 
 interface AuthRequest extends Request {
   user?: {
@@ -1188,6 +1190,76 @@ export const leaveServiceCompany = async (
     res.status(200).json({ message: 'Успешно напуснахте сервиза' });
   } catch (error) {
     console.error('[leaveServiceCompany] error:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// =======================================
+// DOWNLOAD INVOICE PDF
+// =======================================
+export const downloadInvoicePDF = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { invoiceNumber } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User ID not found' });
+      return;
+    }
+
+    // Намери всички Client профили на този user
+    const clients = await prisma.client.findMany({
+      where: { userId },
+    });
+
+    if (clients.length === 0) {
+      res.status(404).json({ message: 'Client profile not found' });
+      return;
+    }
+
+    // Намери фактурата по invoiceNumber
+    const invoice = await prisma.invoice.findFirst({
+      where: { invoiceNumber },
+      include: {
+        order: {
+          select: {
+            clientId: true,
+          },
+        },
+      },
+    });
+
+    if (!invoice) {
+      res.status(404).json({ message: 'Invoice not found' });
+      return;
+    }
+
+    // Провери дали фактурата принадлежи на този клиент
+    const clientIds = clients.map(c => c.id);
+    if (!clientIds.includes(invoice.order.clientId)) {
+      res.status(403).json({ message: 'Forbidden: Invoice does not belong to you' });
+      return;
+    }
+
+    // Провери дали PDF файлът съществува
+    const pdfPath = path.join(process.cwd(), 'uploads', 'invoices', `${invoiceNumber}.pdf`);
+
+    if (!fs.existsSync(pdfPath)) {
+      res.status(404).json({ message: 'PDF file not found' });
+      return;
+    }
+
+    // Изпрати PDF файла
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
+
+    const fileStream = fs.createReadStream(pdfPath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('[downloadInvoicePDF] error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };

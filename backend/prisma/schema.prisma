@@ -28,7 +28,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   serviceCompany     ServiceCompany?
-  client             Client?
+  clients            Client[]
   worker             Worker?
   refreshTokens      RefreshToken[]
   passwordResets     PasswordReset[]
@@ -137,10 +137,12 @@ model Client {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  userId           String?  @unique
+  userId           String?
   serviceCompanyId String?
   user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   serviceCompany   ServiceCompany?  @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 
   vehicles      Vehicle[]
   orders        Order[]

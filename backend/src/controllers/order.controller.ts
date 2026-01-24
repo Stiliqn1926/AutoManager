@@ -14,15 +14,12 @@ interface AuthRequest extends Request {
   };
 }
 
-// Generate unique order number (системен ID - за вътрешна логика)
 const generateOrderNumber = async (): Promise<string> => {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 10000);
-
   return `AUTO-${timestamp}-${random}`;
 };
 
-// Generate display order number (човешки номер за UI)
 const generateDisplayOrderNumber = async (serviceCompanyId: string): Promise<string> => {
   const lastOrder = await prisma.order.findFirst({
     where: { serviceCompanyId },
@@ -41,7 +38,6 @@ const generateDisplayOrderNumber = async (serviceCompanyId: string): Promise<str
   return `#${nextNum}`;
 };
 
-// Create Order (ADMIN или MECHANIC)
 export const createOrder = async (
   req: AuthRequest,
   res: Response
@@ -90,7 +86,6 @@ export const createOrder = async (
     const orderNumber = await generateOrderNumber();
     const displayOrderNumber = await generateDisplayOrderNumber(serviceCompanyId);
 
-    // ✅ ТРАНЗАКЦИЯ: Създаване на поръчка (БЕЗ автоматичен график)
     const result = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
@@ -120,8 +115,7 @@ export const createOrder = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
-  
-// Get All Orders (ADMIN вижда всички, MECHANIC само своите) - С PAGINATION
+
 export const getAllOrders = async (
   req: AuthRequest,
   res: Response
@@ -159,7 +153,6 @@ export const getAllOrders = async (
       }
 
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 400
         const pagination = getPaginationMeta(0, page, limit);
         res.status(200).json({ orders: [], pagination });
         return;
@@ -172,13 +165,11 @@ export const getAllOrders = async (
       return;
     }
 
-    // Add status filter if provided
-    // Add status filter if provided
-if (statusFilter) {
-  type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
-  const statuses = statusFilter.split(',').map(s => s.trim()) as OrderStatus[];
-  whereClause.status = { in: statuses };
-}
+    if (statusFilter) {
+      type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
+      const statuses = statusFilter.split(',').map(s => s.trim()) as OrderStatus[];
+      whereClause.status = { in: statuses };
+    }
 
     const totalItems = await prisma.order.count({ where: whereClause });
 
@@ -214,7 +205,6 @@ if (statusFilter) {
 
     const pagination = getPaginationMeta(totalItems, page, limit);
 
-    // Трансформираме orders да включат isPaid директно
     const ordersWithPaymentStatus = orders.map((order) => ({
       ...order,
       isPaid: order.invoices[0]?.isPaid ?? false,
@@ -229,7 +219,6 @@ if (statusFilter) {
   }
 };
 
-// Get Order by ID
 export const getOrderById = async (
   req: AuthRequest,
   res: Response
@@ -295,24 +284,23 @@ export const getOrderById = async (
   }
 };
 
-// Update Order (ADMIN може всичко, MECHANIC ограничено)
 export const updateOrder = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
     const { id } = req.params;
-   const {
-  diagnosis,        // ✅ не description
-  notes,            // ✅ добави
-  status,
-  workerId,
-  startDate,        // ✅ добави
-  endDate,          // ✅ добави
-  isPaid,           // ✅ добави
-  paymentMethod,    // ✅ добави
-  orderItems
-} = req.body;
+    const {
+      diagnosis,
+      notes,
+      status,
+      workerId,
+      startDate,
+      endDate,
+      isPaid,
+      paymentMethod,
+      orderItems
+    } = req.body;
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
@@ -325,7 +313,6 @@ export const updateOrder = async (
       return;
     }
 
-    // Ако е ADMIN, провери дали е от неговата компания
     if (userRole === 'ADMIN') {
       const serviceCompany = await prisma.serviceCompany.findUnique({
         where: { userId },
@@ -336,7 +323,7 @@ export const updateOrder = async (
         return;
       }
 
-      // ✅ ПРОВЕРКА: Дали новият механик е зает в този период
+      // Check if new worker has schedule conflict
       if (workerId && workerId !== order.workerId) {
         const startTime = new Date();
         const endTime = new Date();
@@ -360,9 +347,7 @@ export const updateOrder = async (
           return;
         }
       }
-    }
-    // Ако е MECHANIC, провери дали е НЕГОВА поръчка
-    else if (userRole === 'MECHANIC') {
+    } else if (userRole === 'MECHANIC') {
       const worker = await prisma.worker.findUnique({
         where: { userId },
       });
@@ -373,22 +358,20 @@ export const updateOrder = async (
       }
     }
 
-    // ТРАНЗАКЦИЯ - обнови поръчка + обнови order items + управлявай график
     const updatedOrder = await prisma.$transaction(async (tx) => {
-      // Обнови основната поръчка
       const updated = await tx.order.update({
-  where: { id },
-  data: {
-    diagnosis,
-    notes,
-    status,
-    workerId: userRole === 'ADMIN' ? (workerId || null) : undefined,
-    startDate: startDate ? new Date(startDate) : null,
-    endDate: endDate ? new Date(endDate) : null,
-  },
-});
+        where: { id },
+        data: {
+          diagnosis,
+          notes,
+          status,
+          workerId: userRole === 'ADMIN' ? (workerId || null) : undefined,
+          startDate: startDate ? new Date(startDate) : null,
+          endDate: endDate ? new Date(endDate) : null,
+        },
+      });
 
-      // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок в график
+      // Sync schedule deadline
       if (endDate) {
         await tx.schedule.updateMany({
           where: { orderId: id },
@@ -396,9 +379,9 @@ export const updateOrder = async (
         });
       }
 
-      // ✅ СИНХРОНИЗАЦИЯ: Обнови статус в график
+      // Sync schedule status
       if (status) {
-        const statusMap: any = {
+        const statusMap: Record<string, 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'> = {
           'WAITING': 'SCHEDULED',
           'IN_PROGRESS': 'IN_PROGRESS',
           'READY': 'COMPLETED',
@@ -416,39 +399,35 @@ export const updateOrder = async (
         }
       }
 
-      // ✅ УПРАВЛЕНИЕ НА ГРАФИК при смяна на механик
+      // Update worker in schedule
       if (userRole === 'ADMIN' && workerId !== undefined) {
-        // Обнови механика в съществуващия график (вместо да го трие)
         await tx.schedule.updateMany({
           where: { orderId: id },
           data: { workerId: workerId || null },
         });
       }
 
-      // Ако има orderItems, обнови ги
+      // Update order items
       if (orderItems && Array.isArray(orderItems)) {
-        // Изтрий всички стари order items
         await tx.orderItem.deleteMany({
           where: { orderId: id },
         });
 
-        // Създай новите order items
         if (orderItems.length > 0) {
           await tx.orderItem.createMany({
-          data: orderItems.map((item: any) => ({
-          orderId: id,
-          type: item.type || 'LABOR',
-          name: item.description || 'Без описание',
-          description: item.description,
-          quantity: Number(item.quantity),
-          unitPrice: Number(item.unitPrice),
-          totalPrice: Number(item.quantity) * Number(item.unitPrice),
-         serviceCompanyId: order.serviceCompanyId,
-        })),
-   });
+            data: orderItems.map((item: any) => ({
+              orderId: id,
+              type: item.type || 'LABOR',
+              name: item.description || 'Без описание',
+              description: item.description,
+              quantity: Number(item.quantity),
+              unitPrice: Number(item.unitPrice),
+              totalPrice: Number(item.quantity) * Number(item.unitPrice),
+              serviceCompanyId: order.serviceCompanyId,
+            })),
+          });
         }
 
-        // Обнови totalPrice на поръчката
         const newOrderItems = await tx.orderItem.findMany({
           where: { orderId: id },
         });
@@ -463,7 +442,7 @@ export const updateOrder = async (
         });
       }
 
-      // ✅ АВТОМАТИЧНО МАРКИРАНЕ КАТО ПЛАТЕНА при статус COMPLETED
+      // Auto-mark as paid when COMPLETED
       if (userRole === 'ADMIN' && status === 'COMPLETED') {
         const existingInvoice = await tx.invoice.findFirst({
           where: { orderId: id },
@@ -481,7 +460,7 @@ export const updateOrder = async (
         }
       }
 
-      // Обнови метод на плащане независимо от статус
+      // Update payment method
       if (userRole === 'ADMIN' && paymentMethod !== undefined) {
         const existingInvoice = await tx.invoice.findFirst({
           where: { orderId: id },
@@ -490,9 +469,7 @@ export const updateOrder = async (
         if (existingInvoice && status !== 'COMPLETED') {
           await tx.invoice.update({
             where: { id: existingInvoice.id },
-            data: {
-              paymentMethod: paymentMethod || null,
-            },
+            data: { paymentMethod: paymentMethod || null },
           });
         }
       }
@@ -500,7 +477,6 @@ export const updateOrder = async (
       return updated;
     });
 
-    // Вземи обновената поръчка с всички relations
     const finalOrder = await prisma.order.findUnique({
       where: { id },
       include: {
@@ -535,7 +511,6 @@ export const updateOrder = async (
   }
 };
 
-// Update Order Status (с ограничения за MECHANIC) - С ТРАНЗАКЦИЯ
 export const updateOrderStatus = async (
   req: AuthRequest,
   res: Response
@@ -586,7 +561,6 @@ export const updateOrderStatus = async (
         },
       });
 
-      // ✅ АКТУАЛИЗИРАЙ ГРАФИК при завършване/отмяна
       if (status === 'COMPLETED') {
         await tx.schedule.updateMany({
           where: { orderId: id },
@@ -659,7 +633,6 @@ export const updateOrderStatus = async (
   }
 };
 
-// Complete Order (само ADMIN) - С ТРАНЗАКЦИЯ
 export const completeOrder = async (
   req: AuthRequest,
   res: Response
@@ -691,7 +664,6 @@ export const completeOrder = async (
         },
       });
 
-      // ✅ АКТУАЛИЗИРАЙ ГРАФИК при завършване
       await tx.schedule.updateMany({
         where: { orderId: id },
         data: {
@@ -743,7 +715,6 @@ export const completeOrder = async (
   }
 };
 
-// Delete Order (само ADMIN)
 export const deleteOrder = async (
   req: AuthRequest,
   res: Response
@@ -793,7 +764,6 @@ export const deleteOrder = async (
   }
 };
 
-// Finalize Order and Generate Invoice (само ADMIN)
 export const finalizeOrder = async (
   req: AuthRequest,
   res: Response
@@ -960,7 +930,6 @@ export const finalizeOrder = async (
   }
 };
 
-// Add Order Item (ADMIN добавя част/труд/консуматив към поръчка)
 export const addOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -1005,7 +974,6 @@ export const addOrderItem = async (
   }
 };
 
-// Get Order Items (всички елементи на поръчка)
 export const getOrderItems = async (
   req: AuthRequest,
   res: Response
@@ -1026,7 +994,6 @@ export const getOrderItems = async (
   }
 };
 
-// Update Order Item
 export const updateOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -1066,7 +1033,6 @@ export const updateOrderItem = async (
   }
 };
 
-// Delete Order Item
 export const deleteOrderItem = async (
   req: AuthRequest,
   res: Response
@@ -1097,7 +1063,6 @@ export const deleteOrderItem = async (
   }
 };
 
-// Helper function: Update Order Total Price
 const updateOrderTotalPrice = async (orderId: string): Promise<void> => {
   const orderItems = await prisma.orderItem.findMany({
     where: { orderId },

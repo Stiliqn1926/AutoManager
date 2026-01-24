@@ -306,8 +306,10 @@ const Settings = () => {
                 >
                   <div className="flex-1">
                     <h3 className="font-semibold text-textPrimary">
-                      {request.email}
+                      {request.firstName} {request.lastName}
                     </h3>
+                    <p className="text-sm text-textSecondary">{request.email}</p>
+                    <p className="text-sm text-textSecondary">{request.phone}</p>
                     <p className="text-xs text-textSecondary mt-2">
                       Дата на заявка: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
                     </p>

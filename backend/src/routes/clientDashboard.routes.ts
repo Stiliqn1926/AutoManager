@@ -11,6 +11,7 @@ import {
   getClientOrderById,
   getClientOrderHistory,
   getClientInvoices,
+  downloadInvoicePDF,
   getClientNotifications,
   markNotificationAsRead,
   getClientDashboardOverview,
@@ -53,6 +54,7 @@ router.get('/orders/:id', getClientOrderById);
 
 // Invoices
 router.get('/invoices', getClientInvoices);
+router.get('/invoices/:invoiceNumber/pdf', downloadInvoicePDF);
 
 // Notifications
 router.get('/notifications', getClientNotifications);

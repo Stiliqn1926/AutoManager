@@ -1,463 +1,852 @@
-﻿# AutoManager - Документация
+# AutoManager
 
-## Преглед
-AutoManager е уеб система за управление на автосервизи: клиенти, механици, автомобили, поръчки, графици, фактури, доставчици и финансов отчет.
+**Система за управление на автосервизи**
 
-## Архитектура (цялостна)
-- Монорепо с два основни модула: `backend/` (API) и `frontend/` (SPA клиент).
-- Backend слой:
-  - Входна точка: `server.ts` → `app.ts` (Express).
-  - Рутинг: `routes/` (REST endpoints по домейни).
-  - Контролери: `controllers/` (обработка на заявки, бизнес логика).
-  - Услуги: `services/` (общи услуги, логване, външни интеграции).
-  - Валидации: `validators/` (Joi схеми).
-  - Middleware: `middleware/` (грешки, auth и др.).
-  - Jobs: `jobs/` (cron задачи, напр. почистване на токени).
-  - Types/Utils: `types/`, `utils/`.
-- Данни:
-  - ORM: Prisma (`prisma/schema.prisma`).
-  - База данни: PostgreSQL.
-  - Домейн модели: потребители и роли, компании, клиенти, механици, заявки, автомобили, поръчки, позиции, фактури, графици, доставчици, финанси, уведомления.
-- Сигурност и достъп:
-  - JWT + refresh tokens, httpOnly cookies.
-  - Rate limiting, CORS whitelist.
-  - Хеширане на пароли.
-- Файлове:
-  - Статично сервиране на `/uploads` за качени файлове.
-- Frontend слой:
-  - React SPA с Vite.
-  - Маршрути: `routes/`, страници по роли: `pages/admin`, `pages/mechanic`, `pages/client`, `pages/auth`.
-  - State/Context: `context/` и custom hooks в `hooks/`.
-  - API слой: `services/` (axios).
-  - UI компоненти: `components/` + Tailwind CSS стилове.
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-Private-red.svg)]()
 
-## Структура на проекта
-- `backend/` - API, бизнес логика, Prisma схема, jobs, middleware, validators.
-- `frontend/` - SPA приложение, маршрути, страници, компоненти, контекст, услуги.
-- `docs/` - документация.
+---
 
-## Технологии
-- Backend: Node.js, TypeScript, Express, Prisma, PostgreSQL.
-- Frontend: React, TypeScript, Vite, Tailwind CSS.
-- Тестове: Jest, Supertest.
-- Логване и утилити: Winston, dotenv.
+## Съдържание
 
-## Всички изтеглени библиотеки
-### Backend зависимости
-Производствени:
-- @prisma/client
-- bcryptjs
-- cookie-parser
-- cors
-- dns2
-- dotenv
-- express
-- express-rate-limit
-- joi
-- jsonwebtoken
-- multer
-- node-cron
-- nodemailer
-- pdfkit
-- prisma
-- winston
+- [Описание](#описание)
+- [Основни функционалности](#основни-функционалности)
+- [Технологичен стек](#технологичен-стек)
+- [Архитектура](#архитектура)
+- [Инсталация](#инсталация)
+- [Конфигурация](#конфигурация)
+- [Стартиране](#стартиране)
+- [API документация](#api-документация)
+- [База данни](#база-данни)
+- [Сигурност](#сигурност)
+- [Тестване](#тестване)
+- [Структура на проекта](#структура-на-проекта)
 
-Dev зависимости:
-- @types/bcryptjs
-- @types/cookie-parser
-- @types/cors
-- @types/dns2
-- @types/express
-- @types/jest
-- @types/joi
-- @types/jsonwebtoken
-- @types/methods
-- @types/multer
-- @types/node
-- @types/node-cron
-- @types/nodemailer
-- @types/pdfkit
-- @types/supertest
-- @types/winston
-- jest
-- nodemon
-- supertest
-- ts-jest
-- ts-node
-- typescript
+---
 
-### Frontend зависимости
-Производствени:
-- axios
-- date-fns
-- lucide-react
-- react
-- react-dom
-- react-hot-toast
-- react-router-dom
-- recharts
+## Описание
 
-Dev зависимости:
-- @eslint/js
-- @types/node
-- @types/react
-- @types/react-dom
-- @vitejs/plugin-react
-- autoprefixer
-- eslint
-- eslint-plugin-react-hooks
-- eslint-plugin-react-refresh
-- globals
-- postcss
-- tailwindcss
-- typescript
-- typescript-eslint
-- vite
+**AutoManager** е цялостна уеб платформа за управление на автосервизи, която предоставя инструменти за:
 
-## Стартиране локално
+- Управление на клиенти и техните превозни средства
+- Проследяване на поръчки и ремонти
+- Планиране на график за механици
+- Издаване на фактури с PDF експорт
+- Финансов отчет и анализ
+- Управление на доставчици
+
+Системата поддържа **три потребителски роли** с различни нива на достъп:
+
+| Роля | Описание |
+|------|----------|
+| **ADMIN** | Собственик на сервиз - пълен достъп до всички функции |
+| **MECHANIC** | Механик - достъп до възложени задачи и график |
+| **CLIENT** | Клиент - преглед на поръчки, фактури и известия |
+
+---
+
+## Основни функционалности
+
+### Управление на клиенти
+- Регистрация и профил на клиенти
+- Свързване с множество сервизи
+- История на поръчките
+- Система за известия
+
+### Управление на превозни средства
+- Регистрация на автомобили (марка, модел, година, рег. номер, VIN)
+- Проследяване на километраж
+- История на ремонтите
+
+### Поръчки и ремонти
+- Създаване на поръчки с детайлно описание
+- Статуси: WAITING → IN_PROGRESS → READY → COMPLETED
+- Приоритети: LOW, NORMAL, HIGH, URGENT
+- Артикули: части, труд, консумативи
+- Автоматично изчисление на цени
+
+### График и планиране
+- Календарен изглед: дневен, седмичен, месечен
+- Възлагане на задачи към механици
+- Проследяване на статус и продължителност
+- Приоритизиране на задачи
+
+### Фактуриране
+- Автоматично генериране от завършени поръчки
+- PDF експорт с българска поддръжка (кирилица)
+- Проследяване на плащания
+- Номерация на фактури
+
+### Финансов модул
+- Приходи и разходи по категории
+- Категории: Части, Труд, Консумативи, Наем, Заплати, Данъци и др.
+- Графики и статистики
+- Финансово табло
+
+### Доставчици
+- База данни с доставчици
+- Типове: PARTS, CONSUMABLES, SERVICES, TIRES
+- Предпочитани доставчици
+- Контактна информация
+
+---
+
+## Технологичен стек
+
 ### Backend
-1) `cd backend`
-2) `npm install`
-3) Копирай `.env.example` в `.env` и попълни стойностите
-4) `npm run dev`
+
+| Технология | Версия | Предназначение |
+|------------|--------|----------------|
+| Node.js | 18+ | Runtime среда |
+| Express.js | 5.2.1 | Web framework |
+| TypeScript | 5.9 | Типизация |
+| Prisma | 5.21.1 | ORM |
+| PostgreSQL | 15+ | База данни |
+| JWT | - | Автентикация |
+| Winston | 3.19.0 | Логване |
+| PDFKit | 0.17.2 | PDF генериране |
+| Nodemailer | 7.0.12 | Email изпращане |
+| Jest | 30.2.0 | Тестване |
 
 ### Frontend
-1) `cd frontend`
-2) `npm install`
-3) `npm run dev`
 
-## Конфигурация (.env)
-Backend очаква основните стойности в `.env` (например: `DATABASE_URL`, JWT секретни ключове, `FRONTEND_URL`).
+| Технология | Версия | Предназначение |
+|------------|--------|----------------|
+| React | 19.2.0 | UI библиотека |
+| Vite | 7.2.4 | Build tool |
+| TypeScript | 5.9 | Типизация |
+| Tailwind CSS | 3.4.19 | Стилизиране |
+| Axios | 1.13.2 | HTTP клиент |
+| React Router | 7.11.0 | Маршрутизация |
+| Recharts | 3.6.0 | Графики |
+| Lucide React | 0.562.0 | Икони |
+
+---
+
+## Архитектура
+
+### Обща структура
+
+```
+AutoManager/
+├── .claude/                          # Claude AI настройки
+│   └── settings.local.json
+├── .vscode/                          # VS Code настройки
+│   └── settings.json
+├── backend/                          # REST API сървър
+├── frontend/                         # React SPA клиент
+└── docs/                             # Документация
+    └── README.md
+```
+
+### Backend структура
+
+```
+backend/
+├── fonts/                            # Шрифтове за PDF
+│   ├── DejaVuSans.ttf
+│   └── DejaVuSans-Bold.ttf
+├── logs/                             # Лог файлове
+│   ├── combined.log
+│   └── error.log
+├── prisma/                           # Prisma ORM
+│   ├── migrations/                   # Database миграции
+│   └── schema.prisma                 # Database схема
+├── src/
+│   ├── __tests__/                    # Unit тестове
+│   │   ├── auth.test.ts
+│   │   ├── order.test.ts
+│   │   ├── permissions.test.ts
+│   │   └── setup.ts
+│   ├── config/                       # Конфигурации
+│   │   ├── database.ts
+│   │   └── multer.ts
+│   ├── controllers/                  # Request handlers
+│   │   ├── auth.controller.ts
+│   │   ├── client.controller.ts
+│   │   ├── clientDashboard.controller.ts
+│   │   ├── dashboard.controller.ts
+│   │   ├── finance.controller.ts
+│   │   ├── invoice.controller.ts
+│   │   ├── notification.controller.ts
+│   │   ├── order.controller.ts
+│   │   ├── orderItem.controller.ts
+│   │   ├── pendingRequest.controller.ts
+│   │   ├── schedule.controller.ts
+│   │   ├── serviceCompany.controller.ts
+│   │   ├── supplier.controller.ts
+│   │   ├── vehicle.controller.ts
+│   │   └── worker.controller.ts
+│   ├── jobs/                         # Cron задачи
+│   │   └── tokenCleanup.job.ts
+│   ├── middleware/                   # Express middleware
+│   │   ├── auth.middleware.ts
+│   │   ├── errorHandler.middleware.ts
+│   │   ├── mechanicServiceCheck.middleware.ts
+│   │   ├── rateLimiter.middleware.ts
+│   │   ├── role.middleware.ts
+│   │   └── validation.middleware.ts
+│   ├── routes/                       # API endpoints
+│   │   ├── auth.routes.ts
+│   │   ├── client.routes.ts
+│   │   ├── clientDashboard.routes.ts
+│   │   ├── dashboard.routes.ts
+│   │   ├── finance.routes.ts
+│   │   ├── index.ts
+│   │   ├── invoice.routes.ts
+│   │   ├── notification.routes.ts
+│   │   ├── order.routes.ts
+│   │   ├── orderItem.routes.ts
+│   │   ├── pendingRequest.routes.ts
+│   │   ├── schedule.routes.ts
+│   │   ├── serviceCompany.routes.ts
+│   │   ├── supplier.routes.ts
+│   │   ├── vehicle.routes.ts
+│   │   └── worker.routes.ts
+│   ├── services/                     # Бизнес логика
+│   │   ├── email.service.ts
+│   │   ├── logger.service.ts
+│   │   └── pdf.service.ts
+│   ├── types/                        # TypeScript типове
+│   │   ├── express.d.ts
+│   │   └── index.ts
+│   ├── utils/                        # Помощни функции
+│   │   ├── emailDnsValidation.ts
+│   │   ├── emailValidator.ts
+│   │   ├── generateToken.ts
+│   │   ├── generateUniqueCode.ts
+│   │   ├── generateVerificationToken.ts
+│   │   ├── hashPassword.ts
+│   │   ├── pagination.ts
+│   │   └── tokenUtils.ts
+│   ├── validators/                   # Joi валидации
+│   │   └── schemas.ts
+│   ├── app.ts                        # Express app setup
+│   └── server.ts                     # Server entry point
+├── uploads/                          # Качени файлове
+│   └── invoices/                     # PDF фактури
+├── .env                              # Environment variables
+├── .env.example                      # Environment template
+├── .gitignore
+├── jest.config.js
+├── package.json
+├── tsconfig.json
+└── tsconfig.test.json
+```
+
+### Frontend структура
+
+```
+frontend/
+├── dist/                             # Production build
+│   ├── assets/
+│   │   ├── index-*.js
+│   │   └── index-*.css
+│   └── index.html
+├── src/
+│   ├── assets/                       # Статични ресурси
+│   │   └── react.svg
+│   ├── components/                   # React компоненти
+│   │   ├── admin/                    # Admin компоненти
+│   │   │   ├── CreateTaskModal.tsx
+│   │   │   ├── EditTaskModal.tsx
+│   │   │   ├── FinanceChart.tsx
+│   │   │   ├── OrdersCalendar.tsx
+│   │   │   ├── ReassignWorkerModal.tsx
+│   │   │   ├── RecentClients.tsx
+│   │   │   ├── RecentOrders.tsx
+│   │   │   ├── SetupWizard.tsx
+│   │   │   ├── StatsCard.tsx
+│   │   │   ├── StatsDashboard.tsx
+│   │   │   ├── UpcomingSchedule.tsx
+│   │   │   └── WorkersList.tsx
+│   │   ├── common/                   # Общи компоненти
+│   │   │   ├── Button.tsx
+│   │   │   ├── Checkbox.tsx
+│   │   │   ├── CountdownTimer.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── PasswordInput.tsx
+│   │   │   └── PasswordStrengthBar.tsx
+│   │   ├── layout/                   # Layout компоненти
+│   │   │   ├── Header.tsx
+│   │   │   ├── MainLayout.tsx
+│   │   │   └── Sidebar.tsx
+│   │   └── mechanic/                 # Mechanic компоненти
+│   │       └── ScheduleDetailsModal.tsx
+│   ├── context/                      # React Context
+│   │   ├── ActiveServiceContext.ts
+│   │   ├── ActiveServiceProvider.tsx
+│   │   ├── AuthContext.tsx
+│   │   ├── AuthProvider.tsx
+│   │   ├── ServiceCompanyContext.tsx
+│   │   └── ServiceCompanyProvider.tsx
+│   ├── hooks/                        # Custom hooks
+│   │   ├── useActiveService.ts
+│   │   ├── useAuth.ts
+│   │   ├── useMechanicService.ts
+│   │   └── useServiceCompany.ts
+│   ├── pages/                        # Страници
+│   │   ├── admin/                    # Admin страници
+│   │   │   ├── ClientDetails.tsx
+│   │   │   ├── Clients.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── FinalizeOrderModal.tsx
+│   │   │   ├── FinanceCreate.tsx
+│   │   │   ├── FinanceDashboard.tsx
+│   │   │   ├── Finances.tsx
+│   │   │   ├── OrderCreate.tsx
+│   │   │   ├── OrderDetails.tsx
+│   │   │   ├── OrderEdit.tsx
+│   │   │   ├── Orders.tsx
+│   │   │   ├── PendingRequests.tsx
+│   │   │   ├── ScheduleCreate.tsx
+│   │   │   ├── ScheduleDaily.tsx
+│   │   │   ├── ScheduleDaily.module.css
+│   │   │   ├── ScheduleDetails.tsx
+│   │   │   ├── ScheduleEdit.tsx
+│   │   │   ├── ScheduleMonthly.tsx
+│   │   │   ├── Schedules.tsx
+│   │   │   ├── ScheduleWeekly.tsx
+│   │   │   ├── Settings.tsx
+│   │   │   ├── SupplierCreate.tsx
+│   │   │   ├── SupplierDetails.tsx
+│   │   │   ├── SupplierEdit.tsx
+│   │   │   ├── Suppliers.tsx
+│   │   │   ├── VehicleCreate.tsx
+│   │   │   ├── VehicleDetails.tsx
+│   │   │   ├── VehicleEdit.tsx
+│   │   │   ├── Vehicles.tsx
+│   │   │   ├── WorkerDetails.tsx
+│   │   │   └── Workers.tsx
+│   │   ├── auth/                     # Auth страници
+│   │   │   ├── ForgotPassword.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   ├── RegisterClient.tsx
+│   │   │   ├── RegisterMechanic.tsx
+│   │   │   ├── ResetPassword.tsx
+│   │   │   ├── RoleSelection.tsx
+│   │   │   └── ServiceRoleSelection.tsx
+│   │   ├── client/                   # Client страници
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Invoices.tsx
+│   │   │   ├── NoServiceScreen.tsx
+│   │   │   ├── Notifications.tsx
+│   │   │   ├── OrderDetails.tsx
+│   │   │   ├── Orders.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   ├── ServiceCompanies.tsx
+│   │   │   ├── VehicleDetails.tsx
+│   │   │   └── Vehicles.tsx
+│   │   ├── mechanic/                 # Mechanic страници
+│   │   │   ├── ClientDetails.tsx
+│   │   │   ├── Clients.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── NoActiveServiceScreen.tsx
+│   │   │   ├── OrderDetails.tsx
+│   │   │   ├── Orders.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   ├── Schedule.tsx
+│   │   │   ├── ServiceSettings.tsx
+│   │   │   ├── VehicleDetails.tsx
+│   │   │   └── Vehicles.tsx
+│   │   ├── NotFound.tsx
+│   │   ├── TermsAndConditions.tsx
+│   │   └── Unauthorized.tsx
+│   ├── routes/                       # Маршрутизация
+│   │   ├── AppRoutes.tsx
+│   │   └── ProtectedRoute.tsx
+│   ├── services/                     # API услуги
+│   │   ├── api.ts
+│   │   ├── authService.ts
+│   │   ├── dashboardService.ts
+│   │   └── mechanicService.ts
+│   ├── styles/                       # CSS стилове
+│   │   └── schedule.css
+│   ├── types/                        # TypeScript типове
+│   │   ├── client.ts
+│   │   ├── index.ts
+│   │   └── mechanic.ts
+│   ├── utils/                        # Помощни функции
+│   │   └── validation.ts
+│   ├── App.css
+│   ├── App.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── .env
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+```
+
+---
+
+## Инсталация
+
+### Изисквания
+
+- Node.js 18+
+- PostgreSQL 15+
+- npm или yarn
+
+### Стъпки
+
+1. **Клониране на репозиторито**
+```bash
+git clone <repository-url>
+cd AutoManager
+```
+
+2. **Инсталиране на backend зависимости**
+```bash
+cd backend
+npm install
+```
+
+3. **Инсталиране на frontend зависимости**
+```bash
+cd ../frontend
+npm install
+```
+
+4. **Настройка на база данни**
+```bash
+cd ../backend
+npx prisma migrate dev
+npx prisma generate
+```
+
+---
+
+## Конфигурация
+
+### Backend (.env)
+
+Копирайте `.env.example` в `.env` и попълнете стойностите:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/automanager"
+
+# Server
+PORT=5000
+
+# JWT
+JWT_SECRET="your-jwt-secret-key"
+REFRESH_TOKEN_SECRET="your-refresh-token-secret"
+
+# Frontend URL (for CORS)
+FRONTEND_URL="http://localhost:5173"
+
+# Email (optional)
+SMTP_HOST="smtp.example.com"
+SMTP_PORT=587
+SMTP_USER="your-email@example.com"
+SMTP_PASS="your-password"
+```
+
+### Frontend (.env)
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+## Стартиране
+
+### Development режим
+
+**Backend:**
+```bash
+cd backend
+npm run dev
+```
+Сървърът стартира на `http://localhost:5000`
+
+**Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+Приложението е достъпно на `http://localhost:5173`
+
+### Production build
+
+**Frontend:**
+```bash
+cd frontend
+npm run build
+```
+
+---
+
+## API документация
+
+### Автентикация
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| POST | `/api/auth/register` | Регистрация |
+| POST | `/api/auth/login` | Вход |
+| POST | `/api/auth/logout` | Изход |
+| POST | `/api/auth/refresh` | Обновяване на токен |
+| POST | `/api/auth/forgot-password` | Забравена парола |
+| POST | `/api/auth/reset-password` | Нова парола |
+
+### Поръчки
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/orders` | Списък поръчки |
+| POST | `/api/orders` | Създаване на поръчка |
+| GET | `/api/orders/:id` | Детайли на поръчка |
+| PUT | `/api/orders/:id` | Редакция на поръчка |
+| PATCH | `/api/orders/:id/status` | Промяна на статус |
+| DELETE | `/api/orders/:id` | Изтриване |
+
+### Клиенти
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/clients` | Списък клиенти |
+| POST | `/api/clients` | Създаване |
+| GET | `/api/clients/:id` | Детайли |
+| PUT | `/api/clients/:id` | Редакция |
+| DELETE | `/api/clients/:id` | Изтриване |
+
+### Превозни средства
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/vehicles` | Списък превозни средства |
+| POST | `/api/vehicles` | Създаване |
+| GET | `/api/vehicles/:id` | Детайли |
+| PUT | `/api/vehicles/:id` | Редакция |
+| DELETE | `/api/vehicles/:id` | Изтриване |
+
+### График
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/schedules` | Списък задачи |
+| POST | `/api/schedules` | Създаване |
+| GET | `/api/schedules/:id` | Детайли |
+| PUT | `/api/schedules/:id` | Редакция |
+| DELETE | `/api/schedules/:id` | Изтриване |
+
+### Фактури
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/invoices` | Списък фактури |
+| POST | `/api/invoices` | Създаване |
+| GET | `/api/invoices/:id` | Детайли |
+| GET | `/api/invoices/:id/pdf` | PDF изтегляне |
+| PATCH | `/api/invoices/:id/payment` | Маркиране като платена |
+
+### Финанси
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/finances` | Списък записи |
+| POST | `/api/finances` | Създаване |
+| GET | `/api/finances/dashboard` | Финансово табло |
+
+### Доставчици
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/suppliers` | Списък доставчици |
+| POST | `/api/suppliers` | Създаване |
+| GET | `/api/suppliers/:id` | Детайли |
+| PUT | `/api/suppliers/:id` | Редакция |
+
+---
+
+## База данни
+
+### Основни модели
+
+```prisma
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole  @default(CLIENT)
+  isActive      Boolean   @default(true)
+  tokenVersion  Int       @default(0)
+}
+
+model ServiceCompany {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  phone       String?
+  email       String?
+  ownerId     String   @unique
+}
+
+model Client {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  vehicles    Vehicle[]
+  orders      Order[]
+}
+
+model Worker {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  specialization  String?
+  skills          String[]
+}
+
+model Vehicle {
+  id           String   @id @default(uuid())
+  brand        String
+  model        String
+  year         Int
+  licensePlate String
+  vin          String?
+  mileage      Int?
+  clientId     String
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  displayId    Int
+  status       OrderStatus @default(WAITING)
+  priority     String      @default("NORMAL")
+  diagnosis    String?
+  clientId     String
+  vehicleId    String
+  workerId     String?
+  items        OrderItem[]
+  invoice      Invoice?
+}
+
+model Invoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   @unique
+  totalAmount   Float
+  taxAmount     Float
+  isPaid        Boolean  @default(false)
+  paidDate      DateTime?
+  paymentMethod String?
+  orderId       String   @unique
+}
+
+model Schedule {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime?
+  status      ScheduleStatus @default(SCHEDULED)
+  priority    SchedulePriority @default(NORMAL)
+  workerId    String
+  orderId     String?
+}
+
+model Finance {
+  id          String        @id @default(uuid())
+  type        FinanceType
+  category    FinanceCategory
+  amount      Float
+  description String?
+  date        DateTime
+}
+
+model Supplier {
+  id          String       @id @default(uuid())
+  name        String
+  type        SupplierType
+  phone       String?
+  email       String?
+  address     String?
+  isPreferred Boolean      @default(false)
+}
+```
+
+### Енумерации
+
+```prisma
+enum UserRole {
+  ADMIN
+  CLIENT
+  MECHANIC
+}
+
+enum OrderStatus {
+  WAITING
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+enum SchedulePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum FinanceType {
+  INCOME
+  EXPENSE
+}
+
+enum FinanceCategory {
+  PARTS
+  LABOR
+  CONSUMABLES
+  RENT
+  UTILITIES
+  SALARIES
+  TAXES
+  INSURANCE
+  MARKETING
+  MAINTENANCE
+  SUPPLIES
+  OTHER
+}
+
+enum SupplierType {
+  PARTS
+  CONSUMABLES
+  SERVICES
+  TIRES
+  OTHER
+}
+```
+
+---
+
+## Сигурност
+
+### Автентикация
+- **JWT токени** с 15-минутен живот
+- **Refresh токени** в httpOnly cookies (30 дни)
+- **Token blacklisting** при изход
+- **Автоматично почистване** на изтекли токени (cron job)
+
+### Защита
+- **Rate limiting**: 1000 заявки / 15 минути
+- **CORS whitelist**: само разрешени домейни
+- **Password hashing**: bcryptjs
+- **Input validation**: Joi schemas
+- **Role-based access control**: middleware проверки
+
+### Препоръки
+- Използвайте силни JWT секрети (минимум 32 символа)
+- Редовно обновявайте зависимостите
+- Конфигурирайте HTTPS в production
+
+---
+
+## Тестване
+
+```bash
+cd backend
+npm test
+```
+
+Тестовете включват:
+- Автентикация (login, register, refresh)
+- CRUD операции за поръчки
+- Проверка на права за достъп
+
+---
+
+## Структура на проекта
+
+### Backend контролери
+
+| Файл | Описание |
+|------|----------|
+| `auth.controller.ts` | Автентикация и управление на сесии |
+| `order.controller.ts` | CRUD и статус на поръчки |
+| `client.controller.ts` | Управление на клиенти |
+| `worker.controller.ts` | Управление на механици |
+| `vehicle.controller.ts` | Управление на превозни средства |
+| `schedule.controller.ts` | График и планиране |
+| `invoice.controller.ts` | Фактуриране |
+| `finance.controller.ts` | Финансов модул |
+| `supplier.controller.ts` | Доставчици |
+| `dashboard.controller.ts` | Статистики и табла |
+
+### Frontend страници
+
+| Директория | Описание |
+|------------|----------|
+| `pages/admin/` | Admin панел (20+ страници) |
+| `pages/mechanic/` | Механик панел (11 страници) |
+| `pages/client/` | Клиентски панел (8 страници) |
+| `pages/auth/` | Автентикация (8 страници) |
+
+### Middleware
+
+| Файл | Описание |
+|------|----------|
+| `auth.middleware.ts` | JWT верификация |
+| `role.middleware.ts` | Проверка на роли |
+| `validation.middleware.ts` | Валидация на входни данни |
+| `errorHandler.middleware.ts` | Глобална обработка на грешки |
+| `rateLimiter.middleware.ts` | Rate limiting |
+
+---
 
 ## Скриптове
-Backend:
-- `npm run dev` - старт на API
-- `npm test` - тестове
 
-Frontend:
-- `npm run dev` - старт на SPA
-- `npm run build` - build
+### Backend
 
-## Най-важно
-- Ролеви модели: ADMIN, CLIENT, MECHANIC.
-- Ключови домейни: поръчки, графици, фактури, финанси, доставчици.
-- Защита: JWT + refresh tokens, rate limiting, логване.
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Стартиране в development режим |
+| `npm test` | Изпълнение на тестове |
+| `npm run build` | Production build |
 
-## Пълна структура (папки и файлове)
-(Списък без съдържанието на node_modules и .git)
+### Frontend
 
-### Папки
-- `.claude`
-- `.vscode`
-- `backend`
-- `backend\fonts`
-- `backend\logs`
-- `backend\prisma`
-- `backend\prisma\migrations`
-- `backend\prisma\migrations\20251229000939_add_soft_delete`
-- `backend\prisma\migrations\20251229012251_add_vehicle_image_url`
-- `backend\prisma\migrations\20251229192821_add_password_reset`
-- `backend\prisma\migrations\20251231183603_add_email_verification`
-- `backend\prisma\migrations\20251231192318_remove_email_verification`
-- `backend\prisma\migrations\20260101142207_extend_schedule_module`
-- `backend\prisma\migrations\20260101182436_update_suppliers_model`
-- `backend\prisma\migrations\20260101231240_add_finance_module`
-- `backend\prisma\migrations\20260102122847_add_refresh_and_blacklist_tokens`
-- `backend\prisma\migrations\20260103113427_sync_schema_with_database`
-- `backend\prisma\migrations\20260103121959_add_worker_skills`
-- `backend\prisma\migrations\20260103130909_add_schedule_fields`
-- `backend\prisma\migrations\20260108133339_refresh_token_rotation`
-- `backend\prisma\migrations\20260110124443_add_mechanic_service_company`
-- `backend\prisma\migrations\20260110212946_fix_worker_service_company_nullable_and_order_priority`
-- `backend\prisma\migrations\20260111111158_add_skills_to_pending_request`
-- `backend\prisma\migrations\20260116121635_make_client_service_optional`
-- `backend\prisma\migrations\20260116202325_add_request_type_to_pending_requests`
-- `backend\prisma\migrations\20260117221905_allow_client_multiple_services`
-- `backend\prisma\migrations\20260117235135_change_labor_to_service`
-- `backend\prisma\migrations\20260118_add_payment_method_to_invoice`
-- `backend\prisma\migrations\20260118_fix_service_to_labor`
-- `backend\src`
-- `backend\src\__tests__`
-- `backend\src\config`
-- `backend\src\controllers`
-- `backend\src\jobs`
-- `backend\src\logs`
-- `backend\src\middleware`
-- `backend\src\routes`
-- `backend\src\services`
-- `backend\src\types`
-- `backend\src\utils`
-- `backend\src\validators`
-- `backend\uploads`
-- `backend\uploads\invoices`
-- `backend\uploads\vehicles`
-- `docs`
-- `frontend`
-- `frontend\dist`
-- `frontend\dist\assets`
-- `frontend\src`
-- `frontend\src\assets`
-- `frontend\src\components`
-- `frontend\src\components\admin`
-- `frontend\src\components\common`
-- `frontend\src\components\features`
-- `frontend\src\components\layout`
-- `frontend\src\components\mechanic`
-- `frontend\src\context`
-- `frontend\src\hooks`
-- `frontend\src\pages`
-- `frontend\src\pages\admin`
-- `frontend\src\pages\auth`
-- `frontend\src\pages\client`
-- `frontend\src\pages\mechanic`
-- `frontend\src\routes`
-- `frontend\src\services`
-- `frontend\src\styles`
-- `frontend\src\types`
-- `frontend\src\utils`
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Стартиране в development режим |
+| `npm run build` | Production build |
+| `npm run preview` | Преглед на build |
+| `npm run lint` | Проверка на код |
 
-### Файлове
-- `.claude\settings.local.json`
-- `.vscode\settings.json`
-- `backend\.env`
-- `backend\.env.example`
-- `backend\.gitignore`
-- `backend\check-db.js`
-- `backend\fix-enum.js`
-- `backend\fonts\DejaVuSans.ttf`
-- `backend\fonts\DejaVuSans-Bold.ttf`
-- `backend\jest.config.js`
-- `backend\logs\combined.log`
-- `backend\logs\error.log`
-- `backend\package.json`
-- `backend\package-lock.json`
-- `backend\prisma.config.js`
-- `backend\prisma.config.ts`
-- `backend\prisma\migrations\20251229000939_add_soft_delete\migration.sql`
-- `backend\prisma\migrations\20251229012251_add_vehicle_image_url\migration.sql`
-- `backend\prisma\migrations\20251229192821_add_password_reset\migration.sql`
-- `backend\prisma\migrations\20251231183603_add_email_verification\migration.sql`
-- `backend\prisma\migrations\20251231192318_remove_email_verification\migration.sql`
-- `backend\prisma\migrations\20260101142207_extend_schedule_module\migration.sql`
-- `backend\prisma\migrations\20260101182436_update_suppliers_model\migration.sql`
-- `backend\prisma\migrations\20260101231240_add_finance_module\migration.sql`
-- `backend\prisma\migrations\20260102122847_add_refresh_and_blacklist_tokens\migration.sql`
-- `backend\prisma\migrations\20260103113427_sync_schema_with_database\migration.sql`
-- `backend\prisma\migrations\20260103121959_add_worker_skills\migration.sql`
-- `backend\prisma\migrations\20260103130909_add_schedule_fields\migration.sql`
-- `backend\prisma\migrations\20260108133339_refresh_token_rotation\migration.sql`
-- `backend\prisma\migrations\20260110124443_add_mechanic_service_company\migration.sql`
-- `backend\prisma\migrations\20260110212946_fix_worker_service_company_nullable_and_order_priority\migration.sql`
-- `backend\prisma\migrations\20260111111158_add_skills_to_pending_request\migration.sql`
-- `backend\prisma\migrations\20260116121635_make_client_service_optional\migration.sql`
-- `backend\prisma\migrations\20260116202325_add_request_type_to_pending_requests\migration.sql`
-- `backend\prisma\migrations\20260117221905_allow_client_multiple_services\migration.sql`
-- `backend\prisma\migrations\20260117235135_change_labor_to_service\migration.sql`
-- `backend\prisma\migrations\20260118_add_payment_method_to_invoice\migration.sql`
-- `backend\prisma\migrations\20260118_fix_service_to_labor\migration.sql`
-- `backend\prisma\migrations\migration_lock.toml`
-- `backend\prisma\schema.prisma`
-- `backend\src\__tests__\auth.test.ts`
-- `backend\src\__tests__\order.test.ts`
-- `backend\src\__tests__\permissions.test.ts`
-- `backend\src\__tests__\setup.ts`
-- `backend\src\app.ts`
-- `backend\src\config\database.ts`
-- `backend\src\config\multer.ts`
-- `backend\src\controllers\auth.controller.ts`
-- `backend\src\controllers\client.controller.ts`
-- `backend\src\controllers\clientDashboard.controller.ts`
-- `backend\src\controllers\dashboard.controller.ts`
-- `backend\src\controllers\finance.controller.ts`
-- `backend\src\controllers\invoice.controller.ts`
-- `backend\src\controllers\notification.controller.ts`
-- `backend\src\controllers\order.controller.ts`
-- `backend\src\controllers\orderItem.controller.ts`
-- `backend\src\controllers\pendingRequest.controller.ts`
-- `backend\src\controllers\schedule.controller.ts`
-- `backend\src\controllers\serviceCompany.controller.ts`
-- `backend\src\controllers\supplier.controller.ts`
-- `backend\src\controllers\vehicle.controller.ts`
-- `backend\src\controllers\worker.controller.ts`
-- `backend\src\jobs\tokenCleanup.job.ts`
-- `backend\src\logs\combined.log`
-- `backend\src\logs\error.log`
-- `backend\src\middleware\auth.middleware.ts`
-- `backend\src\middleware\errorHandler.middleware.ts`
-- `backend\src\middleware\mechanicServiceCheck.middleware.ts`
-- `backend\src\middleware\rateLimiter.middleware.ts`
-- `backend\src\middleware\role.middleware.ts`
-- `backend\src\middleware\validation.middleware.ts`
-- `backend\src\routes\auth.routes.ts`
-- `backend\src\routes\client.routes.ts`
-- `backend\src\routes\clientDashboard.routes.ts`
-- `backend\src\routes\dashboard.routes.ts`
-- `backend\src\routes\finance.routes.ts`
-- `backend\src\routes\index.ts`
-- `backend\src\routes\invoice.routes.ts`
-- `backend\src\routes\notification.routes.ts`
-- `backend\src\routes\order.routes.ts`
-- `backend\src\routes\orderItem.routes.ts`
-- `backend\src\routes\pendingRequest.routes.ts`
-- `backend\src\routes\schedule.routes.ts`
-- `backend\src\routes\serviceCompany.routes.ts`
-- `backend\src\routes\supplier.routes.ts`
-- `backend\src\routes\vehicle.routes.ts`
-- `backend\src\routes\worker.routes.ts`
-- `backend\src\server.ts`
-- `backend\src\services\email.service.ts`
-- `backend\src\services\logger.service.ts`
-- `backend\src\services\pdf.service.ts`
-- `backend\src\types\express.d.ts`
-- `backend\src\types\index.js`
-- `backend\src\types\index.ts`
-- `backend\src\utils\emailDnsValidation.ts`
-- `backend\src\utils\emailValidator.ts`
-- `backend\src\utils\generateToken.ts`
-- `backend\src\utils\generateUniqueCode.ts`
-- `backend\src\utils\generateVerificationToken.ts`
-- `backend\src\utils\hashPassword.ts`
-- `backend\src\utils\pagination.ts`
-- `backend\src\utils\tokenUtils.ts`
-- `backend\src\validators\schemas.ts`
-- `backend\test-orders.js`
-- `backend\tsconfig.json`
-- `backend\tsconfig.test.json`
-- `backend\uploads\invoices\.gitkeep`
-- `backend\uploads\invoices\INV-202601-1768696339249-227.pdf`
-- `backend\uploads\invoices\INV-202601-1768829725932-432.pdf`
-- `backend\uploads\invoices\INV-202601-1768832288459-272.pdf`
-- `backend\uploads\invoices\INV-202601-1768833944343-194.pdf`
-- `backend\uploads\invoices\INV-202601-1768834396789-340.pdf`
-- `docs\README.md`
-- `frontend\.env`
-- `frontend\.gitignore`
-- `frontend\dist\assets\index-Ba5aDhYq.js`
-- `frontend\dist\assets\index-DM7NPJmi.css`
-- `frontend\dist\index.html`
-- `frontend\dist\vite.svg`
-- `frontend\eslint.config.js`
-- `frontend\index.html`
-- `frontend\package.json`
-- `frontend\package-lock.json`
-- `frontend\postcss.config.js`
-- `frontend\src\App.css`
-- `frontend\src\App.tsx`
-- `frontend\src\assets\react.svg`
-- `frontend\src\components\admin\CreateTaskModal.tsx`
-- `frontend\src\components\admin\EditTaskModal.tsx`
-- `frontend\src\components\admin\FinanceChart.tsx`
-- `frontend\src\components\admin\OrdersCalendar.tsx`
-- `frontend\src\components\admin\ReassignWorkerModal.tsx`
-- `frontend\src\components\admin\RecentClients.tsx`
-- `frontend\src\components\admin\RecentOrders.tsx`
-- `frontend\src\components\admin\SetupWizard.tsx`
-- `frontend\src\components\admin\StatsCard.tsx`
-- `frontend\src\components\admin\StatsDashboard.tsx`
-- `frontend\src\components\admin\UpcomingSchedule.tsx`
-- `frontend\src\components\admin\WorkersList.tsx`
-- `frontend\src\components\common\Button.tsx`
-- `frontend\src\components\common\Checkbox.tsx`
-- `frontend\src\components\common\CountdownTimer.tsx`
-- `frontend\src\components\common\Input.tsx`
-- `frontend\src\components\common\PasswordInput.tsx`
-- `frontend\src\components\common\PasswordStrengthBar.tsx`
-- `frontend\src\components\layout\Header.tsx`
-- `frontend\src\components\layout\MainLayout.tsx`
-- `frontend\src\components\layout\Sidebar.tsx`
-- `frontend\src\components\mechanic\ScheduleDetailsModal.tsx`
-- `frontend\src\context\ActiveServiceContext.ts`
-- `frontend\src\context\ActiveServiceProvider.tsx`
-- `frontend\src\context\AuthContext.tsx`
-- `frontend\src\context\AuthProvider.tsx`
-- `frontend\src\context\ServiceCompanyContext.tsx`
-- `frontend\src\context\ServiceCompanyProvider.tsx`
-- `frontend\src\hooks\useActiveService.ts`
-- `frontend\src\hooks\useAuth.ts`
-- `frontend\src\hooks\useMechanicService.ts`
-- `frontend\src\hooks\useServiceCompany.ts`
-- `frontend\src\index.css`
-- `frontend\src\main.tsx`
-- `frontend\src\pages\admin\ClientDetails.tsx`
-- `frontend\src\pages\admin\ClientEdit.tsx`
-- `frontend\src\pages\admin\Clients.tsx`
-- `frontend\src\pages\admin\Dashboard.tsx`
-- `frontend\src\pages\admin\FinalizeOrderModal.tsx`
-- `frontend\src\pages\admin\FinanceCreate.tsx`
-- `frontend\src\pages\admin\FinanceDashboard.tsx`
-- `frontend\src\pages\admin\Finances.tsx`
-- `frontend\src\pages\admin\OrderCreate.tsx`
-- `frontend\src\pages\admin\OrderDetails.tsx`
-- `frontend\src\pages\admin\OrderEdit.tsx`
-- `frontend\src\pages\admin\Orders.tsx`
-- `frontend\src\pages\admin\PendingRequests.tsx`
-- `frontend\src\pages\admin\ScheduleCreate.tsx`
-- `frontend\src\pages\admin\ScheduleDaily.module.css`
-- `frontend\src\pages\admin\ScheduleDaily.tsx`
-- `frontend\src\pages\admin\ScheduleDetails.tsx`
-- `frontend\src\pages\admin\ScheduleEdit.tsx`
-- `frontend\src\pages\admin\ScheduleMonthly.tsx`
-- `frontend\src\pages\admin\Schedules.tsx`
-- `frontend\src\pages\admin\ScheduleWeekly.tsx`
-- `frontend\src\pages\admin\Settings.tsx`
-- `frontend\src\pages\admin\SupplierCreate.tsx`
-- `frontend\src\pages\admin\SupplierDetails.tsx`
-- `frontend\src\pages\admin\SupplierEdit.tsx`
-- `frontend\src\pages\admin\Suppliers.tsx`
-- `frontend\src\pages\admin\VehicleCreate.tsx`
-- `frontend\src\pages\admin\VehicleDetails.tsx`
-- `frontend\src\pages\admin\VehicleEdit.tsx`
-- `frontend\src\pages\admin\Vehicles.tsx`
-- `frontend\src\pages\admin\WorkerDetails.tsx`
-- `frontend\src\pages\admin\WorkerEdit.tsx`
-- `frontend\src\pages\admin\Workers.tsx`
-- `frontend\src\pages\auth\ForgotPassword.tsx`
-- `frontend\src\pages\auth\Login.tsx`
-- `frontend\src\pages\auth\Register.tsx`
-- `frontend\src\pages\auth\RegisterClient.tsx`
-- `frontend\src\pages\auth\RegisterMechanic.tsx`
-- `frontend\src\pages\auth\ResetPassword.tsx`
-- `frontend\src\pages\auth\RoleSelection.tsx`
-- `frontend\src\pages\auth\ServiceRoleSelection.tsx`
-- `frontend\src\pages\client\Dashboard.tsx`
-- `frontend\src\pages\client\Invoices.tsx`
-- `frontend\src\pages\client\NoServiceScreen.tsx`
-- `frontend\src\pages\client\Notifications.tsx`
-- `frontend\src\pages\client\OrderDetails.tsx`
-- `frontend\src\pages\client\Orders.tsx`
-- `frontend\src\pages\client\Profile.tsx`
-- `frontend\src\pages\client\ServiceCompanies.tsx`
-- `frontend\src\pages\client\VehicleDetails.tsx`
-- `frontend\src\pages\client\Vehicles.tsx`
-- `frontend\src\pages\mechanic\ClientDetails.tsx`
-- `frontend\src\pages\mechanic\Clients.tsx`
-- `frontend\src\pages\mechanic\Dashboard.tsx`
-- `frontend\src\pages\mechanic\NoActiveServiceScreen.tsx`
-- `frontend\src\pages\mechanic\OrderDetails.tsx`
-- `frontend\src\pages\mechanic\Orders.tsx`
-- `frontend\src\pages\mechanic\Profile.tsx`
-- `frontend\src\pages\mechanic\Schedule.tsx`
-- `frontend\src\pages\mechanic\ServiceSettings.tsx`
-- `frontend\src\pages\mechanic\VehicleDetails.tsx`
-- `frontend\src\pages\mechanic\Vehicles.tsx`
-- `frontend\src\pages\NotFound.tsx`
-- `frontend\src\pages\TermsAndConditions.tsx`
-- `frontend\src\pages\Unauthorized.tsx`
-- `frontend\src\routes\AppRoutes.tsx`
-- `frontend\src\routes\ProtectedRoute.tsx`
-- `frontend\src\services\api.ts`
-- `frontend\src\services\authService.ts`
-- `frontend\src\services\dashboardService.ts`
-- `frontend\src\services\mechanicService.ts`
-- `frontend\src\styles\schedule.css`
-- `frontend\src\types\client.ts`
-- `frontend\src\types\index.ts`
-- `frontend\src\types\mechanic.ts`
-- `frontend\src\utils\validation.ts`
-- `frontend\src\vite-env.d.ts`
-- `frontend\tailwind.config.js`
-- `frontend\tsconfig.app.json`
-- `frontend\tsconfig.json`
-- `frontend\tsconfig.node.json`
-- `frontend\vite.config.ts`
+---
 
+## Лиценз
+
+Този проект е частна собственост. Всички права запазени.
+
+---
+
+## Автор
+
+Разработено с TypeScript, React и Express.js.

@@ -112,12 +112,13 @@ export const generateInvoicePDF = async (
       doc.text('ОБЩА СУМА:', 320, y);
       doc.text(`${Number(data.totalPrice).toFixed(2)} €`, 410, y, { width: 100, align: 'right' });
 
-      // Footer
-      doc.fontSize(8).font('DejaVu').text(
+      // Footer - позициониран след общата сума
+      y += 50;
+      doc.fontSize(10).font('DejaVu').text(
         'Благодарим Ви за доверието!',
         50,
-        doc.page.height - 50,
-        { align: 'center' }
+        y,
+        { align: 'center', width: 500 }
       );
 
       doc.end();

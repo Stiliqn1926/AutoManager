@@ -158,60 +158,55 @@ export const approvePendingRequest = async (
         console.error('Failed to send approval email:', emailError);
       }
     } else if (pendingRequest.requestType === 'CLIENT') {
-  // === CLIENT APPROVAL LOGIC ===
-  
-  // ✅ Провери дали вече има Client за ТОЗИ user И ТОЗИ serviceCompany
-  const existingClient = await prisma.client.findFirst({
-    where: {
-      userId: user.id,
-      serviceCompanyId: serviceCompany.id,
-    },
-  });
+      // === CLIENT APPROVAL LOGIC ===
 
-  if (existingClient) {
-    // Ако съществува, само го активирай
-    await prisma.client.update({
-      where: { id: existingClient.id },
-      data: {
-        isActive: true,
-        deletedAt: null,
-      },
-    });
-  } else {
-    // ✅ Провери дали има Client с този userId (в ДРУГ сервиз)
-    const anyExistingClient = await prisma.client.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (anyExistingClient) {
-      // ✅ Ако userId constraint е unique, трябва да update-нем serviceCompanyId
-      await prisma.client.update({
-        where: { id: anyExistingClient.id },
-        data: {
-          serviceCompanyId: serviceCompany.id,
-          firstName: pendingRequest.firstName,
-          lastName: pendingRequest.lastName,
-          phone: pendingRequest.phone || '',
-          isActive: true,
-          deletedAt: null,
-        },
-      });
-    } else {
-      // ✅ Създай нов (няма Client за този user)
-      await prisma.client.create({
-        data: {
-          firstName: pendingRequest.firstName,
-          lastName: pendingRequest.lastName,
-          phone: pendingRequest.phone || '',
-          email: user.email,
+      // Провери дали вече има Client за ТОЗИ user И ТОЗИ serviceCompany
+      const existingClient = await prisma.client.findFirst({
+        where: {
           userId: user.id,
           serviceCompanyId: serviceCompany.id,
-          isActive: true,
         },
       });
+
+      if (existingClient) {
+        // Ако съществува, само го активирай
+        await prisma.client.update({
+          where: { id: existingClient.id },
+          data: {
+            isActive: true,
+            deletedAt: null,
+          },
+        });
+      } else {
+        // Създай НОВ Client запис за този сервиз
+        // (потребителят може да има други Client записи в други сервизи)
+        await prisma.client.create({
+          data: {
+            firstName: pendingRequest.firstName,
+            lastName: pendingRequest.lastName,
+            phone: pendingRequest.phone || '',
+            email: user.email,
+            userId: user.id,
+            serviceCompanyId: serviceCompany.id,
+            isActive: true,
+          },
+        });
+      }
+
+      // Изпрати email за одобрение на клиента
+      try {
+        await sendEmail(
+          user.email,
+          'Одобрена заявка',
+          emailTemplates.mechanicApproved(
+            pendingRequest.firstName,
+            serviceCompany.name
+          )
+        );
+      } catch (emailError) {
+        console.error('Failed to send approval email:', emailError);
+      }
     }
-  }
-}
 
     // Изтрий одобрения request (вече не е pending)
     await prisma.pendingRequest.delete({
