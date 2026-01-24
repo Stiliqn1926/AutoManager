@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -51,13 +51,7 @@ const ReassignWorkerModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchAvailableWorkers();
-    }
-  }, [isOpen]);
-
-  const fetchAvailableWorkers = async () => {
+  const fetchAvailableWorkers = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await api.get('/workers');
@@ -74,7 +68,13 @@ const ReassignWorkerModal = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [workerId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAvailableWorkers();
+    }
+  }, [fetchAvailableWorkers, isOpen]);
 
   const handleReassign = async () => {
     if (!selectedWorkerId) {
@@ -110,6 +110,8 @@ const ReassignWorkerModal = ({
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Затвори"
+            title="Затвори"
           >
             <X className="w-5 h-5" />
           </button>
@@ -161,6 +163,8 @@ const ReassignWorkerModal = ({
               <select
                 value={selectedWorkerId}
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
+                aria-label="Изберете механик"
+                title="Изберете механик"
                 className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">-- Изберете механик --</option>

@@ -64,7 +64,7 @@ const MechanicVehicles = () => {
     const searchNormalized = normalizePhone(searchTerm);
     const tokens = searchLower.split(/\s+/).filter(Boolean);
 
-    let filtered = vehicles.filter((vehicle) => {
+    const filtered = vehicles.filter((vehicle) => {
       // Търсене по рег. номер, марка, модел или име на клиент
       const fields = [
         vehicle.licensePlate,

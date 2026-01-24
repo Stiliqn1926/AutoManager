@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Mail, Phone, Wrench } from 'lucide-react';
+import { ArrowLeft, Trash2, Mail, Phone, Wrench } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '../../components/common/Button';
 import api from '../../services/api';
@@ -67,9 +67,12 @@ const WorkerDetails = () => {
         toast.success('Механикът е изтрит напълно');
       }
       navigate('/admin/workers');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Грешка при операцията';
-      toast.error(errorMessage);
+    } catch (error) {
+      const apiMessage = (error as { response?: { data?: { message?: string } } })
+        .response?.data?.message;
+      const fallbackMessage =
+        error instanceof Error ? error.message : 'Грешка при операцията';
+      toast.error(apiMessage || fallbackMessage);
     }
   };
 
@@ -199,3 +202,4 @@ const WorkerDetails = () => {
 };
 
 export default WorkerDetails;
+

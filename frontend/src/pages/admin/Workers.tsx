@@ -32,6 +32,24 @@ interface Worker {
   joinedAt: string;
 }
 
+interface ActiveTasksData {
+  hasActiveTasks: boolean;
+  activeOrdersCount: number;
+  activeSchedulesCount: number;
+  activeOrders: Array<{
+    id: string;
+    orderNumber: string;
+    status: string;
+    description: string | null;
+  }>;
+  activeSchedules: Array<{
+    id: string;
+    startTime: string;
+    endTime: string;
+    description: string | null;
+  }>;
+}
+
 type SortField = 'name' | 'phone' | 'email' | 'specialization' | 'status';
 type SortOrder = 'asc' | 'desc';
 
@@ -48,7 +66,7 @@ const Workers = () => {
   const [workerToDelete, setWorkerToDelete] = useState<{
     id: string;
     name: string;
-    tasksData: any;
+    tasksData: ActiveTasksData;
   } | null>(null);
 
   const navigate = useNavigate();
@@ -90,14 +108,15 @@ const Workers = () => {
       await api.delete(`/workers/${id}`);
       toast.success('Работникът е изтрит от списъка');
       fetchWorkers();
-    } catch (error: any) {
+    } catch (error) {
+      const apiData = (error as { response?: { data?: ActiveTasksData } }).response?.data;
       // Провери дали има активни задачи
-      if (error.response?.data?.hasActiveTasks) {
+      if (apiData?.hasActiveTasks) {
         // Покажи modal за преназначаване
         setWorkerToDelete({
           id,
           name,
-          tasksData: error.response.data,
+          tasksData: apiData,
         });
         setShowReassignModal(true);
       } else {
@@ -467,3 +486,4 @@ const Workers = () => {
 };
 
 export default Workers;
+

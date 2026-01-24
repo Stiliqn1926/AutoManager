@@ -64,7 +64,7 @@ const MechanicClients = () => {
     const searchNormalized = normalizePhone(searchTerm);
     const tokens = searchLower.split(/\s+/).filter(Boolean);
 
-    let filtered = clients.filter((client) => {
+    const filtered = clients.filter((client) => {
       const hasSearch = tokens.length > 0 || searchNormalized.length > 0;
 
       // Търсене по име или имейл

@@ -8,7 +8,6 @@ import {
   Hash,
   Palette,
   ClipboardList,
-  Wrench,
   FileText,
   User,
   X,

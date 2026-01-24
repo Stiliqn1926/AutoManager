@@ -375,9 +375,9 @@ const Clients = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           {client.isPending ? (
-                            // Pending клиенти - без бутони (одобрението е в Settings)
+                            // Pending клиенти - без бутони (одобрението е в Настройки)
                             <span className="text-xs text-textSecondary italic">
-                              Одобрете в Settings
+                              Одобрете в Настройки
                             </span>
                           ) : (
                             <>
