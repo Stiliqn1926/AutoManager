@@ -117,6 +117,19 @@ export const createSchedule = async (
     }
 
     if (workerId) {
+      const worker = await prisma.worker.findFirst({
+        where: {
+          id: workerId,
+          serviceCompanyId: serviceCompany.id,
+          isActive: true,
+        },
+      });
+
+      if (!worker) {
+        res.status(400).json({ message: 'Worker is inactive or not in this service company' });
+        return;
+      }
+
       const hasConflict = await checkScheduleConflicts(workerId, start, end);
       if (hasConflict) {
         res.status(409).json({
@@ -664,6 +677,18 @@ export const updateSchedule = async (
 
     const finalWorkerId = workerId ?? existingSchedule.workerId;
     if (finalWorkerId) {
+      const worker = await prisma.worker.findFirst({
+        where: {
+          id: finalWorkerId,
+          isActive: true,
+        },
+      });
+
+      if (!worker) {
+        res.status(400).json({ message: 'Worker is inactive' });
+        return;
+      }
+
       const hasConflict = await checkScheduleConflicts(
         finalWorkerId,
         finalStart,

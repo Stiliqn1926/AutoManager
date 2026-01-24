@@ -63,10 +63,6 @@ const RoleSelection = () => {
           </button>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-14 text-sm text-textMuted">
-          © {new Date().getFullYear()} AutoManager. Всички права запазени.
-        </div>
       </div>
     </div>
   );

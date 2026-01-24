@@ -11,6 +11,8 @@ interface Worker {
   id: string;
   firstName: string;
   lastName: string;
+  isActive: boolean;
+  membershipStatus?: 'ACTIVE' | 'PENDING' | 'INACTIVE';
 }
 
 interface OrderItem {
@@ -67,7 +69,12 @@ const OrderEdit = () => {
           paymentMethod: order.paymentMethod || '',
         });
         setOrderItems(order.orderItems || []);
-        setWorkers(workersRes.data.workers || []);
+        const allWorkers = workersRes.data.workers || [];
+        const activeWorkers = allWorkers.filter(
+          (worker: Worker) =>
+            worker.isActive && (worker.membershipStatus ? worker.membershipStatus === 'ACTIVE' : true)
+        );
+        setWorkers(activeWorkers);
       } catch {
         toast.error('Грешка при зареждане на поръчка');
         navigate('/admin/orders');

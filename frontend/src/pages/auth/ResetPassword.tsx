@@ -13,6 +13,11 @@ import api from '../../services/api';
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
+  const rawRole = searchParams.get('role');
+  const roleParam =
+    rawRole === 'admin' || rawRole === 'mechanic' || rawRole === 'client'
+      ? rawRole
+      : null;
   
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -57,7 +62,7 @@ const ResetPassword = () => {
     try {
       await resetPassword(email, code, newPassword);
       toast.success('Паролата е сменена успешно!');
-      navigate('/login');
+      navigate(roleParam ? `/login?role=${encodeURIComponent(roleParam)}` : '/login');
     } catch {
       toast.error('Невалиден или изтекъл код');
     } finally {
@@ -190,7 +195,10 @@ const ResetPassword = () => {
           )}
 
           <div className="mt-6 text-center">
-            <a href="/login" className="text-sm text-primary-600 hover:underline">
+            <a
+              href={roleParam ? `/login?role=${encodeURIComponent(roleParam)}` : '/login'}
+              className="text-sm text-primary-600 hover:underline"
+            >
               Назад към вход
             </a>
           </div>

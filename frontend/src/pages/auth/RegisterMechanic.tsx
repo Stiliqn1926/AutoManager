@@ -170,7 +170,6 @@ const RegisterMechanic = () => {
     return (
       <div className="min-h-screen bg-mainBg flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8 text-center">
-          <div className="text-6xl mb-6">✅</div>
           <h2 className="text-3xl font-bold text-textPrimary mb-4">
             Заявката е изпратена!
           </h2>

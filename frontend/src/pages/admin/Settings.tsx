@@ -1,5 +1,5 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
-import { Copy, Check, Edit, X } from 'lucide-react';
+import { Copy, Check, Edit2, X } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -166,10 +166,14 @@ const Settings = () => {
         <div className="bg-cardBg rounded-2xl shadow-card p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-textPrimary">Фирмени данни</h2>
-            <Button onClick={() => setIsEditModalOpen(true)}>
-              <Edit className="w-4 h-4" />
-              Редактирай
-            </Button>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+              aria-label="Редактирай"
+              title="Редактирай"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

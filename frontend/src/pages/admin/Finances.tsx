@@ -181,7 +181,7 @@ const Finances = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-mainBg">
+              <thead>
                 <tr>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Дата

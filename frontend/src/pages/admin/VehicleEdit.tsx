@@ -15,7 +15,6 @@ interface VehicleFormData {
   vin: string;
   color: string;
   mileage: string;
-  status: string;
 }
 
 const VehicleEdit = () => {
@@ -33,7 +32,6 @@ const VehicleEdit = () => {
     vin: '',
     color: '',
     mileage: '',
-    status: 'ACTIVE',
   });
 
   useEffect(() => {
@@ -50,7 +48,6 @@ const VehicleEdit = () => {
           vin: vehicle.vin || '',
           color: vehicle.color || '',
           mileage: vehicle.mileage?.toString() || '',
-          status: vehicle.status,
         });
       } catch {
         toast.error('Грешка при зареждане на автомобил');
@@ -72,7 +69,6 @@ const VehicleEdit = () => {
         brand: formData.brand,
         model: formData.model,
         licensePlate: formData.licensePlate,
-        status: formData.status,
         ...(formData.year && { year: parseInt(formData.year) }),
         ...(formData.vin && { vin: formData.vin }),
         ...(formData.color && { color: formData.color }),
@@ -200,29 +196,6 @@ const VehicleEdit = () => {
               }
             />
 
-            {/* Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-textPrimary mb-2"
-              >
-                Статус *
-              </label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  setFormData({ ...formData, status: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              >
-                <option value="ACTIVE">Активен</option>
-                <option value="IN_SERVICE">В сервиз</option>
-                <option value="ARCHIVED">Архивиран</option>
-              </select>
-            </div>
-
             {/* Actions */}
             <div className="flex gap-3 pt-4">
               <Button
@@ -244,3 +217,4 @@ const VehicleEdit = () => {
 };
 
 export default VehicleEdit;
+

@@ -11,6 +11,8 @@ interface Worker {
   id: string;
   firstName: string;
   lastName: string;
+  isActive: boolean;
+  membershipStatus?: 'ACTIVE' | 'PENDING' | 'INACTIVE';
 }
 
 interface Order {
@@ -84,7 +86,12 @@ const ScheduleEdit = () => {
           notes: schedule.notes || '',
         });
 
-        setWorkers(workersRes.data.workers || []);
+        const allWorkers = workersRes.data.workers || [];
+        const activeWorkers = allWorkers.filter(
+          (worker: Worker) =>
+            worker.isActive && (worker.membershipStatus ? worker.membershipStatus === 'ACTIVE' : true)
+        );
+        setWorkers(activeWorkers);
         setOrders(ordersRes.data.orders || []);
       } catch {
         toast.error('Грешка при зареждане на задача');

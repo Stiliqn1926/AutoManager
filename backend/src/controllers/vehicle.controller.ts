@@ -62,6 +62,10 @@ export const createVehicle = async (
         .json({ message: 'Client not found in your service company' });
       return;
     }
+    if (!client.isActive) {
+      res.status(400).json({ message: 'Client is inactive' });
+      return;
+    }
 
     // Създай автомобил
     const vehicle = await prisma.vehicle.create({
@@ -215,7 +219,6 @@ export const updateVehicle = async (
       vin,
       color,
       mileage,
-      status,
     } = req.body;
     const userId = req.user!.userId;
 
@@ -254,7 +257,6 @@ export const updateVehicle = async (
         ...(vin !== undefined && { vin: vin || null }),
         ...(color !== undefined && { color: color || null }),
         ...(mileage !== undefined && { mileage }),
-        ...(status !== undefined && { status }),
       },
     });
 

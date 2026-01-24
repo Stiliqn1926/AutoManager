@@ -11,6 +11,7 @@ interface Client {
   id: string;
   firstName: string;
   lastName: string;
+  isActive: boolean;
 }
 
 interface Vehicle {
@@ -24,6 +25,8 @@ interface Worker {
   id: string;
   firstName: string;
   lastName: string;
+  isActive: boolean;
+  membershipStatus?: 'ACTIVE' | 'PENDING' | 'INACTIVE';
 }
 
 interface OrderFormData {
@@ -58,8 +61,14 @@ const OrderCreate = () => {
           api.get('/clients'),
           api.get('/workers'),
         ]);
-        setClients(clientsRes.data.clients || []);
-        setWorkers(workersRes.data.workers || []);
+        const allClients = clientsRes.data.clients || [];
+        setClients(allClients.filter((client: Client) => client.isActive));
+        const allWorkers = workersRes.data.workers || [];
+        const activeWorkers = allWorkers.filter(
+          (worker: Worker) =>
+            worker.isActive && (worker.membershipStatus ? worker.membershipStatus === 'ACTIVE' : true)
+        );
+        setWorkers(activeWorkers);
       } catch {
         toast.error('Грешка при зареждане на данни');
       }

@@ -247,7 +247,6 @@ export const updateVehicleSchema = Joi.object({
   mileage: Joi.number().integer().min(0).max(999999).optional().messages({
     'number.min': 'Километражът не може да е отрицателен',
   }),
-  status: Joi.string().valid('ACTIVE', 'IN_SERVICE', 'ARCHIVED').optional(),
   fuelType: Joi.string()
     .valid('Бензин', 'Дизел', 'Газ', 'Хибрид', 'Електро')
     .optional(),

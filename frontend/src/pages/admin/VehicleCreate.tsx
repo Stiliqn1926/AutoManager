@@ -11,6 +11,7 @@ interface Client {
   id: string;
   firstName: string;
   lastName: string;
+  isActive: boolean;
 }
 
 interface VehicleFormData {
@@ -43,7 +44,8 @@ const VehicleCreate = () => {
     const fetchClients = async () => {
       try {
         const response = await api.get('/clients');
-        setClients(response.data.clients || []);
+        const allClients = response.data.clients || [];
+        setClients(allClients.filter((client: Client) => client.isActive));
       } catch {
         toast.error('Грешка при зареждане на клиенти');
       }

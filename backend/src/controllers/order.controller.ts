@@ -61,6 +61,21 @@ export const createOrder = async (
         return;
       }
       serviceCompanyId = serviceCompany.id;
+
+      if (workerId) {
+        const worker = await prisma.worker.findFirst({
+          where: {
+            id: workerId,
+            serviceCompanyId,
+            isActive: true,
+          },
+        });
+
+        if (!worker) {
+          res.status(400).json({ message: 'Worker is inactive or not in this service company' });
+          return;
+        }
+      }
     } 
     else if (userRole === 'MECHANIC') {
       const worker = await prisma.worker.findUnique({
@@ -89,6 +104,38 @@ export const createOrder = async (
       const end = new Date(endDate);
       if (end < start) {
         res.status(400).json({ message: 'End date cannot be before start date' });
+        return;
+      }
+    }
+
+    const client = await prisma.client.findFirst({
+      where: {
+        id: clientId,
+        serviceCompanyId,
+      },
+    });
+
+    if (!client) {
+      res.status(404).json({ message: 'Client not found in your service company' });
+      return;
+    }
+
+    if (!client.isActive) {
+      res.status(400).json({ message: 'Client is inactive' });
+      return;
+    }
+
+    if (vehicleId) {
+      const vehicle = await prisma.vehicle.findFirst({
+        where: {
+          id: vehicleId,
+          clientId,
+          serviceCompanyId,
+        },
+      });
+
+      if (!vehicle) {
+        res.status(400).json({ message: 'Vehicle does not belong to the active client' });
         return;
       }
     }
@@ -335,8 +382,21 @@ export const updateOrder = async (
         return;
       }
 
-      // Check if new worker has schedule conflict
       if (workerId && workerId !== order.workerId) {
+        const worker = await prisma.worker.findFirst({
+          where: {
+            id: workerId,
+            serviceCompanyId: serviceCompany.id,
+            isActive: true,
+          },
+        });
+
+        if (!worker) {
+          res.status(400).json({ message: 'Worker is inactive or not in this service company' });
+          return;
+        }
+
+        // Check if new worker has schedule conflict
         const startTime = new Date();
         const endTime = new Date();
         endTime.setHours(endTime.getHours() + 4);

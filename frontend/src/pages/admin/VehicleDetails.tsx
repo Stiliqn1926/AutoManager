@@ -26,7 +26,6 @@ interface Vehicle {
   vin: string | null;
   color: string | null;
   mileage: number | null;
-  status: string;
   client: {
     id: string;
     firstName: string;
@@ -89,9 +88,6 @@ const VehicleDetails = () => {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      ACTIVE: 'text-green-700',
-      IN_SERVICE: 'text-blue-700',
-      ARCHIVED: 'text-gray-600',
       WAITING: 'text-yellow-700',
       IN_PROGRESS: 'text-blue-700',
       READY: 'text-green-700',
@@ -99,9 +95,6 @@ const VehicleDetails = () => {
     };
 
     const labels: Record<string, string> = {
-      ACTIVE: 'Активен',
-      IN_SERVICE: 'В сервиз',
-      ARCHIVED: 'Архивиран',
       WAITING: 'Изчакване',
       IN_PROGRESS: 'В процес',
       READY: 'Готова за плащане',
@@ -248,9 +241,8 @@ const VehicleDetails = () => {
           {/* Right */}
           <div className="space-y-6">
             <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Статус</h2>
+              <h2 className="text-lg font-semibold mb-4">Информация</h2>
               <div className="space-y-3">
-                <Info label="Текущ статус" value={getStatusBadge(vehicle.status)} />
                 <Info
                   label="Добавен на"
                   value={new Date(vehicle.createdAt).toLocaleDateString('bg-BG')}

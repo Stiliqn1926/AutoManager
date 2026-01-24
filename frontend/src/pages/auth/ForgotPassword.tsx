@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import toast from 'react-hot-toast';
@@ -10,6 +10,12 @@ import { validateEmail } from '../../utils/validation';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const rawRole = searchParams.get('role');
+  const roleParam =
+    rawRole === 'admin' || rawRole === 'mechanic' || rawRole === 'client'
+      ? rawRole
+      : null;
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -26,7 +32,8 @@ const ForgotPassword = () => {
     try {
       await forgotPassword(email);
       toast.success('Кодът за възстановяване е изпратен на имейла ви!');
-      navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+      const roleQuery = roleParam ? `&role=${encodeURIComponent(roleParam)}` : '';
+      navigate(`/reset-password?email=${encodeURIComponent(email)}${roleQuery}`);
     } catch {
       toast.error('Грешка при изпращане на код');
     } finally {
@@ -74,7 +81,10 @@ const ForgotPassword = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/login" className="text-sm text-primary hover:text-primary-700 hover:underline transition-colors">
+            <a
+              href={roleParam ? `/login?role=${encodeURIComponent(roleParam)}` : '/login'}
+              className="text-sm text-primary hover:text-primary-700 hover:underline transition-colors"
+            >
               Назад към вход
             </a>
           </div>

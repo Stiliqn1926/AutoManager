@@ -13,6 +13,10 @@ import { validateEmail } from '../../utils/validation';
 const Login = () => {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || 'service';
+  const forgotRole =
+    roleParam === 'admin' || roleParam === 'mechanic' || roleParam === 'client'
+      ? roleParam
+      : null;
   const expectedRole = roleParam === 'admin'
     ? 'ADMIN'
     : roleParam === 'mechanic'
@@ -173,7 +177,10 @@ const Login = () => {
           </form>
 
           <div className="mt-6 text-center space-y-2">
-            <a href="/forgot-password" className="text-sm text-primary hover:text-primary-700 hover:underline block transition-colors">
+            <a
+              href={forgotRole ? `/forgot-password?role=${encodeURIComponent(forgotRole)}` : '/forgot-password'}
+              className="text-sm text-primary hover:text-primary-700 hover:underline block transition-colors"
+            >
               Забравена парола?
             </a>
             <div className="text-sm text-textSecondary">

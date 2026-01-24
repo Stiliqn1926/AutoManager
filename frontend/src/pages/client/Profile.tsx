@@ -143,9 +143,10 @@ const Profile = () => {
                 type="button"
                 onClick={() => setIsEditingInfo(true)}
                 className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+                aria-label="Редактирай"
+                title="Редактирай"
               >
                 <Edit2 className="w-4 h-4" />
-                Редактирай
               </button>
             )}
           </div>
