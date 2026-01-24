@@ -138,11 +138,30 @@ const Clients = () => {
     }
   };
 
+  // Нормализира телефонен номер за търсене (+359 → 0)
+  const normalizePhone = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.startsWith('359')) {
+      return '0' + digits.slice(3);
+    }
+    return digits;
+  };
+
   const filteredClients = (() => {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const searchNormalized = normalizePhone(searchTerm);
+
     const filtered = clients.filter((client) => {
-      const matchesSearch = `${client.firstName} ${client.lastName} ${client.phone} ${client.user?.email || ''}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      // Търсене по име или имейл
+      const nameEmail = `${client.firstName} ${client.lastName} ${client.user?.email || ''}`
+        .toLowerCase();
+      const matchesNameEmail = nameEmail.includes(searchLower);
+
+      // Търсене по телефон (нормализирано)
+      const clientPhoneNormalized = normalizePhone(client.phone || '');
+      const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.includes(searchNormalized);
+
+      const matchesSearch = matchesNameEmail || matchesPhone;
 
       const matchesStatus =
         filterStatus === 'all' ||

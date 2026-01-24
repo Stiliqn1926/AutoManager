@@ -30,4 +30,4 @@ prisma/migrations/*
 backend/uploads/invoices/*.pdf
 backend/uploads/vehicles/*.jpg
 backend/uploads/vehicles/*.png 
-uploads/invoices/**/*.pdf
+

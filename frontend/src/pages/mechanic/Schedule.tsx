@@ -129,10 +129,10 @@ const MechanicSchedule = () => {
 
   const getPriorityColor = (priority: string): string => {
     const colors: Record<string, string> = {
-      LOW: 'bg-green-100 text-green-800 border-green-300',
-      NORMAL: 'bg-blue-100 text-blue-800 border-blue-300',
-      HIGH: 'bg-orange-100 text-orange-800 border-orange-300',
-      URGENT: 'bg-red-100 text-red-800 border-red-300',
+      LOW: 'bg-white text-textPrimary border-gray-200',
+      NORMAL: 'bg-white text-textPrimary border-gray-200',
+      HIGH: 'bg-white text-textPrimary border-gray-300',
+      URGENT: 'bg-white text-textPrimary border-gray-400',
     };
     return colors[priority] || colors.NORMAL;
   };
@@ -236,7 +236,7 @@ const MechanicSchedule = () => {
 
         {/* TODAY SECTION */}
         {todaySchedules.length > 0 && (
-          <div className="bg-primary-50 rounded-2xl border-2 border-primary shadow-card p-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
             <div className="flex items-center gap-2 mb-4">
               <CalendarIcon className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold text-textPrimary">Днешни задачи</h2>
