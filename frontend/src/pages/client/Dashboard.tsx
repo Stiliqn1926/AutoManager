@@ -309,7 +309,7 @@ const ClientDashboard = () => {
               Няма нова активност
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
               {dashboardData.recentActivity.map((activity) => (
                 <div
                   key={activity.id}

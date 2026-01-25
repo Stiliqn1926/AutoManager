@@ -166,7 +166,7 @@ const PendingRequests = () => {
               <p>Няма чакащи заявки за {selectedTab === 'MECHANIC' ? 'механици' : 'клиенти'}</p>
             </div>
           ) : (
-            <div className="divide-y divide-borderSubtle">
+            <div className="divide-y divide-borderSubtle max-h-[70vh] overflow-y-auto">
               {currentRequests.map((request) => (
                 <div key={request.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between mb-4">

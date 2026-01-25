@@ -1,11 +1,11 @@
-import { Users, Car, ClipboardList, DollarSign, Settings, UserPlus } from 'lucide-react';
+import { Users, Car, ClipboardList, DollarSign, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SetupWizard = () => {
   const navigate = useNavigate();
 
   const shortcuts = [
-    { icon: UserPlus, label: 'Работници', path: '/admin/workers', color: 'bg-blue-500' },
+    { icon: Users, label: 'Работници', path: '/admin/workers', color: 'bg-blue-500' },
     { icon: Users, label: 'Клиенти', path: '/admin/clients', color: 'bg-green-500' },
     { icon: Car, label: 'Автомобили', path: '/admin/vehicles', color: 'bg-purple-500' },
     { icon: ClipboardList, label: 'Поръчки', path: '/admin/orders', color: 'bg-primary' },

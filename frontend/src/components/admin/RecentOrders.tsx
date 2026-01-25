@@ -51,7 +51,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
   };
 
   return (
-    <div className="bg-cardBg rounded-2xl shadow-card p-6">
+    <div className="bg-cardBg rounded-2xl shadow-card p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-textPrimary">
           Активни поръчки
@@ -69,7 +69,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
           Няма активни поръчки
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1 overflow-y-auto pr-1">
           {orders.map((order) => (
             <div
               key={order.id}

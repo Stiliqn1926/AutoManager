@@ -195,7 +195,7 @@ const OrdersCalendar = () => {
               {format(day, 'd')}
             </span>
 
-            <div className="mt-1 space-y-1">
+            <div className="mt-1 space-y-1 max-h-24 overflow-y-auto pr-1">
               {dayOrders.map((order) => (
                 <div
                   key={order.id}

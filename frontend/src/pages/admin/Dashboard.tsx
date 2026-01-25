@@ -110,12 +110,12 @@ const AdminDashboard = () => {
         {/* Main work area */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Calendar – primary focus */}
-          <div className="xl:col-span-2">
+          <div className="xl:col-span-2 h-full">
             <OrdersCalendar />
           </div>
 
           {/* Recent Orders – secondary focus */}
-          <div>
+          <div className="h-full">
             <RecentOrders orders={dashboardData.recentOrders} />
           </div>
         </div>

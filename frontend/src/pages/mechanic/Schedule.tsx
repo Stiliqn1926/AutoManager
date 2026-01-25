@@ -129,10 +129,10 @@ const MechanicSchedule = () => {
 
   const getPriorityColor = (priority: string): string => {
     const colors: Record<string, string> = {
-      LOW: 'bg-white text-textPrimary border-gray-200',
-      NORMAL: 'bg-white text-textPrimary border-gray-200',
-      HIGH: 'bg-white text-textPrimary border-gray-300',
-      URGENT: 'bg-white text-textPrimary border-gray-400',
+      LOW: 'bg-gray-100 border-gray-400 text-gray-800',
+      NORMAL: 'bg-blue-100 border-blue-400 text-blue-800',
+      HIGH: 'bg-orange-100 border-orange-400 text-orange-800',
+      URGENT: 'bg-red-100 border-red-400 text-red-800',
     };
     return colors[priority] || colors.NORMAL;
   };
@@ -495,24 +495,21 @@ const MechanicSchedule = () => {
                         {day.getDate()}
                       </div>
                     {hasSchedules && (
-  <div className="space-y-1">
-    {daySchedules.slice(0, 1).map((schedule) => (
-      <div
-        key={schedule.id}
-        onClick={() => handleScheduleClick(schedule.id)}
-        className={`p-1 rounded text-xs cursor-pointer hover:shadow-sm ${getPriorityColor(schedule.priority)}`}
-      >
-        <div className="font-semibold truncate">{formatTime(schedule.startTime)}</div>
-        <div className="truncate">{schedule.title}</div>
-      </div>
-    ))}
-    {daySchedules.length > 1 && (
-      <div className="text-xs text-textSecondary text-center mt-1">
-        +{daySchedules.length - 1}
-      </div>
-    )}
-  </div>
-)}
+                      <div className="space-y-1 max-h-24 overflow-y-auto pr-1">
+                        {daySchedules.map((schedule) => (
+                          <div
+                            key={schedule.id}
+                            onClick={() => handleScheduleClick(schedule.id)}
+                            className={`p-1 rounded text-xs cursor-pointer hover:shadow-sm ${getPriorityColor(
+                              schedule.priority
+                            )}`}
+                          >
+                            <div className="font-semibold truncate">{formatTime(schedule.startTime)}</div>
+                            <div className="truncate">{schedule.title}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     </div>
                   );
                 })}

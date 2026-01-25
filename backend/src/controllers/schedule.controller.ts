@@ -133,7 +133,7 @@ export const createSchedule = async (
       const hasConflict = await checkScheduleConflicts(workerId, start, end);
       if (hasConflict) {
         res.status(409).json({
-          message: 'Schedule conflict: Worker already has a task during this time',
+          message: 'Конфликт в графика: механикът вече има задача за този час.',
         });
         return;
       }
@@ -696,7 +696,7 @@ export const updateSchedule = async (
         id
       );
       if (hasConflict) {
-        res.status(409).json({ message: 'Schedule conflict detected' });
+        res.status(409).json({ message: 'Конфликт в графика: механикът има друга задача за този период.' });
         return;
       }
     }

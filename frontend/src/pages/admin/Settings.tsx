@@ -252,7 +252,7 @@ const Settings = () => {
           </h2>
 
           {pendingRequests.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
               {pendingRequests.map((request) => (
                 <div
                   key={request.id}
@@ -302,7 +302,7 @@ const Settings = () => {
           </h2>
 
           {clientRequests.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
               {clientRequests.map((request) => (
                 <div
                   key={request.id}

@@ -326,7 +326,7 @@ const MechanicDashboard = () => {
                   <p>Няма задачи за днес</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                   {todaySchedule.map((task) => (
                     <div
                       key={task.id}
@@ -370,7 +370,7 @@ const MechanicDashboard = () => {
                   <p>Няма предстоящи задачи</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                   {upcomingSchedule.slice(0, 5).map((task) => (
                     <div
                       key={task.id}

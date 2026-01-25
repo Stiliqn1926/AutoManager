@@ -13,7 +13,6 @@ const StatsCard = ({
   label,
   value,
   subtitle,
-  trend,
 }: Props) => {
   return (
     <div className="bg-cardBg border border-borderSubtle rounded-2xl p-6 shadow-card">
@@ -24,13 +23,6 @@ const StatsCard = ({
           </div>
           <span className="text-sm text-textSecondary">{label}</span>
         </div>
-
-        {trend === 'up' && (
-          <span className="text-sm text-success font-medium">↑</span>
-        )}
-        {trend === 'down' && (
-          <span className="text-sm text-error font-medium">↓</span>
-        )}
       </div>
 
       <div className="text-3xl font-semibold text-textPrimary mb-1">

@@ -34,7 +34,7 @@ const WorkersList = () => {
   if (isLoading) {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-6">
-        <h2 className="text-lg font-semibold text-textPrimary mb-4">Механици</h2>
+        <h2 className="text-lg font-semibold text-textPrimary mb-4">Последно добавени механици</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-gray-200 rounded"></div>
@@ -47,7 +47,7 @@ const WorkersList = () => {
   return (
     <div className="bg-cardBg rounded-2xl shadow-card p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">Механици</h2>
+        <h2 className="text-lg font-semibold text-textPrimary">Последно добавени механици</h2>
         <button
           onClick={() => navigate('/admin/workers')}
           className="text-sm text-primary hover:text-primary-700 font-medium"
@@ -60,7 +60,7 @@ const WorkersList = () => {
         <p className="text-textSecondary text-center py-8">Няма механици</p>
       ) : (
         <div className="space-y-2">
-          {workers.map((worker) => (
+          {workers.slice(0, 5).map((worker) => (
             <div
               key={worker.id}
               onClick={() => navigate(`/admin/workers/${worker.id}`)}

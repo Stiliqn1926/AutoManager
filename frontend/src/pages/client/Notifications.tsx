@@ -152,7 +152,7 @@ const Notifications = () => {
           <div>
             <h1 className="text-3xl font-bold text-textPrimary">Известия</h1>
             <p className="text-textSecondary mt-1">
-              {unreadCount > 0 ? `${unreadCount} непрочетени` : 'Всички прочетени'}
+              {unreadCount > 0 ? `${unreadCount} непрочетени` : ''}
             </p>
           </div>
 

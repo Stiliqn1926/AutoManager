@@ -211,8 +211,8 @@ const ScheduleMonthly = () => {
                   >
                     {day.getDate()}
                   </div>
-                  <div className="space-y-1">
-                    {daySchedules.slice(0, 3).map((schedule) => (
+                  <div className="space-y-1 max-h-24 overflow-y-auto pr-1">
+                    {daySchedules.map((schedule) => (
                       <div
                         key={schedule.id}
                         onClick={() => navigate(`/admin/schedules/${schedule.id}`)}
@@ -229,11 +229,6 @@ const ScheduleMonthly = () => {
                         </p>
                       </div>
                     ))}
-                    {daySchedules.length > 3 && (
-                      <div className="text-[10px] text-textSecondary font-medium text-center">
-                        +{daySchedules.length - 3} още
-                      </div>
-                    )}
                   </div>
                 </div>
               );

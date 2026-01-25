@@ -1,3 +1,7 @@
 .schedule-item {
-  height: var(--schedule-height);
+  height: 6rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }

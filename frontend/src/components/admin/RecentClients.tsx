@@ -34,7 +34,7 @@ const RecentClients = () => {
   if (isLoading) {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-6">
-        <h2 className="text-lg font-semibold text-textPrimary mb-4">Последни Клиенти</h2>
+        <h2 className="text-lg font-semibold text-textPrimary mb-4">Последно добавени клиенти</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-gray-200 rounded"></div>
@@ -47,7 +47,7 @@ const RecentClients = () => {
   return (
     <div className="bg-cardBg rounded-2xl shadow-card p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">Последни Клиенти</h2>
+        <h2 className="text-lg font-semibold text-textPrimary">Последно добавени клиенти</h2>
         <button
           onClick={() => navigate('/admin/clients')}
           className="text-sm text-primary hover:text-primary-700 font-medium"

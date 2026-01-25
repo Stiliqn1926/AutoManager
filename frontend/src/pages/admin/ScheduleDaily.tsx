@@ -47,18 +47,6 @@ const ScheduleDaily = () => {
     fetchDailySchedule();
   }, [currentDate]);
 
-  // Задава CSS variable за височина (без inline styles)
-  useEffect(() => {
-    document
-      .querySelectorAll<HTMLElement>('.schedule-item')
-      .forEach((el) => {
-        const height = el.dataset.scheduleHeight;
-        if (height) {
-          el.style.setProperty('--schedule-height', height);
-        }
-      });
-  }, [schedules]);
-
   const goToPreviousDay = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() - 1);
@@ -84,27 +72,13 @@ const ScheduleDaily = () => {
     return slots;
   };
 
-  const getScheduleForTimeSlot = (hour: string): Schedule | null => {
+  const getSchedulesForTimeSlot = (hour: string): Schedule[] => {
     const [slotHour] = hour.split(':').map(Number);
 
-    return (
-      schedules.find((schedule) => {
-        const start = new Date(schedule.startTime);
-        const end = new Date(schedule.endTime);
-        return (
-          slotHour >= start.getHours() &&
-          slotHour < end.getHours()
-        );
-      }) || null
-    );
-  };
-
-  const calculateScheduleHeight = (schedule: Schedule): number => {
-    const start = new Date(schedule.startTime);
-    const end = new Date(schedule.endTime);
-    const durationHours =
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    return Math.max(1, durationHours);
+    return schedules.filter((schedule) => {
+      const start = new Date(schedule.startTime);
+      return slotHour === start.getHours();
+    });
   };
 
   const getPriorityColor = (priority: string): string => {
@@ -118,7 +92,6 @@ const ScheduleDaily = () => {
   };
 
   const timeSlots = generateTimeSlots();
-  const renderedSchedules = new Set<string>();
 
   if (isLoading) {
     return (
@@ -189,11 +162,7 @@ const ScheduleDaily = () => {
               </thead>
               <tbody>
                 {timeSlots.map((timeSlot, index) => {
-                  const schedule = getScheduleForTimeSlot(timeSlot);
-                  const shouldRender =
-                    schedule && !renderedSchedules.has(schedule.id);
-
-                  if (schedule) renderedSchedules.add(schedule.id);
+                  const slotSchedules = getSchedulesForTimeSlot(timeSlot);
 
                   return (
                     <tr key={index} className="border-t">
@@ -201,44 +170,46 @@ const ScheduleDaily = () => {
                         {timeSlot}
                       </td>
                       <td className="py-2 px-4 relative">
-                        {shouldRender && schedule && (
-                          <div
-                            onClick={() =>
-                              navigate(
-                                `/admin/schedules/${schedule.id}`
-                              )
-                            }
-                            className={`schedule-item p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(
-                              schedule.priority
-                            )}`}
-                            data-schedule-height={`${calculateScheduleHeight(
-                              schedule
-                            ) * 4}rem`}
-                          >
-                            <p className="font-semibold text-sm">
-                              {schedule.title}
-                            </p>
-                            <p className="text-xs mt-1">
-                              {new Date(
-                                schedule.startTime
-                              ).toLocaleTimeString('bg-BG', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}{' '}
-                              -{' '}
-                              {new Date(
-                                schedule.endTime
-                              ).toLocaleTimeString('bg-BG', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </p>
-                            {schedule.worker && (
-                              <p className="text-xs mt-1">
-                                {schedule.worker.firstName}{' '}
-                                {schedule.worker.lastName}
-                              </p>
-                            )}
+                        {slotSchedules.length > 0 && (
+                          <div className="flex flex-col gap-2">
+                            {slotSchedules.map((schedule) => (
+                              <div
+                                key={schedule.id}
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/schedules/${schedule.id}`
+                                  )
+                                }
+                                className={`schedule-item p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(
+                                  schedule.priority
+                                )}`}
+                              >
+                                <p className="font-semibold text-sm">
+                                  {schedule.title}
+                                </p>
+                                <p className="text-xs mt-1">
+                                  {new Date(
+                                    schedule.startTime
+                                  ).toLocaleTimeString('bg-BG', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}{' '}
+                                  -{' '}
+                                  {new Date(
+                                    schedule.endTime
+                                  ).toLocaleTimeString('bg-BG', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                                {schedule.worker && (
+                                  <p className="text-xs mt-1">
+                                    {schedule.worker.firstName}{' '}
+                                    {schedule.worker.lastName}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         )}
                       </td>
