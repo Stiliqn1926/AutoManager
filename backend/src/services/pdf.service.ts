@@ -115,7 +115,7 @@ export const generateInvoicePDF = async (
       // Footer - позициониран след общата сума
       y += 50;
       doc.fontSize(10).font('DejaVu').text(
-        'Благодарим Ви за доверието!',
+        '',
         50,
         y,
         { align: 'center', width: 500 }

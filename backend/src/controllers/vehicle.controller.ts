@@ -113,12 +113,19 @@ export const getAllVehicles = async (
       return;
     }
 
+    const clientId = req.query.clientId as string | undefined;
+
+    const whereClause: { serviceCompanyId: string; clientId?: string } = {
+      serviceCompanyId: serviceCompany.id,
+      ...(clientId ? { clientId } : {}),
+    };
+
     const totalItems = await prisma.vehicle.count({
-      where: { serviceCompanyId: serviceCompany.id },
+      where: whereClause,
     });
 
     const vehicles = await prisma.vehicle.findMany({
-      where: { serviceCompanyId: serviceCompany.id },
+      where: whereClause,
       skip,
       take,
       include: {

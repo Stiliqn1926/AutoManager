@@ -321,7 +321,7 @@ const MechanicOrderDetails = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="text-base font-semibold text-textPrimary">{item.name}</h3>
-                        {item.description && (
+                        {item.description && item.description !== item.name && (
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">
@@ -370,7 +370,7 @@ const MechanicOrderDetails = () => {
                             {item.type === 'PART' ? 'Част' : 'Консуматив'}
                           </span>
                         </div>
-                        {item.description && (
+                        {item.description && item.description !== item.name && (
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">

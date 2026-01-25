@@ -114,9 +114,9 @@ const FinalizeOrderModal = ({
                       <tr key={item.id} className="border-t border-borderSubtle">
                         <td className="py-3 px-4">{getItemTypeBadge(item.type)}</td>
                         <td className="py-3 px-4 text-textPrimary">{item.description}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary">{item.quantity}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} €</td>
-                        <td className="py-3 px-4 text-right font-medium text-textPrimary">
+                        <td className="py-3 px-4 text-right text-textSecondary whitespace-nowrap">{item.quantity}</td>
+                        <td className="py-3 px-4 text-right text-textSecondary whitespace-nowrap">{Number(item.unitPrice || 0).toFixed(2)} €</td>
+                        <td className="py-3 px-4 text-right font-medium text-textPrimary whitespace-nowrap">
                           {Number(item.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
@@ -125,7 +125,7 @@ const FinalizeOrderModal = ({
                       <td colSpan={4} className="py-4 px-4 text-right font-bold text-textPrimary text-lg">
                         Обща сума:
                       </td>
-                      <td className="py-4 px-4 text-right font-bold text-primary text-xl">
+                      <td className="py-4 px-4 text-right font-bold text-primary text-xl whitespace-nowrap">
                         {Number(totalPrice || 0).toFixed(2)} €
                       </td>
                     </tr>
