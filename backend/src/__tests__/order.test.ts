@@ -9,6 +9,7 @@ describe('Order Endpoints', () => {
 
   // ✅ Setup - създай ADMIN, клиент и автомобил преди тестовете (С AGENT!)
   beforeAll(async () => {
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
     agent = createTestAgent();  // ✅ Agent пази cookies!
     const timestamp = Date.now();
 

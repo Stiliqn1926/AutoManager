@@ -1,6 +1,17 @@
 import { createTestAgent } from './setup';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 describe('Auth Endpoints', () => {
+  beforeAll(async () => {
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
   describe('POST /api/auth/register', () => {
     it('should register a new ADMIN user', async () => {
       const agent = createTestAgent();

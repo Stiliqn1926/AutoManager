@@ -9,6 +9,7 @@ describe('Permission Tests', () => {
 
   // ✅ Setup - създай ADMIN, MECHANIC и CLIENT (С AGENTS!)
   beforeAll(async () => {
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
     const timestamp = Date.now();
 
     // ========== ADMIN SETUP ==========
