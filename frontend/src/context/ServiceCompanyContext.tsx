@@ -12,6 +12,9 @@ export interface ServiceCompany {
 export interface ClientServiceCompany {
   clientId: string;
   serviceCompany: ServiceCompany;
+  status?: 'ACTIVE' | 'PENDING' | 'LEFT';
+  joinedAt?: string;
+  leftAt?: string | null;
 }
 
 export interface ServiceCompanyContextType {

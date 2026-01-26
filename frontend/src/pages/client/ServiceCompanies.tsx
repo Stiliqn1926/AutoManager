@@ -30,8 +30,10 @@ interface ServiceCompanyWithStatus {
     email: string;
     uniqueCode: string;
   };
-  status?: 'ACTIVE' | 'PENDING';
+  status?: 'ACTIVE' | 'PENDING' | 'LEFT';
   joinedAt?: string;
+  leftAt?: string | null;
+  requestId?: string;
 }
 
 interface PendingServiceCompanyRequest {
@@ -58,40 +60,71 @@ const ServiceCompanies = () => {
   const fetchAllCompanies = useCallback(async () => {
     setIsLoadingCompanies(true);
     try {
-      // Вземи ACTIVE компаниите
-      const activeCompanies = serviceCompanies.map(sc => ({
-        ...sc,
-        status: 'ACTIVE' as const,
-      }));
-
-      // Вземи PENDING заявките
       const pendingResponse = await api.get('/client/service-companies/pending');
       const pendingRequests: PendingServiceCompanyRequest[] = Array.isArray(
         pendingResponse.data?.pendingRequests
       )
         ? pendingResponse.data.pendingRequests
         : [];
+      const pendingByServiceId = new Map(
+        pendingRequests.map((req) => [req.serviceCompany.id, req])
+      );
+
+      // Вземи ACTIVE/LEFT компаниите + override към PENDING при нова заявка
+      const activeCompanies = serviceCompanies.map((sc) => {
+        const pending = pendingByServiceId.get(sc.serviceCompany.id);
+        if (pending) {
+          return {
+            ...sc,
+            status: 'PENDING' as const,
+            joinedAt: pending.createdAt,
+            leftAt: sc.leftAt ?? null,
+            requestId: pending.id,
+          };
+        }
+        return {
+          ...sc,
+          status: sc.status ?? ('ACTIVE' as const),
+          joinedAt: sc.joinedAt,
+          leftAt: sc.leftAt ?? null,
+        };
+      });
+
+      const activeServiceIds = new Set(
+        activeCompanies.map((company) => company.serviceCompany.id)
+      );
 
       // Преобразувай pending requests в същия формат
-      const pendingCompanies: ServiceCompanyWithStatus[] = pendingRequests.map((req) => ({
-        clientId: req.id, // Използваме request ID като временен clientId
-        serviceCompany: req.serviceCompany,
-        status: 'PENDING' as const,
-        joinedAt: req.createdAt,
-      }));
+      const pendingCompanies: ServiceCompanyWithStatus[] = pendingRequests
+        .filter((req) => !activeServiceIds.has(req.serviceCompany.id))
+        .map((req) => ({
+          clientId: req.id, // Използваме request ID като временен clientId
+          serviceCompany: req.serviceCompany,
+          status: 'PENDING' as const,
+          joinedAt: req.createdAt,
+          requestId: req.id,
+        }));
 
-      // Комбинирай и сортирай (ACTIVE първо, после PENDING)
+      // Комбинирай и сортирай (ACTIVE -> PENDING -> LEFT)
+      const statusOrder = { ACTIVE: 0, PENDING: 1, LEFT: 2 } as const;
       const allCompanies = [...activeCompanies, ...pendingCompanies].sort((a, b) => {
-        if (a.status === 'ACTIVE' && b.status === 'PENDING') return -1;
-        if (a.status === 'PENDING' && b.status === 'ACTIVE') return 1;
-        return 0;
+        const aOrder = statusOrder[a.status || 'ACTIVE'] ?? 0;
+        const bOrder = statusOrder[b.status || 'ACTIVE'] ?? 0;
+        return aOrder - bOrder;
       });
 
       setAllCompanies(allCompanies);
     } catch (error) {
       console.error('Error fetching all companies:', error);
       // Fallback на serviceCompanies от context
-      setAllCompanies(serviceCompanies.map(sc => ({ ...sc, status: 'ACTIVE' as const })));
+      setAllCompanies(
+        serviceCompanies.map((sc) => ({
+          ...sc,
+          status: sc.status ?? ('ACTIVE' as const),
+          joinedAt: sc.joinedAt,
+          leftAt: sc.leftAt ?? null,
+        }))
+      );
     } finally {
       setIsLoadingCompanies(false);
     }
@@ -193,7 +226,7 @@ const ServiceCompanies = () => {
     });
   };
 
-  const getStatusBadge = (status: 'ACTIVE' | 'PENDING') => {
+  const getStatusBadge = (status: 'ACTIVE' | 'PENDING' | 'LEFT') => {
     switch (status) {
       case 'ACTIVE':
         return (
@@ -207,6 +240,13 @@ const ServiceCompanies = () => {
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-4 h-4" />
             Чака одобрение
+          </span>
+        );
+      case 'LEFT':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+            <LogOut className="w-4 h-4" />
+            Напуснат
           </span>
         );
       default:
@@ -320,7 +360,12 @@ const ServiceCompanies = () => {
                   {isPending ? (
                     <div className="flex">
                       <button
-                        onClick={() => handleCancelPendingRequest(company.clientId, company.serviceCompany.name)}
+                        onClick={() =>
+                          handleCancelPendingRequest(
+                            company.requestId || company.clientId,
+                            company.serviceCompany.name
+                          )
+                        }
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
                       >
                         <XCircle className="w-4 h-4" />

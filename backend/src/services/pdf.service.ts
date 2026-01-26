@@ -32,7 +32,7 @@ export const generateInvoicePDF = async (
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
-      // Регистрираме шрифт който поддържа кирилица (DejaVu Sans)
+   
       const fontPath = path.join(__dirname, '../../fonts/DejaVuSans.ttf');
       const fontBoldPath = path.join(__dirname, '../../fonts/DejaVuSans-Bold.ttf');
 
@@ -41,11 +41,11 @@ export const generateInvoicePDF = async (
 
       doc.pipe(stream);
 
-      // Регистрираме шрифтовете
+   
       doc.registerFont('DejaVu', fontPath);
       doc.registerFont('DejaVu-Bold', fontBoldPath);
 
-      // Използваме DejaVu шрифт за кирилица
+    
       doc.font('DejaVu-Bold');
 
       // Header
@@ -112,7 +112,7 @@ export const generateInvoicePDF = async (
       doc.text('ОБЩА СУМА:', 320, y);
       doc.text(`${Number(data.totalPrice).toFixed(2)} €`, 410, y, { width: 100, align: 'right' });
 
-      // Footer - позициониран след общата сума
+      // Footer 
       y += 50;
       doc.fontSize(10).font('DejaVu').text(
         '',

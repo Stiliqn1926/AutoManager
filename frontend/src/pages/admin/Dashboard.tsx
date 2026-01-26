@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 interface Order {
   id: string;
   orderNumber: string;
+  displayOrderNumber?: string | null;
   clientName: string;
   status: string;
   createdAt: string;
@@ -116,7 +117,12 @@ const AdminDashboard = () => {
 
           {/* Recent Orders – secondary focus */}
           <div className="h-full">
-            <RecentOrders orders={dashboardData.recentOrders} />
+            <RecentOrders
+              orders={dashboardData.recentOrders.map((order) => ({
+                ...order,
+                displayOrderNumber: order.displayOrderNumber ?? null,
+              }))}
+            />
           </div>
         </div>
 

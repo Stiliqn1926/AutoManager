@@ -55,9 +55,10 @@ const ClientDashboard = () => {
     useServiceCompany();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isServiceInvalid, setIsServiceInvalid] = useState(false);
 
   const fetchDashboard = useCallback(async () => {
-    if (!selectedServiceCompany) return;
+    if (!selectedServiceCompany || isServiceInvalid) return;
 
     setIsLoading(true);
     try {
@@ -66,15 +67,24 @@ const ClientDashboard = () => {
       });
       setDashboardData(response.data);
     } catch (error) {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status == 404) {
+        localStorage.removeItem('selectedServiceCompanyId');
+        setDashboardData(null);
+        setIsServiceInvalid(true);
+        navigate('/client/service-companies');
+        return;
+      }
       toast.error('Грешка при зареждане на данни');
       console.error('Dashboard error:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedServiceCompany]);
+  }, [selectedServiceCompany, isServiceInvalid, navigate]);
 
   useEffect(() => {
     if (selectedServiceCompany && selectedClientId) {
+      setIsServiceInvalid(false);
       fetchDashboard();
     }
   }, [selectedServiceCompany, selectedClientId, fetchDashboard]);
@@ -172,7 +182,7 @@ const ClientDashboard = () => {
             className="p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
           >
             <ClipboardList className="w-6 h-6 text-primary mb-2" />
-            Активни поръчки
+            Поръчки
           </button>
 
           <button

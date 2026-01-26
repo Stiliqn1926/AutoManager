@@ -30,7 +30,6 @@ describe('Order Endpoints', () => {
         password: 'Password123!',
       });
 
-    // 3. Създай Service Company (БЕЗ Authorization header - cookies автоматично!)
     const companyResp = await agent
       .post('/api/service-company')
       .send({
@@ -40,14 +39,12 @@ describe('Order Endpoints', () => {
         email: `garage-order-${timestamp}@test.com`,
       });
 
-    // Провери дали компанията е създадена успешно
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
       throw new Error(`Failed to create service company. Status: ${companyResp.status}, Body: ${JSON.stringify(companyResp.body)}`);
     }
 
     serviceCompanyId = companyResp.body.serviceCompany.id;
 
-    // 4. Login отново (за да вземе serviceCompanyId в токена)
     await agent
       .post('/api/auth/login')
       .send({
@@ -55,7 +52,6 @@ describe('Order Endpoints', () => {
         password: 'Password123!',
       });
 
-    // 5. Създай клиент (БЕЗ Authorization header - cookies автоматично!)
     const clientResponse = await agent
       .post('/api/clients')
       .send({
@@ -67,7 +63,6 @@ describe('Order Endpoints', () => {
 
     clientId = clientResponse.body.client.id;
 
-    // 6. Създай автомобил (БЕЗ Authorization header - cookies автоматично!)
     const vehicleResponse = await agent
       .post('/api/vehicles')
       .send({
@@ -83,7 +78,7 @@ describe('Order Endpoints', () => {
 
   describe('POST /api/orders', () => {
     it('should create a new order', async () => {
-      const response = await agent  // ✅ Използваме agent (има cookies)
+      const response = await agent 
         .post('/api/orders')
         .send({
           vehicleId,
@@ -98,7 +93,7 @@ describe('Order Endpoints', () => {
     });
 
     it('should fail without authentication', async () => {
-      const unauthAgent = createTestAgent();  // ✅ Нов agent БЕЗ cookies
+      const unauthAgent = createTestAgent(); 
 
       const response = await unauthAgent
         .post('/api/orders')
@@ -117,7 +112,7 @@ describe('Order Endpoints', () => {
         .send({
           vehicleId,
           clientId,
-          description: 'AB',  // Твърде кратко
+          description: 'AB',  
         });
 
       expect(response.status).toBe(400);
@@ -147,7 +142,6 @@ describe('Order Endpoints', () => {
     let orderId: string;
 
     beforeAll(async () => {
-      // Създай order за тестовете
       const response = await agent
         .post('/api/orders')
         .send({
@@ -184,8 +178,7 @@ describe('Order Endpoints', () => {
   describe('GET /api/orders/:id', () => {
     let orderId: string;
 
-    beforeAll(async () => {
-      // Създай order за тестовете
+    beforeAll(async () => {     
       const response = await agent
         .post('/api/orders')
         .send({

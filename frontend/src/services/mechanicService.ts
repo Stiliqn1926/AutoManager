@@ -214,6 +214,10 @@ export const getMechanicProfile = async (): Promise<MechanicProfileResponse> => 
 };
 
 export const updateMechanicProfile = async (data: {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  specialization?: string;
   skills?: string;
 }): Promise<MechanicProfileResponse> => {
   const response = await api.put('/workers/profile', data);

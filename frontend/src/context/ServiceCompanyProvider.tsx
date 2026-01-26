@@ -31,6 +31,13 @@ export const ServiceCompanyProvider = ({ children }: ServiceCompanyProviderProps
       const companies = response.data.serviceCompanies || [];
       setServiceCompanies(companies);
 
+      if (companies.length === 0) {
+        setSelectedServiceCompanyState(null);
+        setSelectedClientId(null);
+        localStorage.removeItem('selectedServiceCompanyId');
+        return;
+      }
+
       // Ако има запазен избор в localStorage, възстанови го
      const savedCompanyId = localStorage.getItem('selectedServiceCompanyId');
 if (savedCompanyId && companies.length > 0) {
@@ -43,20 +50,28 @@ if (savedCompanyId && companies.length > 0) {
   } else {
     // Ако запазеният сервиз не съществува, избери първия валиден
     const firstValid = companies.find((c: ClientServiceCompany) => c.serviceCompany !== null);
-    if (firstValid && firstValid.serviceCompany) {  // 🆕 null check
+    if (firstValid && firstValid.serviceCompany) {  // ð null check
       setSelectedServiceCompanyState(firstValid.serviceCompany);
       setSelectedClientId(firstValid.clientId);
       localStorage.setItem('selectedServiceCompanyId', firstValid.serviceCompany.id);
+    } else {
+      setSelectedServiceCompanyState(null);
+      setSelectedClientId(null);
+      localStorage.removeItem('selectedServiceCompanyId');
     }
   }
 } else if (companies.length > 0) {
   // Ако няма запазен избор, избери първия валиден
   const firstValid = companies.find((c: ClientServiceCompany) => c.serviceCompany !== null);
-  if (firstValid && firstValid.serviceCompany) {  // 🆕 null check
-    setSelectedServiceCompanyState(firstValid.serviceCompany);
-    setSelectedClientId(firstValid.clientId);
-    localStorage.setItem('selectedServiceCompanyId', firstValid.serviceCompany.id);
-  }
+    if (firstValid && firstValid.serviceCompany) {  // ð null check
+      setSelectedServiceCompanyState(firstValid.serviceCompany);
+      setSelectedClientId(firstValid.clientId);
+      localStorage.setItem('selectedServiceCompanyId', firstValid.serviceCompany.id);
+    } else {
+      setSelectedServiceCompanyState(null);
+      setSelectedClientId(null);
+      localStorage.removeItem('selectedServiceCompanyId');
+    }
 }
 } catch (error) {
   toast.error('Грешка при зареждане на сервизи');

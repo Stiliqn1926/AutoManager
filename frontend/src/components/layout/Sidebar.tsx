@@ -64,7 +64,7 @@ const Sidebar = () => {
           { path: '/client/dashboard', icon: Home, label: 'Начало' },
           { path: '/client/service-companies', icon: Building2, label: 'Моите сервизи' },
           { path: '/client/vehicles', icon: Car, label: 'Моите автомобили' },
-          { path: '/client/orders', icon: ClipboardList, label: 'Активни поръчки' },
+          { path: '/client/orders', icon: ClipboardList, label: 'Поръчки' },
           { path: '/client/invoices', icon: FileText, label: 'Фактури' },
           { path: '/client/notifications', icon: Bell, label: 'Известия' },
           { path: '/client/profile', icon: User, label: 'Профил' },

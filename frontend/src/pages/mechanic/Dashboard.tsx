@@ -23,22 +23,12 @@ interface ScheduleTaskForModal {
   endTime: string;
   status: string;
   title?: string;
-  description?: string;
+  description?: string | null;
   order?: {
-    id: string;
     orderNumber: string;
-    description?: string;
-    client: {
-      firstName: string;
-      lastName: string;
-      phone?: string;
-    };
-    vehicle: {
-      brand: string;
-      model: string;
-      licensePlate: string;
-    };
-  };
+    displayOrderNumber?: string | null;
+    status: string;
+  } | null;
 }
 
 const MechanicDashboard = () => {
@@ -331,7 +321,7 @@ const MechanicDashboard = () => {
                     <div
                       key={task.id}
                       className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
-                      onClick={() => handleTaskClick(task as ScheduleTaskForModal)}
+                      onClick={() => handleTaskClick(task)}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -375,7 +365,7 @@ const MechanicDashboard = () => {
                     <div
                       key={task.id}
                       className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
-                      onClick={() => handleTaskClick(task as ScheduleTaskForModal)}
+                      onClick={() => handleTaskClick(task)}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="text-xs text-textSecondary">{formatDate(task.startTime)}</div>

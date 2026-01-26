@@ -6,23 +6,24 @@ interface ScheduleTask {
   endTime: string;
   status: string;
   title?: string;
-  description?: string;
+  description?: string | null;
   order?: {
-    id: string;
+    id?: string;
     orderNumber: string;
     displayOrderNumber?: string | null;
-    description?: string;
-    client: {
+    description?: string | null;
+    status?: string;
+    client?: {
       firstName: string;
       lastName: string;
       phone?: string;
     };
-    vehicle: {
+    vehicle?: {
       brand: string;
       model: string;
       licensePlate: string;
     };
-  };
+  } | null;
 }
 
 interface ScheduleDetailsModalProps {
@@ -144,38 +145,42 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
               </div>
 
               {/* Клиент */}
-              <div className="flex items-start gap-3">
-                <div className="mt-1 p-2 bg-primary/10 rounded-lg">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-textSecondary">Клиент</label>
-                  <p className="text-base font-semibold text-textPrimary mt-1">
-                    {schedule.order.client.firstName} {schedule.order.client.lastName}
-                  </p>
-                  {schedule.order.client.phone && (
-                    <p className="text-sm text-textSecondary mt-1">
-                      {schedule.order.client.phone}
+              {schedule.order.client && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 p-2 bg-primary/10 rounded-lg">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-sm font-medium text-textSecondary">Клиент</label>
+                    <p className="text-base font-semibold text-textPrimary mt-1">
+                      {schedule.order.client.firstName} {schedule.order.client.lastName}
                     </p>
-                  )}
+                    {schedule.order.client.phone && (
+                      <p className="text-sm text-textSecondary mt-1">
+                        {schedule.order.client.phone}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Автомобил */}
-              <div className="flex items-start gap-3">
-                <div className="mt-1 p-2 bg-primary/10 rounded-lg">
-                  <Car className="w-5 h-5 text-primary" />
+              {schedule.order.vehicle && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 p-2 bg-primary/10 rounded-lg">
+                    <Car className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-sm font-medium text-textSecondary">Автомобил</label>
+                    <p className="text-base font-semibold text-textPrimary mt-1">
+                      {schedule.order.vehicle.brand} {schedule.order.vehicle.model}
+                    </p>
+                    <p className="text-sm text-textSecondary mt-1">
+                      {schedule.order.vehicle.licensePlate}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-textSecondary">Автомобил</label>
-                  <p className="text-base font-semibold text-textPrimary mt-1">
-                    {schedule.order.vehicle.brand} {schedule.order.vehicle.model}
-                  </p>
-                  <p className="text-sm text-textSecondary mt-1">
-                    {schedule.order.vehicle.licensePlate}
-                  </p>
-                </div>
-              </div>
+              )}
 
               {/* Описание на поръчката */}
               {schedule.order.description && (

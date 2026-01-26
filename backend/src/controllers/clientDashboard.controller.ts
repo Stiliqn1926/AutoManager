@@ -94,9 +94,9 @@ export const updateClientProfile = async (
   }
 };
 
-// =======================================
+
 // CHANGE PASSWORD
-// =======================================
+
 export const changePassword = async (
   req: AuthRequest,
   res: Response
@@ -270,10 +270,8 @@ export const getClientServiceCompanies = async (
 
     // Вземи всички Client профили за този user
     const clients = await prisma.client.findMany({
-      where: { 
+      where: {
         userId,
-        isActive: true,
-        deletedAt: null,
       },
       include: {
         serviceCompany: {
@@ -299,7 +297,10 @@ export const getClientServiceCompanies = async (
     // Мапваме към по-чист формат
     const serviceCompanies = validClients.map(client => ({
       clientId: client.id,
-      serviceCompany: client.serviceCompany!,  // Safe защото филтрирахме null
+      serviceCompany: client.serviceCompany!,
+      status: client.isActive ? 'ACTIVE' : 'LEFT',
+      joinedAt: client.createdAt,
+      leftAt: client.deletedAt,
     }));
 
     res.status(200).json({ serviceCompanies });
@@ -336,7 +337,7 @@ export const getClientVehicles = async (
     });
 
     if (clients.length === 0) {
-      res.status(404).json({ message: 'Client profile not found' });
+      res.status(200).json({ vehicles: [] });
       return;
     }
 
@@ -587,10 +588,8 @@ export const getClientOrderById = async (
 
     // Вземи всички Client профили за този user
     const clients = await prisma.client.findMany({
-      where: { 
+      where: {
         userId,
-        isActive: true,
-        deletedAt: null,
       },
       select: { id: true },
     });
@@ -722,6 +721,82 @@ export const getClientOrderHistory = async (
         status: order.status,
         totalPrice: order.totalPrice,
         completedDate: order.completedDate,
+        createdAt: order.createdAt,
+        vehicle: order.vehicle,
+        worker: order.worker
+          ? `${order.worker.firstName} ${order.worker.lastName}`
+          : null,
+        items: order.orderItems,
+        invoice: order.invoices[0] || null,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// =======================================
+// GET CLIENT ORDERS (ALL)
+// =======================================
+export const getClientOrders = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const serviceCompanyId = req.query.serviceCompanyId as string | undefined;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User ID not found' });
+      return;
+    }
+
+    const clients = await prisma.client.findMany({
+      where: {
+        userId,
+        ...(serviceCompanyId ? { serviceCompanyId } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (clients.length === 0) {
+      res.status(200).json({ orders: [] });
+      return;
+    }
+
+    const orders = await prisma.order.findMany({
+      where: {
+        clientId: { in: clients.map((c) => c.id) },
+      },
+      include: {
+        vehicle: {
+          select: {
+            brand: true,
+            model: true,
+            licensePlate: true,
+          },
+        },
+        worker: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        orderItems: true,
+        invoices: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.status(200).json({
+      orders: orders.map((order) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        displayOrderNumber: order.displayOrderNumber,
+        description: order.description,
+        status: order.status,
+        totalPrice: order.totalPrice,
+        endDate: order.endDate,
         createdAt: order.createdAt,
         vehicle: order.vehicle,
         worker: order.worker
@@ -893,8 +968,6 @@ export const getClientDashboardOverview = async (
       where: {
         userId,
         serviceCompanyId: serviceCompanyId as string,
-        isActive: true,
-        deletedAt: null,
       },
     });
 

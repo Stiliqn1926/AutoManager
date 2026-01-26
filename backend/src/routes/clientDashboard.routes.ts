@@ -8,6 +8,7 @@ import {
   getClientVehicles,
   getClientVehicleById,
   getClientActiveOrders,
+  getClientOrders,
   getClientOrderById,
   getClientOrderHistory,
   getClientInvoices,
@@ -48,6 +49,7 @@ router.get('/vehicles', getClientVehicles);
 router.get('/vehicles/:id', getClientVehicleById);
 
 // Orders
+router.get('/orders', getClientOrders);
 router.get('/orders/active', getClientActiveOrders);
 router.get('/orders/history', getClientOrderHistory);
 router.get('/orders/:id', getClientOrderById);
