@@ -12,6 +12,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy headers (required for correct rate limiting behind Railway proxy)
+app.set('trust proxy', 1);
+
 // CORS configuration - ограничи достъпа само до frontend
 // Разрешаваме multiple ports за development (Vite понякога използва различни портове)
 const allowedOrigins = [
