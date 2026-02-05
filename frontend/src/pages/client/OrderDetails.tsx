@@ -341,12 +341,6 @@ const OrderDetails = () => {
                             </span>
                           </div>
 
-                          {item.description && (
-                            <p className="text-sm text-textSecondary mb-2">
-                              {item.description}
-                            </p>
-                          )}
-
                           <div className="flex items-center gap-4 text-sm text-textMuted">
                             <span>Количество: {item.quantity}</span>
                             <span>Ед. цена: {formatMoney(item.unitPrice)}</span>

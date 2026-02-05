@@ -351,6 +351,26 @@ export const createNotification = async (
 ): Promise<void> => {
   try {
     const { clientId, title, message, type } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+
+      const client = await prisma.client.findFirst({
+        where: { id: clientId, serviceCompanyId: serviceCompany.id },
+      });
+      if (!client) {
+        res.status(404).json({ message: 'Client not found' });
+        return;
+      }
+    }
 
     const notification = await prisma.notification.create({
       data: {

@@ -65,6 +65,10 @@ export const createInvoice = async (
       res.status(404).json({ message: 'Order not found' });
       return;
     }
+    if (order.serviceCompanyId !== serviceCompany.id) {
+      res.status(403).json({ message: 'Forbidden' });
+      return;
+    }
 
     // Провери дали вече има фактура
     if (order.invoices && order.invoices.length > 0) {
@@ -161,6 +165,8 @@ export const getInvoiceByOrderId = async (
 ): Promise<void> => {
   try {
     const { orderId } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const invoice = await prisma.invoice.findFirst({
       where: { orderId },
@@ -179,6 +185,19 @@ export const getInvoiceByOrderId = async (
       res.status(404).json({ message: 'Invoice not found' });
       return;
     }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (invoice.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     res.status(200).json({ invoice });
   } catch (error) {
@@ -193,6 +212,8 @@ export const getInvoiceById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -212,6 +233,19 @@ export const getInvoiceById = async (
       res.status(404).json({ message: 'Invoice not found' });
       return;
     }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (invoice.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     res.status(200).json({ invoice });
   } catch (error) {
@@ -227,6 +261,8 @@ export const updateInvoice = async (
   try {
     const { id } = req.params;
     const { notes, dueDate } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -242,6 +278,19 @@ export const updateInvoice = async (
     if (!invoice) {
       res.status(404).json({ message: 'Invoice not found' });
       return;
+    }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (invoice.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
 
     // Изчисли отново subtotal
@@ -280,6 +329,8 @@ export const markInvoiceAsPaid = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -288,6 +339,19 @@ export const markInvoiceAsPaid = async (
     if (!invoice) {
       res.status(404).json({ message: 'Invoice not found' });
       return;
+    }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (invoice.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
 
     if (invoice.isPaid) {
@@ -319,6 +383,24 @@ export const deleteInvoice = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+
+      const invoice = await prisma.invoice.findUnique({ where: { id } });
+      if (!invoice || invoice.serviceCompanyId !== serviceCompany.id) {
+        res.status(404).json({ message: 'Invoice not found' });
+        return;
+      }
+    }
 
     await prisma.invoice.delete({
       where: { id },

@@ -62,7 +62,7 @@ export const startTokenCleanupJob = (): void => {
         const result = await cleanupExpiredTokens();
 
         // Логваме резултата
-        logger.info('✅ Token cleanup completed:', {
+        logger.info('Token cleanup completed:', {
           refreshTokensDeleted: result.refreshTokens,
           blacklistedTokensDeleted: result.blacklistedTokens,
           passwordResetsDeleted: result.passwordResets,
@@ -73,7 +73,7 @@ export const startTokenCleanupJob = (): void => {
         });
       } catch (error) {
         // Ако cleanup fail-не, логваме error но НЕ crashваме приложението
-        logger.error('❌ Token cleanup job failed:', error);
+        logger.error('Token cleanup job failed:', error);
       }
     },
     {
@@ -82,7 +82,7 @@ export const startTokenCleanupJob = (): void => {
     }
   );
 
-  logger.info('🕐 Token cleanup job scheduled (daily at 3:00 AM)');
+  logger.info('Token cleanup job scheduled (daily at 3:00 AM)');
 };
 
 /**

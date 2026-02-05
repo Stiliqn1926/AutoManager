@@ -132,14 +132,13 @@
 
 ```
 AutoManager/
-├── .claude/                          # Claude AI настройки
-│   └── settings.local.json
 ├── .vscode/                          # VS Code настройки
 │   └── settings.json
 ├── backend/                          # REST API сървър
 ├── frontend/                         # React SPA клиент
 └── docs/                             # Документация
     └── README.md
+
 ```
 
 ### Backend структура
@@ -158,9 +157,18 @@ backend/
 ├── src/
 │   ├── __tests__/                    # Unit тестове
 │   │   ├── auth.test.ts
+│   │   ├── clients.test.ts
+│   │   ├── files.test.ts
+│   │   ├── finance.test.ts
+│   │   ├── invoices.test.ts
+│   │   ├── notifications.test.ts
 │   │   ├── order.test.ts
 │   │   ├── permissions.test.ts
-│   │   └── setup.ts
+│   │   ├── schedule.test.ts
+│   │   ├── serviceCompany.test.ts
+│   │   ├── suppliers.test.ts
+│   │   ├── vehicles.test.ts
+│   │   └── workers.test.ts
 │   ├── config/                       # Конфигурации
 │   │   ├── database.ts
 │   │   └── multer.ts
@@ -182,6 +190,7 @@ backend/
 │   │   └── worker.controller.ts
 │   ├── jobs/                         # Cron задачи
 │   │   └── tokenCleanup.job.ts
+│   ├── logs/                         # Лог директория (runtime)
 │   ├── middleware/                   # Express middleware
 │   │   ├── auth.middleware.ts
 │   │   ├── errorHandler.middleware.ts
@@ -227,14 +236,18 @@ backend/
 │   ├── app.ts                        # Express app setup
 │   └── server.ts                     # Server entry point
 ├── uploads/                          # Качени файлове
-│   └── invoices/                     # PDF фактури
 ├── .env                              # Environment variables
 ├── .env.example                      # Environment template
-├── .gitignore
+├── check-db.js
+├── fix-enum.js
 ├── jest.config.js
 ├── package.json
+├── prisma.config.js
+├── prisma.config.ts
+├── test-orders.js
 ├── tsconfig.json
 └── tsconfig.test.json
+
 ```
 
 ### Frontend структура
@@ -242,10 +255,6 @@ backend/
 ```
 frontend/
 ├── dist/                             # Production build
-│   ├── assets/
-│   │   ├── index-*.js
-│   │   └── index-*.css
-│   └── index.html
 ├── src/
 │   ├── assets/                       # Статични ресурси
 │   │   └── react.svg
@@ -290,69 +299,9 @@ frontend/
 │   │   └── useServiceCompany.ts
 │   ├── pages/                        # Страници
 │   │   ├── admin/                    # Admin страници
-│   │   │   ├── ClientDetails.tsx
-│   │   │   ├── Clients.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── FinalizeOrderModal.tsx
-│   │   │   ├── FinanceCreate.tsx
-│   │   │   ├── FinanceDashboard.tsx
-│   │   │   ├── Finances.tsx
-│   │   │   ├── OrderCreate.tsx
-│   │   │   ├── OrderDetails.tsx
-│   │   │   ├── OrderEdit.tsx
-│   │   │   ├── Orders.tsx
-│   │   │   ├── PendingRequests.tsx
-│   │   │   ├── ScheduleCreate.tsx
-│   │   │   ├── ScheduleDaily.tsx
-│   │   │   ├── ScheduleDaily.module.css
-│   │   │   ├── ScheduleDetails.tsx
-│   │   │   ├── ScheduleEdit.tsx
-│   │   │   ├── ScheduleMonthly.tsx
-│   │   │   ├── Schedules.tsx
-│   │   │   ├── ScheduleWeekly.tsx
-│   │   │   ├── Settings.tsx
-│   │   │   ├── SupplierCreate.tsx
-│   │   │   ├── SupplierDetails.tsx
-│   │   │   ├── SupplierEdit.tsx
-│   │   │   ├── Suppliers.tsx
-│   │   │   ├── VehicleCreate.tsx
-│   │   │   ├── VehicleDetails.tsx
-│   │   │   ├── VehicleEdit.tsx
-│   │   │   ├── Vehicles.tsx
-│   │   │   ├── WorkerDetails.tsx
-│   │   │   └── Workers.tsx
 │   │   ├── auth/                     # Auth страници
-│   │   │   ├── ForgotPassword.tsx
-│   │   │   ├── Login.tsx
-│   │   │   ├── Register.tsx
-│   │   │   ├── RegisterClient.tsx
-│   │   │   ├── RegisterMechanic.tsx
-│   │   │   ├── ResetPassword.tsx
-│   │   │   ├── RoleSelection.tsx
-│   │   │   └── ServiceRoleSelection.tsx
 │   │   ├── client/                   # Client страници
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── Invoices.tsx
-│   │   │   ├── NoServiceScreen.tsx
-│   │   │   ├── Notifications.tsx
-│   │   │   ├── OrderDetails.tsx
-│   │   │   ├── Orders.tsx
-│   │   │   ├── Profile.tsx
-│   │   │   ├── ServiceCompanies.tsx
-│   │   │   ├── VehicleDetails.tsx
-│   │   │   └── Vehicles.tsx
 │   │   ├── mechanic/                 # Mechanic страници
-│   │   │   ├── ClientDetails.tsx
-│   │   │   ├── Clients.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── NoActiveServiceScreen.tsx
-│   │   │   ├── OrderDetails.tsx
-│   │   │   ├── Orders.tsx
-│   │   │   ├── Profile.tsx
-│   │   │   ├── Schedule.tsx
-│   │   │   ├── ServiceSettings.tsx
-│   │   │   ├── VehicleDetails.tsx
-│   │   │   └── Vehicles.tsx
 │   │   ├── NotFound.tsx
 │   │   ├── TermsAndConditions.tsx
 │   │   └── Unauthorized.tsx
@@ -378,7 +327,6 @@ frontend/
 │   ├── main.tsx
 │   └── vite-env.d.ts
 ├── .env
-├── .gitignore
 ├── eslint.config.js
 ├── index.html
 ├── package.json
@@ -388,6 +336,7 @@ frontend/
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
+
 ```
 
 ---

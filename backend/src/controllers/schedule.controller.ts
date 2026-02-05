@@ -556,6 +556,8 @@ export const getScheduleById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const schedule = await prisma.schedule.findUnique({
       where: { id },
@@ -595,6 +597,27 @@ export const getScheduleById = async (
       res.status(404).json({ message: 'Schedule not found' });
       return;
     }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (schedule.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker || schedule.workerId !== worker.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     res.status(200).json({ schedule });
   } catch (error) {
@@ -612,6 +635,8 @@ export const updateSchedule = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
     const existingSchedule = await prisma.schedule.findUnique({
       where: { id },
       select: {
@@ -620,12 +645,34 @@ export const updateSchedule = async (
         date: true,
         workerId: true,
         orderId: true,
+        serviceCompanyId: true,
       },
     });
 
     if (!existingSchedule) {
       res.status(404).json({ message: 'Schedule not found' });
       return;
+    }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (existingSchedule.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker || existingSchedule.workerId !== worker.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
     const {
       title,
@@ -790,6 +837,42 @@ export const deleteSchedule = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const schedule = await prisma.schedule.findUnique({
+        where: { id },
+        select: { serviceCompanyId: true },
+      });
+      if (!schedule || schedule.serviceCompanyId !== serviceCompany.id) {
+        res.status(404).json({ message: 'Schedule not found' });
+        return;
+      }
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker) {
+        res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      const schedule = await prisma.schedule.findUnique({
+        where: { id },
+        select: { workerId: true },
+      });
+      if (!schedule || schedule.workerId !== worker.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     await prisma.schedule.delete({ where: { id } });
 
@@ -809,6 +892,42 @@ export const completeSchedule = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const schedule = await prisma.schedule.findUnique({
+        where: { id },
+        select: { serviceCompanyId: true },
+      });
+      if (!schedule || schedule.serviceCompanyId !== serviceCompany.id) {
+        res.status(404).json({ message: 'Schedule not found' });
+        return;
+      }
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+      });
+      if (!worker) {
+        res.status(404).json({ message: 'Worker profile not found' });
+        return;
+      }
+      const schedule = await prisma.schedule.findUnique({
+        where: { id },
+        select: { workerId: true },
+      });
+      if (!schedule || schedule.workerId !== worker.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     const schedule = await prisma.schedule.update({
       where: { id },
@@ -834,6 +953,8 @@ export const checkConflicts = async (
 ): Promise<void> => {
   try {
     const { workerId, startTime, endTime, scheduleId } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     if (!workerId || !startTime || !endTime) {
       res.status(400).json({ message: 'Missing required fields' });
@@ -846,6 +967,33 @@ export const checkConflicts = async (
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       res.status(400).json({ message: 'Invalid date format' });
       return;
+    }
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const worker = await prisma.worker.findFirst({
+        where: { id: workerId, serviceCompanyId: serviceCompany.id },
+        select: { id: true },
+      });
+      if (!worker) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    } else if (role === 'MECHANIC') {
+      const worker = await prisma.worker.findUnique({
+        where: { userId },
+        select: { id: true },
+      });
+      if (!worker || worker.id !== workerId) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
 
     const hasConflict = await checkScheduleConflicts(

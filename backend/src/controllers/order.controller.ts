@@ -1054,6 +1054,8 @@ export const addOrderItem = async (
   try {
     const { orderId } = req.params;
     const { type, name, quantity, unitPrice, description } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const totalPrice = quantity * unitPrice;
 
@@ -1065,6 +1067,19 @@ export const addOrderItem = async (
     if (!order) {
       res.status(404).json({ message: 'Order not found' });
       return;
+    }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      if (order.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
 
     const orderItem = await prisma.orderItem.create({
@@ -1097,6 +1112,26 @@ export const getOrderItems = async (
 ): Promise<void> => {
   try {
     const { orderId } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        select: { serviceCompanyId: true },
+      });
+      if (!order || order.serviceCompanyId !== serviceCompany.id) {
+        res.status(404).json({ message: 'Order not found' });
+        return;
+      }
+    }
 
     const orderItems = await prisma.orderItem.findMany({
       where: { orderId },
@@ -1118,8 +1153,36 @@ export const updateOrderItem = async (
   try {
     const { id } = req.params;
     const { type, name, quantity, unitPrice, description } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const totalPrice = quantity * unitPrice;
+
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const existingItem = await prisma.orderItem.findUnique({
+        where: { id },
+        select: { orderId: true },
+      });
+      if (!existingItem) {
+        res.status(404).json({ message: 'Order item not found' });
+        return;
+      }
+      const order = await prisma.order.findUnique({
+        where: { id: existingItem.orderId },
+        select: { serviceCompanyId: true },
+      });
+      if (!order || order.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
+    }
 
     const updatedItem = await prisma.orderItem.update({
       where: { id },
@@ -1156,6 +1219,8 @@ export const deleteOrderItem = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
 
     const orderItem = await prisma.orderItem.findUnique({
       where: { id },
@@ -1164,6 +1229,23 @@ export const deleteOrderItem = async (
     if (!orderItem) {
       res.status(404).json({ message: 'Order item not found' });
       return;
+    }
+    if (role === 'ADMIN') {
+      const serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { userId },
+      });
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Service company not found' });
+        return;
+      }
+      const order = await prisma.order.findUnique({
+        where: { id: orderItem.orderId },
+        select: { serviceCompanyId: true },
+      });
+      if (!order || order.serviceCompanyId !== serviceCompany.id) {
+        res.status(403).json({ message: 'Forbidden' });
+        return;
+      }
     }
 
     await prisma.orderItem.delete({
