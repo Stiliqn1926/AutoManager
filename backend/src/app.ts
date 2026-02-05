@@ -19,12 +19,24 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5175',
   process.env.FRONTEND_URL,
-  'https://automanager-ebon.vercel.app',
-  'https://automanager-evx460o0n-thebests-projects-a26f7eb8.vercel.app'
 ].filter(Boolean);
 
 const corsOptions: any = {
-  origin: allowedOrigins,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    if (/\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
   credentials: true,
   optionsSuccessStatus: 200,
   allowedHeaders: ['Content-Type', 'Authorization'],
