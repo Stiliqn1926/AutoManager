@@ -91,8 +91,18 @@ const Clients = () => {
         isPending: true,
       }));
 
+      const pendingEmails = new Set(
+        pendingClients
+          .map((client: Client) => (client.user?.email || client.email || '').toLowerCase())
+          .filter(Boolean)
+      );
+      const filteredActiveClients = activeClients.filter((client: Client) => {
+        const email = (client.user?.email || client.email || '').toLowerCase();
+        return !pendingEmails.has(email);
+      });
+
       // Комбинирай и постави pending отгоре
-      setClients([...pendingClients, ...activeClients]);
+      setClients([...pendingClients, ...filteredActiveClients]);
     } catch {
       toast.error('Грешка при зареждане на клиенти');
     } finally {

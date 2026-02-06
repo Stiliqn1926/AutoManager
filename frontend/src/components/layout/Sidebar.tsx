@@ -28,7 +28,12 @@ interface MenuItem {
   requiresService?: boolean;
 }
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const { user } = useAuth();
   const { hasActiveService } = useActiveService();
   const navigate = useNavigate();
@@ -88,8 +93,8 @@ const Sidebar = () => {
     }
   };
 
-  return (
-    <div className="w-64 bg-sidebar h-full flex flex-col">
+  const content = (
+    <>
       <div className="p-6">
         <h1 className="text-2xl font-bold text-white">
           Auto<span className="text-primary">Manager</span>
@@ -104,7 +109,12 @@ const Sidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              onClick={(e) => handleClick(item, e)}
+              onClick={(e) => {
+                handleClick(item, e);
+                if (!isDisabled) {
+                  onClose?.();
+                }
+              }}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative ${
                   isDisabled
@@ -133,7 +143,31 @@ const Sidebar = () => {
           );
         })}
       </nav>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <div className="hidden md:flex w-64 bg-sidebar h-full flex-col">
+        {content}
+      </div>
+
+      <div className={`fixed inset-0 z-40 md:hidden ${isOpen ? '' : 'pointer-events-none'}`}>
+        <div
+          className={`absolute inset-0 bg-black/40 transition-opacity ${
+            isOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={onClose}
+        />
+        <div
+          className={`absolute left-0 top-0 h-full w-64 bg-sidebar transition-transform ${
+            isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {content}
+        </div>
+      </div>
+    </>
   );
 };
 
