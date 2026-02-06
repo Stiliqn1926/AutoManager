@@ -27,26 +27,26 @@ export default {
            BACKGROUNDS
         ========================= */
         sidebar: {
-          DEFAULT: '#0B1220',   // по-дълбок, по-малко син
-          hover: '#111827',
-          active: '#1F2937',
+          DEFAULT: 'var(--color-sidebar)',
+          hover: 'var(--color-sidebar-hover)',
+          active: 'var(--color-sidebar-active)',
         },
 
-        mainBg: '#F9FAFB',       // по-чисто от F8FAFC
-        cardBg: '#FFFFFF',
+        mainBg: 'var(--color-main-bg)',
+        cardBg: 'var(--color-card-bg)',
 
         /* =========================
            TEXT COLORS
         ========================= */
-        textPrimary: '#0F172A',  // почти черно, силен контраст
-        textSecondary: '#475569',
-        textMuted: '#94A3B8',
+        textPrimary: 'var(--color-text-primary)',
+        textSecondary: 'var(--color-text-secondary)',
+        textMuted: 'var(--color-text-muted)',
 
         /* =========================
            BORDERS / DIVIDERS
         ========================= */
-        borderSubtle: '#E5E7EB',
-        borderStrong: '#CBD5E1',
+        borderSubtle: 'var(--color-border-subtle)',
+        borderStrong: 'var(--color-border-strong)',
 
         /* =========================
            STATUS COLORS

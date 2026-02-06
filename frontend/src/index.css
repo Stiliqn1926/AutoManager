@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Глобални стилове */
+/* Global styles */
 * {
   margin: 0;
   padding: 0;
@@ -12,14 +12,123 @@
 html,
 body {
   min-height: 100%;
-  background-color: #F9FAFB;
+  background-color: var(--color-main-bg);
   overscroll-behavior-y: none;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme tokens */
+:root {
+  color-scheme: light;
+  --color-main-bg: #F9FAFB;
+  --color-card-bg: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  --color-border-subtle: #E5E7EB;
+  --color-border-strong: #CBD5E1;
+  --color-sidebar: #0B1220;
+  --color-sidebar-hover: #111827;
+  --color-sidebar-active: #1F2937;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-main-bg: #0B1220;
+  --color-card-bg: #111827;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #94A3B8;
+  --color-border-subtle: #1F2937;
+  --color-border-strong: #334155;
+  --color-sidebar: #0B1220;
+  --color-sidebar-hover: #111827;
+  --color-sidebar-active: #1F2937;
+}
+
+/* Dark mode overrides for common utility colors */
+.dark .bg-white {
+  background-color: var(--color-card-bg);
+}
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: var(--color-text-primary);
+}
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: var(--color-text-secondary);
+}
+.dark .text-gray-500 {
+  color: var(--color-text-muted);
+}
+.dark .border-gray-200 {
+  border-color: var(--color-border-subtle);
+}
+.dark .border-gray-300 {
+  border-color: var(--color-border-strong);
+}
+.dark .bg-gray-50 {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+.dark .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.dark .bg-gray-200 {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+.dark .bg-gray-300 {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark .text-gray-900 {
+  color: var(--color-text-primary);
+}
+.dark .text-gray-800 {
+  color: var(--color-text-primary);
+}
+.dark .text-gray-700 {
+  color: var(--color-text-secondary);
+}
+.dark .text-gray-600 {
+  color: var(--color-text-secondary);
+}
+.dark .text-gray-500 {
+  color: var(--color-text-muted);
+}
+.dark .text-gray-400 {
+  color: var(--color-text-muted);
+}
+.dark .text-gray-300 {
+  color: var(--color-text-secondary);
+}
+
+.dark .border-gray-100 {
+  border-color: var(--color-border-subtle);
+}
+.dark .border-gray-200 {
+  border-color: var(--color-border-subtle);
+}
+.dark .border-gray-300 {
+  border-color: var(--color-border-strong);
+}
+.dark .border-gray-400 {
+  border-color: var(--color-border-strong);
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+.dark .hover\:bg-gray-200:hover {
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Custom scrollbar */

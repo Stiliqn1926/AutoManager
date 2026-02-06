@@ -1,10 +1,11 @@
 import { useAuth } from '../../hooks/useAuth';
 import { useServiceCompany } from '../../hooks/useServiceCompany';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, ChevronDown, Bell, Menu } from 'lucide-react';
+import { LogOut, Settings, ChevronDown, Bell, Menu, Moon, Sun } from 'lucide-react';
 import { UserRole } from '../../types';
 import { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
+import { useTheme } from '../../hooks/useTheme';
 
 interface HeaderProps {
   onOpenSidebar?: () => void;
@@ -23,6 +24,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const { theme, toggleTheme } = useTheme();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -241,6 +243,15 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
               )}
             </button>
           )}
+
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
+            title={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
+            aria-label={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
 
           <button
             onClick={handleLogout}
