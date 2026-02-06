@@ -93,8 +93,8 @@ const OrdersCalendar = () => {
 
   const renderHeader = () => {
     return (
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">
           {format(currentMonth, 'MMMM yyyy', { locale: bg })}
         </h2>
 
@@ -128,7 +128,7 @@ const OrdersCalendar = () => {
         {days.map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-medium text-textMuted py-2"
+            className="text-center text-[10px] sm:text-xs font-medium text-textMuted py-1.5 sm:py-2"
           >
             {day}
           </div>
@@ -252,11 +252,15 @@ const OrdersCalendar = () => {
 
   return (
     <>
-      <div className="bg-cardBg rounded-2xl shadow-card p-6">
-        {renderHeader()}
-        {renderDays()}
-        {renderCells()}
+    <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+      {renderHeader()}
+      <div className="overflow-x-auto">
+        <div className="min-w-[560px] sm:min-w-0">
+          {renderDays()}
+          {renderCells()}
+        </div>
       </div>
+    </div>
 
       {selectedDate && (
         <CreateTaskModal

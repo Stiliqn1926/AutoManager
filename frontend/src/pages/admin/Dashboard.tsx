@@ -101,7 +101,7 @@ const AdminDashboard = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         {/* Onboarding / Setup */}
         <SetupWizard />
 
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
         <StatsDashboard stats={dashboardData.stats} />
 
         {/* Main work area */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
           {/* Calendar – primary focus */}
           <div className="xl:col-span-2 h-full">
             <OrdersCalendar />
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
 
         {
         /* Supporting lists */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
           <WorkersList />
           <RecentClients />
         </div>

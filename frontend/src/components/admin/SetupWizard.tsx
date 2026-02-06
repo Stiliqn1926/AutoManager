@@ -14,19 +14,19 @@ const SetupWizard = () => {
   ];
 
   return (
-    <div className="bg-cardBg rounded-2xl shadow-card p-6 mb-6">
+    <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 mb-6">
       <h2 className="text-lg font-semibold text-textPrimary mb-4">Бърз Достъп</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {shortcuts.map((item) => (
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-mainBg hover:bg-gray-100 transition-all hover:shadow-md group"
+            className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl bg-mainBg hover:bg-gray-100 transition-all hover:shadow-md group"
           >
-            <div className={`${item.color} p-3 rounded-lg mb-2 group-hover:scale-110 transition-transform`}>
-              <item.icon className="w-6 h-6 text-white" />
+            <div className={`${item.color} p-2.5 sm:p-3 rounded-lg mb-2 group-hover:scale-110 transition-transform`}>
+              <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-sm font-medium text-textPrimary">{item.label}</span>
+            <span className="text-xs sm:text-sm font-medium text-textPrimary">{item.label}</span>
           </button>
         ))}
       </div>

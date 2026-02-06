@@ -51,9 +51,9 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
   };
 
   return (
-    <div className="bg-cardBg rounded-2xl shadow-card p-6 h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">
+    <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">
           Активни поръчки
         </h2>
         <button
@@ -74,7 +74,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
             <div
               key={order.id}
               onClick={() => navigate(`/admin/orders/${order.id}`)}
-              className="flex items-center justify-between p-4 bg-mainBg rounded-xl hover:bg-gray-100 cursor-pointer transition-colors"
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-mainBg rounded-xl hover:bg-gray-100 cursor-pointer transition-colors"
             >
               <div className="flex-1">
                 <p className="font-medium text-textPrimary">
@@ -87,7 +87,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 {order.endDate && (
                   <div className="flex items-center gap-1 text-xs text-textMuted">
                     <Clock className="w-4 h-4" />

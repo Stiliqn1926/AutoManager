@@ -44,23 +44,23 @@ const FinanceChart = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-cardBg rounded-2xl shadow-card p-6">
-        <h2 className="text-lg font-semibold text-textPrimary mb-4">Финансов Преглед</h2>
-        <div className="animate-pulse h-64 bg-gray-200 rounded"></div>
+      <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Финансов Преглед</h2>
+        <div className="animate-pulse h-56 sm:h-64 bg-gray-200 rounded"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-cardBg rounded-2xl shadow-card p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">Финансов Преглед</h2>
-        <div className="flex gap-2">
+    <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">Финансов Преглед</h2>
+        <div className="flex flex-wrap gap-2">
           {periods.map((p) => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value as Period)}
-              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+              className={`px-3 py-1 text-xs sm:text-sm rounded-lg transition-colors ${
                 period === p.value
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-textSecondary hover:bg-gray-200'
@@ -73,28 +73,30 @@ const FinanceChart = () => {
       </div>
       
       {data.length === 0 ? (
-        <div className="flex items-center justify-center h-64 bg-mainBg rounded-xl">
+        <div className="flex items-center justify-center h-56 sm:h-64 bg-mainBg rounded-xl">
           <p className="text-textSecondary">Няма финансови данни за избрания период</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="month" stroke="#64748b" style={{ fontSize: '12px' }} />
-            <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#fff', 
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px'
-              }}
-           formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'}
-            />
-            <Legend />
-            <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />
-            <Bar dataKey="expense" fill="#DC2626" name="Разходи" radius={[8, 8, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="h-56 sm:h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#64748b" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }}
+                formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'}
+              />
+              <Legend />
+              <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="expense" fill="#DC2626" name="Разходи" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
