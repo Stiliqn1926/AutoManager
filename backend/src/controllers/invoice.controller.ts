@@ -134,8 +134,7 @@ export const createInvoice = async (
     });
 
     if (client?.user?.email) {
-      try {
-        await sendEmail(
+      void sendEmail(
           client.user.email,
           'Нова фактура',
           emailTemplates.invoiceReady(
@@ -143,10 +142,9 @@ export const createInvoice = async (
             total,
             order.orderNumber
           )
-        );
-      } catch (emailError) {
+      ).catch((emailError) => {
         console.error('Failed to send email:', emailError);
-      }
+      });
     }
 
     res.status(201).json({

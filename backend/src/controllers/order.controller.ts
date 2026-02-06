@@ -721,22 +721,32 @@ export const updateOrderStatus = async (
       if (client?.user?.email && vehicle) {
         const vehicleInfo = `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`;
         
-        try {
-          if (status === 'READY') {
-            await sendEmail(
+        if (status === 'READY') {
+        
+          void sendEmail(
               client.user.email,
               'Поръчката е готова за плащане',
               emailTemplates.orderReady(order.displayOrderNumber || order.orderNumber, vehicleInfo)
-            );
-          } else if (status === 'COMPLETED') {
-            await sendEmail(
+        
+          ).catch((emailError) => {
+        
+            console.error('Failed to send email:', emailError);
+        
+          });
+        
+        } else if (status === 'COMPLETED') {
+        
+          void sendEmail(
               client.user.email,
               'Поръчката е завършена',
               emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
-            );
-          }
-        } catch (emailError) {
-          console.error('Failed to send email:', emailError);
+        
+          ).catch((emailError) => {
+        
+            console.error('Failed to send email:', emailError);
+        
+          });
+        
         }
       }
     }
@@ -812,15 +822,16 @@ export const completeOrder = async (
     if (client?.user?.email && vehicle) {
       const vehicleInfo = `${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})`;
       
-      try {
-        await sendEmail(
+      void sendEmail(
           client.user.email,
           'Поръчката е завършена',
           emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
-        );
-      } catch (emailError) {
+      
+      ).catch((emailError) => {
+      
         console.error('Failed to send email:', emailError);
-      }
+      
+      });
     }
 
     res.status(200).json({
@@ -1019,8 +1030,7 @@ export const finalizeOrder = async (
     });
 
     if (order.client.user?.email) {
-      try {
-        await sendEmail(
+      void sendEmail(
           order.client.user.email,
           'Фактурата е готова',
           emailTemplates.invoiceReady(invoiceNumber, total, order.displayOrderNumber || order.orderNumber),
@@ -1030,10 +1040,9 @@ export const finalizeOrder = async (
               path: outputPath,
             },
           ]
-        );
-      } catch (emailError) {
+      ).catch((emailError) => {
         console.error('Failed to send email:', emailError);
-      }
+      });
     }
 
     res.status(200).json({

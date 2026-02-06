@@ -698,7 +698,8 @@ export const forgotPassword = async (
     });
 
     const emailService = await import('../services/email.service');
-    await emailService.sendEmail(
+
+    void emailService.sendEmail(
       email,
       'Код за възстановяване на парола',
       `
@@ -713,7 +714,12 @@ export const forgotPassword = async (
           <p>С уважение,<br>Екипът на AutoManager</p>
         </div>
       `
-    );
+
+    ).catch((emailError) => {
+
+      logger.error('Failed to send reset code email:', emailError);
+
+    });
 
     res.status(200).json({ message: 'Reset code sent to email' });
   } catch (error) {
@@ -809,7 +815,8 @@ export const resendPasswordResetCode = async (
     });
 
     const emailService = await import('../services/email.service');
-    await emailService.sendEmail(
+
+    void emailService.sendEmail(
       email,
       'Нов код за възстановяване на парола',
       `
@@ -824,7 +831,12 @@ export const resendPasswordResetCode = async (
           <p>С уважение,<br>Екипът на AutoManager</p>
         </div>
       `
-    );
+
+    ).catch((emailError) => {
+
+      logger.error('Failed to send new reset code email:', emailError);
+
+    });
 
     res.status(200).json({ message: 'New reset code sent to email' });
   } catch (error) {

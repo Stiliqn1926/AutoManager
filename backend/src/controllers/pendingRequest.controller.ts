@@ -145,18 +145,19 @@ export const approvePendingRequest = async (
         });
       }
 
-      try {
-        await sendEmail(
+      void sendEmail(
           user.email,
           'Одобрена заявка за регистрация',
           emailTemplates.mechanicApproved(
             pendingRequest.firstName,
             serviceCompany.name
           )
-        );
-      } catch (emailError) {
+
+      ).catch((emailError) => {
+
         console.error('Failed to send approval email:', emailError);
-      }
+
+      });
     } else if (pendingRequest.requestType === 'CLIENT') {
       // === CLIENT APPROVAL LOGIC ===
 
@@ -194,18 +195,16 @@ export const approvePendingRequest = async (
       }
 
       // Изпрати email за одобрение на клиента
-      try {
-        await sendEmail(
+      void sendEmail(
           user.email,
           'Одобрена заявка',
           emailTemplates.mechanicApproved(
             pendingRequest.firstName,
             serviceCompany.name
           )
-        );
-      } catch (emailError) {
+      ).catch((emailError) => {
         console.error('Failed to send approval email:', emailError);
-      }
+      });
     }
 
     // Изтрий одобрения request (вече не е pending)
@@ -305,16 +304,14 @@ export const rejectPendingRequest = async (
     }
 
     // Изпрати email нотификация за отхвърляне
-    try {
-      await sendEmail(
+    void sendEmail(
         pendingRequest.email,
         'Отхвърлена заявка за регистрация',
         emailTemplates.mechanicRejected(
           pendingRequest.firstName,
           serviceCompany.name
         )
-      );
-    } catch (emailError) {
+    ).catch((emailError) => {
       console.error('Failed to send rejection email:', emailError);
       // Продължаваме въпреки грешката при email-а
     }
@@ -327,7 +324,7 @@ export const rejectPendingRequest = async (
     res.status(200).json({
       message: 'Pending request rejected successfully',
     });
-  } catch (error) {
+    }); catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
 };
