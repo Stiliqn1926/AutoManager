@@ -9,7 +9,7 @@ interface MonthlyData {
   expense: number;
 }
 
-type Period = 'week' | 'month' | 'quarter' | 'semester' | 'year';
+type Period = 'week' | 'month' | 'quarter' | 'semester' | 'year' | 'all';
 
 const FinanceChart = () => {
   const [data, setData] = useState<MonthlyData[]>([]);
@@ -40,6 +40,7 @@ const FinanceChart = () => {
     { value: 'quarter', label: 'Тримесечие' },
     { value: 'semester', label: 'Полугодие' },
     { value: 'year', label: 'Година' },
+    { value: 'all', label: 'Всички' },
   ];
 
   if (isLoading) {
@@ -77,25 +78,34 @@ const FinanceChart = () => {
           <p className="text-textSecondary">Няма финансови данни за избрания период</p>
         </div>
       ) : (
-        <div className="h-56 sm:h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#64748b" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
-                }}
-                formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'}
-              />
-              <Legend />
-              <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="expense" fill="#DC2626" name="Разходи" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="h-72 sm:h-[300px] -mx-2 sm:mx-0 overflow-x-auto">
+          <div className="min-w-[520px] sm:min-w-0 px-2 h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="month"
+                  stroke="#64748b"
+                  style={{ fontSize: '12px' }}
+                  minTickGap={12}
+                />
+                <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: number | undefined) =>
+                    value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'
+                  }
+                />
+                <Legend />
+                <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="expense" fill="#DC2626" name="Разходи" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>
@@ -103,3 +113,5 @@ const FinanceChart = () => {
 };
 
 export default FinanceChart;
+
+

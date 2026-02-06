@@ -25,7 +25,6 @@ export const getDashboardOverview = async (
       return;
     }
 
-    const now = new Date();
 
     // Паралелно зареждане на всички данни
     const [
@@ -164,24 +163,28 @@ export const getFinanceChartData = async (
     }
 
     const now = new Date();
-    let startDate = new Date();
+    const now = new Date();
+    let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     let monthsToShow = 12;
     let daysToShow = 0;
 
     if (period === 'week') {
+      startDate = new Date(now);
       startDate.setDate(now.getDate() - 6); // Последните 7 дни (включително днес)
       daysToShow = 7;
     } else if (period === 'month') {
-      startDate.setMonth(now.getMonth() - 1);
-      monthsToShow = 2;
+      monthsToShow = 1;
     } else if (period === 'quarter') {
-      startDate.setMonth(now.getMonth() - 3);
-      monthsToShow = 4;
+      startDate.setMonth(now.getMonth() - 2);
+      monthsToShow = 3;
     } else if (period === 'semester') {
-      startDate.setMonth(now.getMonth() - 6);
-      monthsToShow = 7;
-    } else {
+      startDate.setMonth(now.getMonth() - 5);
+      monthsToShow = 6;
+    } else if (period === 'year') {
       startDate.setMonth(now.getMonth() - 11);
+      monthsToShow = 12;
+    } else if (period === 'all') {
+      startDate = new Date(0);
       monthsToShow = 12;
     }
 
@@ -241,6 +244,31 @@ export const getFinanceChartData = async (
       const month = date.getMonth() + 1;
       return `${day}/${month}`;
     };
+
+    if (period === 'all') {
+      const allDates: Date[] = [];
+      completedOrders.forEach(order => {
+        if (order.completedDate) allDates.push(new Date(order.completedDate));
+      });
+      paidInvoices.forEach(invoice => {
+        if (invoice.paidDate) allDates.push(new Date(invoice.paidDate));
+      });
+      finances.forEach(finance => {
+        allDates.push(new Date(finance.date));
+      });
+
+      if (allDates.length > 0) {
+        const earliest = new Date(Math.min(...allDates.map(d => d.getTime())));
+        startDate = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+        monthsToShow =
+          (now.getFullYear() - startDate.getFullYear()) * 12 +
+          (now.getMonth() - startDate.getMonth()) +
+          1;
+      } else {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        monthsToShow = 1;
+      }
+    }
 
     const chartData: { month: string; income: number; expense: number }[] = [];
 
