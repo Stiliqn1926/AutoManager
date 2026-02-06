@@ -94,8 +94,8 @@ export const getDashboardOverview = async (
         where: {
           serviceCompanyId,
           status: { in: ['SCHEDULED', 'IN_PROGRESS'] }, // ✅ САМО активни графици
-          startTime: { lte: now },
-          endTime: { gt: now },
+          startTime: { lte: new Date() },
+          endTime: { gt: new Date() },
         },
         include: {
           worker: { select: { firstName: true, lastName: true } },
@@ -163,7 +163,7 @@ export const getFinanceChartData = async (
     }
 
     const now = new Date();
-    const now = new Date();
+    const cdnow = new Date();
     let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     let monthsToShow = 12;
     let daysToShow = 0;
