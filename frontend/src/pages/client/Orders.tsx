@@ -272,7 +272,7 @@ const Orders = () => {
 
       <MainLayout>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-12 text-center">
+        <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
 
           <ClipboardList className="w-16 h-16 mx-auto text-gray-400 mb-4" />
 
@@ -300,12 +300,12 @@ const Orders = () => {
 
     <MainLayout>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
 
                         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Поръчки</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Поръчки</h1>
             <p className="text-textSecondary mt-1">
               Всички активни и завършени поръчки в {selectedServiceCompany.name}
             </p>
@@ -314,9 +314,9 @@ const Orders = () => {
 
         {/* Stats */}
 
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
 
     <div className="flex items-center justify-between">
 
@@ -324,7 +324,7 @@ const Orders = () => {
 
         <p className="text-sm text-textSecondary">Всички поръчки</p>
 
-        <p className="text-3xl font-bold text-textPrimary mt-1">{orders.length}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">{orders.length}</p>
 
       </div>
 
@@ -340,7 +340,7 @@ const Orders = () => {
 
 
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
 
     <div className="flex items-center justify-between">
 
@@ -348,7 +348,7 @@ const Orders = () => {
 
         <p className="text-sm text-textSecondary">В процес</p>
 
-        <p className="text-3xl font-bold text-textPrimary mt-1">
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">
 
           {orders.filter((o) => o.status === 'IN_PROGRESS').length}
 
@@ -368,7 +368,7 @@ const Orders = () => {
 
 
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
 
     <div className="flex items-center justify-between">
 
@@ -376,7 +376,7 @@ const Orders = () => {
 
         <p className="text-sm text-textSecondary">Завършени</p>
 
-        <p className="text-3xl font-bold text-textPrimary mt-1">
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">
 
           {orders.filter((o) => o.status === 'COMPLETED').length}
 
@@ -401,10 +401,10 @@ const Orders = () => {
 
 
                         {/* Search & List */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Search */}
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative max-w-md w-full">
+            <div className="relative w-full md:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
                 type="text"
@@ -468,17 +468,17 @@ const Orders = () => {
 
                   onClick={() => navigate(`/client/orders/${order.id}`)}
 
-                  className="p-4 border border-borderSubtle rounded-lg hover:bg-mainBg cursor-pointer transition-colors group"
+                  className="p-3 sm:p-4 border border-borderSubtle rounded-lg hover:bg-mainBg cursor-pointer transition-colors group"
 
                 >
 
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
 
                     {/* Left - Info */}
 
                     <div className="flex-1 min-w-0">
 
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
 
                         <span className="font-semibold text-textPrimary">
 
@@ -492,7 +492,7 @@ const Orders = () => {
 
 
 
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
 
                         <Car className="w-4 h-4 text-textMuted flex-shrink-0" />
 
@@ -520,7 +520,7 @@ const Orders = () => {
 
 
 
-                      <div className="flex items-center gap-4 mt-3 text-sm text-textMuted">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-textMuted">
 
                         <div className="flex items-center gap-1">
 
@@ -566,11 +566,11 @@ const Orders = () => {
 
                     {/* Right - Price & Arrow */}
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
 
                       {order.totalPrice && (
 
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
 
                           <div className="flex items-center gap-1 text-textMuted text-xs mb-1">
 

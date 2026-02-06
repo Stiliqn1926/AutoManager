@@ -209,18 +209,18 @@ const Orders = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-textPrimary">Поръчки</h1>
-          <Button onClick={() => navigate('/admin/orders/create')}>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Поръчки</h1>
+          <Button onClick={() => navigate('/admin/orders/create')} className="w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Нова поръчка
           </Button>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <div className="relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
@@ -237,7 +237,7 @@ const Orders = () => {
               aria-label="Филтър по статус"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички статуси</option>
               <option value="WAITING">Изчакване</option>
@@ -251,7 +251,7 @@ const Orders = () => {
               aria-label="Филтър по плащане"
               value={filterPayment}
               onChange={(e) => setFilterPayment(e.target.value)}
-              className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички плащания</option>
               <option value="paid">Платени</option>
@@ -275,7 +275,11 @@ const Orders = () => {
                     <th
                       key={key}
                       onClick={() => handleSort(key as SortField)}
-                      className="text-left py-3 px-4 text-sm font-semibold cursor-pointer hover:bg-mainBg"
+                      className={`text-left py-3 px-3 sm:px-4 text-sm font-semibold cursor-pointer hover:bg-mainBg ${
+                        key === 'client' ? 'hidden sm:table-cell' : ''
+                      } ${key === 'startDate' ? 'hidden md:table-cell' : ''} ${
+                        key === 'endDate' ? 'hidden md:table-cell' : ''
+                      }`}
                     >
                       <div className="flex items-center gap-2">
                         {label}
@@ -283,7 +287,7 @@ const Orders = () => {
                       </div>
                     </th>
                   ))}
-                  <th className="text-right py-3 px-4 text-sm font-semibold">
+                  <th className="text-right py-3 px-3 sm:px-4 text-sm font-semibold w-24 sm:w-32">
                     Действия
                   </th>
                 </tr>
@@ -292,7 +296,7 @@ const Orders = () => {
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-textSecondary">
+                    <td colSpan={7} className="text-center py-12 text-textSecondary text-sm sm:text-base">
                       Няма намерени поръчки
                     </td>
                   </tr>
@@ -303,29 +307,25 @@ const Orders = () => {
                       className="border-b hover:bg-mainBg cursor-pointer"
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
                     >
-                      <td className="px-4 py-4 font-medium" title={`Системен ID: ${order.orderNumber}`}>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base font-medium" title={`Системен ID: ${order.orderNumber}`}>
                         {order.displayOrderNumber || order.orderNumber}
                       </td>
-                      <td className="px-4 py-4">
-                        {order.client.firstName} {order.client.lastName}
+                      <td className="hidden sm:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{order.client.firstName} {order.client.lastName}
                       </td>
-                      <td className="px-4 py-4">
-                        {getStatusBadge(order.status)}
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{getStatusBadge(order.status)}
                       </td>
-                      <td className="px-4 py-4 font-medium">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base font-medium">
                         {Number(order.totalPrice || 0).toFixed(2)} €
                       </td>
-                      <td className="px-4 py-4">
-                        {order.startDate
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{order.startDate
                           ? new Date(order.startDate).toLocaleDateString('bg-BG')
                           : '-'}
                       </td>
-                      <td className="px-4 py-4">
-                        {order.endDate
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{order.endDate
                           ? new Date(order.endDate).toLocaleDateString('bg-BG')
                           : '-'}
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base">
                         <div
                           className="flex justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
@@ -365,3 +365,5 @@ const Orders = () => {
 };
 
 export default Orders;
+
+

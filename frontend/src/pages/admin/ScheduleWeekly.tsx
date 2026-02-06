@@ -119,11 +119,11 @@ const ScheduleWeekly = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/schedules')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към график"
             title="Назад към график"
           >
@@ -131,32 +131,32 @@ const ScheduleWeekly = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">Седмичен График</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Седмичен График</h1>
             <p className="text-textSecondary mt-1">
               {currentWeekStart.toLocaleDateString('bg-BG', { day: 'numeric', month: 'long' })} -{' '}
               {weekEnd.toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
             <Button variant="secondary" onClick={goToPreviousWeek}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="secondary" onClick={goToToday}>
+            <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
               Днес
             </Button>
             <Button variant="secondary" onClick={goToNextWeek}>
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/create')}>
+            <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="grid grid-cols-7 gap-4">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 sm:gap-4">
             {weekDays.map((day, index) => {
               const daySchedules = getSchedulesForDay(day);
               const isToday = day.toDateString() === new Date().toDateString();
@@ -165,14 +165,14 @@ const ScheduleWeekly = () => {
               return (
                 <div
                   key={index}
-                  className={`border rounded-lg p-3 min-h-64 ${
+                  className={`border rounded-lg p-3 min-h-[180px] sm:min-h-64 ${
                     isToday ? 'border-primary bg-orange-50' : 'border-borderSubtle'
                   }`}
                 >
                   <div className="text-center mb-3">
                     <p className="text-xs text-textSecondary font-medium">{dayNames[index]}</p>
                     <p
-                      className={`text-lg font-bold ${
+                      className={`text-base sm:text-lg font-bold ${
                         isToday ? 'text-primary' : 'text-textPrimary'
                       }`}
                     >

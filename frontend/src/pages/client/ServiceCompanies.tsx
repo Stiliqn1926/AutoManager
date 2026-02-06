@@ -266,12 +266,12 @@ const ServiceCompanies = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-textPrimary">Моите сервизи</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Моите сервизи</h1>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="w-full sm:w-auto flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
             Добави сервиз
@@ -279,7 +279,7 @@ const ServiceCompanies = () => {
         </div>
 
         {allCompanies.length === 0 ? (
-          <div className="bg-cardBg rounded-2xl shadow-card p-12 text-center">
+          <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
             <Building2 className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <h2 className="text-xl font-semibold text-textPrimary mb-2">
               Няма добавени сервизи
@@ -289,13 +289,13 @@ const ServiceCompanies = () => {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="w-full sm:w-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Добави първи сервиз
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {allCompanies.map((company) => {
               const isSelected = selectedServiceCompany?.id === company.serviceCompany.id;
               const isActive = company.status === 'ACTIVE';
@@ -304,7 +304,7 @@ const ServiceCompanies = () => {
               return (
                 <div
                   key={company.clientId}
-                  className={`bg-cardBg rounded-2xl shadow-card p-6 relative transition-all ${
+                  className={`bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 relative transition-all ${
                     isSelected ? 'ring-2 ring-primary' : ''
                   } ${isPending ? 'opacity-75' : ''}`}
                 >
@@ -329,7 +329,7 @@ const ServiceCompanies = () => {
                   </div>
 
                   {/* Детайли */}
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-2 mb-4 sm:mb-6">
                     <div className="flex items-start gap-2 text-sm text-textSecondary">
                       <span className="font-medium min-w-[70px]">Адрес:</span>
                       <span>{company.serviceCompany.address || 'Няма данни'}</span>
@@ -373,23 +373,23 @@ const ServiceCompanies = () => {
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-3 items-center gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-2">
                       <div />
                       <div className="flex justify-center">
                         {isActive && !isSelected && (
                           <button
                             onClick={() => handleSelectServiceCompany(company.serviceCompany.id)}
-                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                            className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
                           >
                             Избери
                           </button>
                         )}
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex justify-start sm:justify-end">
                         {isActive && (
                           <button
                             onClick={() => handleLeaveServiceCompany(company.clientId, company.serviceCompany.name)}
-                            className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
                             title="Напусни сервиз"
                           >
                             <LogOut className="w-4 h-4" />
@@ -408,8 +408,8 @@ const ServiceCompanies = () => {
         {/* Modal за добавяне на сервиз */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-              <h2 className="text-2xl font-bold text-textPrimary mb-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-4 sm:p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-textPrimary mb-4">
                 Добави сервиз
               </h2>
               <p className="text-textSecondary mb-6">
@@ -427,7 +427,7 @@ const ServiceCompanies = () => {
                     onChange={(e) => setUniqueCode(e.target.value.toUpperCase())}
                     placeholder="напр. NK8UR4MM"
                     maxLength={8}
-                    className="w-full px-4 py-3 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-lg uppercase"
+                    className="w-full px-4 py-3 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-base sm:text-lg uppercase"
                     autoFocus
                   />
                   <p className="text-xs text-textMuted mt-2">
@@ -435,7 +435,7 @@ const ServiceCompanies = () => {
                   </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -465,3 +465,5 @@ const ServiceCompanies = () => {
 };
 
 export default ServiceCompanies;
+
+

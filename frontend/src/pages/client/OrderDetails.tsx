@@ -196,21 +196,21 @@ const OrderDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             type="button"
             onClick={() => navigate('/client/orders')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към поръчките"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-bold text-textPrimary">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
                 {data.displayOrderNumber || data.orderNumber}
               </h1>
               {getStatusBadge(data.status)}
@@ -222,12 +222,12 @@ const OrderDetails = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Order Info */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5" />
                 Информация за поръчката
               </h2>
@@ -252,7 +252,7 @@ const OrderDetails = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-borderSubtle">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-borderSubtle">
                   <Info
                     icon={<Calendar />}
                     label="Създадена на"
@@ -291,13 +291,13 @@ const OrderDetails = () => {
             </div>
 
             {/* Vehicle Info */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                 <Car className="w-5 h-5" />
                 Автомобил
               </h2>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Info
                   label="Марка / Модел"
                   value={`${data.vehicle.brand} ${data.vehicle.model}`}
@@ -318,8 +318,8 @@ const OrderDetails = () => {
 
             {/* Order Items */}
             {data.items.length > 0 && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                   <Package className="w-5 h-5" />
                   Части и дейности
                 </h2>
@@ -328,9 +328,9 @@ const OrderDetails = () => {
                   {data.items.map((item) => (
                     <div
                       key={item.id}
-                      className="p-4 bg-mainBg rounded-lg border border-borderSubtle"
+                      className="p-3 sm:p-4 bg-mainBg rounded-lg border border-borderSubtle"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium text-textPrimary">
@@ -341,13 +341,13 @@ const OrderDetails = () => {
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-4 text-sm text-textMuted">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-textMuted">
                             <span>Количество: {item.quantity}</span>
                             <span>Ед. цена: {formatMoney(item.unitPrice)}</span>
                           </div>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <div className="font-semibold text-lg text-textPrimary">
                             {formatMoney(item.totalPrice)}
                           </div>
@@ -359,7 +359,7 @@ const OrderDetails = () => {
 
                 {/* Total */}
                 <div className="mt-6 pt-4 border-t-2 border-borderStrong">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <span className="text-lg font-semibold text-textPrimary">
                       Обща сума
                     </span>
@@ -373,10 +373,10 @@ const OrderDetails = () => {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Status Info */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Статус</h2>
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">Статус</h2>
 
               <div className="space-y-3">
                 <div>
@@ -409,8 +409,8 @@ const OrderDetails = () => {
 
             {/* Invoice */}
             {data.invoice && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   Фактура
                 </h2>
@@ -456,15 +456,15 @@ const OrderDetails = () => {
 
             {/* Price Summary (when no items) */}
             {data.items.length === 0 && data.totalPrice && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                   <DollarSign className="w-5 h-5" />
                   Цена
                 </h2>
 
                 <div className="text-center py-4">
                   <p className="text-sm text-textSecondary mb-2">Обща сума</p>
-                  <p className="text-3xl font-bold text-primary">
+                  <p className="text-2xl sm:text-3xl font-bold text-primary">
                     {formatMoney(data.totalPrice)}
                   </p>
                 </div>

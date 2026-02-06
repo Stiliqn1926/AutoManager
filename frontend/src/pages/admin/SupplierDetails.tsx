@@ -143,11 +143,11 @@ const SupplierDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/suppliers')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към доставчици"
             title="Назад към доставчици"
           >
@@ -155,15 +155,15 @@ const SupplierDetails = () => {
           </button>
 
           <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-textPrimary">{supplier.name}</h1>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">{supplier.name}</h1>
               {supplier.isPreferred && (
                 <div title="Предпочитан доставчик">
                   <Star className="w-6 h-6 text-primary fill-primary" />
                 </div>
               )}
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {getTypeBadge(supplier.type)}
               {supplier.isActive ? (
                 <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
@@ -177,40 +177,40 @@ const SupplierDetails = () => {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={handleTogglePreferred}>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button variant="secondary" onClick={handleTogglePreferred} className="w-full sm:w-auto">
               <Star className="w-4 h-4" />
               {supplier.isPreferred ? 'Премахни от предпочитани' : 'Маркирай като предпочитан'}
             </Button>
-            <Button variant="secondary" onClick={handleToggleActive}>
+            <Button variant="secondary" onClick={handleToggleActive} className="w-full sm:w-auto">
               <Power className="w-4 h-4" />
               {supplier.isActive ? 'Деактивирай' : 'Активирай'}
             </Button>
-            <Button onClick={() => navigate(`/admin/suppliers/${id}/edit`)}>
+            <Button onClick={() => navigate(`/admin/suppliers/${id}/edit`)} className="w-full sm:w-auto">
               <Edit className="w-4 h-4" />
               Редактирай
             </Button>
-            <Button variant="danger" onClick={handleDelete}>
+            <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Контакти */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <Phone className="w-5 h-5 text-textSecondary" />
                   <a href={`tel:${supplier.phonePrimary}`} className="text-primary hover:underline">
                     {supplier.phonePrimary}
                   </a>
                 </div>
                 {supplier.phoneSecondary && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <Phone className="w-5 h-5 text-textSecondary" />
                     <a href={`tel:${supplier.phoneSecondary}`} className="text-primary hover:underline">
                       {supplier.phoneSecondary}
@@ -218,7 +218,7 @@ const SupplierDetails = () => {
                   </div>
                 )}
                 {supplier.email && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <Mail className="w-5 h-5 text-textSecondary" />
                     <a href={`mailto:${supplier.email}`} className="text-primary hover:underline">
                       {supplier.email}
@@ -226,7 +226,7 @@ const SupplierDetails = () => {
                   </div>
                 )}
                 {supplier.website && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <Globe className="w-5 h-5 text-textSecondary" />
                     <a
                       href={supplier.website}
@@ -248,8 +248,8 @@ const SupplierDetails = () => {
             </div>
 
             {/* Адрес и фирмени данни */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Адрес и фирмени данни</h2>
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Адрес и фирмени данни</h2>
               <div className="space-y-3">
                 {(supplier.addressLine || supplier.city) && (
                   <div className="flex items-start gap-3">
@@ -279,9 +279,9 @@ const SupplierDetails = () => {
 
             {/* Условия и бележки */}
             {(supplier.deliveryNotes || supplier.notes) && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
-                <div className="space-y-4">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
+                <div className="space-y-3 sm:space-y-4">
                   {supplier.deliveryNotes && (
                     <div>
                       <p className="text-sm font-medium text-textSecondary mb-2">
@@ -303,10 +303,10 @@ const SupplierDetails = () => {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Информация */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Информация</h2>
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Информация</h2>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-textSecondary">Създаден на</p>
@@ -327,8 +327,8 @@ const SupplierDetails = () => {
 
             {/* Последни поръчки */}
             {supplier.orders && supplier.orders.length > 0 && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold text-textPrimary mb-4">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
                   Последни поръчки ({supplier.orders.length})
                 </h2>
                 <div className="space-y-2">
@@ -360,3 +360,4 @@ const SupplierDetails = () => {
 };
 
 export default SupplierDetails;
+

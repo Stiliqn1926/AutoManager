@@ -275,12 +275,12 @@ const Clients = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-textPrimary">Клиенти</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Клиенти</h1>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-6">
             <div className="relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
@@ -299,7 +299,7 @@ const Clients = () => {
               onChange={(e) =>
                 setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending')
               }
-              className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички статуси</option>
               <option value="active">Активни</option>
@@ -316,16 +316,16 @@ const Clients = () => {
                   {[
                     { key: 'name', label: 'Име' },
                     { key: 'email', label: 'Email' },
-                    { key: 'phone', label: 'Телефон' },
-                    { key: 'vehicles', label: 'Автомобили' },
-                    { key: 'orders', label: 'Поръчки' },
-                    { key: 'createdAt', label: 'Регистрация' },
+                    { key: 'phone', label: 'Телефон', className: 'hidden md:table-cell' },
+                    { key: 'vehicles', label: 'Автомобили', className: 'hidden md:table-cell' },
+                    { key: 'orders', label: 'Поръчки', className: 'hidden md:table-cell' },
+                    { key: 'createdAt', label: 'Регистрация', className: 'hidden lg:table-cell' },
                     { key: 'status', label: 'Статус' },
-                  ].map(({ key, label }) => (
+                  ].map(({ key, label, className }) => (
                     <th
                       key={key}
                       onClick={() => handleSort(key as SortField)}
-                      className="text-left py-3 px-4 text-sm font-semibold cursor-pointer hover:bg-mainBg"
+                      className={`text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold cursor-pointer hover:bg-mainBg ${className || ''}`}
                     >
                       <div className="flex items-center gap-2">
                         {label}
@@ -333,12 +333,11 @@ const Clients = () => {
                       </div>
                     </th>
                   ))}
-                  <th className="text-right py-3 px-4 text-sm font-semibold">
+                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">
                     Действия
                   </th>
                 </tr>
               </thead>
-
               <tbody>
                 {filteredClients.length === 0 ? (
                   <tr>
@@ -356,17 +355,16 @@ const Clients = () => {
                       className={`border-b ${isClickable ? 'hover:bg-mainBg cursor-pointer' : 'opacity-75'}`}
                       onClick={isClickable ? () => navigate(`/admin/clients/${client.id}`) : undefined}
                     >
-                      <td className="px-4 py-4 font-medium">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base font-medium">
                         {client.firstName} {client.lastName}
                       </td>
-                      <td className="px-4 py-4">{client.user?.email || client.email || '-'}</td>
-                      <td className="px-4 py-4">{client.phone}</td>
-                      <td className="px-4 py-4">{client._count?.vehicles || 0}</td>
-                      <td className="px-4 py-4">{client._count?.orders || 0}</td>
-                      <td className="px-4 py-4">
-                        {new Date(client.createdAt).toLocaleDateString('bg-BG')}
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{client.user?.email || client.email || '-'}</td>
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{client.phone}</td>
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{client._count?.vehicles || 0}</td>
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{client._count?.orders || 0}</td>
+                      <td className="hidden lg:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{new Date(client.createdAt).toLocaleDateString('bg-BG')}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             client.isPending
@@ -379,7 +377,7 @@ const Clients = () => {
                           {client.isPending ? 'Чака одобрение' : client.isActive ? 'Активен' : 'Неактивен'}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base">
                         <div
                           className="flex justify-end gap-2"
                           onClick={(e) => e.stopPropagation()}
@@ -448,3 +446,6 @@ const Clients = () => {
 };
 
 export default Clients;
+
+
+

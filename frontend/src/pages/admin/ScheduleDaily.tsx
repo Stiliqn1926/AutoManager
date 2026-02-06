@@ -105,11 +105,11 @@ const ScheduleDaily = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/schedules')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към график"
             title="Назад към график"
           >
@@ -117,7 +117,7 @@ const ScheduleDaily = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               Дневен График
             </h1>
             <p className="text-textSecondary mt-1">
@@ -130,32 +130,32 @@ const ScheduleDaily = () => {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
             <Button variant="secondary" onClick={goToPreviousDay}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="secondary" onClick={goToToday}>
+            <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
               Днес
             </Button>
             <Button variant="secondary" onClick={goToNextDay}>
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/create')}>
+            <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           <div className="border border-borderSubtle rounded-lg overflow-hidden">
             <table className="w-full">
               <thead className="bg-mainBg">
                 <tr>
-                  <th className="w-24 py-3 px-4 text-left text-sm font-semibold border-r">
+                  <th className="w-20 sm:w-24 py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold border-r">
                     Час
                   </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold">
+                  <th className="py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold">
                     Задачи
                   </th>
                 </tr>
@@ -166,10 +166,10 @@ const ScheduleDaily = () => {
 
                   return (
                     <tr key={index} className="border-t">
-                      <td className="py-4 px-4 text-sm border-r align-top">
+                      <td className="py-3 px-3 sm:py-4 sm:px-4 text-xs sm:text-sm border-r align-top">
                         {timeSlot}
                       </td>
-                      <td className="py-2 px-4 relative">
+                      <td className="py-2 px-3 sm:px-4 relative">
                         {slotSchedules.length > 0 && (
                           <div className="flex flex-col gap-2">
                             {slotSchedules.map((schedule) => (
@@ -180,11 +180,11 @@ const ScheduleDaily = () => {
                                     `/admin/schedules/${schedule.id}`
                                   )
                                 }
-                                className={`schedule-item p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(
+                                className={`schedule-item p-2 sm:p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getPriorityColor(
                                   schedule.priority
                                 )}`}
                               >
-                                <p className="font-semibold text-sm">
+                                <p className="font-semibold text-xs sm:text-sm">
                                   {schedule.title}
                                 </p>
                                 <p className="text-xs mt-1">
@@ -226,3 +226,5 @@ const ScheduleDaily = () => {
 };
 
 export default ScheduleDaily;
+
+

@@ -160,11 +160,11 @@ const ScheduleDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/schedules')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към график"
             title="Назад към график"
           >
@@ -172,44 +172,44 @@ const ScheduleDetails = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">{schedule.title}</h1>
-            <div className="flex gap-2 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">{schedule.title}</h1>
+            <div className="flex flex-wrap gap-2 mt-2">
               {getStatusBadge(schedule.status)}
               {getPriorityBadge(schedule.priority)}
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {!schedule.isCompleted && schedule.status !== 'COMPLETED' && (
-              <Button onClick={handleComplete}>
+              <Button onClick={handleComplete} className="w-full sm:w-auto">
                 Маркирай като завършена
               </Button>
             )}
             {schedule.status !== 'COMPLETED' && (
-              <Button onClick={() => navigate(`/admin/schedules/${id}/edit`)}>
+              <Button onClick={() => navigate(`/admin/schedules/${id}/edit`)} className="w-full sm:w-auto">
                 <Edit className="w-4 h-4" />
                 Редактирай
               </Button>
             )}
-            <Button variant="danger" onClick={handleDelete}>
+            <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Механик */}
             {schedule.worker && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <User className="w-5 h-5" />
                   Механик
                 </h2>
                 <div
                   onClick={() => navigate(`/admin/workers/${schedule.worker!.id}`)}
-                  className="p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                  className="p-3 sm:p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                 >
                   <p className="font-medium text-textPrimary">
                     {schedule.worker.firstName} {schedule.worker.lastName}
@@ -221,14 +221,14 @@ const ScheduleDetails = () => {
 
             {/* Свързана поръчка */}
             {schedule.order && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
-                <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   Свързана поръчка
                 </h2>
                 <div
                   onClick={() => navigate(`/admin/orders/${schedule.order!.id}`)}
-                  className="p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                  className="p-3 sm:p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                 >
                   <p className="font-medium text-textPrimary">{schedule.order.displayOrderNumber || schedule.order.orderNumber}</p>
                   <p className="text-sm text-textSecondary mt-1">
@@ -242,12 +242,12 @@ const ScheduleDetails = () => {
             )}
 
             {/* Описание и бележки */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
                 Описание и бележки
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {schedule.description && (
                   <div>
                     <p className="text-sm font-medium text-textSecondary mb-2">Описание:</p>
@@ -269,10 +269,10 @@ const ScheduleDetails = () => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Време и дата */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Време и дата
               </h2>
@@ -324,3 +324,4 @@ const ScheduleDetails = () => {
 };
 
 export default ScheduleDetails;
+

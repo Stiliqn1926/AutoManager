@@ -156,19 +156,19 @@ const Settings = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Настройки</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Настройки</h1>
           <p className="text-textSecondary mt-1">Управление на фирмени данни и заявки</p>
         </div>
 
         {/* Фирмени данни */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-textPrimary">Фирмени данни</h2>
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Фирмени данни</h2>
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+              className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
               aria-label="Редактирай"
               title="Редактирай"
             >
@@ -176,7 +176,7 @@ const Settings = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <p className="text-sm text-textSecondary mb-1">Име на сервиза</p>
               <p className="text-base font-medium text-textPrimary">{company.name}</p>
@@ -214,17 +214,17 @@ const Settings = () => {
         </div>
 
         {/* Уникален код */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-4">Уникален код за механици</h2>
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4">Уникален код за механици</h2>
           <p className="text-textSecondary mb-4">
             Този код се използва от механиците при регистрация в системата.
           </p>
 
-          <div className="flex items-center gap-3">
-            <div className="flex-1 bg-gray-100 rounded-lg p-4 font-mono text-2xl font-bold text-primary tracking-wider">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex-1 bg-gray-100 rounded-lg p-3 sm:p-4 font-mono text-lg sm:text-2xl font-bold text-primary tracking-wider">
               {company.uniqueCode}
             </div>
-            <Button onClick={handleCopyCode} variant="secondary">
+            <Button onClick={handleCopyCode} variant="secondary" className="w-full sm:w-auto">
               {isCopied ? (
                 <>
                   <Check className="w-4 h-4" />
@@ -241,8 +241,8 @@ const Settings = () => {
         </div>
 
         {/* Pending Mechanic Requests */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-6">
             Чакащи заявки за механици
             {pendingRequests.length > 0 && (
               <span className="ml-2 px-2 py-1 bg-primary text-white text-sm rounded-full">
@@ -252,11 +252,11 @@ const Settings = () => {
           </h2>
 
           {pendingRequests.length > 0 ? (
-            <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
+            <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-1">
               {pendingRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="border border-borderSubtle rounded-lg p-4 flex items-center justify-between"
+                  className="border border-borderSubtle rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3"
                 >
                   <div className="flex-1">
                     <h3 className="font-semibold text-textPrimary">
@@ -274,9 +274,11 @@ const Settings = () => {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleApprove(request.id)}>Одобри</Button>
-                    <Button variant="secondary" onClick={() => handleReject(request.id)}>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button onClick={() => handleApprove(request.id)} className="w-full sm:w-auto">
+                      Одобри
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleReject(request.id)} className="w-full sm:w-auto">
                       Отхвърли
                     </Button>
                   </div>
@@ -284,15 +286,15 @@ const Settings = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-textSecondary py-8">
+            <p className="text-center text-textSecondary py-6 sm:py-8">
               Няма чакащи заявки за механици
             </p>
           )}
         </div>
 
         {/* Pending Client Requests */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-6">
             Чакащи заявки за клиенти
             {clientRequests.length > 0 && (
               <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded-full">
@@ -302,11 +304,11 @@ const Settings = () => {
           </h2>
 
           {clientRequests.length > 0 ? (
-            <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
+            <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-1">
               {clientRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="border border-borderSubtle rounded-lg p-4 flex items-center justify-between"
+                  className="border border-borderSubtle rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3"
                 >
                   <div className="flex-1">
                     <h3 className="font-semibold text-textPrimary">
@@ -319,9 +321,11 @@ const Settings = () => {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleApprove(request.id)}>Одобри</Button>
-                    <Button variant="secondary" onClick={() => handleReject(request.id)}>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button onClick={() => handleApprove(request.id)} className="w-full sm:w-auto">
+                      Одобри
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleReject(request.id)} className="w-full sm:w-auto">
                       Отхвърли
                     </Button>
                   </div>
@@ -329,7 +333,7 @@ const Settings = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-textSecondary py-8">
+            <p className="text-center text-textSecondary py-6 sm:py-8">
               Няма чакащи заявки за клиенти
             </p>
           )}
@@ -340,7 +344,7 @@ const Settings = () => {
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-borderSubtle p-6 flex justify-between items-center">
+            <div className="sticky top-0 bg-white border-b border-borderSubtle p-6 flex flex-col sm:flex-row sm:items-center gap-3">
               <h2 className="text-xl font-bold text-textPrimary">Редактиране на фирмени данни</h2>
               <button
                 type="button"
@@ -352,9 +356,9 @@ const Settings = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Име на сервиза *"
                     value={formData.name}
@@ -410,11 +414,11 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
-                <Button type="button" variant="secondary" onClick={() => setIsEditModalOpen(false)}>
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                <Button type="button" variant="secondary" onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto">
                   Отказ
                 </Button>
-                <Button type="submit" isLoading={isSaving}>
+                <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
                   Запази промени
                 </Button>
               </div>
@@ -427,3 +431,4 @@ const Settings = () => {
 };
 
 export default Settings;
+

@@ -137,11 +137,11 @@ const ScheduleMonthly = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/schedules')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към график"
             title="Назад към график"
           >
@@ -149,7 +149,7 @@ const ScheduleMonthly = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">Месечен График</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Месечен График</h1>
             <p className="text-textSecondary mt-1">
               {currentDate.toLocaleDateString('bg-BG', {
                 month: 'long',
@@ -158,30 +158,30 @@ const ScheduleMonthly = () => {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
             <Button variant="secondary" onClick={goToPreviousMonth}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="secondary" onClick={goToToday}>
+            <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
               Днес
             </Button>
             <Button variant="secondary" onClick={goToNextMonth}>
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/create')}>
+            <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Header със седмичните дни */}
-          <div className="grid grid-cols-7 gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="text-center font-semibold text-sm text-textSecondary py-2"
+                className="text-center font-semibold text-[11px] sm:text-sm text-textSecondary py-2"
               >
                 {day}
               </div>
@@ -189,7 +189,7 @@ const ScheduleMonthly = () => {
           </div>
 
           {/* Календарна мрежа */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {calendarDays.map((day, index) => {
               const daySchedules = getSchedulesForDay(day);
               const isCurrentDay = isToday(day);
@@ -198,30 +198,30 @@ const ScheduleMonthly = () => {
               return (
                 <div
                   key={index}
-                  className={`min-h-[120px] border rounded-lg p-2 ${
+                  className={`min-h-[96px] sm:min-h-[120px] border rounded-lg p-2 ${
                     isCurrentDay
                       ? 'border-primary bg-blue-50'
                       : 'border-borderSubtle bg-white'
                   } ${!isThisMonth ? 'opacity-40' : ''}`}
                 >
                   <div
-                    className={`text-sm font-semibold mb-2 ${
+                    className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${
                       isCurrentDay ? 'text-primary' : 'text-textSecondary'
                     }`}
                   >
                     {day.getDate()}
                   </div>
-                  <div className="space-y-1 max-h-24 overflow-y-auto pr-1">
+                  <div className="space-y-1 max-h-20 sm:max-h-24 overflow-y-auto pr-1">
                     {daySchedules.map((schedule) => (
                       <div
                         key={schedule.id}
                         onClick={() => navigate(`/admin/schedules/${schedule.id}`)}
-                        className={`text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow ${getPriorityColor(
+                        className={`text-[11px] sm:text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow ${getPriorityColor(
                           schedule.priority
                         )}`}
                       >
                         <p className="font-medium truncate">{schedule.title}</p>
-                        <p className="text-[10px] opacity-75">
+                        <p className="text-[10px] opacity-75 sm:text-[11px]">
                           {new Date(schedule.startTime).toLocaleTimeString('bg-BG', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -241,4 +241,6 @@ const ScheduleMonthly = () => {
 };
 
 export default ScheduleMonthly;
+
+
 

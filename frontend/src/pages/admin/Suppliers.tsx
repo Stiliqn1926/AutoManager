@@ -105,23 +105,23 @@ const Suppliers = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Доставчици</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Доставчици</h1>
             <p className="text-textSecondary mt-1">
               Управление на доставчици на части и услуги
             </p>
           </div>
-          <Button onClick={() => navigate('/admin/suppliers/create')}>
+          <Button onClick={() => navigate('/admin/suppliers/create')} className="w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Добави доставчик
           </Button>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 min-w-64">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-6">
+            <div className="flex-1 min-w-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
                 <input
@@ -131,7 +131,7 @@ const Suppliers = () => {
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setSearchTerm(e.target.value)
                   }
-                  className="w-full pl-10 pr-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label="Търсене"
                 />
               </div>
@@ -142,7 +142,7 @@ const Suppliers = () => {
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setTypeFilter(e.target.value)
               }
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по тип"
             >
               <option value="">Всички типове</option>
@@ -158,7 +158,7 @@ const Suppliers = () => {
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setActiveFilter(e.target.value)
               }
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по статус"
             >
               <option value="">Всички статуси</option>
@@ -171,7 +171,7 @@ const Suppliers = () => {
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setPreferredFilter(e.target.value)
               }
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по предпочитан"
             >
               <option value="">Всички</option>
@@ -184,26 +184,26 @@ const Suppliers = () => {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle w-8"></th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle w-8"></th>
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Име
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Тип
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Телефон
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Email
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Контакт
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Град
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Статус
                   </th>
                 </tr>
@@ -216,17 +216,17 @@ const Suppliers = () => {
                       onClick={() => navigate(`/admin/suppliers/${supplier.id}`)}
                       className="border-b border-borderSubtle hover:bg-gray-50 cursor-pointer transition-colors"
                     >
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 sm:px-4">
                         {supplier.isPreferred && (
                           <Star className="w-4 h-4 text-primary fill-primary" />
                         )}
                       </td>
-                      <td className="py-3 px-4 text-textPrimary font-medium">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textPrimary font-medium">
                         {supplier.name}
                       </td>
-                      <td className="py-3 px-4">{getTypeBadge(supplier.type)}</td>
+                      <td className="py-3 px-3 sm:px-4">{getTypeBadge(supplier.type)}</td>
 
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         <a
                           href={`tel:${supplier.phonePrimary}`}
                           onClick={(e) => e.stopPropagation()}
@@ -237,7 +237,7 @@ const Suppliers = () => {
                         </a>
                       </td>
 
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {supplier.email ? (
                           <a
                             href={`mailto:${supplier.email}`}
@@ -252,11 +252,11 @@ const Suppliers = () => {
                         )}
                       </td>
 
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {supplier.contactPerson || '-'}
                       </td>
-                      <td className="py-3 px-4 text-textSecondary">{supplier.city || '-'}</td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">{supplier.city || '-'}</td>
+                      <td className="py-3 px-3 sm:px-4">
                         {supplier.isActive ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
                             Активен
@@ -286,3 +286,4 @@ const Suppliers = () => {
 };
 
 export default Suppliers;
+

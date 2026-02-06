@@ -130,33 +130,33 @@ const VehicleDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             type="button"
             aria-label="Назад към списъка с автомобили"
             title="Назад"
             onClick={() => navigate('/admin/vehicles')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {vehicle.brand} {vehicle.model}
             </h1>
             <p className="text-textSecondary mt-1">{vehicle.licensePlate}</p>
           </div>
 
-          <div className="flex gap-3">
-            <Button onClick={() => navigate(`/admin/vehicles/${id}/edit`)}>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Button onClick={() => navigate(`/admin/vehicles/${id}/edit`)} className="w-full sm:w-auto">
               <Edit className="w-4 h-4" />
               Редактирай
             </Button>
             {(!vehicle.orders || vehicle.orders.length === 0) && (
-              <Button variant="danger" onClick={handleDelete}>
+              <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
                 <Trash2 className="w-4 h-4" />
                 Изтрий
               </Button>
@@ -165,13 +165,13 @@ const VehicleDetails = () => {
         </div>
 
         {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Vehicle info */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Информация за автомобила</h2>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">Информация за автомобила</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Info icon={<Car />} label="Марка / Модел" value={`${vehicle.brand} ${vehicle.model}`} />
                 {vehicle.year && <Info icon={<Calendar />} label="Година" value={vehicle.year} />}
                 {vehicle.mileage !== null && (
@@ -187,14 +187,14 @@ const VehicleDetails = () => {
             </div>
 
             {/* Owner */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                 <User className="w-5 h-5" />
                 Собственик
               </h2>
               <div
                 onClick={() => navigate(`/admin/clients/${vehicle.client.id}`)}
-                className="p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
+                className="p-3 sm:p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
               >
                 <p className="font-medium">
                   {vehicle.client.firstName} {vehicle.client.lastName}
@@ -205,8 +205,8 @@ const VehicleDetails = () => {
             </div>
 
             {/* Orders */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5" />
                 Сервизна история
               </h2>
@@ -217,7 +217,7 @@ const VehicleDetails = () => {
                     <div
                       key={order.id}
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
-                      className="p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
+                      className="p-3 sm:p-4 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
                     >
                       <div className="flex justify-between">
                         <div>
@@ -239,9 +239,9 @@ const VehicleDetails = () => {
           </div>
 
           {/* Right */}
-          <div className="space-y-6">
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Информация</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">Информация</h2>
               <div className="space-y-3">
                 <Info
                   label="Добавен на"
@@ -281,3 +281,4 @@ const Info = ({
 );
 
 export default VehicleDetails;
+

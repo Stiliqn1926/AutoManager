@@ -174,18 +174,18 @@ const OrderEdit = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             onClick={() => navigate(`/admin/orders/${id}`)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             title="Назад към поръчката"
             aria-label="Назад към поръчката"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               Редактиране на поръчка
             </h1>
             <p className="text-textSecondary mt-1">
@@ -194,12 +194,12 @@ const OrderEdit = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-cardBg rounded-2xl shadow-card p-6 max-w-4xl">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
             <h2 className="text-lg font-semibold text-textPrimary mb-4">
               Основна информация
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="status" className="block text-sm font-medium text-textPrimary mb-2">
                   Статус *
@@ -210,7 +210,7 @@ const OrderEdit = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, status: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                   aria-label="Статус на поръчката"
                 >
@@ -232,7 +232,7 @@ const OrderEdit = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, workerId: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label="Избор на механик"
                 >
                   <option value="">Не е назначен</option>
@@ -273,7 +273,7 @@ const OrderEdit = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, diagnosis: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
                 placeholder="Въведете диагноза..."
                 aria-label="Диагноза на поръчката"
@@ -290,7 +290,7 @@ const OrderEdit = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
                 placeholder="Въведете бележки..."
                 aria-label="Бележки към поръчката"
@@ -298,12 +298,12 @@ const OrderEdit = () => {
             </div>
           </div>
 
-          <div className="bg-cardBg rounded-2xl shadow-card p-6 max-w-4xl">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
               <h2 className="text-lg font-semibold text-textPrimary">
                 Детайли на поръчката
               </h2>
-              <Button type="button" onClick={handleAddItem}>
+              <Button type="button" onClick={handleAddItem} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
                 Добави ред
               </Button>
@@ -311,8 +311,8 @@ const OrderEdit = () => {
 
             <div className="space-y-3">
               {orderItems.map((item, index) => (
-                <div key={index} className="grid grid-cols-12 gap-3 items-start">
-                  <div className="col-span-2">
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
+                  <div className="col-span-12 sm:col-span-2">
                     <label className="sr-only">
                       Тип на ред {index + 1}
                     </label>
@@ -330,7 +330,7 @@ const OrderEdit = () => {
                     </select>
                   </div>
 
-                  <div className="col-span-4">
+                  <div className="col-span-12 sm:col-span-4">
                     <label className="sr-only">
                       Описание на ред {index + 1}
                     </label>
@@ -350,7 +350,7 @@ const OrderEdit = () => {
                     />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-12 sm:col-span-2">
                     <label className="sr-only">
                       Количество на ред {index + 1}
                     </label>
@@ -372,7 +372,7 @@ const OrderEdit = () => {
                     />
                   </div>
 
-                  <div className="col-span-3">
+                  <div className="col-span-12 sm:col-span-3">
                     <label className="sr-only">
                       Единична цена на ред {index + 1}
                     </label>
@@ -394,7 +394,7 @@ const OrderEdit = () => {
                     />
                   </div>
 
-                  <div className="col-span-1">
+                  <div className="col-span-12 sm:col-span-1">
                     <button
                       type="button"
                       onClick={() => handleRemoveItem(index)}
@@ -416,7 +416,7 @@ const OrderEdit = () => {
             )}
           </div>
 
-          <div className="bg-cardBg rounded-2xl shadow-card p-6 max-w-4xl">
+          <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
             <h2 className="text-lg font-semibold text-textPrimary mb-4">
               Плащане
             </h2>
@@ -433,7 +433,7 @@ const OrderEdit = () => {
                     paymentMethod: e.target.value,
                   })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Метод на плащане"
               >
                 <option value="">Избери метод</option>
@@ -447,15 +447,16 @@ const OrderEdit = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 max-w-4xl">
+          <div className="flex flex-col sm:flex-row gap-3 max-w-4xl">
             <Button
               type="button"
               variant="secondary"
               onClick={() => navigate(`/admin/orders/${id}`)}
+              className="w-full sm:w-auto"
             >
               Отказ
             </Button>
-            <Button type="submit" isLoading={isSaving}>
+            <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
               Запази промени
             </Button>
           </div>
@@ -466,3 +467,6 @@ const OrderEdit = () => {
 };
 
 export default OrderEdit;
+
+
+

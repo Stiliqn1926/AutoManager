@@ -93,9 +93,9 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex">
       {/* Лява страна - Информация */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary-600 text-white p-12 flex-col justify-center">
+      <div className="hidden lg:flex lg:w-1/2 bg-primary-600 text-white p-6 sm:p-8 sm:p-12 flex-col justify-center">
         <h1 className="text-5xl font-bold mb-6">🚗 AutoManager</h1>
-        <h2 className="text-3xl font-semibold mb-4">Нова парола</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Нова парола</h2>
         <p className="text-xl text-orange-100 leading-relaxed mb-4">
           Въведете 6-цифрения код който получихте на имейл и изберете нова парола.
         </p>
@@ -105,10 +105,10 @@ const ResetPassword = () => {
       </div>
 
       {/* Дясна страна - Форма */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
               Смяна на парола
             </h2>
             <p className="text-gray-600">
@@ -209,3 +209,4 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+

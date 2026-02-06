@@ -48,17 +48,17 @@ const ForgotPassword = () => {
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
         </h1>
-        <h2 className="text-3xl font-semibold mb-4">Забравена парола?</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Забравена парола?</h2>
         <p className="text-xl text-gray-300 leading-relaxed">
           Няма проблем! Въведете вашия имейл адрес и ще ви изпратим код за възстановяване на паролата.
         </p>
       </div>
 
       {/* Дясна страна - Форма */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8">
+        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-textPrimary mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
               Възстановяване на парола
             </h2>
             <p className="text-textSecondary">
@@ -95,3 +95,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+

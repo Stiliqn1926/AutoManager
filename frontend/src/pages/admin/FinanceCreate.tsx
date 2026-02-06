@@ -46,8 +46,8 @@ const FinanceCreate = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/finances')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -57,14 +57,14 @@ const FinanceCreate = () => {
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Нова транзакция</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Нова транзакция</h1>
             <p className="text-textSecondary mt-1">Добавете приход или разход</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-6 max-w-2xl">
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-2xl">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="type" className="block text-sm font-medium text-textPrimary mb-2">
                   Тип *
@@ -75,7 +75,7 @@ const FinanceCreate = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, type: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 >
                   <option value="INCOME">Приход</option>
@@ -93,7 +93,7 @@ const FinanceCreate = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 >
                   <option value="PARTS">Авточасти</option>
@@ -107,7 +107,7 @@ const FinanceCreate = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Сума *"
                 type="number"
@@ -141,7 +141,7 @@ const FinanceCreate = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={4}
                 placeholder="Добавете описание на транзакцията..."
                 required
@@ -151,11 +151,11 @@ const FinanceCreate = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
-            <Button type="button" variant="secondary" onClick={() => navigate('/admin/finances')}>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="button" variant="secondary" onClick={() => navigate('/admin/finances')} className="w-full sm:w-auto">
               Отказ
             </Button>
-            <Button type="submit" isLoading={isSaving}>
+            <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
               Добави транзакция
             </Button>
           </div>
@@ -166,3 +166,5 @@ const FinanceCreate = () => {
 };
 
 export default FinanceCreate;
+
+

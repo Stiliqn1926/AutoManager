@@ -61,28 +61,28 @@ const SupplierCreate = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/admin/suppliers')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към доставчици"
             title="Назад към доставчици"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Нов доставчик</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Нов доставчик</h1>
             <p className="text-textSecondary mt-1">Добавете нов доставчик на части и услуги</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-6 max-w-4xl">
-          <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
+          <div className="space-y-4 sm:space-y-6">
             {/* Основна информация */}
             <div>
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Основна информация</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Основна информация</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Име на доставчик *"
                   type="text"
@@ -103,7 +103,7 @@ const SupplierCreate = () => {
                     onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                       setFormData({ ...formData, type: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   >
                     <option value="PARTS">Части</option>
@@ -118,8 +118,8 @@ const SupplierCreate = () => {
 
             {/* Контакти */}
             <div>
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Телефон *"
                   type="tel"
@@ -175,8 +175,8 @@ const SupplierCreate = () => {
 
             {/* Адрес */}
             <div>
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Адрес</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Адрес</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Адрес"
                   type="text"
@@ -201,8 +201,8 @@ const SupplierCreate = () => {
 
             {/* Фирмени данни */}
             <div>
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Фирмени данни</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Фирмени данни</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="ЕИК / Булстат"
                   type="text"
@@ -227,8 +227,8 @@ const SupplierCreate = () => {
 
             {/* Условия и бележки */}
             <div>
-              <h2 className="text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
-              <div className="space-y-4">
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
+              <div className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-textPrimary mb-2">
                     Условия за доставка
@@ -238,7 +238,7 @@ const SupplierCreate = () => {
                     onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                       setFormData({ ...formData, deliveryNotes: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
                     placeholder="Доставка в същия ден, минимална поръчка 50 €..."
                     aria-label="Условия за доставка"
@@ -254,14 +254,14 @@ const SupplierCreate = () => {
                     onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                       setFormData({ ...formData, notes: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
                     placeholder="Бързи, но скъпи. Имат отстъпка 10%..."
                     aria-label="Вътрешни бележки"
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-start sm:items-center gap-2">
                   <input
                     type="checkbox"
                     id="isPreferred"
@@ -279,11 +279,11 @@ const SupplierCreate = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
-            <Button type="button" variant="secondary" onClick={() => navigate('/admin/suppliers')}>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="button" variant="secondary" onClick={() => navigate('/admin/suppliers')} className="w-full sm:w-auto">
               Отказ
             </Button>
-            <Button type="submit" isLoading={isSaving}>
+            <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
               Създай доставчик
             </Button>
           </div>
@@ -294,3 +294,5 @@ const SupplierCreate = () => {
 };
 
 export default SupplierCreate;
+
+

@@ -136,31 +136,33 @@ const MechanicOrderDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/mechanic/orders')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към списък с поръчки"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">Поръчка {order.displayOrderNumber || order.orderNumber}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
+              Поръчка {order.displayOrderNumber || order.orderNumber}
+            </h1>
             <p className="text-textSecondary mt-1">Детайли за поръчката</p>
           </div>
           {getStatusBadge(order.status)}
         </div>
 
         {/* ==================== СЕКЦИЯ 1: Основна информация ==================== */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">Основна информация</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Основна информация</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Автомобил */}
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
@@ -224,10 +226,10 @@ const MechanicOrderDetails = () => {
         </div>
 
         {/* ==================== СЕКЦИЯ 2: Описание на проблема ==================== */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">Описание на проблема</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Описание на проблема</h2>
           </div>
 
           <div className="space-y-4">
@@ -236,21 +238,21 @@ const MechanicOrderDetails = () => {
               <label className="block text-sm font-medium text-textSecondary mb-2">
                 Първоначално описание
               </label>
-              <p className="text-base text-textPrimary bg-gray-50 p-4 rounded-lg">
+              <p className="text-base text-textPrimary bg-gray-50 p-3 sm:p-4 rounded-lg">
                 {order.description || 'Няма описание'}
               </p>
             </div>
 
             {/* Диагностични бележки */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <label className="block text-sm font-medium text-textSecondary">
                   Диагностични бележки
                 </label>
                 {!isEditingNotes && order.status !== 'COMPLETED' && (
                   <button
                     onClick={() => setIsEditingNotes(true)}
-                    className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+                    className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
                   >
                     <Edit2 className="w-4 h-4" />
                     Редактирай
@@ -264,13 +266,13 @@ const MechanicOrderDetails = () => {
                     value={diagnosis}
                     onChange={(e) => setDiagnosis(e.target.value)}
                     rows={5}
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Въведи диагностични бележки..."
                   />
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={handleSaveDiagnosticNotes}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4" />
                       Запази
@@ -280,7 +282,7 @@ const MechanicOrderDetails = () => {
                         setIsEditingNotes(false);
                         setDiagnosis(order.diagnosis || '');
                       }}
-                      className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
+                      className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2 w-full sm:w-auto"
                     >
                       <X className="w-4 h-4" />
                       Отказ
@@ -288,7 +290,7 @@ const MechanicOrderDetails = () => {
                   </div>
                 </div>
               ) : (
-                <p className="text-base text-textPrimary bg-gray-50 p-4 rounded-lg">
+                <p className="text-base text-textPrimary bg-gray-50 p-3 sm:p-4 rounded-lg">
                   {diagnosis || 'Няма диагностични бележки'}
                 </p>
               )}
@@ -298,14 +300,14 @@ const MechanicOrderDetails = () => {
 
         {/* ==================== СЕКЦИЯ 3: Дейности (LABOR) ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex items-center gap-2">
               <Wrench className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">Дейности (Труд)</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Дейности (Труд)</h2>
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {laborItems.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Wrench className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -316,7 +318,7 @@ const MechanicOrderDetails = () => {
                 {laborItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 bg-gray-50 rounded-lg border border-borderSubtle"
+                    className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-borderSubtle"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -324,7 +326,7 @@ const MechanicOrderDetails = () => {
                         {item.description && item.description !== item.name && (
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-textSecondary">
                           <span>Количество: {item.quantity}</span>
                           <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
@@ -342,14 +344,14 @@ const MechanicOrderDetails = () => {
 
         {/* ==================== СЕКЦИЯ 4: Части и консумативи ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">Части и консумативи</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Части и консумативи</h2>
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {partItems.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Package className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -360,7 +362,7 @@ const MechanicOrderDetails = () => {
                 {partItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 bg-gray-50 rounded-lg border border-borderSubtle"
+                    className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-borderSubtle"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -373,7 +375,7 @@ const MechanicOrderDetails = () => {
                         {item.description && item.description !== item.name && (
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 text-sm text-textSecondary">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-textSecondary">
                           <span>Количество: {item.quantity}</span>
                           <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
@@ -390,10 +392,10 @@ const MechanicOrderDetails = () => {
         </div>
 
         {/* ==================== СЕКЦИЯ 5: Статус на поръчката ==================== */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">Статус на поръчката</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Статус на поръчката</h2>
           </div>
 
           <div className="space-y-4">
@@ -409,11 +411,11 @@ const MechanicOrderDetails = () => {
                 <label className="block text-sm font-medium text-textSecondary mb-2">
                   Промени статус
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {canChangeStatus(order.status, 'IN_PROGRESS') && (
                     <button
                       onClick={() => handleStatusChange('IN_PROGRESS')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
                     >
                       Започни работа
                     </button>
@@ -421,7 +423,7 @@ const MechanicOrderDetails = () => {
                   {canChangeStatus(order.status, 'READY') && (
                     <button
                       onClick={() => handleStatusChange('READY')}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 w-full sm:w-auto"
                     >
                       Маркирай като готово
                     </button>
@@ -429,7 +431,7 @@ const MechanicOrderDetails = () => {
                   {canChangeStatus(order.status, 'WAITING') && (
                     <button
                       onClick={() => handleStatusChange('WAITING')}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 w-full sm:w-auto"
                     >
                       Върни в чакащи
                     </button>
@@ -440,7 +442,7 @@ const MechanicOrderDetails = () => {
 
             {order.totalPrice !== null && (
               <div className="pt-4 border-t border-borderSubtle">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <span className="text-lg font-medium text-textSecondary">Обща стойност:</span>
                   <span className="text-2xl font-bold text-primary">{Number(order.totalPrice || 0).toFixed(2)} €</span>
                 </div>

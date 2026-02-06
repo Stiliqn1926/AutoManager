@@ -129,9 +129,9 @@ const OrderCreate = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* HEADER */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             type="button"
             aria-label="Назад към списъка с поръчки"
@@ -143,7 +143,7 @@ const OrderCreate = () => {
           </button>
 
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Нова поръчка</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Нова поръчка</h1>
             <p className="text-textSecondary mt-1">
               Създаване на нова сервизна поръчка
             </p>
@@ -151,7 +151,7 @@ const OrderCreate = () => {
         </div>
 
         {/* FORM */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6 max-w-2xl">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* CLIENT */}
             <div>
@@ -172,7 +172,7 @@ const OrderCreate = () => {
                     vehicleId: '',
                   })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
                 <option value="">Избери клиент</option>
@@ -199,7 +199,7 @@ const OrderCreate = () => {
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, vehicleId: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
                 disabled={!formData.clientId}
               >
@@ -227,7 +227,7 @@ const OrderCreate = () => {
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, workerId: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">Не е назначен</option>
                 {workers.map((worker) => (
@@ -249,7 +249,7 @@ const OrderCreate = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, clientDescription: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={4}
                 placeholder="Какво съобщава клиентът..."
                 required
@@ -257,7 +257,7 @@ const OrderCreate = () => {
             </div>
 
             {/* DATES */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Начална дата"
                 type="date"
@@ -277,7 +277,7 @@ const OrderCreate = () => {
             </div>
 
             {/* ACTIONS */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button
                 type="button"
                 variant="secondary"
@@ -298,3 +298,4 @@ const OrderCreate = () => {
 };
 
 export default OrderCreate;
+

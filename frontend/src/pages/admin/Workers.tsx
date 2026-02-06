@@ -251,12 +251,12 @@ const Workers = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-textPrimary">Работници</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Работници</h1>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-6">
             <div className="relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
@@ -273,7 +273,7 @@ const Workers = () => {
               placeholder="Специализация"
               value={filterSpecialization}
               onChange={(e) => setFilterSpecialization(e.target.value)}
-              className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
             <select
@@ -282,7 +282,7 @@ const Workers = () => {
               onChange={(e) =>
                 setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending' | 'left')
               }
-              className="px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Всички статуси</option>
               <option value="active">Активни</option>
@@ -307,7 +307,7 @@ const Workers = () => {
                     <th
                       key={key}
                       onClick={() => handleSort(key as SortField)}
-                      className="text-left py-3 px-4 text-sm font-semibold cursor-pointer hover:bg-mainBg"
+                      className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold cursor-pointer hover:bg-mainBg"
                     >
                       <div className="flex items-center gap-2">
                         {label}
@@ -315,7 +315,7 @@ const Workers = () => {
                       </div>
                     </th>
                   ))}
-                  <th className="text-right py-3 px-4 text-sm font-semibold">
+                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">
                     Действия
                   </th>
                 </tr>
@@ -340,14 +340,14 @@ const Workers = () => {
                       className={`border-b ${isClickable ? 'hover:bg-mainBg cursor-pointer' : ''} ${isLeft ? 'opacity-60' : ''}`}
                       onClick={isClickable ? () => navigate(`/admin/workers/${worker.id}`) : undefined}
                     >
-                      <td className="px-4 py-4 font-medium">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base font-medium">
                         {worker.firstName} {worker.lastName}
                       </td>
-                      <td className="px-4 py-4">{worker.phone}</td>
-                      <td className="px-4 py-4">{worker.user.email}</td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{worker.phone}</td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{worker.user.email}</td>
 
                       {/* ✅ Специализация + skills tooltip */}
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         <div className="flex items-center gap-2">
                           <span>{worker.specialization || '-'}</span>
                           {worker.skills && (
@@ -361,7 +361,7 @@ const Workers = () => {
                         </div>
                       </td>
 
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         {worker.membershipStatus === 'PENDING' ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                             Изчаква одобрение
@@ -382,7 +382,7 @@ const Workers = () => {
                       </td>
 
                       <td
-                        className="px-4 py-4 text-right"
+                        className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex justify-end gap-2">
@@ -486,4 +486,5 @@ const Workers = () => {
 };
 
 export default Workers;
+
 

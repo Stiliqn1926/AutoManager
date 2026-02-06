@@ -147,7 +147,7 @@ const ClientDashboard = () => {
           <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
           <button
             onClick={fetchDashboard}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 w-full sm:w-auto"
           >
             Опитай отново
           </button>
@@ -158,20 +158,20 @@ const ClientDashboard = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Начало</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Начало</h1>
           <p className="text-textSecondary mt-1">
             Преглед на вашите активни ремонти и известия
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate('/client/vehicles')}
-            className="p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
+            className="p-3 sm:p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
           >
             <Car className="w-6 h-6 text-primary mb-2" />
             Моите автомобили
@@ -179,7 +179,7 @@ const ClientDashboard = () => {
 
           <button
             onClick={() => navigate('/client/orders')}
-            className="p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
+            className="p-3 sm:p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
           >
             <ClipboardList className="w-6 h-6 text-primary mb-2" />
             Поръчки
@@ -187,7 +187,7 @@ const ClientDashboard = () => {
 
           <button
             onClick={() => navigate('/client/invoices')}
-            className="p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
+            className="p-3 sm:p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
           >
             <FileText className="w-6 h-6 text-primary mb-2" />
             Фактури
@@ -195,7 +195,7 @@ const ClientDashboard = () => {
 
           <button
             onClick={() => navigate('/client/notifications')}
-            className="p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
+            className="p-3 sm:p-4 bg-cardBg rounded-lg hover:bg-primary/5 transition-colors text-left border"
           >
             <Mail className="w-6 h-6 text-primary mb-2" />
             Известия
@@ -203,15 +203,15 @@ const ClientDashboard = () => {
         </div>
 
        {/* Overview Cards */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
   
   {/* Active Orders */}
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-start justify-between mb-4">
       <div className="p-3 bg-gray-100 rounded-lg">
         <Wrench className="w-6 h-6 text-textSecondary" />
       </div>
-      <span className="text-3xl font-bold text-textPrimary">
+      <span className="text-2xl sm:text-3xl font-bold text-textPrimary">
         {dashboardData.overview.activeOrders}
       </span>
     </div>
@@ -221,12 +221,12 @@ const ClientDashboard = () => {
   </div>
 
   {/* Notifications */}
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-start justify-between mb-4">
       <div className="p-3 bg-gray-100 rounded-lg">
         <Bell className="w-6 h-6 text-textSecondary" />
       </div>
-      <span className="text-3xl font-bold text-textPrimary">
+      <span className="text-2xl sm:text-3xl font-bold text-textPrimary">
         {dashboardData.overview.unreadNotifications}
       </span>
     </div>
@@ -236,12 +236,12 @@ const ClientDashboard = () => {
   </div>
 
   {/* Invoices */}
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-start justify-between mb-4">
       <div className="p-3 bg-gray-100 rounded-lg">
         <FileText className="w-6 h-6 text-textSecondary" />
       </div>
-      <span className="text-3xl font-bold text-textPrimary">
+      <span className="text-2xl sm:text-3xl font-bold text-textPrimary">
         {dashboardData.overview.unpaidInvoices}
       </span>
     </div>
@@ -254,8 +254,8 @@ const ClientDashboard = () => {
 
 
         {/* Active Orders List */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <h2 className="text-xl font-bold text-textPrimary mb-4">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-textPrimary mb-4">
             Активни ремонти
           </h2>
 
@@ -269,7 +269,7 @@ const ClientDashboard = () => {
                 <div
                   key={order.id}
                   onClick={() => navigate(`/client/orders/${order.id}`)}
-                  className="p-4 border border-borderSubtle rounded-lg hover:bg-mainBg cursor-pointer transition-colors"
+                  className="p-3 sm:p-4 border border-borderSubtle rounded-lg hover:bg-mainBg cursor-pointer transition-colors"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -288,7 +288,7 @@ const ClientDashboard = () => {
                     {getStatusBadge(order.status)}
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-textMuted">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-textMuted">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {order.endDate
@@ -309,8 +309,8 @@ const ClientDashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <h2 className="text-xl font-bold text-textPrimary mb-4">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-textPrimary mb-4">
             Последна активност
           </h2>
 
@@ -323,7 +323,7 @@ const ClientDashboard = () => {
               {dashboardData.recentActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className={`p-4 border-l-4 rounded-r-lg ${
+                  className={`p-3 sm:p-4 border-l-4 rounded-r-lg ${
                     activity.isRead
                       ? 'border-gray-300 bg-gray-50'
                       : 'border-primary bg-primary/5'

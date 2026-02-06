@@ -121,24 +121,24 @@ const Profile = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Профил</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Профил</h1>
           <p className="text-textSecondary mt-1">Лична информация и статистика</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                 Основна информация
               </h2>
             </div>
             {!isEditingInfo && (
               <button
                 onClick={() => setIsEditingInfo(true)}
-                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
                 aria-label="Редактирай"
                 title="Редактирай"
               >
@@ -149,7 +149,7 @@ const Profile = () => {
 
           {isEditingInfo ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
                     Име
@@ -158,7 +158,7 @@ const Profile = () => {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Име"
                   />
                 </div>
@@ -171,7 +171,7 @@ const Profile = () => {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Фамилия"
                   />
                 </div>
@@ -184,7 +184,7 @@ const Profile = () => {
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Телефон"
                   />
                 </div>
@@ -197,17 +197,17 @@ const Profile = () => {
                     type="text"
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Специализация"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
                   onClick={handleSaveInfo}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Save className="w-4 h-4" />
                   Запази
@@ -221,7 +221,7 @@ const Profile = () => {
                     setPhone(profile.phone);
                     setSpecialization(profile.specialization || '');
                   }}
-                  className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
+                  className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2 w-full sm:w-auto"
                 >
                   <X className="w-4 h-4" />
                   Отказ
@@ -229,7 +229,7 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <User className="w-4 h-4" />
@@ -304,18 +304,18 @@ const Profile = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
             <div className="flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                 Професионални данни
               </h2>
             </div>
             {!isEditingSkills && (
               <button
                 onClick={() => setIsEditingSkills(true)}
-                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1"
+                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
                 aria-label="Редактирай"
                 title="Редактирай"
               >
@@ -335,13 +335,13 @@ const Profile = () => {
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
                   rows={5}
-                  className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Напр. Диагностика на двигатели, смяна на масло, ремонт на спирачки..."
                 />
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={handleSaveSkills}
-                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 w-full sm:w-auto"
                   >
                     <Save className="w-4 h-4" />
                     Запази
@@ -351,7 +351,7 @@ const Profile = () => {
                       setIsEditingSkills(false);
                       setSkills(profile.skills || '');
                     }}
-                    className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
+                    className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2 w-full sm:w-auto"
                   >
                     <X className="w-4 h-4" />
                     Отказ
@@ -359,25 +359,25 @@ const Profile = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-base text-textPrimary bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">
+              <p className="text-base text-textPrimary bg-gray-50 p-3 sm:p-4 rounded-lg whitespace-pre-wrap">
                 {profile.skills || 'Няма добавени умения'}
               </p>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                 Статистика
               </h2>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white border border-borderSubtle rounded-lg p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-white border border-borderSubtle rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
                       <ClipboardList className="w-5 h-5" />
@@ -386,14 +386,14 @@ const Profile = () => {
                       Общо поръчки
                     </span>
                   </div>
-                  <span className="text-2xl font-bold text-textPrimary">
+                  <span className="text-xl sm:text-2xl font-bold text-textPrimary">
                     {statistics.totalOrders}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white border border-borderSubtle rounded-lg p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-white border border-borderSubtle rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
                       <CheckCircle className="w-5 h-5" />
@@ -402,14 +402,14 @@ const Profile = () => {
                       Завършени поръчки
                     </span>
                   </div>
-                  <span className="text-2xl font-bold text-textPrimary">
+                  <span className="text-xl sm:text-2xl font-bold text-textPrimary">
                     {statistics.completedOrders}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white border border-borderSubtle rounded-lg p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-white border border-borderSubtle rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
                       <Activity className="w-5 h-5" />
@@ -418,7 +418,7 @@ const Profile = () => {
                       Активни поръчки
                     </span>
                   </div>
-                  <span className="text-2xl font-bold text-textPrimary">
+                  <span className="text-xl sm:text-2xl font-bold text-textPrimary">
                     {statistics.activeOrders}
                   </span>
                 </div>
@@ -442,17 +442,17 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <ClipboardList className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                 Работно натоварване
               </h2>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white border border-borderSubtle rounded-lg p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-white border border-borderSubtle rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
                       <Calendar className="w-5 h-5" />
@@ -461,14 +461,14 @@ const Profile = () => {
                       Поръчки днес
                     </span>
                   </div>
-                  <span className="text-2xl font-bold text-textPrimary">
+                  <span className="text-xl sm:text-2xl font-bold text-textPrimary">
                     {statistics.ordersToday}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-white border border-borderSubtle rounded-lg p-4">
-                <div className="flex items-center justify-between">
+              <div className="bg-white border border-borderSubtle rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gray-100 text-textSecondary">
                       <CalendarDays className="w-5 h-5" />
@@ -477,7 +477,7 @@ const Profile = () => {
                       Поръчки тази седмица
                     </span>
                   </div>
-                  <span className="text-2xl font-bold text-textPrimary">
+                  <span className="text-xl sm:text-2xl font-bold text-textPrimary">
                     {statistics.ordersThisWeek}
                   </span>
                 </div>

@@ -119,31 +119,31 @@ const MechanicVehicleDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/mechanic/vehicles')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към списък с автомобили"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {vehicle.brand} {vehicle.model}
             </h1>
             <p className="text-textSecondary mt-1">{vehicle.licensePlate}</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Car className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">Основни данни</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Основни данни</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Car className="w-4 h-4" />
@@ -173,7 +173,7 @@ const MechanicVehicleDetails = () => {
             </div>
 
             {vehicle.vin && (
-              <div className="md:col-span-3">
+              <div className="sm:col-span-2 lg:col-span-3">
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Hash className="w-4 h-4" />
                   <span>VIN</span>
@@ -226,13 +226,13 @@ const MechanicVehicleDetails = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">Клиент</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Клиент</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <User className="w-4 h-4" />
@@ -271,12 +271,12 @@ const MechanicVehicleDetails = () => {
               </div>
             )}
 
-            <div className="md:col-span-2">
+            <div className="sm:col-span-2">
               <button
                 onClick={() =>
                   navigate(`/mechanic/clients/${vehicle.client.id}`)
                 }
-                className="px-4 py-2 bg-gray-100 text-textPrimary rounded-lg hover:bg-gray-200 text-sm font-medium"
+                className="px-4 py-2 bg-gray-100 text-textPrimary rounded-lg hover:bg-gray-200 text-sm font-medium w-full sm:w-auto"
               >
                 Виж клиента
               </button>
@@ -285,11 +285,11 @@ const MechanicVehicleDetails = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
-            <div className="flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-semibold text-textPrimary">Поръчки</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Поръчки</h2>
               </div>
               <span className="text-sm text-textSecondary">
                 Общо:{' '}
@@ -310,22 +310,22 @@ const MechanicVehicleDetails = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Номер / Дата
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Описание
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Статус
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Приоритет
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Детайли
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Действие
                     </th>
                   </tr>
@@ -339,7 +339,7 @@ const MechanicVehicleDetails = () => {
                         navigate(`/mechanic/orders/${order.id}`)
                       }
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-textPrimary">
                             {order.displayOrderNumber || order.orderNumber}
@@ -350,24 +350,24 @@ const MechanicVehicleDetails = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
                           {order.description || 'Няма описание'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {getStatusBadge(order.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {getPriorityBadge(order.priority)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
                           <Package className="w-3 h-3" />
                           {order.orderItems.length} дейности
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

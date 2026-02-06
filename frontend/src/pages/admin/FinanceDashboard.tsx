@@ -82,44 +82,44 @@ const FinanceDashboard = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Финансов преглед</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Финансов преглед</h1>
             <p className="text-textSecondary mt-1">Управление на приходи и разходи</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value as 'all' | 'month' | 'week')}
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Избор на период"
             >
               <option value="all">Всички</option>
               <option value="month">Текущ месец</option>
               <option value="week">Тази седмица</option>
             </select>
-            <Button onClick={() => navigate('/admin/finances')}>
+            <Button onClick={() => navigate('/admin/finances')} className="w-full sm:w-auto">
               Всички транзакции
             </Button>
-            <Button onClick={() => navigate('/admin/finances/create')}>
+            <Button onClick={() => navigate('/admin/finances/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави транзакция
             </Button>
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-textPrimary mb-4">{getPeriodLabel()}</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Приходи от поръчки */}
-            <div className="bg-blue-50 rounded-xl p-6">
+            <div className="bg-blue-50 rounded-xl p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-blue-600 font-medium">Приходи от поръчки</p>
                 <CreditCard className="w-5 h-5 text-blue-600" />
               </div>
-              <p className="text-2xl font-bold text-blue-900">
+              <p className="text-xl sm:text-2xl font-bold text-blue-900">
                 {Number(summary?.orderRevenue || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-blue-600 mt-1">
@@ -128,38 +128,38 @@ const FinanceDashboard = () => {
             </div>
 
             {/* Други приходи */}
-            <div className="bg-green-50 rounded-xl p-6">
+            <div className="bg-green-50 rounded-xl p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-green-600 font-medium">Други приходи</p>
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
-              <p className="text-2xl font-bold text-green-900">
+              <p className="text-xl sm:text-2xl font-bold text-green-900">
                 {Number(summary?.otherIncome || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-green-600 mt-1">Ръчно въведени</p>
             </div>
 
             {/* Разходи */}
-            <div className="bg-red-50 rounded-xl p-6">
+            <div className="bg-red-50 rounded-xl p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-red-600 font-medium">Разходи</p>
                 <TrendingDown className="w-5 h-5 text-red-600" />
               </div>
-              <p className="text-2xl font-bold text-red-900">
+              <p className="text-xl sm:text-2xl font-bold text-red-900">
                 {Number(summary?.totalExpense || 0).toFixed(2)} €
               </p>
               <p className="text-xs text-red-600 mt-1">Общо разходи</p>
             </div>
 
             {/* Печалба */}
-            <div className={`${isProfitable ? 'bg-primary/10' : 'bg-gray-100'} rounded-xl p-6`}>
+            <div className={`${isProfitable ? 'bg-primary/10' : 'bg-gray-100'} rounded-xl p-4 sm:p-6`}>
               <div className="flex items-center justify-between mb-2">
                 <p className={`text-sm font-medium ${isProfitable ? 'text-primary' : 'text-gray-600'}`}>
                   Печалба
                 </p>
                 <DollarSign className={`w-5 h-5 ${isProfitable ? 'text-primary' : 'text-gray-600'}`} />
               </div>
-              <p className={`text-2xl font-bold ${isProfitable ? 'text-primary' : 'text-gray-900'}`}>
+              <p className={`text-xl sm:text-2xl font-bold ${isProfitable ? 'text-primary' : 'text-gray-900'}`}>
                 {profit.toFixed(2)} €
               </p>
               <p className={`text-xs mt-1 ${isProfitable ? 'text-primary' : 'text-gray-600'}`}>
@@ -169,23 +169,23 @@ const FinanceDashboard = () => {
           </div>
 
           {/* Допълнителна информация */}
-          <div className="mt-6 pt-6 border-t border-borderSubtle">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-borderSubtle">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
                 <p className="text-sm text-textSecondary mb-1">Общо приходи</p>
-                <p className="text-xl font-semibold text-textPrimary">
+                <p className="text-lg sm:text-xl font-semibold text-textPrimary">
                   {Number(summary?.totalIncome || 0).toFixed(2)} €
                 </p>
               </div>
               <div>
                 <p className="text-sm text-textSecondary mb-1">Неплатени поръчки</p>
-                <p className="text-xl font-semibold text-textPrimary">
+                <p className="text-lg sm:text-xl font-semibold text-textPrimary">
                   {summary?.unpaidOrdersCount || 0}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-textSecondary mb-1">Margin</p>
-                <p className="text-xl font-semibold text-textPrimary">
+                <p className="text-lg sm:text-xl font-semibold text-textPrimary">
                   {summary?.totalIncome && Number(summary.totalIncome) > 0
                     ? ((profit / Number(summary.totalIncome)) * 100).toFixed(1)
                     : '0.0'}
@@ -201,3 +201,5 @@ const FinanceDashboard = () => {
 };
 
 export default FinanceDashboard;
+
+

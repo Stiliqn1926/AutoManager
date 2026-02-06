@@ -82,21 +82,21 @@ const VehicleCreate = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             type="button"
             onClick={() => navigate('/admin/vehicles')}
             aria-label="Назад към списъка с автомобили"
             title="Назад"
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               Добави автомобил
             </h1>
             <p className="text-textSecondary mt-1">
@@ -106,7 +106,7 @@ const VehicleCreate = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6 max-w-2xl">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Client select */}
             <div>
@@ -123,7 +123,7 @@ const VehicleCreate = () => {
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, clientId: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
                 <option value="">Избери клиент</option>
@@ -135,7 +135,7 @@ const VehicleCreate = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Марка *"
                 value={formData.brand}
@@ -166,7 +166,7 @@ const VehicleCreate = () => {
               required
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Година"
                 type="number"
@@ -209,15 +209,16 @@ const VehicleCreate = () => {
             />
 
             {/* Actions */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => navigate('/admin/vehicles')}
+                className="w-full sm:w-auto"
               >
                 Отказ
               </Button>
-              <Button type="submit" isLoading={isSaving}>
+              <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
                 Добави
               </Button>
             </div>
@@ -229,3 +230,4 @@ const VehicleCreate = () => {
 };
 
 export default VehicleCreate;
+

@@ -132,10 +132,10 @@ const Finances = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Транзакции</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Транзакции</h1>
             <p className="text-textSecondary mt-1">Ръчно въведени приходи и разходи</p>
           </div>
           <div className="flex gap-3">
@@ -149,12 +149,12 @@ const Finances = () => {
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex gap-4 mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
             <select
               value={typeFilter}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по тип"
             >
               <option value="">Всички типове</option>
@@ -165,7 +165,7 @@ const Finances = () => {
             <select
               value={categoryFilter}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setCategoryFilter(e.target.value)}
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по категория"
             >
               <option value="">Всички категории</option>
@@ -183,22 +183,22 @@ const Finances = () => {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Дата
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-left py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Тип
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="hidden md:table-cell text-left py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Категория
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="hidden lg:table-cell text-left py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Описание
                   </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
+                  <th className="text-right py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Сума
                   </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle w-32">
+                  <th className="text-center py-3 px-3 sm:px-4 text-sm font-semibold text-textPrimary border-b border-borderSubtle w-24 sm:w-32">
                     Действия
                   </th>
                 </tr>
@@ -207,10 +207,10 @@ const Finances = () => {
                 {filteredFinances.length > 0 ? (
                   filteredFinances.map((finance) => (
                     <tr key={finance.id} className="border-b border-borderSubtle hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {new Date(finance.date).toLocaleDateString('bg-BG')}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base">
                         {finance.type === 'INCOME' ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
                             <ArrowUp className="w-3 h-3" />
@@ -223,11 +223,13 @@ const Finances = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="hidden md:table-cell py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {getCategoryLabel(finance.category)}
                       </td>
-                      <td className="py-3 px-4 text-textPrimary">{finance.description}</td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="hidden lg:table-cell py-3 px-3 sm:px-4 text-sm sm:text-base text-textPrimary">
+                        {finance.description}
+                      </td>
+                      <td className="py-3 px-3 sm:px-4 text-right text-sm sm:text-base">
                         <span
                           className={`font-semibold ${
                             finance.type === 'INCOME' ? 'text-green-700' : 'text-red-700'
@@ -237,7 +239,7 @@ const Finances = () => {
                           {Number(finance.amount).toFixed(2)} €
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 sm:px-4">
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleEdit(finance)}
@@ -259,7 +261,7 @@ const Finances = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-textSecondary">
+                    <td colSpan={6} className="py-12 text-center text-textSecondary text-sm sm:text-base">
                       Няма намерени транзакции
                     </td>
                   </tr>
@@ -274,8 +276,8 @@ const Finances = () => {
       {isEditModalOpen && editingFinance && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-borderSubtle p-6 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-textPrimary">Редактиране на транзакция</h2>
+            <div className="sticky top-0 bg-white border-b border-borderSubtle p-4 sm:p-6 flex justify-between items-center">
+              <h2 className="text-lg sm:text-xl font-bold text-textPrimary">Редактиране на транзакция</h2>
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
@@ -287,9 +289,9 @@ const Finances = () => {
               </button>
             </div>
 
-            <form onSubmit={handleEditSubmit} className="p-6">
+            <form onSubmit={handleEditSubmit} className="p-4 sm:p-6">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="edit-type" className="block text-sm font-medium text-textPrimary mb-2">
                       Тип *
@@ -300,7 +302,7 @@ const Finances = () => {
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         setEditFormData({ ...editFormData, type: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       required
                     >
                       <option value="INCOME">Приход</option>
@@ -318,7 +320,7 @@ const Finances = () => {
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         setEditFormData({ ...editFormData, category: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       required
                     >
                       <option value="PARTS">Авточасти</option>
@@ -332,7 +334,7 @@ const Finances = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Сума *"
                     type="number"
@@ -365,7 +367,7 @@ const Finances = () => {
                     onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                       setEditFormData({ ...editFormData, description: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={4}
                     placeholder="Въведете описание на транзакцията"
                     required
@@ -374,7 +376,7 @@ const Finances = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <Button type="button" variant="secondary" onClick={() => setIsEditModalOpen(false)}>
                   Отказ
                 </Button>
@@ -391,3 +393,5 @@ const Finances = () => {
 };
 
 export default Finances;
+
+

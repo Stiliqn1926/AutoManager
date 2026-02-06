@@ -96,36 +96,36 @@ const PendingRequests = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Заявки за одобрение</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Заявки за одобрение</h1>
           <p className="text-textSecondary mt-1">
             Преглед и одобрение на чакащи заявки за механици и клиенти
           </p>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-            <div className="flex items-center gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Users className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-textPrimary">{mechanicRequests.length}</div>
+                <div className="text-xl sm:text-2xl font-bold text-textPrimary">{mechanicRequests.length}</div>
                 <div className="text-sm text-textSecondary">Механици в изчакване</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-            <div className="flex items-center gap-4">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-3 bg-green-100 rounded-lg">
                 <User className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-textPrimary">{clientRequests.length}</div>
+                <div className="text-xl sm:text-2xl font-bold text-textPrimary">{clientRequests.length}</div>
                 <div className="text-sm text-textSecondary">Клиенти в изчакване</div>
               </div>
             </div>
@@ -134,10 +134,10 @@ const PendingRequests = () => {
 
         {/* Tabs */}
         <div className="border-b border-borderSubtle">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4">
             <button
               onClick={() => setSelectedTab('MECHANIC')}
-              className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+              className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-medium transition-colors border-b-2 ${
                 selectedTab === 'MECHANIC'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-textSecondary hover:text-textPrimary'
@@ -147,7 +147,7 @@ const PendingRequests = () => {
             </button>
             <button
               onClick={() => setSelectedTab('CLIENT')}
-              className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+              className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-medium transition-colors border-b-2 ${
                 selectedTab === 'CLIENT'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-textSecondary hover:text-textPrimary'
@@ -168,10 +168,10 @@ const PendingRequests = () => {
           ) : (
             <div className="divide-y divide-borderSubtle max-h-[70vh] overflow-y-auto">
               {currentRequests.map((request) => (
-                <div key={request.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start justify-between mb-4">
+                <div key={request.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-textPrimary">
                           {request.firstName} {request.lastName}
                         </h3>
@@ -181,7 +181,7 @@ const PendingRequests = () => {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 text-sm">
                         <div className="flex items-center gap-2 text-textSecondary">
                           <Mail className="w-4 h-4" />
                           <span>{request.email}</span>
@@ -203,24 +203,24 @@ const PendingRequests = () => {
                       </div>
 
                       {request.skills && (
-                        <div className="mt-3 text-sm text-textSecondary">
+                        <div className="mt-2 sm:mt-3 text-sm text-textSecondary">
                           <span className="font-medium">Умения:</span> {request.skills}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => handleApprove(request.id, request.requestType)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium w-full sm:w-auto"
                     >
                       <UserCheck className="w-4 h-4" />
                       Одобри
                     </button>
                     <button
                       onClick={() => handleReject(request.id, request.requestType)}
-                      className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium w-full sm:w-auto"
                     >
                       <UserX className="w-4 h-4" />
                       Отхвърли
@@ -237,3 +237,4 @@ const PendingRequests = () => {
 };
 
 export default PendingRequests;
+

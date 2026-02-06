@@ -28,7 +28,7 @@ const NoActiveServiceScreen = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-2xl mx-auto p-8 text-center">
+      <div className="max-w-2xl mx-auto p-4 sm:p-8 text-center">
         <div className="mb-8">
           <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <Building2 className="w-10 h-10 text-gray-400" />
@@ -41,7 +41,7 @@ const NoActiveServiceScreen = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-borderSubtle p-6 mb-6">
+        <div className="bg-white rounded-xl border border-borderSubtle p-4 sm:p-6 mb-6">
           <h2 className="text-lg font-semibold text-textPrimary mb-4">
             Какво можеш да направиш?
           </h2>
@@ -49,7 +49,7 @@ const NoActiveServiceScreen = () => {
           <div className="space-y-3">
             <button
               onClick={() => navigate('/mechanic/service-settings')}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
               Заяви нов сервиз
@@ -57,7 +57,7 @@ const NoActiveServiceScreen = () => {
 
             <button
               onClick={() => navigate('/mechanic/profile')}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-borderSubtle rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border border-borderSubtle rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
               <User className="w-5 h-5" />
               Виж профила си
@@ -65,7 +65,7 @@ const NoActiveServiceScreen = () => {
 
             <button
               onClick={handleDeleteAccount}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium"
             >
               <Trash2 className="w-5 h-5" />
               Изтрий акаунта си

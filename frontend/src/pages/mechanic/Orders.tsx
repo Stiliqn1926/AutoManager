@@ -108,11 +108,11 @@ const MechanicOrders = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Поръчки</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Поръчки</h1>
             <p className="text-textSecondary mt-1">Възложени поръчки за работа</p>
           </div>
           <div className="text-sm text-textSecondary">
@@ -121,8 +121,8 @@ const MechanicOrders = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             {/* Status Filter */}
             <div className="flex-1">
               <label htmlFor="status-filter" className="block text-sm font-medium text-textSecondary mb-2">
@@ -135,7 +135,7 @@ const MechanicOrders = () => {
                   setStatusFilter(e.target.value);
                   setPagination((prev) => ({ ...prev, currentPage: 1 }));
                 }}
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">Всички</option>
                 <option value="WAITING,IN_PROGRESS,READY">Активни</option>
@@ -160,25 +160,25 @@ const MechanicOrders = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Номер / Дата
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Автомобил
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Клиент
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Описание
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Статус
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Приоритет
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Действие
                     </th>
                   </tr>
@@ -190,7 +190,7 @@ const MechanicOrders = () => {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => navigate(`/mechanic/orders/${order.id}`)}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-textPrimary">{order.displayOrderNumber || order.orderNumber}</div>
                           <div className="text-xs text-textSecondary flex items-center gap-1">
@@ -199,7 +199,7 @@ const MechanicOrders = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <Car className="w-4 h-4 text-textSecondary" />
                           <div>
@@ -210,7 +210,7 @@ const MechanicOrders = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-textSecondary" />
                           <div className="text-sm text-textPrimary">
@@ -218,14 +218,14 @@ const MechanicOrders = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
                           {order.description || 'Няма описание'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(order.status)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getPriorityBadge(order.priority)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">{getStatusBadge(order.status)}</td>
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">{getPriorityBadge(order.priority)}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

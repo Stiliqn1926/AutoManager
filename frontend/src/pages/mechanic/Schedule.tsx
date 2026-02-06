@@ -227,16 +227,16 @@ const MechanicSchedule = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">График</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">График</h1>
           <p className="text-textSecondary mt-1">Личен работен график</p>
         </div>
 
         {/* TODAY SECTION */}
         {todaySchedules.length > 0 && (
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <CalendarIcon className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold text-textPrimary">Днешни задачи</h2>
@@ -284,8 +284,8 @@ const MechanicSchedule = () => {
         )}
 
         {/* View Controls */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
             {/* View Switcher */}
             <div className="flex gap-2">
               <button
@@ -416,7 +416,7 @@ const MechanicSchedule = () => {
 
           {/* WEEKLY VIEW */}
           {view === 'weekly' && (
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {['Пон', 'Вто', 'Сря', 'Чет', 'Пет', 'Съб', 'Нед'].map((day) => (
                 <div key={day} className="text-center font-semibold text-textSecondary text-sm py-2">
                   {day}
@@ -462,14 +462,14 @@ const MechanicSchedule = () => {
           {/* MONTHLY VIEW */}
           {view === 'monthly' && (
             <div>
-              <div className="grid grid-cols-7 gap-2 mb-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                 {['Пон', 'Вто', 'Сря', 'Чет', 'Пет', 'Съб', 'Нед'].map((day) => (
                   <div key={day} className="text-center font-semibold text-textSecondary text-sm py-2">
                     {day}
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {getDaysInMonth(currentDate).map((day, index) => {
                   const isCurrentMonth = day.getMonth() === currentDate.getMonth();
                   const daySchedules = getSchedulesForDate(day);
@@ -522,7 +522,7 @@ const MechanicSchedule = () => {
         {showModal && selectedSchedule && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-borderSubtle flex items-center justify-between">
+              <div className="p-4 sm:p-6 border-b border-borderSubtle flex flex-col sm:flex-row sm:items-center gap-3">
                 <h3 className="text-xl font-semibold text-textPrimary">Детайли за задачата</h3>
                 <button
                   onClick={() => setShowModal(false)}
@@ -533,7 +533,7 @@ const MechanicSchedule = () => {
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {/* Title and Status */}
                 <div>
                   <div className="flex items-start justify-between mb-2">

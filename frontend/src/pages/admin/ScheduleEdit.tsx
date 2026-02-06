@@ -187,18 +187,18 @@ const ScheduleEdit = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate(`/admin/schedules/${id}`)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към задачата"
             title="Назад към задачата"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Редактиране на задача</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Редактиране на задача</h1>
             <p className="text-textSecondary mt-1">Обновете информацията за задачата</p>
           </div>
         </div>
@@ -211,8 +211,8 @@ const ScheduleEdit = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-6 max-w-4xl">
-          <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
+          <div className="space-y-4 sm:space-y-6">
             <Input
               label="Заглавие *"
               type="text"
@@ -232,14 +232,14 @@ const ScheduleEdit = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
                 placeholder="Добавете описание..."
                 aria-label="Описание на задачата"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Input
                   label="Дата *"
@@ -265,7 +265,7 @@ const ScheduleEdit = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, status: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 >
                   <option value="SCHEDULED">Планирана</option>
@@ -278,7 +278,7 @@ const ScheduleEdit = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Начален час *"
                 type="time"
@@ -310,7 +310,7 @@ const ScheduleEdit = () => {
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, priority: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
                 <option value="LOW">Нисък</option>
@@ -320,7 +320,7 @@ const ScheduleEdit = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="worker" className="block text-sm font-medium text-textPrimary mb-2">
                   Механик
@@ -331,7 +331,7 @@ const ScheduleEdit = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, workerId: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Изберете механик</option>
                   {workers.map((worker) => (
@@ -352,7 +352,7 @@ const ScheduleEdit = () => {
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setFormData({ ...formData, orderId: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Изберете поръчка</option>
                   {orders.map((order) => (
@@ -384,7 +384,7 @@ const ScheduleEdit = () => {
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
                 placeholder="Допълнителни бележки..."
                 aria-label="Бележки към задачата"
@@ -392,11 +392,11 @@ const ScheduleEdit = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
-            <Button type="button" variant="secondary" onClick={() => navigate(`/admin/schedules/${id}`)}>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="button" variant="secondary" onClick={() => navigate(`/admin/schedules/${id}`)} className="w-full sm:w-auto">
               Отказ
             </Button>
-            <Button type="submit" isLoading={isSaving} disabled={hasConflict}>
+            <Button type="submit" isLoading={isSaving} disabled={hasConflict} className="w-full sm:w-auto">
               Запази промени
             </Button>
           </div>
@@ -407,3 +407,4 @@ const ScheduleEdit = () => {
 };
 
 export default ScheduleEdit;
+

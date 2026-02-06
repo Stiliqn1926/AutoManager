@@ -186,22 +186,22 @@ const ServiceSettings = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Сервиз</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Сервиз</h1>
           <p className="text-textSecondary mt-1">
             Управление на принадлежността към сервизи
           </p>
         </div>
 
         {activeService && (
-          <div className="bg-gradient-to-r from-primary to-primary-700 rounded-2xl shadow-card p-6 text-white">
+          <div className="bg-gradient-to-r from-primary to-primary-700 rounded-2xl shadow-card p-4 sm:p-6 text-white">
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="w-6 h-6" />
-              <h2 className="text-2xl font-bold">Активен сервиз</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">Активен сервиз</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
                 <Building2 className="w-5 h-5 mt-1 opacity-80" />
                 <div>
@@ -226,7 +226,7 @@ const ServiceSettings = () => {
                   <div className="text-sm opacity-80">Телефон</div>
                   <a
                     href={`tel:${activeService.phone}`}
-                    className="text-lg font-semibold hover:underline"
+                    className="text-base sm:text-lg font-semibold hover:underline"
                   >
                     {activeService.phone}
                   </a>
@@ -239,7 +239,7 @@ const ServiceSettings = () => {
                   <div className="text-sm opacity-80">Имейл</div>
                   <a
                     href={`mailto:${activeService.email}`}
-                    className="text-lg font-semibold hover:underline"
+                    className="text-base sm:text-lg font-semibold hover:underline"
                   >
                     {activeService.email}
                   </a>
@@ -249,10 +249,10 @@ const ServiceSettings = () => {
           </div>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex sm:justify-end">
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
             Добави нов сервиз
@@ -260,10 +260,10 @@ const ServiceSettings = () => {
         </div>
 
         {showAddForm && (
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Code className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                 Заявка за нов сервиз
               </h2>
             </div>
@@ -288,16 +288,16 @@ const ServiceSettings = () => {
                   value={uniqueCode}
                   onChange={(e) => setUniqueCode(e.target.value)}
                   placeholder="Напр. ABC-12345"
-                  className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   required
                 />
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                 >
                   {isSubmitting ? 'Изпраща се...' : 'Изпрати заявка'}
                 </button>
@@ -307,7 +307,7 @@ const ServiceSettings = () => {
                     setShowAddForm(false);
                     setUniqueCode('');
                   }}
-                  className="px-6 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300"
+                  className="px-6 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 w-full sm:w-auto"
                 >
                   Отказ
                 </button>
@@ -316,10 +316,10 @@ const ServiceSettings = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
               Моите сервизи ({serviceCompanies.length})
             </h2>
           </div>
@@ -330,7 +330,7 @@ const ServiceSettings = () => {
               <p>Все още не сте член на нито един сервиз</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {serviceCompanies.map((membership) => {
                 // Активен сервиз е този който е ACTIVE status И съвпада с activeService?.id
                 const isActiveService = membership.status === 'ACTIVE' &&
@@ -340,15 +340,15 @@ const ServiceSettings = () => {
                 return (
                 <div
                   key={membership.id}
-                  className={`border rounded-lg p-4 ${
+                  className={`border rounded-lg p-3 sm:p-4 ${
                     isActiveService
                       ? 'border-primary bg-primary-50'
                       : 'border-borderSubtle'
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-3">
                     <div>
-                      <h3 className="font-semibold text-textPrimary text-lg">
+                      <h3 className="font-semibold text-textPrimary text-base sm:text-lg">
                         {membership.serviceCompany.name}
                       </h3>
                       <p className="text-sm text-textSecondary">

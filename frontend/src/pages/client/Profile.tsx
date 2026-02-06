@@ -123,15 +123,15 @@ const Profile = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Профил</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Профил</h1>
           <p className="text-textSecondary mt-1">Лична информация и настройки</p>
         </div>
 
         {/* Основна информация */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold text-textPrimary">
@@ -153,7 +153,7 @@ const Profile = () => {
 
           {isEditingInfo ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
                     Име
@@ -207,11 +207,11 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
                   onClick={handleSaveInfo}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                  className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   Запази
@@ -227,7 +227,7 @@ const Profile = () => {
                       setAddress(profile.address || '');
                     }
                   }}
-                  className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
+                  className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
                 >
                   <X className="w-4 h-4" />
                   Отказ
@@ -235,7 +235,7 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <User className="w-4 h-4" />
@@ -281,11 +281,11 @@ const Profile = () => {
         </div>
 
         {/* Смяна на парола */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-textPrimary">Сигурност</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Сигурност</h2>
             </div>
           </div>
 
@@ -296,7 +296,7 @@ const Profile = () => {
           <button
             type="button"
             onClick={() => setShowPasswordModal(true)}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+            className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
           >
             <Lock className="w-4 h-4" />
             Смяна на парола
@@ -304,8 +304,8 @@ const Profile = () => {
         </div>
 
         {/* Статистика */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4">
             Информация за акаунта
           </h2>
           <div className="space-y-3">
@@ -322,8 +322,8 @@ const Profile = () => {
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-card p-6 max-w-md w-full">
-            <h2 className="text-xl font-semibold text-textPrimary mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-2xl shadow-card p-4 sm:p-6 max-w-md w-full">
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4 flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
               Смяна на парола
             </h2>
@@ -381,11 +381,11 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                  className="w-full sm:w-auto flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                 >
                   {isChangingPassword ? 'Смяна...' : 'Смени парола'}
                 </button>
@@ -395,7 +395,7 @@ const Profile = () => {
                     setShowPasswordModal(false);
                     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300"
+                  className="w-full sm:w-auto flex-1 px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300"
                 >
                   Отказ
                 </button>

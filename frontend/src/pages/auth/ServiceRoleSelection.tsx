@@ -4,20 +4,20 @@ const ServiceRoleSelection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-mainBg flex items-center justify-center px-6">
+    <div className="min-h-screen bg-mainBg flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-5xl">
         {/* Header */}
         <div className="text-center mb-14">
           <h1 className="text-5xl font-bold text-textPrimary mb-4">
             Auto<span className="text-primary">Manager</span>
           </h1>
-          <p className="text-lg text-textSecondary max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-textSecondary max-w-xl mx-auto">
             Изберете ролята, с която ще влезете в системата на сервиза.
           </p>
         </div>
 
         {/* Role Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
           {/* Admin */}
           <button
             onClick={() => navigate('/login?role=admin')}
@@ -78,3 +78,4 @@ const ServiceRoleSelection = () => {
 };
 
 export default ServiceRoleSelection;
+

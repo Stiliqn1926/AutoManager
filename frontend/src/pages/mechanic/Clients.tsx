@@ -161,11 +161,11 @@ const MechanicClients = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Клиенти</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Клиенти</h1>
             <p className="text-textSecondary mt-1">Клиенти с поръчки при теб</p>
           </div>
           <div className="text-sm text-textSecondary">
@@ -174,10 +174,10 @@ const MechanicClients = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             {/* Search */}
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 max-w-none md:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
               <input
                 type="text"
@@ -189,7 +189,7 @@ const MechanicClients = () => {
             </div>
 
             {/* Filter: Active Only */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -217,7 +217,7 @@ const MechanicClients = () => {
                   <tr>
                     <th
                       onClick={() => handleSort('name')}
-                      className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
                         Клиент
@@ -226,7 +226,7 @@ const MechanicClients = () => {
                     </th>
                     <th
                       onClick={() => handleSort('phone')}
-                      className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
                         Контакт
@@ -235,7 +235,7 @@ const MechanicClients = () => {
                     </th>
                     <th
                       onClick={() => handleSort('vehicles')}
-                      className="px-6 py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center justify-center gap-2">
                         Автомобили
@@ -244,7 +244,7 @@ const MechanicClients = () => {
                     </th>
                     <th
                       onClick={() => handleSort('activeOrders')}
-                      className="px-6 py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center justify-center gap-2">
                         Активни поръчки
@@ -253,14 +253,14 @@ const MechanicClients = () => {
                     </th>
                     <th
                       onClick={() => handleSort('lastOrder')}
-                      className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
                         Последна поръчка
                         <SortIcon field="lastOrder" />
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Действие
                     </th>
                   </tr>
@@ -272,7 +272,7 @@ const MechanicClients = () => {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => navigate(`/mechanic/clients/${client.id}`)}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-textSecondary" />
                           <div className="text-sm font-medium text-textPrimary">
@@ -280,7 +280,7 @@ const MechanicClients = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         <div className="space-y-1">
                           {client.phone && (
                             <div className="flex items-center gap-1 text-xs text-textSecondary">
@@ -296,13 +296,13 @@ const MechanicClients = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap text-center">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
                           <Package className="w-3 h-3" />
                           {client._count?.vehicles || 0}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap text-center">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                             client.activeOrdersCount > 0
@@ -313,13 +313,13 @@ const MechanicClients = () => {
                           {client.activeOrdersCount}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         <div className="flex items-center gap-1 text-xs text-textSecondary">
                           <Calendar className="w-3 h-3" />
                           {formatDate(client.lastOrderDate)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap text-right">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -344,3 +344,5 @@ const MechanicClients = () => {
 };
 
 export default MechanicClients;
+
+

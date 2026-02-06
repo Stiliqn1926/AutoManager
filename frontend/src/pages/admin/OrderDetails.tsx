@@ -186,11 +186,11 @@ const OrderDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             onClick={() => navigate('/admin/orders')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към поръчки"
             title="Назад към поръчки"
           >
@@ -198,28 +198,28 @@ const OrderDetails = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary" title={`Системен ID: ${order.orderNumber}`}>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary" title={`Системен ID: ${order.orderNumber}`}>
               Поръчка {order.displayOrderNumber || order.orderNumber}
             </h1>
             <p className="text-textSecondary mt-1">{getStatusBadge(order.status)}</p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {order.invoiceUrl ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg w-full sm:w-auto">
                 <Check className="w-4 h-4" />
                 <span className="text-sm font-medium">Фактурата е изпратена</span>
               </div>
             ) : (
               (order.status === 'IN_PROGRESS' || order.status === 'READY') && (
-                <Button onClick={() => setShowFinalizeModal(true)}>
+                <Button onClick={() => setShowFinalizeModal(true)} className="w-full sm:w-auto">
                   <FileText className="w-4 h-4" />
                   Финализирай и изпрати фактура
                 </Button>
               )
             )}
             {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
-              <Button onClick={() => navigate(`/admin/orders/${id}/edit`)}>
+              <Button onClick={() => navigate(`/admin/orders/${id}/edit`)} className="w-full sm:w-auto">
                 <Edit className="w-4 h-4" />
                 Редактирай
               </Button>
@@ -228,22 +228,22 @@ const OrderDetails = () => {
               <Button
                 onClick={() => window.open(order.invoiceUrl!, '_blank')}
                 variant="secondary"
-              >
+                className="w-full sm:w-auto">
                 <FileText className="w-4 h-4" />
                 Свали фактура
               </Button>
             )}
-            <Button variant="danger" onClick={handleDelete}>
+            <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
               Изтрий
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Клиент */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <User className="w-5 h-5" />
                 Клиент
@@ -261,7 +261,7 @@ const OrderDetails = () => {
             </div>
 
             {/* Автомобил */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Car className="w-5 h-5" />
                 Автомобил
@@ -282,7 +282,7 @@ const OrderDetails = () => {
 
             {/* Механик */}
             {order.worker && (
-              <div className="bg-cardBg rounded-2xl shadow-card p-6">
+              <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <Wrench className="w-5 h-5" />
                   Механик
@@ -299,7 +299,7 @@ const OrderDetails = () => {
             )}
 
             {/* Описание и диагноза */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5" />
                 Описание и диагноза
@@ -337,7 +337,7 @@ const OrderDetails = () => {
             </div>
 
             {/* Order Items */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4">
                 Детайли на поръчката
               </h2>
@@ -348,8 +348,8 @@ const OrderDetails = () => {
                       <tr className="border-b border-borderSubtle">
                         <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Тип</th>
                         <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Описание</th>
-                        <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">Кол.</th>
-                        <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">Ед. цена</th>
+                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Кол.</th>
+                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Ед. цена</th>
                         <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">Общо</th>
                       </tr>
                     </thead>
@@ -358,9 +358,8 @@ const OrderDetails = () => {
                         <tr key={item.id} className="border-b border-borderSubtle">
                           <td className="py-3 px-3">{getItemTypeBadge(item.type)}</td>
                           <td className="py-3 px-3 text-textPrimary">{item.description}</td>
-                          <td className="py-3 px-3 text-right text-textSecondary">{item.quantity}</td>
-                          <td className="py-3 px-3 text-right text-textSecondary">
-                            {Number(item.unitPrice || 0).toFixed(2)} €
+                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{item.quantity}</td>
+                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} €
                           </td>
                           <td className="py-3 px-3 text-right font-medium text-textPrimary">
                             {Number(item.totalPrice || 0).toFixed(2)} €
@@ -386,9 +385,9 @@ const OrderDetails = () => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Дати */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Дати
@@ -428,7 +427,7 @@ const OrderDetails = () => {
             </div>
 
             {/* Плащане */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5" />
                 Плащане
@@ -487,3 +486,6 @@ const OrderDetails = () => {
 };
 
 export default OrderDetails;
+
+
+

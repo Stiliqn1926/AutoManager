@@ -136,7 +136,7 @@ const Notifications = () => {
   if (!selectedServiceCompany) {
     return (
       <MainLayout>
-        <div className="bg-cardBg rounded-2xl shadow-card p-12 text-center">
+        <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
           <Bell className="w-16 h-16 mx-auto text-gray-400 mb-4" />
           <h2 className="text-xl font-semibold text-textPrimary mb-2">Няма избран сервиз</h2>
           <p className="text-textSecondary">Избери сервиз, за да видиш известията си.</p>
@@ -147,10 +147,10 @@ const Notifications = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Известия</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Известия</h1>
             <p className="text-textSecondary mt-1">
               {unreadCount > 0 ? `${unreadCount} непрочетени` : ''}
             </p>
@@ -159,7 +159,7 @@ const Notifications = () => {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
+              className="w-full sm:w-auto flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
             >
               <Check className="w-4 h-4" />
               Маркирай всички като прочетени
@@ -168,12 +168,12 @@ const Notifications = () => {
         </div>
 
        {/* Stats */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-textSecondary">Всичко</p>
-        <p className="text-3xl font-bold text-textPrimary mt-1">
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">
           {notifications.length}
         </p>
       </div>
@@ -183,11 +183,11 @@ const Notifications = () => {
     </div>
   </div>
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-textSecondary">Непрочетени</p>
-        <p className="text-3xl font-bold text-textPrimary mt-1">{unreadCount}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">{unreadCount}</p>
       </div>
       <div className="p-3 bg-gray-100 rounded-lg border border-borderSubtle">
         <Bell className="w-6 h-6 text-primary" />
@@ -198,8 +198,8 @@ const Notifications = () => {
 
 
         {/* Filters */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex gap-2 mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
             {[
               { key: 'all', label: 'Всички' },
               { key: 'unread', label: 'Непрочетени' },
@@ -207,7 +207,7 @@ const Notifications = () => {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key as typeof filter)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === f.key
                     ? 'bg-primary text-white'
                     : 'bg-gray-100 text-textSecondary hover:bg-gray-200'
@@ -233,7 +233,7 @@ const Notifications = () => {
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`p-4 border-l-4 rounded-r-lg transition-all cursor-pointer ${
+                  className={`p-3 sm:p-4 border-l-4 rounded-r-lg transition-all cursor-pointer ${
                     notification.isRead
                       ? 'border-gray-300 bg-gray-50 hover:bg-gray-100'
                       : 'border-primary bg-primary/5 hover:bg-primary/10'
@@ -251,7 +251,7 @@ const Notifications = () => {
                     })()}
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h3 className="font-semibold text-textPrimary">{notification.title}</h3>
                         {!notification.isRead && (
                           <span className="w-2 h-2 bg-primary rounded-full" />
@@ -260,7 +260,7 @@ const Notifications = () => {
 
                       <p className="text-sm text-textSecondary mb-2">{notification.message}</p>
 
-                      <div className="flex items-center gap-3 text-xs text-textMuted">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-textMuted">
                         <span>{formatDateTime(notification.createdAt)}</span>
                         {notification.order && (
                           <span className="font-mono text-primary">

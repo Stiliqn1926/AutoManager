@@ -4,20 +4,20 @@ const RoleSelection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-mainBg flex items-center justify-center px-6">
+    <div className="min-h-screen bg-mainBg flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-5xl">
         {/* Header */}
         <div className="text-center mb-14">
           <h1 className="text-5xl font-bold text-textPrimary mb-4">
             Auto<span className="text-primary">Manager</span>
           </h1>
-          <p className="text-lg text-textSecondary max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-textSecondary max-w-2xl mx-auto">
             Професионална система за управление на автосервизи, клиенти и сервизни процеси.
           </p>
         </div>
 
         {/* Role Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
           {/* Service */}
           <button
             onClick={() => navigate('/auth/service-role')}
@@ -69,3 +69,4 @@ const RoleSelection = () => {
 };
 
 export default RoleSelection;
+

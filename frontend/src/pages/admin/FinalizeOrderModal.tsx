@@ -73,9 +73,9 @@ const FinalizeOrderModal = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-borderSubtle px-6 py-4 flex justify-between items-center">
+        <div className="sticky top-0 bg-white border-b border-borderSubtle px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-2">
           <div>
-            <h2 className="text-2xl font-bold text-textPrimary">Финализиране на поръчка</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-textPrimary">Финализиране на поръчка</h2>
             <p className="text-sm text-textSecondary mt-1">Поръчка {orderNumber}</p>
           </div>
           <button
@@ -88,9 +88,9 @@ const FinalizeOrderModal = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
               <p className="text-sm text-blue-800">
                 <strong>Важно:</strong> След потвърждение ще бъде генерирана PDF фактура и изпратена на клиента на адрес: <strong>{clientEmail}</strong>
               </p>
@@ -98,34 +98,34 @@ const FinalizeOrderModal = ({
 
             <div>
               <h3 className="text-lg font-semibold text-textPrimary mb-3">Детайли на фактурата</h3>
-              <div className="border border-borderSubtle rounded-lg overflow-hidden">
+              <div className="border border-borderSubtle rounded-lg overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-mainBg">
                     <tr>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Тип</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Описание</th>
-                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Кол.</th>
-                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Ед. цена</th>
-                      <th className="text-right py-3 px-4 text-sm font-semibold text-textPrimary">Общо</th>
+                      <th className="text-left py-2 px-3 sm:py-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Тип</th>
+                      <th className="text-left py-2 px-3 sm:py-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Описание</th>
+                      <th className="text-right py-2 px-3 sm:py-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Кол.</th>
+                      <th className="text-right py-2 px-3 sm:py-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Ед. цена</th>
+                      <th className="text-right py-2 px-3 sm:py-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Общо</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orderItems.map((item) => (
                       <tr key={item.id} className="border-t border-borderSubtle">
-                        <td className="py-3 px-4">{getItemTypeBadge(item.type)}</td>
-                        <td className="py-3 px-4 text-textPrimary">{item.description}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary whitespace-nowrap">{item.quantity}</td>
-                        <td className="py-3 px-4 text-right text-textSecondary whitespace-nowrap">{Number(item.unitPrice || 0).toFixed(2)} €</td>
-                        <td className="py-3 px-4 text-right font-medium text-textPrimary whitespace-nowrap">
+                        <td className="py-2 px-3 sm:py-3 sm:px-4">{getItemTypeBadge(item.type)}</td>
+                        <td className="py-2 px-3 sm:py-3 sm:px-4 text-textPrimary">{item.description}</td>
+                        <td className="py-2 px-3 sm:py-3 sm:px-4 text-right text-textSecondary whitespace-nowrap">{item.quantity}</td>
+                        <td className="py-2 px-3 sm:py-3 sm:px-4 text-right text-textSecondary whitespace-nowrap">{Number(item.unitPrice || 0).toFixed(2)} €</td>
+                        <td className="py-2 px-3 sm:py-3 sm:px-4 text-right font-medium text-textPrimary whitespace-nowrap">
                           {Number(item.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
                     ))}
                     <tr className="border-t-2 border-borderSubtle bg-mainBg">
-                      <td colSpan={4} className="py-4 px-4 text-right font-bold text-textPrimary text-lg">
+                      <td colSpan={4} className="py-3 px-3 sm:py-4 sm:px-4 text-right font-bold text-textPrimary text-lg">
                         Обща сума:
                       </td>
-                      <td className="py-4 px-4 text-right font-bold text-primary text-xl whitespace-nowrap">
+                      <td className="py-3 px-3 sm:py-4 sm:px-4 text-right font-bold text-primary text-xl whitespace-nowrap">
                         {Number(totalPrice || 0).toFixed(2)} €
                       </td>
                     </tr>
@@ -134,14 +134,14 @@ const FinalizeOrderModal = ({
               </div>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
               <p className="text-sm text-yellow-800">
                 <strong>Внимание:</strong> След финализиране поръчката ще бъде маркирана като "Готова" и фактурата ще бъде изпратена незабавно.
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6 pt-6 border-t border-borderSubtle">
+          <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-borderSubtle">
             <Button
               type="button"
               variant="secondary"
@@ -150,7 +150,7 @@ const FinalizeOrderModal = ({
             >
               Отказ
             </Button>
-            <Button type="submit" isLoading={isFinalizing}>
+            <Button type="submit" isLoading={isFinalizing} className="w-full sm:w-auto">
               Потвърди и изпрати фактура
             </Button>
           </div>

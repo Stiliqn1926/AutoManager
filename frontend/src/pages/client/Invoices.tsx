@@ -109,7 +109,7 @@ const Invoices = () => {
   if (!selectedServiceCompany) {
     return (
       <MainLayout>
-        <div className="bg-cardBg rounded-2xl shadow-card p-12 text-center">
+        <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
           <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
           <h2 className="text-xl font-semibold text-textPrimary mb-2">Няма избран сервиз</h2>
           <p className="text-textSecondary">Избери сервиз, за да видиш фактурите си.</p>
@@ -120,21 +120,21 @@ const Invoices = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Фактури</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Фактури</h1>
           <p className="text-textSecondary mt-1">
             Всички фактури от {selectedServiceCompany.name}
           </p>
         </div>
 
        {/* Stats */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-textSecondary">Всичко</p>
-        <p className="text-3xl font-bold text-textPrimary mt-1">{invoices.length}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">{invoices.length}</p>
       </div>
       <div className="p-3 bg-gray-100 rounded-lg border border-borderSubtle">
         <FileText className="w-6 h-6 text-primary" />
@@ -142,11 +142,11 @@ const Invoices = () => {
     </div>
   </div>
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-textSecondary">Платени</p>
-        <p className="text-3xl font-bold text-textPrimary mt-1">
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">
           {invoices.filter((i) => i.isPaid).length}
         </p>
       </div>
@@ -156,11 +156,11 @@ const Invoices = () => {
     </div>
   </div>
 
-  <div className="bg-cardBg rounded-2xl shadow-card p-6">
+  <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm text-textSecondary">Неплатени</p>
-        <p className="text-3xl font-bold text-textPrimary mt-1">
+        <p className="text-2xl sm:text-3xl font-bold text-textPrimary mt-1">
           {invoices.filter((i) => !i.isPaid).length}
         </p>
       </div>
@@ -172,8 +172,8 @@ const Invoices = () => {
 </div>
 
         {/* Filters */}
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex gap-2 mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
             {[
               { key: 'all', label: 'Всички' },
               { key: 'unpaid', label: 'Неплатени' },
@@ -182,7 +182,7 @@ const Invoices = () => {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key as typeof filter)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === f.key
                     ? 'bg-primary text-white'
                     : 'bg-gray-100 text-textSecondary hover:bg-gray-200'
@@ -205,9 +205,9 @@ const Invoices = () => {
               {filteredInvoices.map((invoice) => (
                 <div
                   key={invoice.id}
-                  className="p-4 border border-borderSubtle rounded-lg hover:bg-mainBg transition-colors"
+                  className="p-3 sm:p-4 border border-borderSubtle rounded-lg hover:bg-mainBg transition-colors"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-textPrimary">
@@ -238,7 +238,7 @@ const Invoices = () => {
                         {invoice.order.description}
                       </p>
 
-                      <div className="flex items-center gap-4 mt-3 text-sm text-textMuted">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-textMuted">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {formatDate(invoice.issueDate)}
@@ -253,8 +253,8 @@ const Invoices = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <div className="text-left sm:text-right">
                         <div className="flex items-center gap-1 text-textMuted text-xs mb-1">
                           <DollarSign className="w-4 h-4" />
                           Обща сума

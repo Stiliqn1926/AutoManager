@@ -213,9 +213,9 @@ const VehicleDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             type="button"
             aria-label="Назад към автомобилите"
@@ -227,19 +227,19 @@ const VehicleDetails = () => {
           </button>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {data.brand} {data.model}
             </h1>
             <p className="text-textSecondary mt-1">{data.licensePlate}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Vehicle info */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Информация за автомобила</h2>
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">Информация за автомобила</h2>
               <div className="grid grid-cols-2 gap-4">
                 <Info icon={<Car />} label="Марка / Модел" value={`${data.brand} ${data.model}`} />
                 {data.year !== null && <Info icon={<Calendar />} label="Година" value={data.year} />}
@@ -252,8 +252,8 @@ const VehicleDetails = () => {
             </div>
 
             {/* Service history */}
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                 <ClipboardList className="w-5 h-5" />
                 Сервизна история
               </h2>
@@ -324,9 +324,9 @@ const VehicleDetails = () => {
           </div>
 
           {/* Right */}
-          <div className="space-y-6">
-            <div className="bg-cardBg rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Дати</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">Дати</h2>
               <div className="space-y-3">
                 <Info label="Добавен на" value={formatDate(data.createdAt)} />
                 <Info label="Последна промяна" value={formatDate(data.updatedAt)} />
@@ -360,7 +360,7 @@ const VehicleDetails = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] space-y-6">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-180px)] space-y-4 sm:space-y-6">
               {/* Status & Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -394,7 +394,7 @@ const VehicleDetails = () => {
               {/* Order Items */}
               {selectedOrder.items.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold text-textPrimary mb-3 flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-textPrimary mb-3 flex items-center gap-2">
                     <Package className="w-5 h-5" />
                     Дейности и части
                   </h3>
@@ -440,7 +440,7 @@ const VehicleDetails = () => {
               {/* Invoice Section */}
               {selectedOrder.invoice && (
                 <div>
-                  <h3 className="text-lg font-semibold text-textPrimary mb-3 flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-textPrimary mb-3 flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
                     Фактура
                   </h3>
@@ -536,3 +536,5 @@ const Info = ({
 );
 
 export default VehicleDetails;
+
+

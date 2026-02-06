@@ -96,18 +96,18 @@ const MechanicClientDetails = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/mechanic/clients')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
             aria-label="Назад към списък с клиенти"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {client.firstName} {client.lastName}
             </h1>
             <p className="text-textSecondary mt-1">Информация за клиента</p>
@@ -115,15 +115,15 @@ const MechanicClientDetails = () => {
         </div>
 
         {/* ==================== СЕКЦИЯ 1: Основна информация ==================== */}
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-textPrimary">
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
               Основна информация
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Телефон */}
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
@@ -156,7 +156,7 @@ const MechanicClientDetails = () => {
 
             {/* Адрес */}
             {client.address && (
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <MapPin className="w-4 h-4" />
                   <span>Адрес</span>
@@ -169,11 +169,11 @@ const MechanicClientDetails = () => {
 
         {/* ==================== СЕКЦИЯ 2: Автомобили ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
-            <div className="flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Car className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-semibold text-textPrimary">
+                <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                   Автомобили
                 </h2>
               </div>
@@ -186,14 +186,14 @@ const MechanicClientDetails = () => {
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {client.vehicles.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p>Няма регистрирани автомобили</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {client.vehicles.map((vehicle) => {
                   const hasWorkedOn =
                     vehicle.orders && vehicle.orders.length > 0;
@@ -201,7 +201,7 @@ const MechanicClientDetails = () => {
                   return (
                     <div
                       key={vehicle.id}
-                      className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                      className={`p-3 sm:p-4 rounded-lg border cursor-pointer transition-colors ${
                         hasWorkedOn
                           ? 'border-primary bg-orange-50'
                           : 'border-borderSubtle hover:border-primary'
@@ -240,11 +240,11 @@ const MechanicClientDetails = () => {
 
         {/* ==================== СЕКЦИЯ 3: Поръчки ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
-            <div className="flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-semibold text-textPrimary">
+                <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
                   Поръчки
                 </h2>
               </div>
@@ -267,19 +267,19 @@ const MechanicClientDetails = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Номер / Дата
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Автомобил
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Описание
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Статус
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Действие
                     </th>
                   </tr>
@@ -293,7 +293,7 @@ const MechanicClientDetails = () => {
                         navigate(`/mechanic/orders/${order.id}`)
                       }
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-textPrimary">
                             {order.displayOrderNumber || order.orderNumber}
@@ -304,7 +304,7 @@ const MechanicClientDetails = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <Package className="w-4 h-4 text-textSecondary" />
                           <div>
@@ -325,15 +325,15 @@ const MechanicClientDetails = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
                           {order.description || 'Няма описание'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {getStatusBadge(order.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

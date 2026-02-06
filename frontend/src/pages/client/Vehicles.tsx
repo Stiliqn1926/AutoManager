@@ -159,13 +159,13 @@ const Vehicles = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-textPrimary">Моите автомобили</h1>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Моите автомобили</h1>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-6">
             <div className="relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
@@ -192,7 +192,7 @@ const Vehicles = () => {
                     <th
                       key={key}
                       onClick={() => handleSort(key as SortField)}
-                      className="text-left py-3 px-4 text-sm font-semibold cursor-pointer hover:bg-mainBg"
+                      className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold cursor-pointer hover:bg-mainBg"
                     >
                       <div className="flex items-center gap-2">
                         {label}
@@ -217,15 +217,15 @@ const Vehicles = () => {
                       onClick={() => navigate(`/client/vehicles/${vehicle.id}`)}
                       className="border-b hover:bg-mainBg cursor-pointer"
                     >
-                      <td className="px-4 py-4 font-medium">{vehicle.licensePlate}</td>
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base font-medium">{vehicle.licensePlate}</td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         {vehicle.brand} {vehicle.model}
                         {vehicle.year ? (
                           <span className="text-sm text-textMuted"> ({vehicle.year})</span>
                         ) : null}
                       </td>
-                      <td className="px-4 py-4">{vehicle._count?.orders || 0}</td>
-                      <td className="px-4 py-4">
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{vehicle._count?.orders || 0}</td>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         {new Date(vehicle.updatedAt).toLocaleDateString('bg-BG')}
                       </td>
                     </tr>
@@ -241,3 +241,6 @@ const Vehicles = () => {
 };
 
 export default Vehicles;
+
+
+

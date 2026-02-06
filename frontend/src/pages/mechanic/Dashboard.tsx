@@ -145,11 +145,11 @@ const MechanicDashboard = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-5 sm:space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">Начало</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Начало</h1>
             <p className="text-textSecondary mt-1">
               Добре дошъл, {worker.name}
               {worker.specialization && ` • ${worker.specialization}`}
@@ -157,14 +157,14 @@ const MechanicDashboard = () => {
           </div>
           <button
             onClick={fetchDashboard}
-            className="px-4 py-2 bg-white border border-borderSubtle rounded-lg hover:bg-gray-50 text-sm font-medium text-textSecondary"
+            className="w-full sm:w-auto px-4 py-2 bg-white border border-borderSubtle rounded-lg hover:bg-gray-50 text-sm font-medium text-textSecondary"
           >
             Обнови
           </button>
         </div>
 
         {/* ==================== СЕКЦИЯ 1: Статистики ==================== */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           <div
             onClick={() => navigate('/mechanic/orders')}
             className="cursor-pointer transform hover:scale-105 transition-transform"
@@ -199,9 +199,9 @@ const MechanicDashboard = () => {
 
         {/* ==================== СЕКЦИЯ 2: Активни поръчки ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-          <div className="p-6 border-b border-borderSubtle">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-textPrimary">Активни поръчки</h2>
+          <div className="p-4 sm:p-6 border-b border-borderSubtle">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Активни поръчки</h2>
               <button
                 onClick={() => navigate('/mechanic/orders')}
                 className="text-primary hover:text-primary-700 text-sm font-medium flex items-center gap-1"
@@ -222,22 +222,22 @@ const MechanicDashboard = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Клиент
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Автомобил
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Описание
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Статус
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Приоритет
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
                       Действие
                     </th>
                   </tr>
@@ -249,7 +249,7 @@ const MechanicDashboard = () => {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => navigate(`/mechanic/orders/${order.id}`)}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-textSecondary" />
                           <div>
@@ -265,7 +265,7 @@ const MechanicDashboard = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <Car className="w-4 h-4 text-textSecondary" />
                           <div>
@@ -276,14 +276,14 @@ const MechanicDashboard = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
                           {order.description || 'Няма описание'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(order.status)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getPriorityBadge(order.priority)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">{getStatusBadge(order.status)}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">{getPriorityBadge(order.priority)}</td>
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -303,13 +303,13 @@ const MechanicDashboard = () => {
         </div>
 
         {/* ==================== СЕКЦИЯ 3 & 4: График (2 колони) ==================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Днешен график */}
           <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-            <div className="p-6 border-b border-borderSubtle">
-              <h2 className="text-xl font-semibold text-textPrimary">Днешен график</h2>
+            <div className="p-4 sm:p-6 border-b border-borderSubtle">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Днешен график</h2>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {todaySchedule.length === 0 ? (
                 <div className="text-center py-8 text-textSecondary">
                   <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -320,7 +320,7 @@ const MechanicDashboard = () => {
                   {todaySchedule.map((task) => (
                     <div
                       key={task.id}
-                      className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
+                      className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
                       onClick={() => handleTaskClick(task)}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -350,10 +350,10 @@ const MechanicDashboard = () => {
 
           {/* Предстоящи задачи */}
           <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
-            <div className="p-6 border-b border-borderSubtle">
-              <h2 className="text-xl font-semibold text-textPrimary">Предстоящи задачи</h2>
+            <div className="p-4 sm:p-6 border-b border-borderSubtle">
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Предстоящи задачи</h2>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {upcomingSchedule.length === 0 ? (
                 <div className="text-center py-8 text-textSecondary">
                   <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -364,7 +364,7 @@ const MechanicDashboard = () => {
                   {upcomingSchedule.slice(0, 5).map((task) => (
                     <div
                       key={task.id}
-                      className="p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
+                      className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-borderSubtle hover:border-primary cursor-pointer transition-colors"
                       onClick={() => handleTaskClick(task)}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -403,3 +403,5 @@ const MechanicDashboard = () => {
 };
 
 export default MechanicDashboard;
+
+

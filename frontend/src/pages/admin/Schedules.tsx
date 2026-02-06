@@ -92,26 +92,6 @@ const Schedules = () => {
     );
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const styles = {
-      LOW: 'bg-gray-100 text-gray-800',
-      NORMAL: 'bg-blue-100 text-blue-800',
-      HIGH: 'bg-orange-100 text-orange-800',
-      URGENT: 'bg-red-100 text-red-800',
-    };
-    const labels = {
-      LOW: 'Нисък',
-      NORMAL: 'Нормален',
-      HIGH: 'Висок',
-      URGENT: 'Спешен',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[priority as keyof typeof styles]}`}>
-        {labels[priority as keyof typeof labels]}
-      </span>
-    );
-  };
-
   const filteredAndSorted = schedules
     .filter((schedule) => {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -174,35 +154,35 @@ const Schedules = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-textPrimary">График</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">График</h1>
             <p className="text-textSecondary mt-1">Управление на графика и задачите</p>
           </div>
-          <div className="flex gap-3">
-            <Button onClick={() => navigate('/admin/schedules/daily')}>
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full">
+            <Button onClick={() => navigate('/admin/schedules/daily')} className="w-full sm:w-auto">
               <Calendar className="w-4 h-4" />
               Дневен изглед
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/weekly')}>
+            <Button onClick={() => navigate('/admin/schedules/weekly')} className="w-full sm:w-auto">
               <Calendar className="w-4 h-4" />
               Седмичен изглед
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/monthly')}>
+            <Button onClick={() => navigate('/admin/schedules/monthly')} className="w-full sm:w-auto">
               <Calendar className="w-4 h-4" />
               Месечен изглед
             </Button>
-            <Button onClick={() => navigate('/admin/schedules/create')}>
+            <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави задача
             </Button>
           </div>
         </div>
 
-        <div className="bg-cardBg rounded-2xl shadow-card p-6">
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 min-w-64">
+        <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-6">
+            <div className="flex-1 min-w-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
                 <input
@@ -210,7 +190,7 @@ const Schedules = () => {
                   placeholder="Търси по заглавие или механик..."
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label="Търсене"
                 />
               </div>
@@ -219,7 +199,7 @@ const Schedules = () => {
             <select
               value={statusFilter}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по статус"
             >
               <option value="">Всички статуси</option>
@@ -234,7 +214,7 @@ const Schedules = () => {
             <select
               value={priorityFilter}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setPriorityFilter(e.target.value)}
-              className="px-4 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Филтър по приоритет"
             >
               <option value="">Всички приоритети</option>
@@ -249,29 +229,29 @@ const Schedules = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-borderSubtle">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Заглавие</th>
+                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Заглавие</th>
                   <th
-                    className="text-left py-3 px-4 text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
+                    className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
                     onClick={() => handleSort('date')}
                   >
                     Дата <SortIcon field="date" />
                   </th>
                   <th
-                    className="text-left py-3 px-4 text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
+                    className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
                     onClick={() => handleSort('startTime')}
                   >
                     Час <SortIcon field="startTime" />
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Механик</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-textPrimary">Поръчка</th>
+                  <th className="text-left hidden md:table-cell py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Механик</th>
+                  <th className="text-left hidden lg:table-cell py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary">Поръчка</th>
                   <th
-                    className="text-left py-3 px-4 text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
+                    className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
                     onClick={() => handleSort('priority')}
                   >
                     Приоритет <SortIcon field="priority" />
                   </th>
                   <th
-                    className="text-left py-3 px-4 text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
+                    className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary cursor-pointer hover:text-primary"
                     onClick={() => handleSort('status')}
                   >
                     Статус <SortIcon field="status" />
@@ -286,11 +266,11 @@ const Schedules = () => {
                       onClick={() => navigate(`/admin/schedules/${schedule.id}`)}
                       className="border-b border-borderSubtle hover:bg-gray-50 cursor-pointer transition-colors"
                     >
-                      <td className="py-3 px-4 text-textPrimary font-medium">{schedule.title}</td>
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textPrimary font-medium">{schedule.title}</td>
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {new Date(schedule.date).toLocaleDateString('bg-BG')}
                       </td>
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {new Date(schedule.startTime).toLocaleTimeString('bg-BG', {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -301,16 +281,15 @@ const Schedules = () => {
                           minute: '2-digit',
                         })}
                       </td>
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="hidden md:table-cell py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {schedule.worker
                           ? `${schedule.worker.firstName} ${schedule.worker.lastName}`
                           : '-'}
                       </td>
-                      <td className="py-3 px-4 text-textSecondary">
+                      <td className="hidden lg:table-cell py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
                         {schedule.order ? schedule.order.displayOrderNumber || schedule.order.orderNumber : '-'}
                       </td>
-                      <td className="py-3 px-4">{getPriorityBadge(schedule.priority)}</td>
-                      <td className="py-3 px-4">{getStatusBadge(schedule.status)}</td>
+                      <td className="py-3 px-3 sm:px-4">{getStatusBadge(schedule.status)}</td>
                     </tr>
                   ))
                 ) : (
@@ -330,3 +309,6 @@ const Schedules = () => {
 };
 
 export default Schedules;
+
+
+
