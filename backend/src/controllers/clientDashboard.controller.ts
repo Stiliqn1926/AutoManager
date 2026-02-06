@@ -329,8 +329,6 @@ export const getClientVehicles = async (
     const clients = await prisma.client.findMany({
       where: {
         userId,
-        isActive: true,
-        deletedAt: null,
         ...(serviceCompanyId ? { serviceCompanyId } : {}),
       },
       select: { id: true, serviceCompanyId: true },
@@ -427,8 +425,6 @@ export const getClientVehicleById = async (req: AuthRequest, res: Response): Pro
       where: {
         userId,
         serviceCompanyId,
-        isActive: true,
-        deletedAt: null,
       },
       select: { id: true },
     });

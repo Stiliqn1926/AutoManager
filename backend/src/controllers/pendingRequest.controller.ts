@@ -305,16 +305,16 @@ export const rejectPendingRequest = async (
 
     // Изпрати email нотификация за отхвърляне
     void sendEmail(
-        pendingRequest.email,
-        'Отхвърлена заявка за регистрация',
-        emailTemplates.mechanicRejected(
-          pendingRequest.firstName,
-          serviceCompany.name
-        )
+      pendingRequest.email,
+      'Отхвърлена заявка за регистрация',
+      emailTemplates.mechanicRejected(
+        pendingRequest.firstName,
+        serviceCompany.name
+      )
     ).catch((emailError) => {
       console.error('Failed to send rejection email:', emailError);
       // Продължаваме въпреки грешката при email-а
-    }
+    });
 
     // Изтрий напълно отхвърлената заявка от базата
     await prisma.pendingRequest.delete({
@@ -324,7 +324,7 @@ export const rejectPendingRequest = async (
     res.status(200).json({
       message: 'Pending request rejected successfully',
     });
-    }); catch (error) {
+  } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
 };
