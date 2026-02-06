@@ -135,7 +135,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
 
   return (
     <header className="bg-white border-b border-gray-200">
-      <div className="flex items-center justify-between p-6">
+      <div className="flex items-center justify-between p-4 sm:p-6">
         {/* Лява част – Service Company Dropdown (само за CLIENT) */}
         <div className="flex items-center gap-3">
           <button
@@ -203,8 +203,8 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
         </div>
 
         {/* Дясна част – User info + Settings + Logout */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="hidden sm:flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-medium text-textPrimary">{user?.email}</p>
             </div>
