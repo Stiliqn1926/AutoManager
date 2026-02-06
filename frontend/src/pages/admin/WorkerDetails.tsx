@@ -119,8 +119,7 @@ const WorkerDetails = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Button variant="danger" onClick={handleDelete}>
-              className="w-full sm:w-auto"
+            <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
               {worker.membershipStatus === 'ACTIVE' ? 'Премахни от сервиз' : 'Изтрий'}
             </Button>
