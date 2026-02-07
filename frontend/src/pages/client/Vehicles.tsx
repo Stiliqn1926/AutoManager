@@ -223,9 +223,14 @@ const Vehicles = () => {
                         {vehicle.year ? (
                           <span className="text-sm text-textMuted"> ({vehicle.year})</span>
                         ) : null}
+                        <div className="md:hidden mt-1 text-xs text-textSecondary">
+                          <span>Поръчки: {vehicle._count?.orders || 0}</span>
+                          <span className="mx-2">•</span>
+                          <span>Последна промяна: {new Date(vehicle.updatedAt).toLocaleDateString('bg-BG')}</span>
+                        </div>
                       </td>
                       <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">{vehicle._count?.orders || 0}</td>
-                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         {new Date(vehicle.updatedAt).toLocaleDateString('bg-BG')}
                       </td>
                     </tr>

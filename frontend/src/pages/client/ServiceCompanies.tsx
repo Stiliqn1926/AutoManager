@@ -309,7 +309,7 @@ const ServiceCompanies = () => {
                   } ${isPending ? 'opacity-75' : ''}`}
                 >
                   {/* Status Badge */}
-                  <div className="absolute top-4 right-4">
+                  <div className="sm:absolute sm:top-4 sm:right-4 mb-2 sm:mb-0">
                     {getStatusBadge(company.status || 'ACTIVE')}
                   </div>
 
