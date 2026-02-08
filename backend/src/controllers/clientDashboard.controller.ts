@@ -1,8 +1,7 @@
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import prisma from '../config/database';
 import path from 'path';
 import * as fs from 'fs';
-import fs from 'fs';
 
 interface AuthRequest extends Request {
   user?: {
@@ -86,7 +85,7 @@ export const updateClientProfile = async (
     });
 
     res.status(200).json({
-      message: 'ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŠÑ‚ Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Профилът е обновен успешно',
       client: updated,
     });
   } catch (error) {
@@ -122,7 +121,7 @@ export const changePassword = async (
     const isValid = await bcrypt.compare(currentPassword, user.password);
 
     if (!isValid) {
-      res.status(400).json({ message: 'Ð“Ñ€ÐµÑˆÐ½Ð° Ñ‚ÐµÐºÑƒÑ‰Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°' });
+      res.status(400).json({ message: 'Грешна текуща парола' });
       return;
     }
 
@@ -136,7 +135,7 @@ export const changePassword = async (
       },
     });
 
-    res.status(200).json({ message: 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ ÑÐ¼ÐµÐ½ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾' });
+    res.status(200).json({ message: 'Паролата е сменена успешно' });
   } catch (error) {
     console.error('[changePassword] error:', error);
     res.status(500).json({ message: 'Server error', error });
@@ -227,17 +226,17 @@ export const cancelClientPendingRequest = async (
     });
 
     if (!pendingRequest) {
-      res.status(404).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°' });
+      res.status(404).json({ message: 'Заявката не е намерена' });
       return;
     }
 
     if (pendingRequest.email !== user.email) {
-      res.status(403).json({ message: 'ÐÑÐ¼Ð°Ñ‚Ðµ Ð¿Ñ€Ð°Ð²Ð¾ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ Ñ‚Ð°Ð·Ð¸ Ð·Ð°ÑÐ²ÐºÐ°' });
+      res.status(403).json({ message: 'Нямате право да откажете тази заявка' });
       return;
     }
 
     if (pendingRequest.status !== 'PENDING') {
-      res.status(400).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ð²ÐµÑ‡Ðµ Ðµ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐµÐ½Ð°' });
+      res.status(400).json({ message: 'Заявката вече е обработена' });
       return;
     }
 
@@ -245,7 +244,7 @@ export const cancelClientPendingRequest = async (
       where: { id: requestId },
     });
 
-    res.status(200).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾' });
+    res.status(200).json({ message: 'Заявката е отказана успешно' });
   } catch (error) {
     console.error('[cancelClientPendingRequest] error:', error);
     res.status(500).json({ message: 'Server error', error });
@@ -262,14 +261,14 @@ export const getClientServiceCompanies = async (
   try {
     const userId = req.user?.userId;
 
-    console.log('ðŸ” [getClientServiceCompanies] userId:', userId);
+    console.log('🔍 [getClientServiceCompanies] userId:', userId);
 
     if (!userId) {
       res.status(401).json({ message: 'User ID not found' });
       return;
     }
 
-    // Ð’Ð·ÐµÐ¼Ð¸ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð¸ Ð·Ð° Ñ‚Ð¾Ð·Ð¸ user
+    // Вземи всички Client профили за този user
     const clients = await prisma.client.findMany({
       where: {
         userId,
@@ -290,12 +289,12 @@ export const getClientServiceCompanies = async (
 
     console.log('[getClientServiceCompanies] clients found:', clients.length);
 
-    // ðŸ†• Ð¤Ð˜Ð›Ð¢Ð Ð˜Ð ÐÐœÐ• ÑÐ°Ð¼Ð¾ Ð²Ð°Ð»Ð¸Ð´Ð½Ð¸ Ð·Ð°Ð¿Ð¸ÑÐ¸ (Ñ existing serviceCompany)
+    // 🆕 ФИЛТРИРАМЕ само валидни записи (с existing serviceCompany)
     const validClients = clients.filter(client => client.serviceCompany !== null);
     
     console.log('[getClientServiceCompanies] valid clients:', validClients.length);
 
-    // ÐœÐ°Ð¿Ð²Ð°Ð¼Ðµ ÐºÑŠÐ¼ Ð¿Ð¾-Ñ‡Ð¸ÑÑ‚ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚
+    // Мапваме към по-чист формат
     const serviceCompanies = validClients.map(client => ({
       clientId: client.id,
       serviceCompany: client.serviceCompany!,
@@ -326,7 +325,7 @@ export const getClientVehicles = async (
       return;
     }
 
-    // Ð’Ð·ÐµÐ¼Ð¸ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð¸ Ð·Ð° user-Ð° (Ð¿Ð¾ Ð¶ÐµÐ»Ð°Ð½Ð¸Ðµ Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸Ñ€Ð°Ð½Ð¸ Ð¿Ð¾ ÑÐµÑ€Ð²Ð¸Ð·)
+    // Вземи всички активни client профили за user-а (по желание филтрирани по сервиз)
     const clients = await prisma.client.findMany({
       where: {
         userId,
@@ -347,7 +346,7 @@ export const getClientVehicles = async (
       where: {
         clientId: { in: clientIds },
         deletedAt: null,
-        // Ð°ÐºÐ¾ Ðµ Ð¿Ð¾Ð´Ð°Ð´ÐµÐ½ serviceCompanyId -> Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸Ñ€Ð°Ð¹
+        // ако е подаден serviceCompanyId -> филтрирай
         ...(serviceCompanyId
           ? { serviceCompanyId }
           : serviceCompanyIds.length
@@ -583,7 +582,7 @@ export const getClientOrderById = async (
       return;
     }
 
-    // Ð’Ð·ÐµÐ¼Ð¸ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð¸ Ð·Ð° Ñ‚Ð¾Ð·Ð¸ user
+    // Вземи всички Client профили за този user
     const clients = await prisma.client.findMany({
       where: {
         userId,
@@ -598,7 +597,7 @@ export const getClientOrderById = async (
 
     const clientIds = clients.map((c) => c.id);
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°
+    // Намери поръчката
     const order = await prisma.order.findFirst({
       where: {
         id,
@@ -953,14 +952,14 @@ export const getClientDashboardOverview = async (
 ): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const { serviceCompanyId } = req.query; // ðŸ†• Ð¤Ð¸Ð»Ñ‚ÑŠÑ€ Ð¿Ð¾ ÑÐµÑ€Ð²Ð¸Ð·
+    const { serviceCompanyId } = req.query; // 🆕 Филтър по сервиз
 
     if (!userId) {
       res.status(401).json({ message: 'User ID not found' });
       return;
     }
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ user Ð¸ serviceCompany
+    // Намери Client профила за този user и serviceCompany
     const client = await prisma.client.findFirst({
       where: {
         userId,
@@ -975,7 +974,7 @@ export const getClientDashboardOverview = async (
 
     const clientId = client.id;
 
-    // 1ï¸âƒ£ OVERVIEW STATS (Ñ‡Ð¸ÑÐ»Ð° Ð·Ð° cards)
+    // 1️⃣ OVERVIEW STATS (числа за cards)
     const activeOrdersCount = await prisma.order.count({
       where: {
         clientId,
@@ -994,7 +993,7 @@ export const getClientDashboardOverview = async (
       },
     });
 
-    // 2ï¸âƒ£ ÐÐšÐ¢Ð˜Ð’ÐÐ˜ Ð Ð•ÐœÐžÐÐ¢Ð˜ (ÑÐ¿Ð¸ÑÑŠÐº)
+    // 2️⃣ АКТИВНИ РЕМОНТИ (списък)
     const activeOrders = await prisma.order.findMany({
       where: {
         clientId,
@@ -1016,10 +1015,10 @@ export const getClientDashboardOverview = async (
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 5, // ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¸Ñ‚Ðµ 5
+      take: 5, // Последните 5
     });
 
-    // 3ï¸âƒ£ ÐŸÐžÐ¡Ð›Ð•Ð”ÐÐ ÐÐšÐ¢Ð˜Ð’ÐÐžÐ¡Ð¢ (Ð¾Ñ‚ notifications)
+    // 3️⃣ ПОСЛЕДНА АКТИВНОСТ (от notifications)
     const recentActivity = await prisma.notification.findMany({
       where: { clientId },
       orderBy: { createdAt: 'desc' },
@@ -1091,22 +1090,22 @@ export const addServiceCompany = async (
       return;
     }
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ ÑÐµÑ€Ð²Ð¸Ð·Ð° Ð¿Ð¾ uniqueCode
+    // Намери сервиза по uniqueCode
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { uniqueCode: uniqueCode.toUpperCase() },
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(404).json({ message: 'Невалиден код на сервиз' });
       return;
     }
 
     if (!serviceCompany.isActive) {
-      res.status(400).json({ message: 'Ð¢Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð· Ðµ Ð½ÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½' });
+      res.status(400).json({ message: 'Този сервиз е неактивен' });
       return;
     }
 
-    // Ð’Ð·ÐµÐ¼Ð¸ Ð´Ð°Ð½Ð½Ð¸Ñ‚Ðµ Ð½Ð° user-Ð°
+    // Вземи данните на user-а
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -1116,7 +1115,7 @@ export const addServiceCompany = async (
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ Ð²ÐµÑ‡Ðµ Ð½Ðµ Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½ (Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ Client)
+    // Провери дали вече не е добавен (активен Client)
     const existingClient = await prisma.client.findFirst({
       where: {
         userId,
@@ -1127,11 +1126,11 @@ export const addServiceCompany = async (
     });
 
     if (existingClient) {
-      res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÐºÑŠÐ¼ Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(400).json({ message: 'Вече сте добавени към този сервиз' });
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ Ð¸Ð¼Ð° pending request
+    // Провери дали има pending request
     const existingRequest = await prisma.pendingRequest.findFirst({
       where: {
         email: user.email,
@@ -1143,13 +1142,13 @@ export const addServiceCompany = async (
 
     if (existingRequest) {
       res.status(400).json({ 
-        message: 'Ð’ÐµÑ‡Ðµ Ð¸Ð¼Ð°Ñ‚Ðµ Ð¸Ð·Ñ‡Ð°ÐºÐ²Ð°Ñ‰Ð° Ð·Ð°ÑÐ²ÐºÐ° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·',
+        message: 'Вече имате изчакваща заявка за този сервиз',
         status: 'PENDING'
       });
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ Ð¸Ð¼Ð° ÑÑŠÑ‰ÐµÑÑ‚Ð²ÑƒÐ²Ð°Ñ‰ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð» (Ð´Ð¾Ñ€Ð¸ Ð¾Ñ‚ Ð´Ñ€ÑƒÐ³ ÑÐµÑ€Ð²Ð¸Ð·)
+    // Провери дали има съществуващ Client профил (дори от друг сервиз)
     const anyClientProfile = await prisma.client.findFirst({
       where: {
         userId,
@@ -1159,12 +1158,12 @@ export const addServiceCompany = async (
       },
     });
 
-    // ÐÐºÐ¾ Ð½ÑÐ¼Ð° Ð½Ð¸ÐºÐ°ÐºÑŠÐ² Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð», Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ð¹ Ð´Ð°Ð½Ð½Ð¸ Ð¾Ñ‚ email
+    // Ако няма никакъв Client профил, използвай данни от email
     const firstName = anyClientProfile?.firstName || user.email.split('@')[0];
     const lastName = anyClientProfile?.lastName || '';
     const phone = anyClientProfile?.phone || '';
 
-    // ðŸ†• Ð¡ÑŠÐ·Ð´Ð°Ð¹ PendingRequest Ð²Ð¼ÐµÑÑ‚Ð¾ Ð´Ð¸Ñ€ÐµÐºÑ‚Ð½Ð¾ Client
+    // 🆕 Създай PendingRequest вместо директно Client
     const pendingRequest = await prisma.pendingRequest.create({
       data: {
         requestType: 'CLIENT',
@@ -1191,7 +1190,7 @@ export const addServiceCompany = async (
     });
 
     res.status(201).json({
-      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð°. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.',
+      message: 'Заявката е изпратена. Очаква одобрение от администратора.',
       status: 'PENDING',
       request: {
         id: pendingRequest.id,
@@ -1220,7 +1219,7 @@ export const leaveServiceCompany = async (
       return;
     }
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð°
+    // Намери Client профила
     const client = await prisma.client.findFirst({
       where: {
         id: clientId,
@@ -1233,7 +1232,7 @@ export const leaveServiceCompany = async (
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ Ð¸Ð¼Ð° Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸
+    // Провери дали има активни поръчки
     const activeOrdersCount = await prisma.order.count({
       where: {
         clientId: client.id,
@@ -1243,12 +1242,12 @@ export const leaveServiceCompany = async (
 
     if (activeOrdersCount > 0) {
       res.status(400).json({
-        message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð· Ñ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸',
+        message: 'Не можете да напуснете сервиз с активни поръчки',
       });
       return;
     }
 
-    // Soft delete Ð½Ð° Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð°
+    // Soft delete на Client профила
     await prisma.client.update({
       where: { id: clientId },
       data: {
@@ -1257,7 +1256,7 @@ export const leaveServiceCompany = async (
       },
     });
 
-    res.status(200).json({ message: 'Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ Ð½Ð°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð°' });
+    res.status(200).json({ message: 'Успешно напуснахте сервиза' });
   } catch (error) {
     console.error('[leaveServiceCompany] error:', error);
     res.status(500).json({ message: 'Server error', error });
@@ -1280,7 +1279,7 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Client Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð¸ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ user
+    // Намери всички Client профили на този user
     const clients = await prisma.client.findMany({
       where: { userId },
     });
@@ -1290,7 +1289,7 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    // ÐÐ°Ð¼ÐµÑ€Ð¸ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ð¿Ð¾ invoiceNumber
+    // Намери фактурата по invoiceNumber
     const invoice = await prisma.invoice.findFirst({
       where: { invoiceNumber },
       include: {
@@ -1307,14 +1306,14 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ð¿Ñ€Ð¸Ð½Ð°Ð´Ð»ÐµÐ¶Ð¸ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚
+    // Провери дали фактурата принадлежи на този клиент
     const clientIds = clients.map(c => c.id);
     if (!clientIds.includes(invoice.order.clientId)) {
       res.status(403).json({ message: 'Forbidden: Invoice does not belong to you' });
       return;
     }
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸ Ð´Ð°Ð»Ð¸ PDF Ñ„Ð°Ð¹Ð»ÑŠÑ‚ ÑÑŠÑ‰ÐµÑÑ‚Ð²ÑƒÐ²Ð°
+    // Провери дали PDF файлът съществува
     const pdfPath = path.join(process.cwd(), 'uploads', 'invoices', `${invoiceNumber}.pdf`);
 
     if (!fs.existsSync(pdfPath)) {
@@ -1322,7 +1321,7 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    // Ð˜Ð·Ð¿Ñ€Ð°Ñ‚Ð¸ PDF Ñ„Ð°Ð¹Ð»Ð°
+    // Изпрати PDF файла
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
 
@@ -1333,6 +1332,7 @@ export const downloadInvoicePDF = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 
 
