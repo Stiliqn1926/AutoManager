@@ -131,7 +131,7 @@ const ResetPassword = () => {
           {codeExpired && (
             <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
               <p className="text-sm text-red-600 text-center mb-3">
-                ⏰ Кодът е изтекъл!
+                Кодът е изтекъл!
               </p>
               <Button 
                 onClick={handleResendCode} 
