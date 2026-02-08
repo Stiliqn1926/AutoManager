@@ -168,7 +168,7 @@ const Settings = () => {
             <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Фирмени данни</h2>
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
+              className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit sm:ml-auto"
               aria-label="Редактирай"
               title="Редактирай"
             >
@@ -431,4 +431,5 @@ const Settings = () => {
 };
 
 export default Settings;
+
 

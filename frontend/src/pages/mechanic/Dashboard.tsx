@@ -204,7 +204,7 @@ const MechanicDashboard = () => {
               <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Активни поръчки</h2>
               <button
                 onClick={() => navigate('/mechanic/orders')}
-                className="text-primary hover:text-primary-700 text-sm font-medium flex items-center gap-1"
+                className="text-primary hover:text-primary-700 text-sm font-medium flex items-center gap-1 sm:ml-auto"
               >
                 Виж всички
                 <ArrowRight className="w-4 h-4" />
