@@ -346,16 +346,16 @@ const ServiceSettings = () => {
                       : 'border-borderSubtle'
                   }`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-3">
-                    <div>
+                  <div className="flex flex-col sm:items-start gap-2 mb-3">
+                    <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-textPrimary text-base sm:text-lg">
                         {membership.serviceCompany.name}
                       </h3>
-                      <p className="text-sm text-textSecondary">
-                        {membership.serviceCompany.address}
-                      </p>
+                      {getStatusBadge(membership.status)}
                     </div>
-                    {getStatusBadge(membership.status)}
+                    <p className="text-sm text-textSecondary">
+                      {membership.serviceCompany.address}
+                    </p>
                   </div>
 
                   <div className="space-y-2 text-sm text-textSecondary mb-3">
