@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import type { OrderStatus, Prisma } from '@prisma/client';
+type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
 import prisma from '../config/database';
 import { sendEmail, emailTemplates } from '../services/email.service';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
@@ -143,7 +143,7 @@ export const createOrder = async (
     const orderNumber = await generateOrderNumber();
     const displayOrderNumber = await generateDisplayOrderNumber(serviceCompanyId);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const order = await tx.order.create({
         data: {
           orderNumber,
@@ -230,8 +230,7 @@ export const getAllOrders = async (
     }
 
     if (statusFilter) {
-      type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
-      const statuses = statusFilter.split(',').map(s => s.trim()) as OrderStatus[];
+      const statuses = statusFilter.split(',').map((s: string) => s.trim()) as OrderStatus[];
       whereClause.status = { in: statuses };
     }
 
@@ -269,7 +268,7 @@ export const getAllOrders = async (
 
     const pagination = getPaginationMeta(totalItems, page, limit);
 
-    const ordersWithPaymentStatus = orders.map((order) => ({
+    const ordersWithPaymentStatus = orders.map((order: typeof orders[number]) => ({
       ...order,
       isPaid: order.invoices[0]?.isPaid ?? false,
     }));
@@ -457,8 +456,8 @@ export const updateOrder = async (
       }
     }
 
-    const updatedOrder = await prisma.$transaction(async (tx) => {
-      const updateData: Prisma.OrderUpdateInput = {};
+    const updatedOrder = await prisma.$transaction(async (tx: any) => {
+      const updateData: Record<string, unknown> = {};
 
       if (diagnosis !== undefined) {
         updateData.diagnosis = diagnosis;
@@ -554,7 +553,7 @@ export const updateOrder = async (
           where: { orderId: id },
         });
 
-        const totalPrice = newOrderItems.reduce((sum, item) => {
+        const totalPrice = newOrderItems.reduce((sum: number, item: { totalPrice: number | string }) => {
           return sum + Number(item.totalPrice);
         }, 0);
 
@@ -674,7 +673,7 @@ export const updateOrderStatus = async (
       }
     }
 
-    const updatedOrder = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.order.update({
         where: { id },
         data: {
@@ -787,7 +786,7 @@ export const completeOrder = async (
       return;
     }
 
-    const completedOrder = await prisma.$transaction(async (tx) => {
+    const completedOrder = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.order.update({
         where: { id },
         data: {
@@ -989,7 +988,7 @@ export const finalizeOrder = async (
     const tax = 0;
     const total = subtotal;
 
-    const invoice = await prisma.$transaction(async (tx) => {
+    const invoice = await prisma.$transaction(async (tx: any) => {
       const createdInvoice = await tx.invoice.create({
         data: {
           invoiceNumber,
@@ -1281,9 +1280,10 @@ const updateOrderTotalPrice = async (orderId: string): Promise<void> => {
     where: { orderId },
   });
 
-  const totalPrice = orderItems.reduce((sum, item) => {
-    return sum + Number(item.totalPrice);
-  }, 0);
+  const totalPrice = orderItems.reduce<number>(
+    (sum, item) => sum + Number(item.totalPrice),
+    0
+  );
 
   await prisma.order.update({
     where: { id: orderId },

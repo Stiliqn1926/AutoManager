@@ -36,7 +36,7 @@ export const getAllNotifications = async (
         return;
       }
 
-      const clientIds = clients.map(c => c.id);
+      const clientIds = clients.map((c: { id: string }) => c.id);
 
       const totalItems = await prisma.notification.count({
         where: { clientId: { in: clientIds } },
@@ -110,7 +110,7 @@ export const getAllNotifications = async (
       const pagination = getPaginationMeta(totalItems, page, limit);
 
       res.status(200).json({
-        notifications: notifications.map(n => ({
+        notifications: notifications.map((n: typeof notifications[number]) => ({
           id: n.id,
           title: n.title,
           message: n.message,
@@ -149,7 +149,7 @@ export const getUnreadCount = async (
 
       const count = await prisma.notification.count({
         where: {
-          clientId: { in: clients.map(c => c.id) },
+        clientId: { in: clients.map((c: { id: string }) => c.id) },
           isRead: false,
         },
       });
@@ -217,7 +217,7 @@ export const markAsRead = async (
         where: { userId },
       });
 
-      const clientIds = clients.map(c => c.id);
+    const clientIds = clients.map((c: { id: string }) => c.id);
 
       if (notification.clientId && !clientIds.includes(notification.clientId)) {
         res.status(403).json({ message: 'Not your notification' });
@@ -277,7 +277,7 @@ export const markAllAsRead = async (
 
     const result = await prisma.notification.updateMany({
       where: {
-        clientId: { in: clients.map(c => c.id) },
+        clientId: { in: clients.map((c: { id: string }) => c.id) },
         isRead: false,
       },
       data: { isRead: true },
@@ -325,7 +325,7 @@ export const deleteNotification = async (
       where: { userId },
     });
 
-    const clientIds = clients.map(c => c.id);
+    const clientIds = clients.map((c: { id: string }) => c.id);
 
     if (notification.clientId && !clientIds.includes(notification.clientId)) {
       res.status(403).json({ message: 'Not your notification' });
