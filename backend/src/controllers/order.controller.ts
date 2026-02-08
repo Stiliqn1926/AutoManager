@@ -187,6 +187,7 @@ export const getAllOrders = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const { skip, take } = getPagination(page, limit);
     const statusFilter = req.query.status as string;
+    const workerIdFilter = req.query.workerId as string | undefined;
 
     let whereClause: any = {};
 
@@ -201,6 +202,10 @@ export const getAllOrders = async (
       }
 
       whereClause.serviceCompanyId = serviceCompany.id;
+
+      if (workerIdFilter) {
+        whereClause.workerId = workerIdFilter;
+      }
     } else if (userRole === 'MECHANIC') {
       const worker = await prisma.worker.findUnique({
         where: { userId },
