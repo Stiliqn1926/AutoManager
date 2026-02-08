@@ -1,15 +1,7 @@
-import nodemailer from 'nodemailer';
+import fs from 'fs/promises';
+import { Resend } from 'resend';
 
-// ============================================
-// EMAIL TRANSPORTER CONFIG
-// ============================================
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, // Gmail адрес
-    pass: process.env.EMAIL_PASSWORD, // Gmail App Password
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ============================================
 // SEND EMAIL
@@ -26,12 +18,24 @@ export const sendEmail = async (
   attachments?: EmailAttachment[]
 ): Promise<void> => {
   try {
-    await transporter.sendMail({
-      from: `"AutoManager" <${process.env.EMAIL_USER}>`,
+    const resolvedAttachments = attachments
+      ? await Promise.all(
+          attachments.map(async (attachment) => {
+            const fileBuffer = await fs.readFile(attachment.path);
+            return {
+              filename: attachment.filename,
+              content: fileBuffer.toString('base64'),
+            };
+          })
+        )
+      : undefined;
+
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to,
       subject,
       html,
-      attachments,
+      attachments: resolvedAttachments,
     });
     console.log(`Email sent to ${to}`);
   } catch (error) {
