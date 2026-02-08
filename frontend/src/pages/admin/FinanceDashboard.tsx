@@ -88,7 +88,7 @@ const FinanceDashboard = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Финансов преглед</h1>
             <p className="text-textSecondary mt-1">Управление на приходи и разходи</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 lg:ml-auto">
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value as 'all' | 'month' | 'week')}
