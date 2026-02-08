@@ -347,7 +347,7 @@ const ServiceSettings = () => {
                   }`}
                 >
                   <div className="flex flex-col sm:items-start gap-2 mb-3">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 w-full">
                       <h3 className="font-semibold text-textPrimary text-base sm:text-lg">
                         {membership.serviceCompany.name}
                       </h3>
