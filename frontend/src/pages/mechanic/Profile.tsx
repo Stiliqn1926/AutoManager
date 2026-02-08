@@ -138,7 +138,7 @@ const Profile = () => {
             {!isEditingInfo && (
               <button
                 onClick={() => setIsEditingInfo(true)}
-                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
+                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit sm:ml-auto"
                 aria-label="Редактирай"
                 title="Редактирай"
               >
@@ -315,7 +315,7 @@ const Profile = () => {
             {!isEditingSkills && (
               <button
                 onClick={() => setIsEditingSkills(true)}
-                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
+                className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit sm:ml-auto"
                 aria-label="Редактирай"
                 title="Редактирай"
               >
@@ -507,3 +507,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
