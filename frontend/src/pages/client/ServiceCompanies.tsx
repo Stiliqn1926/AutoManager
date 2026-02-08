@@ -271,7 +271,7 @@ const ServiceCompanies = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Моите сервизи</h1>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="w-full sm:w-auto sm:ml-auto flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
             Добави сервиз

@@ -1,10 +1,12 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 type OrderStatus = 'WAITING' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
 import prisma from '../config/database';
 import { sendEmail, emailTemplates } from '../services/email.service';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
-import { generateInvoicePDF, generateInvoiceNumber } from '../services/pdf.service';
+import { generateInvoicePDF } from '../services/pdf.service';
+import { supabase, SUPABASE_BUCKET } from '../services/supabase.service';
 import path from 'path';
+import * as fs from 'fs';
 import fs from 'fs';
 
 interface AuthRequest extends Request {
@@ -418,7 +420,7 @@ export const updateOrder = async (
 
         if (hasConflict) {
           res.status(409).json({
-            message: 'Механикът е зает и не може да бъде преназначен',
+            message: 'ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð·Ð°ÐµÑ‚ Ð¸ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð±ÑŠÐ´Ðµ Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½',
           });
           return;
         }
@@ -539,7 +541,7 @@ export const updateOrder = async (
             data: orderItems.map((item: any) => ({
               orderId: id,
               type: item.type || 'LABOR',
-              name: item.description || 'Без описание',
+              name: item.description || 'Ð‘ÐµÐ· Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
               description: item.description,
               quantity: Number(item.quantity),
               unitPrice: Number(item.unitPrice),
@@ -702,8 +704,8 @@ export const updateOrderStatus = async (
       if (status === 'READY' || status === 'COMPLETED') {
         await tx.notification.create({
           data: {
-            title: status === 'READY' ? 'Поръчката е готова' : 'Поръчката е завършена',
-            message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е ${status === 'READY' ? 'готова за плащане' : 'завършена и платена'}.`,
+            title: status === 'READY' ? 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°' : 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
+            message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ ${status === 'READY' ? 'Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ' : 'Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð° Ð¸ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð°'}.`,
             clientId: order.clientId,
           },
         });
@@ -729,7 +731,7 @@ export const updateOrderStatus = async (
         
           void sendEmail(
               client.user.email,
-              'Поръчката е готова за плащане',
+              'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
               emailTemplates.orderReady(order.displayOrderNumber || order.orderNumber, vehicleInfo)
         
           ).catch((emailError) => {
@@ -742,7 +744,7 @@ export const updateOrderStatus = async (
         
           void sendEmail(
               client.user.email,
-              'Поръчката е завършена',
+              'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
               emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
         
           ).catch((emailError) => {
@@ -805,8 +807,8 @@ export const completeOrder = async (
 
       await tx.notification.create({
         data: {
-          title: 'Поръчката е завършена',
-          message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е завършена и платена. Благодарим ви!`,
+          title: 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
+          message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð° Ð¸ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð°. Ð‘Ð»Ð°Ð³Ð¾Ð´Ð°Ñ€Ð¸Ð¼ Ð²Ð¸!`,
           clientId: order.clientId,
         },
       });
@@ -828,7 +830,7 @@ export const completeOrder = async (
       
       void sendEmail(
           client.user.email,
-          'Поръчката е завършена',
+          'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
           emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
       
       ).catch((emailError) => {
@@ -956,7 +958,7 @@ export const finalizeOrder = async (
       issueDate: new Date(),
       clientName: `${order.client.firstName} ${order.client.lastName}`,
       clientPhone: order.client.phone,
-      clientEmail: order.client.user?.email || order.client.email || 'Няма email',
+      clientEmail: order.client.user?.email || order.client.email || 'ÐÑÐ¼Ð° email',
       vehicleInfo: `${order.vehicle.brand} ${order.vehicle.model} (${order.vehicle.licensePlate})`,
       orderItems: order.orderItems.map((item) => ({
         type: item.type,
@@ -967,7 +969,7 @@ export const finalizeOrder = async (
       })),
       totalPrice: Number(order.totalPrice) || 0,
       serviceCompanyName: serviceCompany.name,
-      serviceCompanyAddress: serviceCompany.address || 'Адрес не е посочен',
+      serviceCompanyAddress: serviceCompany.address || 'ÐÐ´Ñ€ÐµÑ Ð½Ðµ Ðµ Ð¿Ð¾ÑÐ¾Ñ‡ÐµÐ½',
       serviceCompanyPhone: serviceCompany.phone,
       serviceCompanyEmail: serviceCompany.email,
     };
@@ -981,6 +983,19 @@ export const finalizeOrder = async (
     }
 
     await generateInvoicePDF(invoiceData, outputPath);
+
+    try {
+      const pdfBuffer = await fs.promises.readFile(outputPath);
+      const upload = await supabase.storage
+        .from(SUPABASE_BUCKET)
+        .upload(fileName, pdfBuffer, { contentType: "application/pdf", upsert: true });
+
+      if (upload.error) {
+        logger.error("Supabase invoice upload failed:", upload.error);
+      }
+    } catch (uploadError) {
+      logger.error("Supabase invoice upload failed:", uploadError);
+    }
 
     const invoiceUrl = `/uploads/invoices/${fileName}`;
 
@@ -1027,8 +1042,8 @@ export const finalizeOrder = async (
 
     await prisma.notification.create({
       data: {
-        title: 'Фактурата е готова',
-        message: `Вашата фактура за поръчка ${order.displayOrderNumber || order.orderNumber} е готова за преглед.`,
+        title: 'Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°',
+        message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð° Ð·Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ñ€ÐµÐ³Ð»ÐµÐ´.`,
         clientId: order.clientId,
       },
     });
@@ -1036,7 +1051,7 @@ export const finalizeOrder = async (
     if (order.client.user?.email) {
       void sendEmail(
           order.client.user.email,
-          'Фактурата е готова',
+          'Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°',
           emailTemplates.invoiceReady(invoiceNumber, total, order.displayOrderNumber || order.orderNumber),
           [
             {
@@ -1290,3 +1305,6 @@ const updateOrderTotalPrice = async (orderId: string): Promise<void> => {
     data: { totalPrice },
   });
 };
+
+
+
