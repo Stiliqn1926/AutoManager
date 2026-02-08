@@ -83,6 +83,34 @@ const WorkerDetails = () => {
     fetchOrders();
   }, [id]);
 
+  const getStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      WAITING: 'Изчакване',
+      IN_PROGRESS: 'В процес',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
+      CANCELLED: 'Отказана',
+    };
+
+    const colors: Record<string, string> = {
+      WAITING: 'bg-yellow-100 text-yellow-800',
+      IN_PROGRESS: 'bg-blue-100 text-blue-800',
+      READY: 'bg-green-100 text-green-800',
+      COMPLETED: 'bg-gray-100 text-gray-800',
+      CANCELLED: 'bg-red-100 text-red-800',
+    };
+
+    return (
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${
+          colors[status] || 'bg-gray-100 text-gray-800'
+        }`}
+      >
+        {map[status] || status}
+      </span>
+    );
+  };
+
   const handleDelete = async () => {
     if (!worker) return;
 
@@ -228,42 +256,33 @@ const WorkerDetails = () => {
               ) : orders.length === 0 ? (
                 <p className="text-textSecondary">Няма поръчки за този механик</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="border-b border-borderSubtle text-left text-xs sm:text-sm font-semibold text-textSecondary">
-                        <th className="py-2 px-3">Поръчка</th>
-                        <th className="py-2 px-3">Клиент</th>
-                        <th className="py-2 px-3">Автомобил</th>
-                        <th className="py-2 px-3">Статус</th>
-                        <th className="py-2 px-3">Създадена</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orders.map((order) => (
-                        <tr
-                          key={order.id}
-                          className="border-b border-borderSubtle text-sm text-textPrimary hover:bg-mainBg cursor-pointer"
-                          onClick={() => navigate(`/admin/orders/${order.id}`)}
-                        >
-                          <td className="py-2 px-3 font-medium">
+                <div className="space-y-2">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      className="p-3 bg-mainBg rounded-lg hover:bg-gray-100 cursor-pointer"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                        <div>
+                          <p className="font-medium">
                             {order.displayOrderNumber || order.orderNumber}
-                          </td>
-                          <td className="py-2 px-3 text-textSecondary">
-                            {order.client.firstName} {order.client.lastName}
-                          </td>
-                          <td className="py-2 px-3 text-textSecondary">
+                          </p>
+                          <p className="text-sm text-textSecondary">
+                            {order.client.firstName} {order.client.lastName} •{" "}
                             {order.vehicle.brand} {order.vehicle.model}
-                            {order.vehicle.licensePlate ? ` (${order.vehicle.licensePlate})` : ""}
-                          </td>
-                          <td className="py-2 px-3 text-textSecondary">{order.status}</td>
-                          <td className="py-2 px-3 text-textSecondary">
+                            {order.vehicle.licensePlate
+                              ? ` (${order.vehicle.licensePlate})`
+                              : ""}
+                          </p>
+                          <p className="text-sm text-textSecondary">
                             {new Date(order.createdAt).toLocaleDateString("bg-BG")}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </p>
+                        </div>
+                        {getStatusBadge(order.status)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
