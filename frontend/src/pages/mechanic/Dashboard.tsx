@@ -157,7 +157,7 @@ const MechanicDashboard = () => {
           </div>
           <button
             onClick={fetchDashboard}
-            className="w-full sm:w-auto px-4 py-2 bg-white border border-borderSubtle rounded-lg hover:bg-gray-50 text-sm font-medium text-textSecondary"
+            className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-cardBg border border-borderSubtle rounded-lg hover:bg-mainBg text-sm font-medium text-textSecondary"
           >
             Обнови
           </button>

@@ -168,7 +168,7 @@ const MechanicClients = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Клиенти</h1>
             <p className="text-textSecondary mt-1">Клиенти с поръчки при теб</p>
           </div>
-          <div className="text-sm text-textSecondary">
+          <div className="text-sm text-textSecondary sm:ml-auto sm:text-right">
             Показани: <span className="font-semibold text-textPrimary">{filteredClients.length}</span> от {clients.length} клиента
           </div>
         </div>

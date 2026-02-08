@@ -168,7 +168,7 @@ const MechanicVehicles = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Автомобили</h1>
             <p className="text-textSecondary mt-1">Автомобили с поръчки при теб</p>
           </div>
-          <div className="text-sm text-textSecondary">
+          <div className="text-sm text-textSecondary sm:ml-auto sm:text-right">
             Показани: <span className="font-semibold text-textPrimary">{filteredVehicles.length}</span> от {vehicles.length} автомобила
           </div>
         </div>

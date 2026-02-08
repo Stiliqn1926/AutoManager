@@ -142,21 +142,21 @@ const ServiceSettings = () => {
     switch (status) {
       case 'ACTIVE':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
             <Check className="w-4 h-4" />
             Активен
           </span>
         );
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
             <Clock className="w-4 h-4" />
             Чака одобрение
           </span>
         );
       case 'INACTIVE':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-mainBg text-textPrimary">
             Неактивен
           </span>
         );
@@ -260,7 +260,7 @@ const ServiceSettings = () => {
         </div>
 
         {showAddForm && (
-          <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+          <div className="bg-cardBg rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Code className="w-5 h-5 text-primary" />
               <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
@@ -268,10 +268,10 @@ const ServiceSettings = () => {
               </h2>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 rounded-lg p-4 mb-4">
               <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div className="text-sm text-blue-800">
+                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-300 mt-0.5" />
+                <div className="text-sm text-blue-800 dark:text-blue-200">
                   Въведете уникалния код на сервиза, предоставен от администратора.
                   След изпращане на заявката, тя ще бъде разгледана от администратора.
                 </div>
@@ -307,7 +307,7 @@ const ServiceSettings = () => {
                     setShowAddForm(false);
                     setUniqueCode('');
                   }}
-                  className="px-6 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 w-full sm:w-auto"
+                  className="px-6 py-2 bg-mainBg text-textPrimary rounded-lg hover:bg-cardBg w-full sm:w-auto"
                 >
                   Отказ
                 </button>
@@ -316,7 +316,7 @@ const ServiceSettings = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
+        <div className="bg-cardBg rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary" />
             <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
@@ -342,7 +342,7 @@ const ServiceSettings = () => {
                   key={membership.id}
                   className={`border rounded-lg p-3 sm:p-4 ${
                     isActiveService
-                      ? 'border-primary bg-primary-50'
+                      ? 'border-primary bg-primary-50 dark:bg-primary/10'
                       : 'border-borderSubtle'
                   }`}
                 >
@@ -377,7 +377,7 @@ const ServiceSettings = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleCancelRequest(membership.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/40 rounded-lg hover:bg-red-200"
                       >
                         <LogOut className="w-4 h-4" />
                         Откажи заявката
@@ -398,7 +398,7 @@ const ServiceSettings = () => {
                       )}
                       <button
                         onClick={() => handleLeaveService(membership.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/40 rounded-lg hover:bg-red-200"
                       >
                         <LogOut className="w-4 h-4" />
                         Напусни

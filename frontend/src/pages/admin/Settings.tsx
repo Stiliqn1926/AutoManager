@@ -343,13 +343,13 @@ const Settings = () => {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-borderSubtle p-6 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="bg-cardBg rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-cardBg border-b border-borderSubtle p-6 flex flex-col sm:flex-row sm:items-center gap-3">
               <h2 className="text-xl font-bold text-textPrimary">Редактиране на фирмени данни</h2>
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-mainBg rounded-lg transition-colors"
                 aria-label="Затвори"
               >
                 <X className="w-5 h-5" />

@@ -280,7 +280,7 @@ const ServiceCompanies = () => {
 
         {allCompanies.length === 0 ? (
           <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
-            <Building2 className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <Building2 className="w-16 h-16 mx-auto text-textSecondary mb-4" />
             <h2 className="text-xl font-semibold text-textPrimary mb-2">
               Няма добавени сервизи
             </h2>
@@ -315,8 +315,8 @@ const ServiceCompanies = () => {
 
                   {/* Икона */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-3 rounded-lg ${isPending ? 'bg-yellow-100' : 'bg-primary/10'}`}>
-                      <Building2 className={`w-6 h-6 ${isPending ? 'text-yellow-600' : 'text-primary'}`} />
+                    <div className={`p-3 rounded-lg ${isPending ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-primary/10'}`}>
+                      <Building2 className={`w-6 h-6 ${isPending ? 'text-yellow-600 dark:text-yellow-200' : 'text-primary'}`} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-textPrimary">
@@ -408,7 +408,7 @@ const ServiceCompanies = () => {
         {/* Modal за добавяне на сервиз */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-4 sm:p-6">
+            <div className="bg-cardBg rounded-2xl shadow-xl max-w-md w-full p-4 sm:p-6">
               <h2 className="text-xl sm:text-2xl font-bold text-textPrimary mb-4">
                 Добави сервиз
               </h2>
@@ -443,7 +443,7 @@ const ServiceCompanies = () => {
                       setUniqueCode('');
                     }}
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-3 border border-borderSubtle text-textSecondary rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-3 border border-borderSubtle text-textSecondary rounded-lg hover:bg-mainBg transition-colors disabled:opacity-50"
                   >
                     Отказ
                   </button>
