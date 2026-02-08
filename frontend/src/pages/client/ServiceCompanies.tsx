@@ -230,21 +230,21 @@ const ServiceCompanies = () => {
     switch (status) {
       case 'ACTIVE':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
             <CheckCircle className="w-4 h-4" />
             Активен
           </span>
         );
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
             <Clock className="w-4 h-4" />
             Чака одобрение
           </span>
         );
       case 'LEFT':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200">
             <LogOut className="w-4 h-4" />
             Напуснат
           </span>

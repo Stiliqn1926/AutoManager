@@ -195,35 +195,35 @@ const ServiceSettings = () => {
         </div>
 
         {activeService && (
-          <div className="bg-gradient-to-r from-primary to-primary-700 rounded-2xl shadow-card p-4 sm:p-6 text-white">
+          <div className="rounded-2xl shadow-card p-4 sm:p-6 text-white bg-gradient-to-r from-primary to-primary-700 dark:bg-cardBg dark:text-textPrimary dark:border dark:border-borderSubtle">
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-6 h-6" />
+              <Building2 className="w-6 h-6 text-white/90 dark:text-textPrimary" />
               <h2 className="text-xl sm:text-2xl font-bold">Активен сервиз</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
-                <Building2 className="w-5 h-5 mt-1 opacity-80" />
+                <Building2 className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm opacity-80">Име на сервиза</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Име на сервиза</div>
                   <div className="text-lg font-semibold">{activeService.name}</div>
                 </div>
               </div>
 
               {activeService.address && (
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 mt-1 opacity-80" />
+                  <MapPin className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                   <div>
-                    <div className="text-sm opacity-80">Адрес</div>
+                    <div className="text-sm text-white/80 dark:text-textSecondary">Адрес</div>
                     <div className="text-lg font-semibold">{activeService.address}</div>
                   </div>
                 </div>
               )}
 
               <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 mt-1 opacity-80" />
+                <Phone className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm opacity-80">Телефон</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Телефон</div>
                   <a
                     href={`tel:${activeService.phone}`}
                     className="text-base sm:text-lg font-semibold hover:underline"
@@ -234,9 +234,9 @@ const ServiceSettings = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 mt-1 opacity-80" />
+                <Mail className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm opacity-80">Имейл</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Имейл</div>
                   <a
                     href={`mailto:${activeService.email}`}
                     className="text-base sm:text-lg font-semibold hover:underline"

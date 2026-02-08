@@ -138,11 +138,11 @@ const Finances = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Транзакции</h1>
             <p className="text-textSecondary mt-1">Ръчно въведени приходи и разходи</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={() => navigate('/admin/finances/dashboard')}>
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto lg:ml-auto">
+            <Button variant="secondary" onClick={() => navigate('/admin/finances/dashboard')} className="w-full sm:w-auto">
               Финансов преглед
             </Button>
-            <Button onClick={() => navigate('/admin/finances/create')}>
+            <Button onClick={() => navigate('/admin/finances/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Добави транзакция
             </Button>

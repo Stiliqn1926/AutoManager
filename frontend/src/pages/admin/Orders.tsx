@@ -212,7 +212,7 @@ const Orders = () => {
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Поръчки</h1>
-          <Button onClick={() => navigate('/admin/orders/create')} className="w-full sm:w-auto">
+          <Button onClick={() => navigate('/admin/orders/create')} className="w-full sm:w-auto lg:ml-auto">
             <Plus className="w-4 h-4" />
             Нова поръчка
           </Button>

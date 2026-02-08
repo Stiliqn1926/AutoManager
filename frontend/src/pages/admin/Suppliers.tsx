@@ -113,7 +113,7 @@ const Suppliers = () => {
               Управление на доставчици на части и услуги
             </p>
           </div>
-          <Button onClick={() => navigate('/admin/suppliers/create')} className="w-full sm:w-auto">
+          <Button onClick={() => navigate('/admin/suppliers/create')} className="w-full sm:w-auto lg:ml-auto">
             <Plus className="w-4 h-4" />
             Добави доставчик
           </Button>

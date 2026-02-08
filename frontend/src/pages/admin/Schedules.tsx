@@ -160,7 +160,7 @@ const Schedules = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">График</h1>
             <p className="text-textSecondary mt-1">Управление на графика и задачите</p>
           </div>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:ml-auto lg:w-auto">
             <Button onClick={() => navigate('/admin/schedules/daily')} className="w-full sm:w-auto">
               <Calendar className="w-4 h-4" />
               Дневен изглед
