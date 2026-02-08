@@ -54,7 +54,7 @@ const WorkerDetails = () => {
         const response = await api.get(`/workers/${id}`);
         setWorker(response.data.worker);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº');
+        toast.error('Грешка при зареждане на работник');
         navigate('/admin/workers');
       } finally {
         setIsLoading(false);
@@ -74,7 +74,7 @@ const WorkerDetails = () => {
         });
         setOrders(response.data.orders || []);
       } catch {
-        toast.error('Ãâ€œÃ‘â‚¬ÃÂµÃ‘Ë†ÃÂºÃÂ° ÃÂ¿Ã‘â‚¬ÃÂ¸ ÃÂ·ÃÂ°Ã‘â‚¬ÃÂµÃÂ¶ÃÂ´ÃÂ°ÃÂ½ÃÂµ ÃÂ½ÃÂ° ÃÂ¿ÃÂ¾Ã‘â‚¬Ã‘Å Ã‘â€¡ÃÂºÃÂ¸');
+        toast.error('Грешка при зареждане на поръчки');
       } finally {
         setIsOrdersLoading(false);
       }
@@ -88,8 +88,8 @@ const WorkerDetails = () => {
 
     const isActive = worker.membershipStatus === 'ACTIVE';
     const confirmMessage = isActive
-      ? `Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð½ÐµÑ‚Ðµ ${worker.firstName} ${worker.lastName} Ð¾Ñ‚ ÑÐµÑ€Ð²Ð¸Ð·Ð°?`
-      : `Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾ ${worker.firstName} ${worker.lastName}?`;
+      ? `Сигурни ли сте, че искате да премахнете ${worker.firstName} ${worker.lastName} от сервиза?`
+      : `Сигурни ли сте, че искате да изтриете напълно ${worker.firstName} ${worker.lastName}?`;
 
     if (!window.confirm(confirmMessage)) {
       return;
@@ -97,20 +97,20 @@ const WorkerDetails = () => {
 
     try {
       if (isActive) {
-        // ÐŸÑ€ÐµÐ¼Ð°Ñ…Ð½Ð¸ Ð¾Ñ‚ ÑÐµÑ€Ð²Ð¸Ð· (Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð¹ ÐºÐ°Ñ‚Ð¾ INACTIVE)
+        // Премахни от сервиз (маркирай като INACTIVE)
         await api.post(`/workers/${id}/remove-from-service`);
-        toast.success('ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð½Ð°Ñ‚ Ð¾Ñ‚ ÑÐµÑ€Ð²Ð¸Ð·Ð°');
+        toast.success('Механикът е премахнат от сервиза');
       } else {
-        // Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾
+        // Изтрий напълно
         await api.delete(`/workers/${id}/permanent`);
-        toast.success('ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾');
+        toast.success('Механикът е изтрит напълно');
       }
       navigate('/admin/workers');
     } catch (error) {
       const apiMessage = (error as { response?: { data?: { message?: string } } })
         .response?.data?.message;
       const fallbackMessage =
-        error instanceof Error ? error.message : 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑÑ‚Ð°';
+        error instanceof Error ? error.message : 'Грешка при операцията';
       toast.error(apiMessage || fallbackMessage);
     }
   };
@@ -129,7 +129,7 @@ const WorkerDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">Ð Ð°Ð±Ð¾Ñ‚Ð½Ð¸ÐºÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½</p>
+          <p className="text-textSecondary">Работникът не е намерен</p>
         </div>
       </MainLayout>
     );
@@ -142,8 +142,8 @@ const WorkerDetails = () => {
           <button
             onClick={() => navigate('/admin/workers')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ ÑÐ¿Ð¸ÑÑŠÐºÐ° Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ñ†Ð¸"
-            title="ÐÐ°Ð·Ð°Ð´"
+            aria-label="Назад към списъка с работници"
+            title="Назад"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -153,14 +153,14 @@ const WorkerDetails = () => {
               {worker.firstName} {worker.lastName}
             </h1>
             <p className="text-textSecondary mt-1">
-              Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð·Ð° Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº
+              Детайли за работник
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
-              {worker.membershipStatus === 'ACTIVE' ? 'ÐŸÑ€ÐµÐ¼Ð°Ñ…Ð½Ð¸ Ð¾Ñ‚ ÑÐµÑ€Ð²Ð¸Ð·' : 'Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹'}
+              {worker.membershipStatus === 'ACTIVE' ? 'Премахни от сервиз' : 'Изтрий'}
             </Button>
           </div>
         </div>
@@ -169,7 +169,7 @@ const WorkerDetails = () => {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-                ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ
+                Основна информация
               </h2>
 
               <div className="space-y-4">
@@ -186,7 +186,7 @@ const WorkerDetails = () => {
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-textMuted" />
                   <div>
-                    <p className="text-sm text-textSecondary">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</p>
+                    <p className="text-sm text-textSecondary">Телефон</p>
                     <p className="font-medium text-textPrimary">
                       {worker.phone}
                     </p>
@@ -197,10 +197,10 @@ const WorkerDetails = () => {
                   <Wrench className="w-5 h-5 text-textMuted" />
                   <div>
                     <p className="text-sm text-textSecondary">
-                      Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ
+                      Специализация
                     </p>
                     <p className="font-medium text-textPrimary">
-                      {worker.specialization || 'ÐÐµ Ðµ Ð¿Ð¾ÑÐ¾Ñ‡ÐµÐ½Ð°'}
+                      {worker.specialization || 'Не е посочена'}
                     </p>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ const WorkerDetails = () => {
             {worker.skills && (
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-                  Ð£Ð¼ÐµÐ½Ð¸Ñ
+                  Умения
                 </h2>
                 <p className="text-textSecondary">{worker.skills}</p>
               </div>
@@ -272,12 +272,12 @@ const WorkerDetails = () => {
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-                Ð¡Ñ‚Ð°Ñ‚Ð¸ÑÑ‚Ð¸ÐºÐ°
+                Статистика
               </h2>
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-textSecondary">
-                    Ð”Ð°Ñ‚Ð° Ð½Ð° Ð½Ð°ÐµÐ¼Ð°Ð½Ðµ
+                    Дата на наемане
                   </p>
                   <p className="font-medium text-textPrimary">
                     {new Date(worker.createdAt).toLocaleDateString('bg-BG')}
