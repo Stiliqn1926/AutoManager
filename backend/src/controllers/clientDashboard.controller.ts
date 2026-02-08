@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database';
 import path from 'path';
 import * as fs from 'fs';
+import { supabase, SUPABASE_BUCKET } from '../services/supabase.service';
 
 interface AuthRequest extends Request {
   user?: {
@@ -1313,20 +1314,30 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    // Провери дали PDF файлът съществува
-    const pdfPath = path.join(process.cwd(), 'uploads', 'invoices', `${invoiceNumber}.pdf`);
+    // Първо пробвай Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(SUPABASE_BUCKET)
+      .download(`${invoiceNumber}.pdf`);
 
-    if (!fs.existsSync(pdfPath)) {
-      res.status(404).json({ message: 'PDF file not found' });
+    if (!error && data) {
+      const buffer = Buffer.from(await data.arrayBuffer());
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
+      res.send(buffer);
       return;
     }
 
-    // Изпрати PDF файла
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
+    // Fallback към локален файл (за dev)
+    const pdfPath = path.join(process.cwd(), 'uploads', 'invoices', `${invoiceNumber}.pdf`);
+    if (fs.existsSync(pdfPath)) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
+      const fileStream = fs.createReadStream(pdfPath);
+      fileStream.pipe(res);
+      return;
+    }
 
-    const fileStream = fs.createReadStream(pdfPath);
-    fileStream.pipe(res);
+    res.status(404).json({ message: 'PDF file not found' });
   } catch (error) {
     console.error('[downloadInvoicePDF] error:', error);
     res.status(500).json({ message: 'Server error', error });

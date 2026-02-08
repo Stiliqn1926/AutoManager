@@ -997,8 +997,6 @@ export const finalizeOrder = async (
       logger.error("Supabase invoice upload failed:", uploadError);
     }
 
-    const invoiceUrl = `/uploads/invoices/${fileName}`;
-
     const subtotal = Number(order.totalPrice) || 0;
     const tax = 0;
     const total = subtotal;
@@ -1067,7 +1065,6 @@ export const finalizeOrder = async (
     res.status(200).json({
       message: 'Invoice generated successfully',
       order: updatedOrder,
-      invoiceUrl,
     });
   } catch (error) {
     console.error('Finalize order error:', error);
