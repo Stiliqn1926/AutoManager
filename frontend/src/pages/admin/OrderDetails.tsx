@@ -214,10 +214,10 @@ const OrderDetails = () => {
                 <span className="text-sm font-medium">Фактурата е изпратена</span>
               </div>
             ) : (
-              (order.status === 'IN_PROGRESS' || order.status === 'READY') && (
+              (order.status === 'IN_PROGRESS' || order.status === 'READY' || order.status === 'COMPLETED') && (
                 <Button onClick={() => setShowFinalizeModal(true)} className="w-full sm:w-auto">
                   <FileText className="w-4 h-4" />
-                  Финализирай и изпрати фактура
+                  {order.status === 'COMPLETED' ? 'Издай фактура' : 'Финализирай и изпрати фактура'}
                 </Button>
               )
             )}
