@@ -95,12 +95,12 @@ const ScheduleWeekly = () => {
 
   const getPriorityColor = (priority: string): string => {
     const colors = {
-      LOW: 'bg-gray-200 border-gray-400',
-      NORMAL: 'bg-blue-200 border-blue-400',
-      HIGH: 'bg-orange-200 border-orange-400',
-      URGENT: 'bg-red-200 border-red-400',
+      LOW: 'schedule-priority-low',
+      NORMAL: 'schedule-priority-normal',
+      HIGH: 'schedule-priority-high',
+      URGENT: 'schedule-priority-urgent',
     };
-    return colors[priority as keyof typeof colors] || 'bg-gray-200';
+    return colors[priority as keyof typeof colors] || 'schedule-priority-low';
   };
 
   const weekDays = getWeekDays();
@@ -166,7 +166,7 @@ const ScheduleWeekly = () => {
                 <div
                   key={index}
                   className={`border rounded-lg p-3 min-h-[180px] sm:min-h-64 ${
-                    isToday ? 'border-primary bg-orange-50' : 'border-borderSubtle'
+                    isToday ? 'border-primary bg-mainBg' : 'border-borderSubtle'
                   }`}
                 >
                   <div className="text-center mb-3">
@@ -190,17 +190,17 @@ const ScheduleWeekly = () => {
                             schedule.priority
                           )}`}
                         >
-                          <p className="text-xs font-semibold text-textPrimary truncate">
+                          <p className="text-xs font-semibold truncate">
                             {schedule.title}
                           </p>
-                          <p className="text-xs text-textSecondary mt-1">
+                          <p className="text-xs mt-1 opacity-80">
                             {new Date(schedule.startTime).toLocaleTimeString('bg-BG', {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
                           </p>
                           {schedule.worker && (
-                            <p className="text-xs text-textSecondary truncate">
+                            <p className="text-xs truncate opacity-80">
                               {schedule.worker.firstName} {schedule.worker.lastName}
                             </p>
                           )}

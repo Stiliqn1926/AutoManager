@@ -114,12 +114,12 @@ const ScheduleMonthly = () => {
 
   const getPriorityColor = (priority: string): string => {
     const colors = {
-      LOW: 'bg-gray-100 border-l-2 border-gray-400',
-      NORMAL: 'bg-blue-100 border-l-2 border-blue-400',
-      HIGH: 'bg-orange-100 border-l-2 border-orange-400',
-      URGENT: 'bg-red-100 border-l-2 border-red-400',
+      LOW: 'schedule-priority-low',
+      NORMAL: 'schedule-priority-normal',
+      HIGH: 'schedule-priority-high',
+      URGENT: 'schedule-priority-urgent',
     };
-    return colors[priority as keyof typeof colors] || 'bg-gray-100';
+    return colors[priority as keyof typeof colors] || 'schedule-priority-low';
   };
 
   const calendarDays = generateCalendarDays();
@@ -200,8 +200,8 @@ const ScheduleMonthly = () => {
                   key={index}
                   className={`min-h-[96px] sm:min-h-[120px] border rounded-lg p-2 ${
                     isCurrentDay
-                      ? 'border-primary bg-blue-50'
-                      : 'border-borderSubtle bg-white'
+                      ? 'border-primary bg-mainBg'
+                      : 'border-borderSubtle bg-cardBg'
                   } ${!isThisMonth ? 'opacity-40' : ''}`}
                 >
                   <div
@@ -216,7 +216,7 @@ const ScheduleMonthly = () => {
                       <div
                         key={schedule.id}
                         onClick={() => navigate(`/admin/schedules/${schedule.id}`)}
-                        className={`text-[11px] sm:text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow ${getPriorityColor(
+                        className={`text-[11px] sm:text-xs p-1 rounded border-l-2 cursor-pointer hover:shadow-sm transition-shadow ${getPriorityColor(
                           schedule.priority
                         )}`}
                       >

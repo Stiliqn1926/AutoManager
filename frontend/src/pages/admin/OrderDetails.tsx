@@ -42,9 +42,11 @@ interface Order {
   startDate: string | null;
   endDate: string | null;
   completedAt: string | null;
-  invoiceUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  invoices?: {
+    invoiceNumber: string;
+  }[];
   client: {
     id: string;
     firstName: string;
@@ -118,6 +120,7 @@ const OrderDetails = () => {
       toast.error('Грешка при финализиране');
     }
   };
+
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -205,7 +208,7 @@ const OrderDetails = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {order.invoiceUrl ? (
+            {order.invoices && order.invoices.length > 0 ? (
               <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg w-full sm:w-auto">
                 <Check className="w-4 h-4" />
                 <span className="text-sm font-medium">Фактурата е изпратена</span>
@@ -222,15 +225,6 @@ const OrderDetails = () => {
               <Button onClick={() => navigate(`/admin/orders/${id}/edit`)} className="w-full sm:w-auto">
                 <Edit className="w-4 h-4" />
                 Редактирай
-              </Button>
-            )}
-            {order.invoiceUrl && (
-              <Button
-                onClick={() => window.open(order.invoiceUrl!, '_blank')}
-                variant="secondary"
-                className="w-full sm:w-auto">
-                <FileText className="w-4 h-4" />
-                Свали фактура
               </Button>
             )}
             <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">

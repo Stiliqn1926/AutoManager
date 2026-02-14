@@ -52,6 +52,55 @@ body {
   --color-sidebar-active: #1F2937;
 }
 
+/* Schedule priority chips/cards (calendar views) */
+.schedule-priority-low {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #1f2937;
+}
+
+.schedule-priority-normal {
+  background-color: #dbeafe;
+  border-color: #60a5fa;
+  color: #1e3a8a;
+}
+
+.schedule-priority-high {
+  background-color: #ffedd5;
+  border-color: #fb923c;
+  color: #9a3412;
+}
+
+.schedule-priority-urgent {
+  background-color: #fee2e2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+.dark .schedule-priority-low {
+  background-color: rgba(148, 163, 184, 0.2);
+  border-color: rgba(148, 163, 184, 0.55);
+  color: #e2e8f0;
+}
+
+.dark .schedule-priority-normal {
+  background-color: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #dbeafe;
+}
+
+.dark .schedule-priority-high {
+  background-color: rgba(249, 115, 22, 0.2);
+  border-color: rgba(251, 146, 60, 0.55);
+  color: #ffedd5;
+}
+
+.dark .schedule-priority-urgent {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(248, 113, 113, 0.55);
+  color: #fee2e2;
+}
+
 /* Dark mode overrides for common utility colors */
 .dark .bg-white {
   background-color: var(--color-card-bg);

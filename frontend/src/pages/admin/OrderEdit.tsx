@@ -299,7 +299,7 @@ const OrderEdit = () => {
           </div>
 
           <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold text-textPrimary">
                 Детайли на поръчката
               </h2>

@@ -137,6 +137,16 @@ const MechanicSchedule = () => {
     return colors[priority] || colors.NORMAL;
   };
 
+  const getCalendarPriorityColor = (priority: string): string => {
+    const colors: Record<string, string> = {
+      LOW: 'schedule-priority-low',
+      NORMAL: 'schedule-priority-normal',
+      HIGH: 'schedule-priority-high',
+      URGENT: 'schedule-priority-urgent',
+    };
+    return colors[priority] || colors.NORMAL;
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
       SCHEDULED: { label: 'Планиран', className: 'bg-blue-100 text-blue-800' },
@@ -445,7 +455,9 @@ const MechanicSchedule = () => {
                           <div
                             key={schedule.id}
                             onClick={() => handleScheduleClick(schedule.id)}
-                            className={`p-1 rounded text-xs cursor-pointer hover:shadow-sm ${getPriorityColor(schedule.priority)}`}
+                            className={`p-1 rounded text-xs border-l-2 cursor-pointer hover:shadow-sm ${getCalendarPriorityColor(
+                              schedule.priority
+                            )}`}
                           >
                             <div className="font-semibold truncate">{formatTime(schedule.startTime)}</div>
                             <div className="truncate">{schedule.title}</div>
@@ -500,7 +512,7 @@ const MechanicSchedule = () => {
                           <div
                             key={schedule.id}
                             onClick={() => handleScheduleClick(schedule.id)}
-                            className={`p-1 rounded text-xs cursor-pointer hover:shadow-sm ${getPriorityColor(
+                            className={`p-1 rounded text-xs border-l-2 cursor-pointer hover:shadow-sm ${getCalendarPriorityColor(
                               schedule.priority
                             )}`}
                           >
