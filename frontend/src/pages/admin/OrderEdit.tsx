@@ -79,7 +79,7 @@ const OrderEdit = () => {
         );
         setWorkers(activeWorkers);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°');
+        toast.error('Грешка при зареждане на поръчка');
         navigate('/admin/orders');
       } finally {
         setIsLoading(false);
@@ -116,7 +116,7 @@ const OrderEdit = () => {
       const start = new Date(formData.startDate);
       const end = new Date(formData.endDate);
       if (end < start) {
-        toast.error('ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ ÑÑ€Ð¾Ðº Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ñ€ÐµÐ´Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð°Ñ‚Ð° Ð´Ð°Ñ‚Ð°.');
+        toast.error('Крайният срок не може да е преди началната дата.');
         return;
       }
     }
@@ -129,7 +129,7 @@ const OrderEdit = () => {
     });
 
     if (hasInvalidItem) {
-      toast.error('ÐŸÐ¾Ð¿ÑŠÐ»Ð½ÐµÑ‚Ðµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¸ Ñ†ÐµÐ½Ð° Ð·Ð° Ð²ÑÐ¸Ñ‡ÐºÐ¸ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÑƒÑÐ»ÑƒÐ³Ð¸/Ñ‡Ð°ÑÑ‚Ð¸/ÐºÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸.');
+      toast.error('Попълнете количество и цена за всички добавени услуги/части/консумативи.');
       return;
     }
 
@@ -156,7 +156,7 @@ const OrderEdit = () => {
       };
 
       await api.put(`/orders/${id}`, payload);
-      toast.success('ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½Ð°');
+      toast.success('Поръчката е обновена');
       navigate(`/admin/orders/${id}`);
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Грешка при обновяване");
@@ -182,17 +182,17 @@ const OrderEdit = () => {
           <button
             onClick={() => navigate(`/admin/orders/${id}`)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°"
+            title="Назад към поръчката"
+            aria-label="Назад към поръчката"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
-              Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
+              Редактиране на поръчка
             </h1>
             <p className="text-textSecondary mt-1">
-              ÐžÐ±Ð½Ð¾Ð²ÐµÑ‚Ðµ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸ÑÑ‚Ð° Ð¸ Ð´ÐµÑ‚Ð°Ð¹Ð»Ð¸Ñ‚Ðµ
+              Обновете информацията и детайлите
             </p>
           </div>
         </div>
@@ -200,12 +200,12 @@ const OrderEdit = () => {
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
             <h2 className="text-lg font-semibold text-textPrimary mb-4">
-              ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ
+              Основна информация
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="status" className="block text-sm font-medium text-textPrimary mb-2">
-                  Ð¡Ñ‚Ð°Ñ‚ÑƒÑ *
+                  Статус *
                 </label>
                 <select
                   id="status"
@@ -215,19 +215,19 @@ const OrderEdit = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
-                  aria-label="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°"
+                  aria-label="Статус на поръчката"
                 >
-                  <option value="WAITING">Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ</option>
-                  <option value="IN_PROGRESS">Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ</option>
-                  <option value="READY">Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ</option>
-                  {hasInvoice && <option value="COMPLETED">ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°</option>}
-                  <option value="CANCELLED">ÐžÑ‚ÐºÐ°Ð·Ð°Ð½Ð°</option>
+                  <option value="WAITING">Изчакване</option>
+                  <option value="IN_PROGRESS">В процес</option>
+                  <option value="READY">Готова за плащане</option>
+                  {hasInvoice && <option value="COMPLETED">Платена</option>}
+                  <option value="CANCELLED">Отказана</option>
                 </select>
               </div>
 
               <div>
                 <label htmlFor="worker" className="block text-sm font-medium text-textPrimary mb-2">
-                  ÐœÐµÑ…Ð°Ð½Ð¸Ðº
+                  Механик
                 </label>
                 <select
                   id="worker"
@@ -236,9 +236,9 @@ const OrderEdit = () => {
                     setFormData({ ...formData, workerId: e.target.value })
                   }
                   className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label="Ð˜Ð·Ð±Ð¾Ñ€ Ð½Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº"
+                  aria-label="Избор на механик"
                 >
-                  <option value="">ÐÐµ Ðµ Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½</option>
+                  <option value="">Не е назначен</option>
                   {workers.map((worker) => (
                     <option key={worker.id} value={worker.id}>
                       {worker.firstName} {worker.lastName}
@@ -248,7 +248,7 @@ const OrderEdit = () => {
               </div>
 
               <Input
-                label="ÐÐ°Ñ‡Ð°Ð»Ð½Ð° Ð´Ð°Ñ‚Ð°"
+                label="Начална дата"
                 type="date"
                 value={formData.startDate}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -257,7 +257,7 @@ const OrderEdit = () => {
               />
 
               <Input
-                label="ÐšÑ€Ð°ÐµÐ½ ÑÑ€Ð¾Ðº"
+                label="Краен срок"
                 type="date"
                 value={formData.endDate}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -268,7 +268,7 @@ const OrderEdit = () => {
 
             <div className="mt-4">
               <label htmlFor="diagnosis" className="block text-sm font-medium text-textPrimary mb-2">
-                Ð”Ð¸Ð°Ð³Ð½Ð¾Ð·Ð°
+                Диагноза
               </label>
               <textarea
                 id="diagnosis"
@@ -278,14 +278,14 @@ const OrderEdit = () => {
                 }
                 className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
-                placeholder="Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ Ð´Ð¸Ð°Ð³Ð½Ð¾Ð·Ð°..."
-                aria-label="Ð”Ð¸Ð°Ð³Ð½Ð¾Ð·Ð° Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°"
+                placeholder="Въведете диагноза..."
+                aria-label="Диагноза на поръчката"
               />
             </div>
 
             <div className="mt-4">
               <label htmlFor="notes" className="block text-sm font-medium text-textPrimary mb-2">
-                Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸
+                Бележки
               </label>
               <textarea
                 id="notes"
@@ -295,8 +295,8 @@ const OrderEdit = () => {
                 }
                 className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
-                placeholder="Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸..."
-                aria-label="Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸ ÐºÑŠÐ¼ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°"
+                placeholder="Въведете бележки..."
+                aria-label="Бележки към поръчката"
               />
             </div>
           </div>
@@ -304,11 +304,11 @@ const OrderEdit = () => {
           <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold text-textPrimary">
-                Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°
+                Детайли на поръчката
               </h2>
               <Button type="button" onClick={handleAddItem} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
-                Ð”Ð¾Ð±Ð°Ð²Ð¸ Ñ€ÐµÐ´
+                Добави ред
               </Button>
             </div>
 
@@ -317,7 +317,7 @@ const OrderEdit = () => {
                 <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                   <div className="col-span-12 sm:col-span-2">
                     <label className="sr-only">
-                      Ð¢Ð¸Ð¿ Ð½Ð° Ñ€ÐµÐ´ {index + 1}
+                      Тип на ред {index + 1}
                     </label>
                     <select
                       value={item.type}
@@ -325,17 +325,17 @@ const OrderEdit = () => {
                         handleItemChange(index, 'type', e.target.value)
                       }
                       className="w-full px-2 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label={`Ð¢Ð¸Ð¿ Ð½Ð° Ñ€ÐµÐ´ ${index + 1}`}
+                      aria-label={`Тип на ред ${index + 1}`}
                     >
-                       <option value="LABOR">Ð£ÑÐ»ÑƒÐ³Ð°</option> 
-                      <option value="PART">Ð§Ð°ÑÑ‚</option>
-                       <option value="CONSUMABLE">ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²</option>
+                      <option value="LABOR">Услуга</option>
+                      <option value="PART">Част</option>
+                      <option value="CONSUMABLE">Консуматив</option>
                     </select>
                   </div>
 
                   <div className="col-span-12 sm:col-span-4">
                     <label className="sr-only">
-                      ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ð° Ñ€ÐµÐ´ {index + 1}
+                      Описание на ред {index + 1}
                     </label>
                     <input
                       type="text"
@@ -347,15 +347,15 @@ const OrderEdit = () => {
                           e.target.value
                         )
                       }
-                      placeholder="ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ"
+                      placeholder="Описание"
                       className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label={`ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ð° Ñ€ÐµÐ´ ${index + 1}`}
+                      aria-label={`Описание на ред ${index + 1}`}
                     />
                   </div>
 
                   <div className="col-span-12 sm:col-span-2">
                     <label className="sr-only">
-                      ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð½Ð° Ñ€ÐµÐ´ {index + 1}
+                      Количество на ред {index + 1}
                     </label>
                     <input
                       type="number"
@@ -367,17 +367,17 @@ const OrderEdit = () => {
                           e.target.value ? parseFloat(e.target.value) : ''
                         )
                       }
-                      placeholder="ÐšÐ¾Ð»."
+                      placeholder="Кол."
                       min="0"
                       step="0.01"
                       className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label={`ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð½Ð° Ñ€ÐµÐ´ ${index + 1}`}
+                      aria-label={`Количество на ред ${index + 1}`}
                     />
                   </div>
 
                   <div className="col-span-12 sm:col-span-3">
                     <label className="sr-only">
-                      Ð•Ð´Ð¸Ð½Ð¸Ñ‡Ð½Ð° Ñ†ÐµÐ½Ð° Ð½Ð° Ñ€ÐµÐ´ {index + 1}
+                      Единична цена на ред {index + 1}
                     </label>
                     <input
                       type="number"
@@ -389,11 +389,11 @@ const OrderEdit = () => {
                           e.target.value ? parseFloat(e.target.value) : ''
                         )
                       }
-                      placeholder="Ð¦ÐµÐ½Ð°"
+                      placeholder="Цена"
                       min="0"
                       step="0.01"
                       className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label={`Ð•Ð´Ð¸Ð½Ð¸Ñ‡Ð½Ð° Ñ†ÐµÐ½Ð° Ð½Ð° Ñ€ÐµÐ´ ${index + 1}`}
+                      aria-label={`Единична цена на ред ${index + 1}`}
                     />
                   </div>
 
@@ -402,8 +402,8 @@ const OrderEdit = () => {
                       type="button"
                       onClick={() => handleRemoveItem(index)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ñ€ÐµÐ´"
-                      aria-label={`Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ñ€ÐµÐ´ ${index + 1}`}
+                      title="Изтрий ред"
+                      aria-label={`Изтрий ред ${index + 1}`}
                     >
                       <Trash2 className="w-4 h-4 text-error" />
                     </button>
@@ -414,18 +414,18 @@ const OrderEdit = () => {
 
             {orderItems.length === 0 && (
               <p className="text-center text-textSecondary py-4">
-                ÐÑÐ¼Ð° Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ Ñ€ÐµÐ´Ð¾Ð²Ðµ
+                Няма добавени редове
               </p>
             )}
           </div>
 
           <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
             <h2 className="text-lg font-semibold text-textPrimary mb-4">
-              ÐŸÐ»Ð°Ñ‰Ð°Ð½Ðµ
+              Плащане
             </h2>
             <div className="max-w-md">
               <label htmlFor="paymentMethod" className="block text-sm font-medium text-textPrimary mb-2">
-                ÐœÐµÑ‚Ð¾Ð´ Ð½Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ
+                Метод на плащане
               </label>
               <select
                 id="paymentMethod"
@@ -437,15 +437,15 @@ const OrderEdit = () => {
                   })
                 }
                 className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="ÐœÐµÑ‚Ð¾Ð´ Ð½Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ"
+                aria-label="Метод на плащане"
               >
-                <option value="">Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¼ÐµÑ‚Ð¾Ð´</option>
-                <option value="CASH">ÐšÐµÑˆ</option>
-                <option value="CARD">ÐšÐ°Ñ€Ñ‚Ð°</option>
-                <option value="BANK_TRANSFER">Ð‘Ð°Ð½ÐºÐ¾Ð² Ð¿Ñ€ÐµÐ²Ð¾Ð´</option>
+                <option value="">Избери метод</option>
+                <option value="CASH">Кеш</option>
+                <option value="CARD">Карта</option>
+                <option value="BANK_TRANSFER">Банков превод</option>
               </select>
               <p className="text-xs text-textMuted mt-1">
-                ÐÐ²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡Ð½Ð¾ ÑÐµ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð° ÐºÐ°Ñ‚Ð¾ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð° Ð¿Ñ€Ð¸ ÑÑ‚Ð°Ñ‚ÑƒÑ "ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°"
+                Автоматично се маркира като платена при статус "Платена"
               </p>
             </div>
           </div>
@@ -457,10 +457,10 @@ const OrderEdit = () => {
               onClick={() => navigate(`/admin/orders/${id}`)}
               className="w-full sm:w-auto"
             >
-              ÐžÑ‚ÐºÐ°Ð·
+              Отказ
             </Button>
             <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
-              Ð—Ð°Ð¿Ð°Ð·Ð¸ Ð¿Ñ€Ð¾Ð¼ÐµÐ½Ð¸
+              Запази промени
             </Button>
           </div>
         </form>

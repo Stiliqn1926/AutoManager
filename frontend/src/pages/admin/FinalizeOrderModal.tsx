@@ -73,7 +73,7 @@ const FinalizeOrderModal = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-borderSubtle px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-2">
+        <div className="sticky top-0 bg-white border-b border-borderSubtle px-4 sm:px-6 py-3 sm:py-4 flex items-start justify-between gap-2">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-textPrimary">Финализиране на поръчка</h2>
             <p className="text-sm text-textSecondary mt-1">Поръчка {orderNumber}</p>

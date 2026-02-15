@@ -534,7 +534,7 @@ const MechanicSchedule = () => {
         {showModal && selectedSchedule && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-4 sm:p-6 border-b border-borderSubtle flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="p-4 sm:p-6 border-b border-borderSubtle flex items-center justify-between gap-3">
                 <h3 className="text-xl font-semibold text-textPrimary">Детайли за задачата</h3>
                 <button
                   onClick={() => setShowModal(false)}

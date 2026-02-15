@@ -82,25 +82,33 @@ const FinanceChart = () => {
           <div className="min-w-[520px] sm:min-w-0 px-2 h-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
                 <XAxis
                   dataKey="month"
-                  stroke="#64748b"
+                  stroke="var(--color-text-muted)"
                   style={{ fontSize: '12px' }}
                   minTickGap={12}
                 />
-                <YAxis stroke="#64748b" style={{ fontSize: '12px' }} />
+                <YAxis stroke="var(--color-text-muted)" style={{ fontSize: '12px' }} />
                 <Tooltip
+                  cursor={{ fill: 'rgba(148, 163, 184, 0.12)' }}
                   contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'var(--color-card-bg)',
+                    border: '1px solid var(--color-border-strong)',
                     borderRadius: '8px',
+                    color: 'var(--color-text-primary)',
+                  }}
+                  labelStyle={{
+                    color: 'var(--color-text-muted)',
+                  }}
+                  itemStyle={{
+                    color: 'var(--color-text-primary)',
                   }}
                   formatter={(value: number | undefined) =>
                     value !== undefined ? `${value.toFixed(2)} €` : '0.00 €'
                   }
                 />
-                <Legend />
+                <Legend wrapperStyle={{ color: 'var(--color-text-secondary)' }} />
                 <Bar dataKey="income" fill="#16A34A" name="Приходи" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="expense" fill="#DC2626" name="Разходи" radius={[8, 8, 0, 0]} />
               </BarChart>

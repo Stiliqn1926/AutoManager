@@ -419,7 +419,7 @@ export const updateOrder = async (
 
         if (hasConflict) {
           res.status(409).json({
-            message: 'ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð·Ð°ÐµÑ‚ Ð¸ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð±ÑŠÐ´Ðµ Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½',
+            message: 'Механикът е зает и не може да бъде преназначен',
           });
           return;
         }
@@ -466,7 +466,7 @@ export const updateOrder = async (
       if (!existingInvoice) {
         res.status(400).json({
           message:
-            'Ð—Ð° Ð´Ð° Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ñ‚Ðµ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° ÐºÐ°Ñ‚Ð¾ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð°, Ð¿ÑŠÑ€Ð²Ð¾ Ñ„Ð¸Ð½Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°.',
+            'За да маркирате поръчката като платена, първо финализирайте и изпратете фактура.',
         });
         return;
       }
@@ -555,7 +555,7 @@ export const updateOrder = async (
             data: orderItems.map((item: any) => ({
               orderId: id,
               type: item.type || 'LABOR',
-              name: item.description || 'Ð‘ÐµÐ· Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ',
+              name: item.description || 'Без описание',
               description: item.description,
               quantity: Number(item.quantity),
               unitPrice: Number(item.unitPrice),
@@ -718,8 +718,8 @@ export const updateOrderStatus = async (
       if (status === 'READY' || status === 'COMPLETED') {
         await tx.notification.create({
           data: {
-            title: status === 'READY' ? 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°' : 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
-            message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ ${status === 'READY' ? 'Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ' : 'Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð° Ð¸ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð°'}.`,
+            title: status === 'READY' ? 'Поръчката е готова' : 'Поръчката е завършена',
+            message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е ${status === 'READY' ? 'готова за плащане' : 'завършена и платена'}.`,
             clientId: order.clientId,
           },
         });
@@ -745,7 +745,7 @@ export const updateOrderStatus = async (
         
           void sendEmail(
               client.user.email,
-              'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
+              'Поръчката е готова за плащане',
               emailTemplates.orderReady(order.displayOrderNumber || order.orderNumber, vehicleInfo)
         
           ).catch((emailError) => {
@@ -758,7 +758,7 @@ export const updateOrderStatus = async (
         
           void sendEmail(
               client.user.email,
-              'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
+              'Поръчката е завършена',
               emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
         
           ).catch((emailError) => {
@@ -821,8 +821,8 @@ export const completeOrder = async (
 
       await tx.notification.create({
         data: {
-          title: 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
-          message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð° Ð¸ Ð¿Ð»Ð°Ñ‚ÐµÐ½Ð°. Ð‘Ð»Ð°Ð³Ð¾Ð´Ð°Ñ€Ð¸Ð¼ Ð²Ð¸!`,
+          title: 'Поръчката е завършена',
+          message: `Вашата поръчка ${order.displayOrderNumber || order.orderNumber} е завършена и платена. Благодарим ви!`,
           clientId: order.clientId,
         },
       });
@@ -844,7 +844,7 @@ export const completeOrder = async (
       
       void sendEmail(
           client.user.email,
-          'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
+          'Поръчката е завършена',
           emailTemplates.orderCompleted(order.displayOrderNumber || order.orderNumber, vehicleInfo)
       
       ).catch((emailError) => {
@@ -972,7 +972,7 @@ export const finalizeOrder = async (
       issueDate: new Date(),
       clientName: `${order.client.firstName} ${order.client.lastName}`,
       clientPhone: order.client.phone,
-      clientEmail: order.client.user?.email || order.client.email || 'ÐÑÐ¼Ð° email',
+      clientEmail: order.client.user?.email || order.client.email || 'Няма email',
       vehicleInfo: `${order.vehicle.brand} ${order.vehicle.model} (${order.vehicle.licensePlate})`,
       orderItems: order.orderItems.map((item) => ({
         type: item.type,
@@ -983,7 +983,7 @@ export const finalizeOrder = async (
       })),
       totalPrice: Number(order.totalPrice) || 0,
       serviceCompanyName: serviceCompany.name,
-      serviceCompanyAddress: serviceCompany.address || 'ÐÐ´Ñ€ÐµÑ Ð½Ðµ Ðµ Ð¿Ð¾ÑÐ¾Ñ‡ÐµÐ½',
+      serviceCompanyAddress: serviceCompany.address || 'Адрес не е посочен',
       serviceCompanyPhone: serviceCompany.phone,
       serviceCompanyEmail: serviceCompany.email,
     };
@@ -1060,8 +1060,8 @@ export const finalizeOrder = async (
 
     await prisma.notification.create({
       data: {
-        title: 'Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°',
-        message: `Ð’Ð°ÑˆÐ°Ñ‚Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð° Ð·Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber} Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ñ€ÐµÐ³Ð»ÐµÐ´.`,
+        title: 'Фактурата е готова',
+        message: `Вашата фактура за поръчка ${order.displayOrderNumber || order.orderNumber} е готова за преглед.`,
         clientId: order.clientId,
       },
     });
@@ -1069,7 +1069,7 @@ export const finalizeOrder = async (
     if (order.client.user?.email) {
       void sendEmail(
           order.client.user.email,
-          'Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°',
+          'Фактурата е готова',
           emailTemplates.invoiceReady(invoiceNumber, total, order.displayOrderNumber || order.orderNumber),
           [
             {
