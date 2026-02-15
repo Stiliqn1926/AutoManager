@@ -283,6 +283,7 @@ export const getClientById = async (
 
     // Вземи serviceCompanyId
     let serviceCompanyId: string;
+    let mechanicWorkerId: string | null = null;
 
     if (req.user!.role === 'ADMIN') {
       const serviceCompany = await prisma.serviceCompany.findUnique({
@@ -306,10 +307,20 @@ export const getClientById = async (
         return;
       }
       serviceCompanyId = worker.serviceCompanyId;
+      mechanicWorkerId = worker.id;
     } else {
       res.status(403).json({ message: 'Forbidden' });
       return;
     }
+
+    const mechanicOrderFilter = mechanicWorkerId
+      ? {
+          OR: [
+            { workerId: mechanicWorkerId },
+            { schedules: { some: { workerId: mechanicWorkerId } } },
+          ],
+        }
+      : null;
 
     const client = await prisma.client.findUnique({
       where: { id },
@@ -318,11 +329,44 @@ export const getClientById = async (
           where: {
             serviceCompanyId: serviceCompanyId,
             deletedAt: null,
+            ...(mechanicOrderFilter && {
+              orders: {
+                some: {
+                  serviceCompanyId: serviceCompanyId,
+                  ...mechanicOrderFilter,
+                },
+              },
+            }),
           },
+          ...(mechanicOrderFilter && {
+            include: {
+              orders: {
+                where: {
+                  serviceCompanyId: serviceCompanyId,
+                  ...mechanicOrderFilter,
+                },
+                select: {
+                  id: true,
+                  status: true,
+                },
+              },
+            },
+          }),
         },
         orders: {
           where: {
             serviceCompanyId: serviceCompanyId,
+            ...(mechanicOrderFilter || {}),
+          },
+          include: {
+            vehicle: {
+              select: {
+                id: true,
+                brand: true,
+                model: true,
+                licensePlate: true,
+              },
+            },
           },
         },
         user: {
@@ -340,6 +384,11 @@ export const getClientById = async (
 
     // Провери ownership
     if (client.serviceCompanyId !== serviceCompanyId) {
+      res.status(403).json({ message: 'Forbidden' });
+      return;
+    }
+
+    if (mechanicWorkerId && client.orders.length === 0) {
       res.status(403).json({ message: 'Forbidden' });
       return;
     }
