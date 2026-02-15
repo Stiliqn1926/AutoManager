@@ -30,7 +30,7 @@ const MechanicClientDetails = () => {
       const data = await getMechanicClientById(id);
       setClient(data.client);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸');
+      toast.error('Грешка при зареждане на данни');
       navigate('/mechanic/clients');
     } finally {
       setIsLoading(false);
@@ -43,11 +43,11 @@ const MechanicClientDetails = () => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      WAITING: { label: 'Ð§Ð°ÐºÐ°Ñ‰', className: 'bg-yellow-100 text-yellow-800' },
-      IN_PROGRESS: { label: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Ð“Ð¾Ñ‚Ð¾Ð²', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½', className: 'bg-gray-100 text-gray-800' },
-      CANCELLED: { label: 'ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½', className: 'bg-red-100 text-red-800' },
+      WAITING: { label: 'Чакащ', className: 'bg-yellow-100 text-yellow-800' },
+      IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
+      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Завършен', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отменен', className: 'bg-red-100 text-red-800' },
     };
 
     const config =
@@ -88,7 +88,7 @@ const MechanicClientDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½</p>
+          <p className="text-textSecondary">Клиентът не е намерен</p>
         </div>
       </MainLayout>
     );
@@ -102,7 +102,7 @@ const MechanicClientDetails = () => {
           <button
             onClick={() => navigate('/mechanic/clients')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ ÑÐ¿Ð¸ÑÑŠÐº Ñ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸"
+            aria-label="Назад към списък с клиенти"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -110,25 +110,25 @@ const MechanicClientDetails = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {client.firstName} {client.lastName}
             </h1>
-            <p className="text-textSecondary mt-1">Ð˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð·Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°</p>
+            <p className="text-textSecondary mt-1">Информация за клиента</p>
           </div>
         </div>
 
-        {/* ==================== Ð¡Ð•ÐšÐ¦Ð˜Ð¯ 1: ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ ==================== */}
+        {/* ==================== СЕКЦИЯ 1: Основна информация ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary" />
             <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
-              ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ
+              Основна информация
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ */}
+            {/* Телефон */}
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Phone className="w-4 h-4" />
-                <span>Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</span>
+                <span>Телефон</span>
               </div>
               <a
                 href={`tel:${client.phone}`}
@@ -154,12 +154,12 @@ const MechanicClientDetails = () => {
               </div>
             )}
 
-            {/* ÐÐ´Ñ€ÐµÑ */}
+            {/* Адрес */}
             {client.address && (
               <div className="sm:col-span-2">
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <MapPin className="w-4 h-4" />
-                  <span>ÐÐ´Ñ€ÐµÑ</span>
+                  <span>Адрес</span>
                 </div>
                 <p className="text-base text-textPrimary">{client.address}</p>
               </div>
@@ -167,18 +167,18 @@ const MechanicClientDetails = () => {
           </div>
         </div>
 
-        {/* ==================== Ð¡Ð•ÐšÐ¦Ð˜Ð¯ 2: ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸ ==================== */}
+        {/* ==================== СЕКЦИЯ 2: Автомобили ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Car className="w-5 h-5 text-primary" />
                 <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
-                  ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸
+                  Автомобили
                 </h2>
               </div>
               <span className="text-sm text-textSecondary">
-                ÐžÐ±Ñ‰Ð¾:{' '}
+                Общо:{' '}
                 <span className="font-semibold text-textPrimary">
                   {client.vehicles.length}
                 </span>
@@ -190,7 +190,7 @@ const MechanicClientDetails = () => {
             {client.vehicles.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Car className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>ÐÑÐ¼Ð° Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¸Ñ€Ð°Ð½Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸</p>
+                <p>Няма регистрирани автомобили</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -221,23 +221,23 @@ const MechanicClientDetails = () => {
                     </div>
                   );
                 })}
-                </div>
+              </div>
             )}
           </div>
         </div>
 
-        {/* ==================== Ð¡Ð•ÐšÐ¦Ð˜Ð¯ 3: ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸ ==================== */}
+        {/* ==================== СЕКЦИЯ 3: Поръчки ==================== */}
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-primary" />
                 <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
-                  ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸
+                  Поръчки
                 </h2>
               </div>
               <span className="text-sm text-textSecondary">
-                ÐžÐ±Ñ‰Ð¾:{' '}
+                Общо:{' '}
                 <span className="font-semibold text-textPrimary">
                   {client.orders.length}
                 </span>
@@ -248,7 +248,7 @@ const MechanicClientDetails = () => {
           {client.orders.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>ÐÑÐ¼Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</p>
+              <p>Няма поръчки</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -256,19 +256,19 @@ const MechanicClientDetails = () => {
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐÐ¾Ð¼ÐµÑ€ / Ð”Ð°Ñ‚Ð°
+                      Номер / Дата
                     </th>
                     <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»
+                      Автомобил
                     </th>
                     <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+                      Описание
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð¡Ñ‚Ð°Ñ‚ÑƒÑ
+                      Статус
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ
+                      Действие
                     </th>
                   </tr>
                 </thead>
@@ -307,7 +307,7 @@ const MechanicClientDetails = () => {
                               </>
                             ) : (
                               <div className="text-sm text-textSecondary italic">
-                                ÐÑÐ¼Ð° Ð¿Ñ€ÐµÐ²Ð¾Ð·Ð½Ð¾ ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð¾
+                                Няма превозно средство
                               </div>
                             )}
                           </div>
@@ -315,7 +315,7 @@ const MechanicClientDetails = () => {
                       </td>
                       <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
-                          {order.description || 'ÐÑÐ¼Ð° Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ'}
+                          {order.description || 'Няма описание'}
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -329,7 +329,7 @@ const MechanicClientDetails = () => {
                           }}
                           className="text-primary hover:text-primary-700 text-sm font-medium"
                         >
-                          ÐžÑ‚Ð²Ð¾Ñ€Ð¸
+                          Отвори
                         </button>
                       </td>
                     </tr>
