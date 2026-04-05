@@ -5,8 +5,6 @@ import {
   getVehicleById,
   updateVehicle,
   deleteVehicle,
-  uploadVehicleImage,
-  deleteVehicleImage,
   getMechanicVehicles,
   getMechanicVehicleById,
 } from '../controllers/vehicle.controller';
@@ -15,7 +13,6 @@ import { authorize } from '../middleware/role.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 import { createVehicleSchema, updateVehicleSchema } from '../validators/schemas';
-import { uploadVehicleImage as multerUpload } from '../config/multer';
 
 const router = Router();
 
@@ -51,11 +48,5 @@ router.put('/:id', validate(updateVehicleSchema), updateVehicle);
 
 // DELETE /api/vehicles/:id - Деактивирай автомобил
 router.delete('/:id', deleteVehicle);
-
-// POST /api/vehicles/:id/upload-image - Качи снимка
-router.post('/:id/upload-image', multerUpload.single('image'), uploadVehicleImage);
-
-// DELETE /api/vehicles/:id/image - Изтрий снимка
-router.delete('/:id/image', deleteVehicleImage);
 
 export default router;

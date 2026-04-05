@@ -4,8 +4,9 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { UserRole } from '../types';
 
 // ================= AUTH PAGES =================
+import LandingPage from '../pages/auth/LandingPage';
 import RoleSelection from '../pages/auth/RoleSelection';
-import ServiceRoleSelection from '../pages/auth/ServiceRoleSelection';
+import RegisterSelection from '../pages/auth/RegisterSelection';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import RegisterMechanic from '../pages/auth/RegisterMechanic';
@@ -115,7 +116,7 @@ export const AppRoutes = () => {
           isAuthenticated ? (
             <Navigate to={getDefaultRedirect()} replace />
           ) : (
-            <RoleSelection />
+            <LandingPage />
           )
         }
       />
@@ -127,7 +128,7 @@ export const AppRoutes = () => {
           isAuthenticated ? (
             <Navigate to={getDefaultRedirect()} replace />
           ) : (
-            <ServiceRoleSelection />
+            <RoleSelection />
           )
         }
       />
@@ -145,6 +146,17 @@ export const AppRoutes = () => {
 
       <Route
         path="/register"
+        element={
+          isAuthenticated ? (
+            <Navigate to={getDefaultRedirect()} replace />
+          ) : (
+            <RegisterSelection />
+          )
+        }
+      />
+
+      <Route
+        path="/register-admin"
         element={
           isAuthenticated ? (
             <Navigate to={getDefaultRedirect()} replace />

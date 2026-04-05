@@ -158,7 +158,6 @@ backend/
 │   ├── __tests__/                    # Unit тестове
 │   │   ├── auth.test.ts
 │   │   ├── clients.test.ts
-│   │   ├── files.test.ts
 │   │   ├── finance.test.ts
 │   │   ├── invoices.test.ts
 │   │   ├── notifications.test.ts
@@ -171,7 +170,6 @@ backend/
 │   │   └── workers.test.ts
 │   ├── config/                       # Конфигурации
 │   │   ├── database.ts
-│   │   └── multer.ts
 │   ├── controllers/                  # Request handlers
 │   │   ├── auth.controller.ts
 │   │   ├── client.controller.ts

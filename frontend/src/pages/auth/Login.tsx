@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,11 @@ import toast from 'react-hot-toast';
 import type { ErrorResponse, ValidationError } from '../../types';
 import { validateEmail } from '../../utils/validation';
 
+type RoleContent = {
+  title: string;
+  description: string;
+};
+
 const Login = () => {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || 'service';
@@ -17,13 +22,14 @@ const Login = () => {
     roleParam === 'admin' || roleParam === 'mechanic' || roleParam === 'client'
       ? roleParam
       : null;
-  const expectedRole = roleParam === 'admin'
-    ? 'ADMIN'
-    : roleParam === 'mechanic'
-      ? 'MECHANIC'
-      : roleParam === 'client'
-        ? 'CLIENT'
-        : null;
+  const expectedRole =
+    roleParam === 'admin'
+      ? 'ADMIN'
+      : roleParam === 'mechanic'
+        ? 'MECHANIC'
+        : roleParam === 'client'
+          ? 'CLIENT'
+          : null;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +50,6 @@ const Login = () => {
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
 
-    // При login само проверяваме дали паролата не е празна
     if (!password || password.trim() === '') {
       newErrors.password = 'Паролата е задължителна';
     }
@@ -56,7 +61,7 @@ const Login = () => {
     }
 
     if (!expectedRole) {
-      toast.error('\u041c\u043e\u043b\u044f, \u0438\u0437\u0431\u0435\u0440\u0435\u0442\u0435 \u0440\u043e\u043b\u044f \u0437\u0430 \u0432\u0445\u043e\u0434.');
+      toast.error('Моля, изберете роля за вход.');
       return;
     }
 
@@ -77,8 +82,8 @@ const Login = () => {
 
       if (errorData?.errors) {
         const validationErrors: Record<string, string> = {};
-        errorData.errors.forEach((e: ValidationError) => {
-          validationErrors[e.field] = e.message;
+        errorData.errors.forEach((validationError: ValidationError) => {
+          validationErrors[validationError.field] = validationError.message;
         });
         setErrors(validationErrors);
         toast.error('Моля поправете грешките');
@@ -90,39 +95,30 @@ const Login = () => {
     }
   };
 
-  const getRoleContent = () => {
+  const getRoleContent = (): RoleContent => {
     switch (roleParam) {
       case 'admin':
         return {
           title: 'Вход за Администратор',
-          description: 'Управлявайте вашия автосервиз с пълен контрол - работници, клиенти, финанси и настройки.',
-          registerText: 'Нямате сервиз?',
-          registerLink: '/register',
-          registerLabel: 'Регистрирайте фирма',
+          description:
+            'Управлявайте вашия автосервиз с пълен контрол - работници, клиенти, финанси и настройки.',
         };
       case 'mechanic':
         return {
           title: 'Вход за Механик',
-          description: 'Създавайте и редактирайте поръчки, преглеждайте клиенти и следете вашия работен график.',
-          registerText: 'Нов механик?',
-          registerLink: '/register-mechanic',
-          registerLabel: 'Регистрация с код',
+          description:
+            'Създавайте и редактирайте поръчки, преглеждайте клиенти и следете вашия работен график.',
         };
       case 'client':
         return {
           title: 'Вход за Клиент',
-          description: 'Проследявайте ремонтите на вашите автомобили, разглеждайте история и фактури.',
-          registerText: 'Нов клиент?',
-          registerLink: '/register-client',
-          registerLabel: 'Регистрация',
+          description:
+            'Проследявайте ремонтите на вашите автомобили, разглеждайте история и фактури.',
         };
       default:
         return {
           title: 'Вход в системата',
           description: 'Управление на автосервизи - професионално и лесно.',
-          registerText: 'Нямате акаунт?',
-          registerLink: '/register',
-          registerLabel: 'Регистрация',
         };
     }
   };
@@ -183,12 +179,6 @@ const Login = () => {
             >
               Забравена парола?
             </a>
-            <div className="text-sm text-textSecondary">
-              {content.registerText}{' '}
-              <a href={content.registerLink} className="text-primary hover:text-primary-700 hover:underline transition-colors">
-                {content.registerLabel}
-              </a>
-            </div>
             <div className="pt-4">
               <a href="/" className="text-sm text-textMuted hover:text-textSecondary hover:underline transition-colors">
                 ← Назад към начало
@@ -202,4 +192,3 @@ const Login = () => {
 };
 
 export default Login;
-

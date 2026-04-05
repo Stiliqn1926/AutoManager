@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
-import fs from 'fs';
-import path from 'path';
 
 interface AuthRequest extends Request {
   user?: {
@@ -337,98 +335,6 @@ export const deleteVehicle = async (
   }
 };
 
-// Upload Vehicle Image
-export const uploadVehicleImage = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const userId = req.user!.userId;
-
-    if (!req.file) {
-      res.status(400).json({ message: 'Няма качен файл' });
-      return;
-    }
-
-    // Провери дали vehicle съществува и принадлежи на този сервиз
-    const serviceCompany = await prisma.serviceCompany.findUnique({
-      where: { userId },
-    });
-
-    if (!serviceCompany) {
-      res.status(404).json({ message: 'Service company not found' });
-      return;
-    }
-
-    const vehicle = await prisma.vehicle.findFirst({
-      where: {
-        id,
-        serviceCompanyId: serviceCompany.id,
-      },
-    });
-
-    if (!vehicle) {
-      res.status(404).json({ message: 'Vehicle not found' });
-      return;
-    }
-
-    // Генерирай URL към снимката
-    const imageUrl = `/uploads/vehicles/${req.file.filename}`;
-
-    // Note: Vehicle model doesn't have imageUrl field
-    // Just return the uploaded file info
-    res.status(200).json({
-      message: 'Снимката е качена успешно',
-      vehicle,
-      imageUrl,
-    });
-  } catch (error: unknown) {
-    res.status(500).json({ message: 'Грешка при качване на снимка', error: getErrorMessage(error) });
-  }
-};
-
-// Delete Vehicle Image
-export const deleteVehicleImage = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const userId = req.user!.userId;
-
-    const serviceCompany = await prisma.serviceCompany.findUnique({
-      where: { userId },
-    });
-
-    if (!serviceCompany) {
-      res.status(404).json({ message: 'Service company not found' });
-      return;
-    }
-
-    const vehicle = await prisma.vehicle.findFirst({
-      where: {
-        id,
-        serviceCompanyId: serviceCompany.id,
-      },
-    });
-
-    if (!vehicle) {
-      res.status(404).json({ message: 'Vehicle not found' });
-      return;
-    }
-
-    // Note: Vehicle model doesn't have imageUrl field
-    // This endpoint doesn't do anything currently
-    res.status(200).json({
-      message: 'Vehicle image deletion not supported (no imageUrl field in model)',
-      vehicle,
-    });
-  } catch (error: unknown) {
-    res.status(500).json({ message: 'Грешка при изтриване на снимка', error: getErrorMessage(error) });
-  }
-}; 
-
 // ============================================
 // GET MECHANIC VEHICLES (само автомобили с поръчки при механика)
 // ============================================
@@ -692,3 +598,4 @@ export const getMechanicVehicleById = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
