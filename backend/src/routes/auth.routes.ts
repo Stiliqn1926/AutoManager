@@ -8,8 +8,10 @@ import {
   addServiceCompanyToClient,
   forgotPassword,
   resetPassword,
+  verifyEmailCode,
   registerAdminWithCompany,
   resendPasswordResetCode,
+  resendEmailVerificationCode,
   deleteAccount,
 } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth.middleware';
@@ -37,6 +39,8 @@ router.post('/add-service-company', authenticate, validate(addServiceCompanyToCl
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/resend-reset-code', resendPasswordResetCode);
+router.post('/verify-email-code', verifyEmailCode);
+router.post('/resend-email-verification-code', resendEmailVerificationCode);
 router.delete('/delete-account', authenticate, deleteAccount);
 
 export default router;

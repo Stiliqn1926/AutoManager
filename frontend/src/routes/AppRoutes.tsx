@@ -13,6 +13,7 @@ import RegisterMechanic from '../pages/auth/RegisterMechanic';
 import RegisterClient from '../pages/auth/RegisterClient';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
+import VerifyEmail from '../pages/auth/VerifyEmail';
 import TermsAndConditions from '../pages/TermsAndConditions';
 
 // ================= ADMIN PAGES =================
@@ -190,6 +191,7 @@ export const AppRoutes = () => {
 
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/terms" element={<TermsAndConditions />} />
 
       {/* ================= ADMIN ================= */}

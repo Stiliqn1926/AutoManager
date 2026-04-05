@@ -80,6 +80,13 @@ const Login = () => {
         return;
       }
 
+      if (err.response?.status === 403 && errorData?.code === 'EMAIL_NOT_VERIFIED') {
+        const roleQuery = forgotRole ? `&role=${encodeURIComponent(forgotRole)}` : '';
+        toast.error('Имейлът не е потвърден. Въведете кода за потвърждение.');
+        navigate(`/verify-email?email=${encodeURIComponent(email)}${roleQuery}`);
+        return;
+      }
+
       if (errorData?.errors) {
         const validationErrors: Record<string, string> = {};
         errorData.errors.forEach((validationError: ValidationError) => {

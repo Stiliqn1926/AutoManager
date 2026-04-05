@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication Controller
  *
  * Uses httpOnly cookies for refresh tokens (XSS protection).
@@ -20,6 +20,211 @@ import {
   blacklistToken,
 } from '../utils/tokenUtils';
 
+const PASSWORD_RESET_CODE_TTL_MINUTES = 15;
+const EMAIL_VERIFICATION_CODE_TTL_MINUTES = 10;
+const CODE_RESEND_COOLDOWN_SECONDS = 60;
+const CODE_GENERATION_MAX_ATTEMPTS = 5;
+
+const getExpiryDate = (minutes: number): Date =>
+  new Date(Date.now() + minutes * 60 * 1000);
+
+const getRecentCodeThreshold = (): Date =>
+  new Date(Date.now() - CODE_RESEND_COOLDOWN_SECONDS * 1000);
+
+const generateSixDigitCode = (): string =>
+  crypto.randomInt(100000, 999999).toString();
+
+const doesCodeConflictWithHashes = async (
+  code: string,
+  hashes: string[]
+): Promise<boolean> => {
+  for (const hash of hashes) {
+    const isMatch = await comparePassword(code, hash);
+    if (isMatch) return true;
+  }
+
+  return false;
+};
+
+const generateNonConflictingCodeForUser = async (
+  userId: string
+): Promise<string> => {
+  const now = new Date();
+
+  const [activePasswordResetCodes, activeEmailVerificationCodes] =
+    await Promise.all([
+      prisma.passwordReset.findMany({
+        where: {
+          userId,
+          expiresAt: { gte: now },
+        },
+        select: { token: true },
+      }),
+      prisma.emailVerificationCode.findMany({
+        where: {
+          userId,
+          type: 'EMAIL_VERIFICATION',
+          usedAt: null,
+          expiresAt: { gte: now },
+        },
+        select: { token: true },
+      }),
+    ]);
+
+  const activeHashes = [
+    ...activePasswordResetCodes.map((item) => item.token),
+    ...activeEmailVerificationCodes.map((item) => item.token),
+  ];
+
+  for (let attempt = 0; attempt < CODE_GENERATION_MAX_ATTEMPTS; attempt += 1) {
+    const code = generateSixDigitCode();
+    const hasConflict = await doesCodeConflictWithHashes(code, activeHashes);
+
+    if (!hasConflict) {
+      return code;
+    }
+  }
+
+  throw new Error('Неуспешно генериране на уникален код за потвърждение');
+};
+
+const sendPasswordResetCodeEmail = async (
+  email: string,
+  code: string,
+  isResend = false
+): Promise<void> => {
+  const subject = isResend
+    ? 'ÐÐ¾Ð² ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°'
+    : 'ÐšÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°';
+  const intro = isResend
+    ? 'Ð’Ð°ÑˆÐ¸ÑÑ‚ Ð½Ð¾Ð² ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð° Ðµ:'
+    : 'Ð’Ð°ÑˆÐ¸ÑÑ‚ ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð° Ðµ:';
+  const extraText = isResend
+    ? 'ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ Ð½Ð¾Ð² ÐºÐ¾Ð´, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».'
+    : 'ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ ÑÐ¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».';
+
+  const { sendEmail } = await import('../services/email.service');
+
+  await sendEmail(
+    email,
+    subject,
+    `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f97316;">Ð’ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°</h2>
+        <p>Ð—Ð´Ñ€Ð°Ð²ÐµÐ¹Ñ‚Ðµ,</p>
+        <p>${intro}</p>
+        <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${code}</h1>
+        <p>ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° ${PASSWORD_RESET_CODE_TTL_MINUTES} Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
+        <p>${extraText}</p>
+        <br>
+        <p>Ð¡ ÑƒÐ²Ð°Ð¶ÐµÐ½Ð¸Ðµ,<br>Ð•ÐºÐ¸Ð¿ÑŠÑ‚ Ð½Ð° AutoManager</p>
+      </div>
+    `
+  );
+};
+
+const sendEmailVerificationCodeEmail = async (
+  email: string,
+  code: string
+): Promise<void> => {
+  const { sendEmail } = await import('../services/email.service');
+
+  await sendEmail(
+    email,
+    'ÐšÐ¾Ð´ Ð·Ð° Ð¿Ð¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»',
+    `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f97316;">ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»</h2>
+        <p>Ð—Ð´Ñ€Ð°Ð²ÐµÐ¹Ñ‚Ðµ,</p>
+        <p>Ð’Ð°ÑˆÐ¸ÑÑ‚ ÐºÐ¾Ð´ Ð·Ð° Ð¿Ð¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ðµ:</p>
+        <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${code}</h1>
+        <p>ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° ${EMAIL_VERIFICATION_CODE_TTL_MINUTES} Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
+        <p>ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».</p>
+        <br>
+        <p>Ð¡ ÑƒÐ²Ð°Ð¶ÐµÐ½Ð¸Ðµ,<br>Ð•ÐºÐ¸Ð¿ÑŠÑ‚ Ð½Ð° AutoManager</p>
+      </div>
+    `
+  );
+};
+
+const issuePasswordResetCode = async (
+  userId: string,
+  email: string,
+  isResend = false
+) => {
+  const recentCode = await prisma.passwordReset.findFirst({
+    where: {
+      userId,
+      createdAt: { gte: getRecentCodeThreshold() },
+      expiresAt: { gte: new Date() },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (recentCode) {
+    return { cooldown: true as const };
+  }
+
+  const resetCode = await generateNonConflictingCodeForUser(userId);
+  const hashedCode = await hashPassword(resetCode);
+
+  await prisma.passwordReset.deleteMany({ where: { userId } });
+
+  await prisma.passwordReset.create({
+    data: {
+      userId,
+      token: hashedCode,
+      expiresAt: getExpiryDate(PASSWORD_RESET_CODE_TTL_MINUTES),
+    },
+  });
+
+  await sendPasswordResetCodeEmail(email, resetCode, isResend);
+
+  return { cooldown: false as const };
+};
+
+const issueEmailVerificationCode = async (userId: string, email: string) => {
+  const recentCode = await prisma.emailVerificationCode.findFirst({
+    where: {
+      userId,
+      type: 'EMAIL_VERIFICATION',
+      usedAt: null,
+      createdAt: { gte: getRecentCodeThreshold() },
+      expiresAt: { gte: new Date() },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (recentCode) {
+    return { cooldown: true as const };
+  }
+
+  const verificationCode = await generateNonConflictingCodeForUser(userId);
+  const hashedCode = await hashPassword(verificationCode);
+
+  await prisma.emailVerificationCode.updateMany({
+    where: {
+      userId,
+      type: 'EMAIL_VERIFICATION',
+      usedAt: null,
+    },
+    data: { usedAt: new Date() },
+  });
+
+  await prisma.emailVerificationCode.create({
+    data: {
+      userId,
+      token: hashedCode,
+      type: 'EMAIL_VERIFICATION',
+      expiresAt: getExpiryDate(EMAIL_VERIFICATION_CODE_TTL_MINUTES),
+    },
+  });
+
+  await sendEmailVerificationCodeEmail(email, verificationCode);
+
+  return { cooldown: false as const };
+};
+
 // Register (ADMIN and CLIENT)
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -27,7 +232,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      res.status(400).json({ message: 'User already exists' });
+      res.status(400).json({ message: 'Потребител с този имейл вече съществува' });
       return;
     }
 
@@ -35,7 +240,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const isDomainValid = await validateEmailDomain(email);
     if (!isDomainValid) {
       res.status(400).json({
-        message: 'Email domain does not exist or cannot receive emails',
+        message: 'Имейл домейнът не съществува или не може да получава имейли',
       });
       return;
     }
@@ -47,6 +252,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         email,
         password: hashedPassword,
         role,
+        emailVerified: false,
       },
     });
 
@@ -63,33 +269,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       });
     }
 
-    const accessToken = generateToken(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        tokenVersion: user.tokenVersion,
-      },
-      '15m'
-    );
-
-    const refreshToken = await createRefreshToken(user.id, 30);
-
-    res.cookie('refreshToken', refreshToken.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    try {
+      await issueEmailVerificationCode(user.id, user.email);
+    } catch (emailError) {
+      logger.error('Failed to send verification code email:', emailError);
+    }
 
     res.status(201).json({
-      message: 'User registered successfully',
+      message: 'Регистрацията е успешна. Код за потвърждение е изпратен на имейла.',
+      requiresEmailVerification: true,
       user: {
         id: user.id,
         email: user.email,
@@ -98,7 +286,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -109,7 +297,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Грешен имейл или парола' });
       return;
     }
 
@@ -118,16 +306,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (!user.emailVerified) {
+      res.status(403).json({
+        message: 'Имейлът не е потвърден. Моля, въведете кода за потвърждение.',
+        code: 'EMAIL_NOT_VERIFIED',
+      });
+      return;
+    }
+
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Грешен имейл или парола' });
       return;
     }
 
     if (expectedRole && expectedRole !== user.role) {
-  res.status(403).json({ message: 'Избраната роля не съвпада с профила.' });
-  return;
-}
+      res.status(403).json({ message: 'Избраната роля не съвпада с профила.' });
+      return;
+    }
 
     let serviceCompanyId: string | undefined;
 
@@ -173,7 +369,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     res.status(200).json({
-      message: 'Login successful',
+      message: 'Успешен вход',
       user: {
         id: user.id,
         email: user.email,
@@ -183,7 +379,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -246,7 +442,7 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     });
   } catch (error) {
     logger.error('Logout error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -281,7 +477,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
         if (activeCount > 0) {
           res.status(400).json({
-            message: 'Не можете да изтриете акаунта си докато имате активни членства в сервизи. Моля, напуснете всички сервизи първо.',
+            message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ñ‡Ð»ÐµÐ½ÑÑ‚Ð²Ð° Ð² ÑÐµÑ€Ð²Ð¸Ð·Ð¸. ÐœÐ¾Ð»Ñ, Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ Ð²ÑÐ¸Ñ‡ÐºÐ¸ ÑÐµÑ€Ð²Ð¸Ð·Ð¸ Ð¿ÑŠÑ€Ð²Ð¾.',
             activeServicesCount: activeCount,
           });
           return;
@@ -314,7 +510,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
         if (activeOrdersCount > 0) {
           res.status(400).json({
-            message: 'Не можете да изтриете акаунта си докато имате активни поръчки. Моля, изчакайте завършването им.',
+            message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸. ÐœÐ¾Ð»Ñ, Ð¸Ð·Ñ‡Ð°ÐºÐ°Ð¹Ñ‚Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐ²Ð°Ð½ÐµÑ‚Ð¾ Ð¸Ð¼.',
             activeOrdersCount,
           });
           return;
@@ -350,7 +546,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
       if (serviceCompany) {
         res.status(400).json({
-          message: 'Не можете да изтриете акаунта си докато имате активен сервиз. Моля, свържете се с поддръжката.',
+          message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ ÑÐµÑ€Ð²Ð¸Ð·. ÐœÐ¾Ð»Ñ, ÑÐ²ÑŠÑ€Ð¶ÐµÑ‚Ðµ ÑÐµ Ñ Ð¿Ð¾Ð´Ð´Ñ€ÑŠÐ¶ÐºÐ°Ñ‚Ð°.',
         });
         return;
       }
@@ -385,11 +581,11 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     res.status(200).json({
-      message: 'Акаунтът е изтрит успешно',
+      message: 'ÐÐºÐ°ÑƒÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
     });
   } catch (error) {
     logger.error('Delete account error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -402,7 +598,7 @@ export const refreshToken = async (
     const token = req.cookies.refreshToken;
 
     if (!token) {
-      res.status(400).json({ message: 'Refresh token is required' });
+      res.status(400).json({ message: 'Липсва рефреш токен' });
       return;
     }
 
@@ -412,7 +608,7 @@ export const refreshToken = async (
     });
 
     if (!refreshRecord || refreshRecord.expiresAt < new Date()) {
-      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      res.status(401).json({ message: 'Невалиден или изтекъл рефреш токен' });
       return;
     }
 
@@ -424,7 +620,7 @@ export const refreshToken = async (
       });
       res
         .status(401)
-        .json({ message: 'Refresh token reuse detected. Please login again.' });
+        .json({ message: 'Засечено е повторно използване на рефреш токен. Влезте отново.' });
       return;
     }
 
@@ -434,7 +630,7 @@ export const refreshToken = async (
         where: { id: refreshRecord.userId },
         data: { tokenVersion: { increment: 1 } },
       });
-      res.status(403).json({ message: 'Акаунтът е деактивиран.' });
+      res.status(403).json({ message: 'ÐÐºÐ°ÑƒÐ½Ñ‚ÑŠÑ‚ Ðµ Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½.' });
       return;
     }
 
@@ -468,7 +664,7 @@ export const refreshToken = async (
 
     const refreshMaxAgeMs = refreshRecord.expiresAt.getTime() - Date.now();
     if (refreshMaxAgeMs <= 0) {
-      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      res.status(401).json({ message: 'Невалиден или изтекъл рефреш токен' });
       return;
     }
 
@@ -498,11 +694,11 @@ export const refreshToken = async (
     });
 
     res.status(200).json({
-      message: 'Token refreshed successfully',
+      message: 'Токенът е обновен успешно',
     });
   } catch (error) {
     logger.error('Refresh token error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -532,7 +728,7 @@ export const registerMechanic = async (
     const isDomainValid = await validateEmailDomain(email);
     if (!isDomainValid) {
       res.status(400).json({
-        message: 'Email domain does not exist or cannot receive emails',
+        message: 'Имейл домейнът не съществува или не може да получава имейли',
       });
       return;
     }
@@ -542,7 +738,7 @@ export const registerMechanic = async (
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Invalid service company code' });
+      res.status(404).json({ message: 'Невалиден код на сервиза' });
       return;
     }
 
@@ -554,6 +750,7 @@ export const registerMechanic = async (
           email,
           password: hashedPassword,
           role: 'MECHANIC',
+          emailVerified: false,
         },
       });
 
@@ -595,13 +792,21 @@ export const registerMechanic = async (
       return newUser;
     });
 
+    try {
+      await issueEmailVerificationCode(user.id, user.email);
+    } catch (emailError) {
+      logger.error('Failed to send verification code email:', emailError);
+    }
+
     res.status(201).json({
-      message: 'Mechanic registration submitted. Waiting for admin approval.',
+      message:
+        'Регистрацията на механик е изпратена. Код за потвърждение е изпратен на имейла. Изчаквайте одобрение от администратор.',
+      requiresEmailVerification: true,
       email: user.email,
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -615,7 +820,7 @@ export const addServiceCompanyToClient = async (
     const userId = (req as AuthRequest).user?.userId;
 
     if (!phone || phone.trim().length === 0) {
-      res.status(400).json({ message: 'Phone number is required' });
+      res.status(400).json({ message: 'Телефонният номер е задължителен' });
       return;
     }
 
@@ -624,13 +829,13 @@ export const addServiceCompanyToClient = async (
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Invalid service company code' });
+      res.status(404).json({ message: 'Невалиден код на сервиза' });
       return;
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || user.role !== 'CLIENT') {
-      res.status(403).json({ message: 'Only clients can use this endpoint' });
+      res.status(403).json({ message: 'Само клиенти могат да използват тази крайна точка' });
       return;
     }
 
@@ -640,7 +845,7 @@ export const addServiceCompanyToClient = async (
 
     if (existingClient) {
       res.status(400).json({
-        message: 'You are already a client of this service company',
+        message: 'Вече сте клиент на този сервиз',
       });
       return;
     }
@@ -657,7 +862,7 @@ export const addServiceCompanyToClient = async (
     });
 
     res.status(201).json({
-      message: 'Successfully added to service company',
+      message: 'Успешно се присъединихте към сервиза',
       client: {
         id: client.id,
         serviceCompanyName: serviceCompany.name,
@@ -665,7 +870,7 @@ export const addServiceCompanyToClient = async (
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -680,51 +885,23 @@ export const forgotPassword = async (
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(200).json({
-        message: 'If email exists, reset code was sent',
+        message: 'Ако имейлът съществува, е изпратен код за възстановяване',
       });
       return;
     }
 
-    const resetCode = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const hashedCode = await hashPassword(resetCode);
+    const result = await issuePasswordResetCode(user.id, email, false);
+    if (result.cooldown) {
+      res.status(429).json({
+        message: 'Изчакайте малко преди да заявите нов код.',
+      });
+      return;
+    }
 
-    await prisma.passwordReset.create({
-      data: {
-        userId: user.id,
-        token: hashedCode,
-        expiresAt,
-      },
-    });
-
-    const emailService = await import('../services/email.service');
-
-    void emailService.sendEmail(
-      email,
-      'Код за възстановяване на парола',
-      `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #f97316;">Възстановяване на парола</h2>
-          <p>Здравейте,</p>
-          <p>Вашият код за възстановяване на парола е:</p>
-          <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${resetCode}</h1>
-          <p>Кодът е валиден за 15 минути.</p>
-          <p>Ако не сте поискали смяна на парола, игнорирайте този имейл.</p>
-          <br>
-          <p>С уважение,<br>Екипът на AutoManager</p>
-        </div>
-      `
-
-    ).catch((emailError) => {
-
-      logger.error('Failed to send reset code email:', emailError);
-
-    });
-
-    res.status(200).json({ message: 'Reset code sent to email' });
+    res.status(200).json({ message: 'Код за възстановяване е изпратен на имейла' });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -738,7 +915,7 @@ export const resetPassword = async (
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(400).json({ message: 'Invalid email or code' });
+      res.status(400).json({ message: 'Невалиден имейл или код' });
       return;
     }
 
@@ -760,7 +937,7 @@ export const resetPassword = async (
     }
 
     if (!validPasswordReset) {
-      res.status(400).json({ message: 'Invalid or expired code' });
+      res.status(400).json({ message: 'Невалиден или изтекъл код' });
       return;
     }
 
@@ -771,18 +948,18 @@ export const resetPassword = async (
       data: { password: hashedPassword },
     });
 
-    await prisma.passwordReset.delete({
-      where: { id: validPasswordReset.id },
+    await prisma.passwordReset.deleteMany({
+      where: { userId: user.id },
     });
 
     await revokeAllUserRefreshTokens(user.id);
 
     res.status(200).json({
-      message: 'Password reset successfully. Please login again.',
+      message: 'Паролата е сменена успешно. Влезте отново.',
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -797,51 +974,136 @@ export const resendPasswordResetCode = async (
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(200).json({
-        message: 'If email exists, reset code was sent',
+        message: 'Ако имейлът съществува, е изпратен код за възстановяване',
       });
       return;
     }
 
-    const resetCode = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const hashedCode = await hashPassword(resetCode);
+    const result = await issuePasswordResetCode(user.id, email, true);
+    if (result.cooldown) {
+      res.status(429).json({
+        message: 'Изчакайте малко преди да заявите нов код.',
+      });
+      return;
+    }
 
-    await prisma.passwordReset.create({
-      data: {
-        userId: user.id,
-        token: hashedCode,
-        expiresAt,
-      },
-    });
-
-    const emailService = await import('../services/email.service');
-
-    void emailService.sendEmail(
-      email,
-      'Нов код за възстановяване на парола',
-      `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #f97316;">Възстановяване на парола</h2>
-          <p>Здравейте,</p>
-          <p>Вашият нов код за възстановяване на парола е:</p>
-          <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${resetCode}</h1>
-          <p>Кодът е валиден за 15 минути.</p>
-          <p>Ако не сте поискали нов код, игнорирайте този имейл.</p>
-          <br>
-          <p>С уважение,<br>Екипът на AutoManager</p>
-        </div>
-      `
-
-    ).catch((emailError) => {
-
-      logger.error('Failed to send new reset code email:', emailError);
-
-    });
-
-    res.status(200).json({ message: 'New reset code sent to email' });
+    res.status(200).json({ message: 'Нов код за възстановяване е изпратен на имейла' });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
+  }
+};
+
+// Verify Email Code
+export const verifyEmailCode = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      res.status(400).json({ message: 'Имейлът и кодът са задължителни' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(400).json({ message: 'Невалиден имейл или код' });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.status(200).json({ message: 'Имейлът вече е потвърден' });
+      return;
+    }
+
+    const verificationCodes = await prisma.emailVerificationCode.findMany({
+      where: {
+        userId: user.id,
+        type: 'EMAIL_VERIFICATION',
+        usedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    let validCode = null;
+    for (const item of verificationCodes) {
+      const isCodeValid = await comparePassword(code, item.token);
+      if (isCodeValid) {
+        validCode = item;
+        break;
+      }
+    }
+
+    if (!validCode) {
+      res.status(400).json({ message: 'Невалиден или изтекъл код' });
+      return;
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { emailVerified: true },
+      });
+
+      await tx.emailVerificationCode.update({
+        where: { id: validCode.id },
+        data: { usedAt: new Date() },
+      });
+
+      await tx.emailVerificationCode.updateMany({
+        where: {
+          userId: user.id,
+          type: 'EMAIL_VERIFICATION',
+          usedAt: null,
+          id: { not: validCode.id },
+        },
+        data: { usedAt: new Date() },
+      });
+    });
+
+    res.status(200).json({ message: 'Имейлът е потвърден успешно' });
+  } catch (error) {
+    logger.error('Auth error:', error);
+    res.status(500).json({ message: 'Сървърна грешка' });
+  }
+};
+
+// Resend Email Verification Code
+export const resendEmailVerificationCode = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(200).json({
+        message: 'Ако имейлът съществува, е изпратен код за потвърждение',
+      });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.status(200).json({ message: 'Имейлът вече е потвърден' });
+      return;
+    }
+
+    const result = await issueEmailVerificationCode(user.id, user.email);
+    if (result.cooldown) {
+      res.status(429).json({
+        message: 'Изчакайте малко преди да заявите нов код.',
+      });
+      return;
+    }
+
+    res.status(200).json({ message: 'Код за потвърждение е изпратен на имейла' });
+  } catch (error) {
+    logger.error('Auth error:', error);
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -865,14 +1127,14 @@ export const registerAdminWithCompany = async (
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      res.status(400).json({ message: 'User already exists' });
+      res.status(400).json({ message: 'Потребител с този имейл вече съществува' });
       return;
     }
 
     const isDomainValid = await validateEmailDomain(email);
     if (!isDomainValid) {
       res.status(400).json({
-        message: 'Email domain does not exist or cannot receive emails',
+        message: 'Имейл домейнът не съществува или не може да получава имейли',
       });
       return;
     }
@@ -880,7 +1142,7 @@ export const registerAdminWithCompany = async (
     const isCompanyEmailValid = await validateEmailDomain(companyEmail);
     if (!isCompanyEmailValid) {
       res.status(400).json({
-        message: 'Company email domain does not exist or cannot receive emails',
+        message: 'Имейл домейнът на фирмата не съществува или не може да получава имейли',
       });
       return;
     }
@@ -895,6 +1157,7 @@ export const registerAdminWithCompany = async (
           email,
           password: hashedPassword,
           role: 'ADMIN',
+          emailVerified: false,
         },
       });
 
@@ -917,35 +1180,16 @@ export const registerAdminWithCompany = async (
 
     const { user, serviceCompany } = result;
 
-    const accessToken = generateToken(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        tokenVersion: user.tokenVersion,
-        serviceCompanyId: serviceCompany.id,
-      },
-      '15m'
-    );
-
-    const refreshToken = await createRefreshToken(user.id);
-
-    res.cookie('refreshToken', refreshToken.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
-
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    try {
+      await issueEmailVerificationCode(user.id, user.email);
+    } catch (emailError) {
+      logger.error('Failed to send verification code email:', emailError);
+    }
 
     res.status(201).json({
-      message: 'Admin and service company created successfully',
+      message:
+        'Администраторът и сервизът са създадени успешно. Код за потвърждение е изпратен на имейла.',
+      requiresEmailVerification: true,
       user: {
         id: user.id,
         email: user.email,
@@ -960,6 +1204,9 @@ export const registerAdminWithCompany = async (
     });
   } catch (error) {
     logger.error('Auth error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
+
+
+

@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { PasswordInput } from '../../components/common/PasswordInput';
@@ -49,7 +48,6 @@ const RegisterClient = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
@@ -62,17 +60,17 @@ const RegisterClient = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Името е задължително';
+      newErrors.firstName = 'Ð˜Ð¼ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾';
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Фамилията е задължителна';
+      newErrors.lastName = 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°';
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Телефонният номер е задължителен';
+      newErrors.phone = 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½';
     } else if (!/^[0-9+\s()-]+$/.test(formData.phone)) {
-      newErrors.phone = 'Невалиден телефонен номер';
+      newErrors.phone = 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½ÐµÐ½ Ð½Ð¾Ð¼ÐµÑ€';
     }
 
     const emailError = validateEmail(formData.email);
@@ -89,7 +87,7 @@ const RegisterClient = () => {
 
     const checkboxError = validateCheckbox(
       agreedToTerms,
-      'Трябва да се съгласите с общите условия'
+      'Ð¢Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÐµ ÑÑŠÐ³Ð»Ð°ÑÐ¸Ñ‚Ðµ Ñ Ð¾Ð±Ñ‰Ð¸Ñ‚Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ'
     );
     if (checkboxError) {
       toast.error(checkboxError);
@@ -98,7 +96,7 @@ const RegisterClient = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error('Моля поправете грешките във формата');
+      toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐµÑ‚Ðµ Ð³Ñ€ÐµÑˆÐºÐ¸Ñ‚Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð°');
       return;
     }
 
@@ -115,12 +113,9 @@ const RegisterClient = () => {
         role: 'CLIENT',
       });
 
-      // Step 2: Login
-      await login(formData.email, formData.password, 'CLIENT');
-
       localStorage.removeItem(STORAGE_KEY);
-      toast.success('Регистрацията е успешна!');
-      navigate('/client/dashboard');
+      toast.success('Регистрацията е успешна! Потвърдете имейла си.');
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}&role=client`);
     } catch (error) {
       const err = error as {
         response?: {
@@ -139,9 +134,9 @@ const RegisterClient = () => {
           validationErrors[e.field] = e.message;
         });
         setErrors(validationErrors);
-        toast.error('Моля поправете грешките');
+        toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐµÑ‚Ðµ Ð³Ñ€ÐµÑˆÐºÐ¸Ñ‚Ðµ');
       } else {
-        toast.error(errorData?.message || 'Грешка при регистрация');
+        toast.error(errorData?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ');
       }
     } finally {
       setIsLoading(false);
@@ -154,10 +149,10 @@ const RegisterClient = () => {
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
         </h1>
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Регистрация за Клиент</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð·Ð° ÐšÐ»Ð¸ÐµÐ½Ñ‚</h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-6">
-          Създайте акаунт, за да проследявате ремонтите на вашите автомобили,
-          историята на поръчките и фактурите.
+          Ð¡ÑŠÐ·Ð´Ð°Ð¹Ñ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚, Ð·Ð° Ð´Ð° Ð¿Ñ€Ð¾ÑÐ»ÐµÐ´ÑÐ²Ð°Ñ‚Ðµ Ñ€ÐµÐ¼Ð¾Ð½Ñ‚Ð¸Ñ‚Ðµ Ð½Ð° Ð²Ð°ÑˆÐ¸Ñ‚Ðµ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸,
+          Ð¸ÑÑ‚Ð¾Ñ€Ð¸ÑÑ‚Ð° Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸Ñ‚Ðµ Ð¸ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð¸Ñ‚Ðµ.
         </p>
       </div>
 
@@ -165,14 +160,14 @@ const RegisterClient = () => {
         <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8 my-auto">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
-              Създайте акаунт
+              Ð¡ÑŠÐ·Ð´Ð°Ð¹Ñ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚
             </h2>
-            <p className="text-textSecondary">Регистрация за клиент</p>
+            <p className="text-textSecondary">Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð·Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Име *"
+              label="Ð˜Ð¼Ðµ *"
               type="text"
               value={formData.firstName}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -182,7 +177,7 @@ const RegisterClient = () => {
             />
 
             <Input
-              label="Фамилия *"
+              label="Ð¤Ð°Ð¼Ð¸Ð»Ð¸Ñ *"
               type="text"
               value={formData.lastName}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -192,7 +187,7 @@ const RegisterClient = () => {
             />
 
             <Input
-              label="Телефонен номер *"
+              label="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÐµÐ½ Ð½Ð¾Ð¼ÐµÑ€ *"
               type="tel"
               value={formData.phone}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -203,7 +198,7 @@ const RegisterClient = () => {
             />
 
             <Input
-              label="Имейл *"
+              label="Ð˜Ð¼ÐµÐ¹Ð» *"
               type="email"
               value={formData.email}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -213,8 +208,8 @@ const RegisterClient = () => {
             />
 
             <PasswordInput
-              label="Парола *"
-              placeholder="••••••••"
+              label="ÐŸÐ°Ñ€Ð¾Ð»Ð° *"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={formData.password}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setFormData({ ...formData, password: e.target.value })
@@ -225,8 +220,8 @@ const RegisterClient = () => {
             />
 
             <PasswordInput
-              label="Потвърди парола *"
-              placeholder="••••••••"
+              label="ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð° *"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={formData.confirmPassword}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setFormData({
@@ -241,14 +236,14 @@ const RegisterClient = () => {
             <Checkbox
               label={
                 <span className="text-sm text-textSecondary">
-                  Съгласявам се с{' '}
+                  Ð¡ÑŠÐ³Ð»Ð°ÑÑÐ²Ð°Ð¼ ÑÐµ Ñ{' '}
                   <a
                     href="/terms?returnTo=/register-client"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:text-primary-700 hover:underline transition-colors"
                   >
-                    общите условия и поверителност
+                    Ð¾Ð±Ñ‰Ð¸Ñ‚Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ Ð¸ Ð¿Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÐµÐ»Ð½Ð¾ÑÑ‚
                   </a>
                 </span>
               }
@@ -259,7 +254,7 @@ const RegisterClient = () => {
             />
 
             <Button type="submit" fullWidth isLoading={isLoading}>
-              Регистрация
+              Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ
             </Button>
           </form>
 
@@ -268,13 +263,13 @@ const RegisterClient = () => {
               href="/login?role=client"
               className="text-sm text-primary hover:text-primary-700 hover:underline block transition-colors"
             >
-              Вече имате акаунт? Вход
+              Ð’ÐµÑ‡Ðµ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚? Ð’Ñ…Ð¾Ð´
             </a>
             <a
               href="/"
               className="text-sm text-textMuted hover:text-textSecondary hover:underline block transition-colors"
             >
-              ← Назад към начало
+              â† ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð½Ð°Ñ‡Ð°Ð»Ð¾
             </a>
           </div>
         </div>
@@ -284,4 +279,5 @@ const RegisterClient = () => {
 };
 
 export default RegisterClient;
+
 

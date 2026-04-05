@@ -196,7 +196,7 @@ const LandingPage = () => {
                 Вход за сервиз
               </Link>
               <Link
-                to="/register"
+                to="/auth/service-role?mode=register"
                 className="px-4 h-9 inline-flex items-center rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-700 transition-colors whitespace-nowrap"
               >
                 Регистрация
@@ -270,7 +270,7 @@ const LandingPage = () => {
                   Вход за сервиз
                 </Link>
                 <Link
-                  to="/register"
+                  to="/auth/service-role?mode=register"
                   onClick={() => setMobileOpen(false)}
                   className="px-4 h-10 inline-flex items-center justify-center rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-700 transition-colors whitespace-nowrap"
                 >
@@ -301,7 +301,7 @@ const LandingPage = () => {
 
                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
                   <Link
-                    to="/register"
+                    to="/auth/service-role?mode=register"
                     className="w-full sm:w-auto px-6 h-12 inline-flex items-center justify-center rounded-lg bg-primary text-white font-semibold hover:bg-primary-700 transition-colors whitespace-nowrap"
                   >
                     Регистрация на сервиз
@@ -428,7 +428,7 @@ const LandingPage = () => {
               </ul>
 
               <Link
-                to="/register"
+                to="/auth/service-role?mode=register"
                 className="w-full h-12 inline-flex items-center justify-center rounded-lg bg-primary text-white font-semibold hover:bg-primary-700 transition-colors"
               >
                 Регистрация на сервиз
@@ -471,7 +471,7 @@ const LandingPage = () => {
               </Link>
 
               <Link
-                to="/register"
+                to="/auth/service-role?mode=register"
                 className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-primary text-white shadow-card hover:bg-primary-700 transition-colors"
               >
                 <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
@@ -504,3 +504,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+

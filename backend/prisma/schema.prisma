@@ -17,12 +17,18 @@ enum UserRole {
   MECHANIC
 }
 
+enum VerificationCodeType {
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
   role      UserRole
   isActive  Boolean  @default(true)
+  emailVerified Boolean @default(true)
   tokenVersion Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -32,6 +38,7 @@ model User {
   worker             Worker?
   refreshTokens      RefreshToken[]
   passwordResets     PasswordReset[]
+  emailVerificationCodes EmailVerificationCode[]
   blacklistedTokens  BlacklistedToken[]
 
   @@index([email])
@@ -69,6 +76,25 @@ model PasswordReset {
   @@index([userId])
   @@index([expiresAt])
   @@map("password_resets")
+}
+
+model EmailVerificationCode {
+  id        String               @id @default(uuid())
+  token     String               @unique
+  type      VerificationCodeType @default(EMAIL_VERIFICATION)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime             @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([type])
+  @@index([expiresAt])
+  @@index([usedAt])
+  @@map("email_verification_codes")
 }
 
 model BlacklistedToken {

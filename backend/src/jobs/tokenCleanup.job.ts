@@ -66,10 +66,12 @@ export const startTokenCleanupJob = (): void => {
           refreshTokensDeleted: result.refreshTokens,
           blacklistedTokensDeleted: result.blacklistedTokens,
           passwordResetsDeleted: result.passwordResets,
+          emailVerificationCodesDeleted: result.emailVerificationCodes,
           totalDeleted:
             result.refreshTokens +
             result.blacklistedTokens +
-            result.passwordResets,
+            result.passwordResets +
+            result.emailVerificationCodes,
         });
       } catch (error) {
         // Ако cleanup fail-не, логваме error но НЕ crashваме приложението

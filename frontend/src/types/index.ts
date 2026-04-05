@@ -71,5 +71,6 @@ export interface ValidationError {
 
 export interface ErrorResponse {
   message: string;
+  code?: string;
   errors?: ValidationError[];
 }

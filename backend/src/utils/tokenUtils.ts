@@ -114,14 +114,25 @@ export const cleanupExpiredTokens = async () => {
       where: { expiresAt: { lt: now } },
     });
 
+    const deletedEmailVerificationCodes =
+      await prisma.emailVerificationCode.deleteMany({
+        where: {
+          OR: [
+            { expiresAt: { lt: now } },
+            { usedAt: { not: null } },
+          ],
+        },
+      });
+
     console.log(
-      `Cleanup: ${deletedRefreshTokens.count} refresh, ${deletedBlacklisted.count} blacklisted, ${deletedPasswordResets.count} password resets`
+      `Cleanup: ${deletedRefreshTokens.count} refresh, ${deletedBlacklisted.count} blacklisted, ${deletedPasswordResets.count} password resets, ${deletedEmailVerificationCodes.count} email verification codes`
     );
 
     return {
       refreshTokens: deletedRefreshTokens.count,
       blacklistedTokens: deletedBlacklisted.count,
       passwordResets: deletedPasswordResets.count,
+      emailVerificationCodes: deletedEmailVerificationCodes.count,
     };
   } catch (error) {
     console.error('Cleanup failed:', error);

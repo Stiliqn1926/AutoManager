@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
@@ -41,6 +41,7 @@ const RegisterMechanic = () => {
         };
       }
     }
+
     return {
       email: '',
       password: '',
@@ -57,7 +58,6 @@ const RegisterMechanic = () => {
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -135,10 +135,8 @@ const RegisterMechanic = () => {
       await api.post('/auth/register-mechanic', payload);
 
       localStorage.removeItem(STORAGE_KEY);
-      setIsSuccess(true);
-      toast.success(
-        'Заявката е изпратена! Чакайте одобрение от администратор.'
-      );
+      toast.success('Заявката е изпратена! Потвърдете имейла си.');
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}&role=mechanic`);
     } catch (error) {
       const err = error as {
         response?: {
@@ -153,8 +151,8 @@ const RegisterMechanic = () => {
 
       if (errorData?.errors) {
         const validationErrors: Record<string, string> = {};
-        errorData.errors.forEach((e) => {
-          validationErrors[e.field] = e.message;
+        errorData.errors.forEach((validationError) => {
+          validationErrors[validationError.field] = validationError.message;
         });
         setErrors(validationErrors);
         toast.error('Моля поправете грешките');
@@ -166,52 +164,22 @@ const RegisterMechanic = () => {
     }
   };
 
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen bg-mainBg flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-4">
-            Заявката е изпратена!
-          </h2>
-          <p className="text-textSecondary mb-6">
-            Вашата регистрация като механик очаква одобрение от администратора на
-            автосервиза.
-          </p>
-          <p className="text-sm text-textMuted mb-8">
-            Ще получите имейл когато акаунтът ви бъде одобрен.
-          </p>
-          <Button
-            onClick={() => navigate('/login?role=mechanic')}
-            fullWidth
-          >
-            Назад към вход
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-mainBg flex">
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar text-white p-12 flex-col justify-center shadow-sidebar">
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
         </h1>
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
-          Регистрация за Механик
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Регистрация за Механик</h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-6">
-          Въведете вашите данни и уникалния код на автосервиза, в който искате да
-          работите.
+          Въведете вашите данни и уникалния код на автосервиза.
         </p>
       </div>
 
       <div className="w-full lg:w-1/2 flex justify-center overflow-y-auto py-6 px-4 sm:py-8 sm:px-8">
         <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8 my-auto">
           <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
-              Регистрация
-            </h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">Регистрация</h2>
             <p className="text-textSecondary">Попълнете вашите данни</p>
           </div>
 
@@ -358,4 +326,3 @@ const RegisterMechanic = () => {
 };
 
 export default RegisterMechanic;
-
