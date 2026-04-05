@@ -22,9 +22,9 @@ import {
   X,
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import landingHeroImage from '../../assets/landing-hero-bmw.png';
 
-const HERO_IMAGE =
-  'https://media.base44.com/images/public/69cf92b061a3e1c15dd38cf7/c324932a0_generated_image.png';
+const HERO_IMAGE = landingHeroImage;
 
 type Feature = {
   icon: LucideIcon;
