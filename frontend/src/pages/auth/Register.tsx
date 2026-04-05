@@ -119,7 +119,7 @@ const Register = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐµÑ‚Ðµ Ð³Ñ€ÐµÑˆÐºÐ¸Ñ‚Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð°');
+      toast.error('Моля поправете грешките във формата');
       return;
     }
 
@@ -146,7 +146,7 @@ const Register = () => {
 
     const checkboxError = validateCheckbox(
       agreedToTerms,
-      'Ð¢Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÐµ ÑÑŠÐ³Ð»Ð°ÑÐ¸Ñ‚Ðµ Ñ Ð¾Ð±Ñ‰Ð¸Ñ‚Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ'
+      'Трябва да се съгласите с общите условия'
     );
     if (checkboxError) {
       toast.error(checkboxError);
@@ -155,7 +155,7 @@ const Register = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐµÑ‚Ðµ Ð³Ñ€ÐµÑˆÐºÐ¸Ñ‚Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð°');
+      toast.error('Моля поправете грешките във формата');
       return;
     }
 
@@ -205,9 +205,9 @@ const Register = () => {
           validationErrors[e.field] = e.message;
         });
         setErrors(validationErrors);
-        toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐµÑ‚Ðµ Ð³Ñ€ÐµÑˆÐºÐ¸Ñ‚Ðµ');
+        toast.error('Моля поправете грешките');
       } else {
-        toast.error(errorData?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ');
+        toast.error(errorData?.message || 'Грешка при регистрация');
       }
     } finally {
       setIsLoading(false);
@@ -221,12 +221,12 @@ const Register = () => {
           Auto<span className="text-primary">Manager</span>
         </h1>
         <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
-          Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð½Ð° ÐÐ²Ñ‚Ð¾ÑÐµÑ€Ð²Ð¸Ð·
+          Регистрация на автосервиз
         </h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-6">
           {step === 1
-            ? 'Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ Ð´Ð°Ð½Ð½Ð¸Ñ‚Ðµ Ð½Ð° Ð²Ð°ÑˆÐ¸Ñ Ð°Ð²Ñ‚Ð¾ÑÐµÑ€Ð²Ð¸Ð·.'
-            : 'Ð¡ÑŠÐ·Ð´Ð°Ð¹Ñ‚Ðµ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€ÑÐºÐ¸ Ð°ÐºÐ°ÑƒÐ½Ñ‚.'}
+            ? 'Въведете данните на вашия автосервиз.'
+            : 'Създайте администраторски акаунт.'}
         </p>
       </div>
 
@@ -235,18 +235,18 @@ const Register = () => {
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
               {step === 1
-                ? 'Ð”Ð°Ð½Ð½Ð¸ Ð½Ð° ÐÐ²Ñ‚Ð¾ÑÐµÑ€Ð²Ð¸Ð·'
-                : 'ÐÐ´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€ÑÐºÐ¸ ÐÐºÐ°ÑƒÐ½Ñ‚'}
+                ? 'Данни на автосервиз'
+                : 'Администраторски акаунт'}
             </h2>
             <p className="text-textSecondary">
-              {step === 1 ? 'Ð¡Ñ‚ÑŠÐ¿ÐºÐ° 1 Ð¾Ñ‚ 2' : 'Ð¡Ñ‚ÑŠÐ¿ÐºÐ° 2 Ð¾Ñ‚ 2'}
+              {step === 1 ? 'Стъпка 1 от 2' : 'Стъпка 2 от 2'}
             </p>
           </div>
 
           {step === 1 ? (
             <form onSubmit={handleStep1Next} className="space-y-4">
               <Input
-                label="Ð˜Ð¼Ðµ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° *"
+                label="Име на фирмата *"
                 value={companyData.companyName}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCompanyData({
@@ -258,7 +258,7 @@ const Register = () => {
               />
 
               <Input
-                label="ÐÐ´Ñ€ÐµÑ *"
+                label="Адрес *"
                 value={companyData.companyAddress}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCompanyData({
@@ -270,7 +270,7 @@ const Register = () => {
               />
 
               <Input
-                label="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ *"
+                label="Телефон *"
                 value={companyData.companyPhone}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCompanyData({
@@ -282,7 +282,7 @@ const Register = () => {
               />
 
               <Input
-                label="Ð˜Ð¼ÐµÐ¹Ð» Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° *"
+                label="Имейл на фирмата *"
                 type="email"
                 value={companyData.companyEmail}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -295,7 +295,7 @@ const Register = () => {
               />
 
               <Input
-                label="Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚"
+                label="Булстат"
                 value={companyData.bulstat}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCompanyData({
@@ -307,7 +307,7 @@ const Register = () => {
               />
 
               <Input
-                label="Ð”Ð”Ð¡ Ð½Ð¾Ð¼ÐµÑ€"
+                label="ДДС номер"
                 value={companyData.vatNumber}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setCompanyData({
@@ -319,7 +319,7 @@ const Register = () => {
               />
 
               <Button type="submit" fullWidth>
-                ÐÐ°Ð¿Ñ€ÐµÐ´
+                Напред
               </Button>
 
               <div className="mt-6 text-center">
@@ -327,14 +327,14 @@ const Register = () => {
                   href="/login?role=admin"
                   className="text-sm text-textMuted hover:text-textSecondary hover:underline transition-colors"
                 >
-                  â† ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð²Ñ…Ð¾Ð´
+                  Назад към вход
                 </a>
               </div>
             </form>
           ) : (
             <form onSubmit={handleStep2Submit} className="space-y-4">
               <Input
-                label="Ð˜Ð¼ÐµÐ¹Ð» *"
+                label="Имейл *"
                 type="email"
                 value={adminData.email}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -344,8 +344,8 @@ const Register = () => {
               />
 
               <PasswordInput
-                label="ÐŸÐ°Ñ€Ð¾Ð»Ð° *"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                label="Парола *"
+                placeholder="********"
                 value={adminData.password}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setAdminData({ ...adminData, password: e.target.value })
@@ -356,8 +356,8 @@ const Register = () => {
               />
 
               <PasswordInput
-                label="ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð° *"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                label="Потвърди парола *"
+                placeholder="********"
                 value={adminData.confirmPassword}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setAdminData({
@@ -372,14 +372,14 @@ const Register = () => {
               <Checkbox
                 label={
                   <span className="text-sm text-textSecondary">
-                    Ð¡ÑŠÐ³Ð»Ð°ÑÑÐ²Ð°Ð¼ ÑÐµ Ñ{' '}
+                    Съгласявам се с{' '}
                     <a
                       href="/terms?returnTo=/register"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:text-primary-700 hover:underline transition-colors"
                     >
-                      Ð¾Ð±Ñ‰Ð¸Ñ‚Ðµ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ Ð¸ Ð¿Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÐµÐ»Ð½Ð¾ÑÑ‚
+                      общите условия и поверителност
                     </a>
                   </span>
                 }
@@ -390,7 +390,7 @@ const Register = () => {
               />
 
               <Button type="submit" fullWidth isLoading={isLoading}>
-                Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ
+                Регистрация
               </Button>
 
               <div className="mt-6 text-center">
@@ -399,7 +399,7 @@ const Register = () => {
                   onClick={() => setStep(1)}
                   className="text-sm text-textMuted hover:text-textSecondary hover:underline transition-colors"
                 >
-                  â† ÐÐ°Ð·Ð°Ð´
+                  Назад
                 </button>
               </div>
             </form>

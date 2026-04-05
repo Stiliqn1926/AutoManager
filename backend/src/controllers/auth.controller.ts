@@ -94,14 +94,14 @@ const sendPasswordResetCodeEmail = async (
   isResend = false
 ): Promise<void> => {
   const subject = isResend
-    ? 'ÐÐ¾Ð² ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°'
-    : 'ÐšÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°';
+    ? 'Нов код за възстановяване на парола'
+    : 'Код за възстановяване на парола';
   const intro = isResend
-    ? 'Ð’Ð°ÑˆÐ¸ÑÑ‚ Ð½Ð¾Ð² ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð° Ðµ:'
-    : 'Ð’Ð°ÑˆÐ¸ÑÑ‚ ÐºÐ¾Ð´ Ð·Ð° Ð²ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð° Ðµ:';
+    ? 'Вашият нов код за възстановяване на парола е:'
+    : 'Вашият код за възстановяване на парола е:';
   const extraText = isResend
-    ? 'ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ Ð½Ð¾Ð² ÐºÐ¾Ð´, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».'
-    : 'ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ ÑÐ¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».';
+    ? 'Ако не сте поискали нов код, игнорирайте този имейл.'
+    : 'Ако не сте поискали смяна на парола, игнорирайте този имейл.';
 
   const { sendEmail } = await import('../services/email.service');
 
@@ -110,14 +110,14 @@ const sendPasswordResetCodeEmail = async (
     subject,
     `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #f97316;">Ð’ÑŠÐ·ÑÑ‚Ð°Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°</h2>
-        <p>Ð—Ð´Ñ€Ð°Ð²ÐµÐ¹Ñ‚Ðµ,</p>
+        <h2 style="color: #f97316;">Възстановяване на парола</h2>
+        <p>Здравейте,</p>
         <p>${intro}</p>
         <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${code}</h1>
-        <p>ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° ${PASSWORD_RESET_CODE_TTL_MINUTES} Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
+        <p>Кодът е валиден за ${PASSWORD_RESET_CODE_TTL_MINUTES} минути.</p>
         <p>${extraText}</p>
         <br>
-        <p>Ð¡ ÑƒÐ²Ð°Ð¶ÐµÐ½Ð¸Ðµ,<br>Ð•ÐºÐ¸Ð¿ÑŠÑ‚ Ð½Ð° AutoManager</p>
+        <p>С уважение,<br>Екипът на AutoManager</p>
       </div>
     `
   );
@@ -131,17 +131,17 @@ const sendEmailVerificationCodeEmail = async (
 
   await sendEmail(
     email,
-    'ÐšÐ¾Ð´ Ð·Ð° Ð¿Ð¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»',
+    'Код за потвърждение на имейл',
     `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #f97316;">ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»</h2>
-        <p>Ð—Ð´Ñ€Ð°Ð²ÐµÐ¹Ñ‚Ðµ,</p>
-        <p>Ð’Ð°ÑˆÐ¸ÑÑ‚ ÐºÐ¾Ð´ Ð·Ð° Ð¿Ð¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ðµ:</p>
+        <h2 style="color: #f97316;">Потвърждение на имейл</h2>
+        <p>Здравейте,</p>
+        <p>Вашият код за потвърждение е:</p>
         <h1 style="color: #f97316; text-align: center; font-size: 48px; letter-spacing: 5px;">${code}</h1>
-        <p>ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° ${EMAIL_VERIFICATION_CODE_TTL_MINUTES} Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
-        <p>ÐÐºÐ¾ Ð½Ðµ ÑÑ‚Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°Ð»Ð¸ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ, Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¸Ð¼ÐµÐ¹Ð».</p>
+        <p>Кодът е валиден за ${EMAIL_VERIFICATION_CODE_TTL_MINUTES} минути.</p>
+        <p>Ако не сте поискали регистрация, игнорирайте този имейл.</p>
         <br>
-        <p>Ð¡ ÑƒÐ²Ð°Ð¶ÐµÐ½Ð¸Ðµ,<br>Ð•ÐºÐ¸Ð¿ÑŠÑ‚ Ð½Ð° AutoManager</p>
+        <p>С уважение,<br>Екипът на AutoManager</p>
       </div>
     `
   );
@@ -477,7 +477,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
         if (activeCount > 0) {
           res.status(400).json({
-            message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ñ‡Ð»ÐµÐ½ÑÑ‚Ð²Ð° Ð² ÑÐµÑ€Ð²Ð¸Ð·Ð¸. ÐœÐ¾Ð»Ñ, Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ Ð²ÑÐ¸Ñ‡ÐºÐ¸ ÑÐµÑ€Ð²Ð¸Ð·Ð¸ Ð¿ÑŠÑ€Ð²Ð¾.',
+            message: 'Не можете да изтриете акаунта си, докато имате активни членства в сервизи. Моля, напуснете всички сервизи първо.',
             activeServicesCount: activeCount,
           });
           return;
@@ -510,7 +510,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
         if (activeOrdersCount > 0) {
           res.status(400).json({
-            message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸. ÐœÐ¾Ð»Ñ, Ð¸Ð·Ñ‡Ð°ÐºÐ°Ð¹Ñ‚Ðµ Ð·Ð°Ð²ÑŠÑ€ÑˆÐ²Ð°Ð½ÐµÑ‚Ð¾ Ð¸Ð¼.',
+            message: 'Не можете да изтриете акаунта си, докато имате активни поръчки. Моля, изчакайте завършването им.',
             activeOrdersCount,
           });
           return;
@@ -546,7 +546,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
 
       if (serviceCompany) {
         res.status(400).json({
-          message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸ Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ ÑÐµÑ€Ð²Ð¸Ð·. ÐœÐ¾Ð»Ñ, ÑÐ²ÑŠÑ€Ð¶ÐµÑ‚Ðµ ÑÐµ Ñ Ð¿Ð¾Ð´Ð´Ñ€ÑŠÐ¶ÐºÐ°Ñ‚Ð°.',
+          message: 'Не можете да изтриете акаунта си, докато имате активен сервиз. Моля, свържете се с поддръжката.',
         });
         return;
       }
@@ -581,7 +581,7 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     res.status(200).json({
-      message: 'ÐÐºÐ°ÑƒÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Акаунтът е изтрит успешно',
     });
   } catch (error) {
     logger.error('Delete account error:', error);
@@ -630,7 +630,7 @@ export const refreshToken = async (
         where: { id: refreshRecord.userId },
         data: { tokenVersion: { increment: 1 } },
       });
-      res.status(403).json({ message: 'ÐÐºÐ°ÑƒÐ½Ñ‚ÑŠÑ‚ Ðµ Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½.' });
+      res.status(403).json({ message: 'Акаунтът е деактивиран.' });
       return;
     }
 

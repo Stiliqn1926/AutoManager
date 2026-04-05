@@ -8,7 +8,7 @@ const RoleSelection = () => {
 
   const adminLink = isRegisterMode ? '/register-admin' : '/login?role=admin';
   const mechanicLink = isRegisterMode ? '/register-mechanic' : '/login?role=mechanic';
-  const backLink = isRegisterMode ? '/register' : '/';
+  const backLink = '/';
 
   return (
     <div className="min-h-screen bg-mainBg flex items-center justify-center px-4 sm:px-6 py-8 sm:py-10">
