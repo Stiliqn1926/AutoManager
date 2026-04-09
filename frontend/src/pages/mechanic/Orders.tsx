@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ClipboardList, User, Car, Calendar } from 'lucide-react';
@@ -18,9 +18,17 @@ const MechanicOrders = () => {
     totalPages: 1,
     totalItems: 0,
   });
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
 
-  const fetchOrders = useCallback(async (options?: { signal?: AbortSignal; silent?: boolean }) => {
+  const fetchOrders = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
 
     if (!silent) {
       setIsLoading(true);
@@ -31,8 +39,13 @@ const MechanicOrders = () => {
         page: pagination.currentPage,
         limit: 20,
         status: statusFilter || undefined,
-        signal: options?.signal,
+        signal: controller.signal,
       });
+
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       setOrders(data.orders);
       setPagination({
         currentPage: data.pagination.currentPage,
@@ -40,7 +53,6 @@ const MechanicOrders = () => {
         totalItems: data.pagination.totalItems,
       });
     } catch (error: unknown) {
-      // Ignore cancel/abort errors (component unmounted or request cancelled)
       if (axios.isCancel(error) || (error instanceof Error && error.name === 'AbortError')) {
         return;
       }
@@ -48,18 +60,25 @@ const MechanicOrders = () => {
         toast.error('Грешка при зареждане на поръчки');
       }
     } finally {
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       if (!silent) {
         setIsLoading(false);
+      }
+
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
       }
     }
   }, [pagination.currentPage, statusFilter]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    void fetchOrders({ signal: controller.signal });
+    void fetchOrders();
 
     return () => {
-      controller.abort();
+      activeRequestRef.current?.abort();
     };
   }, [fetchOrders]);
 
@@ -71,13 +90,16 @@ const MechanicOrders = () => {
     };
 
     const intervalId = window.setInterval(() => {
-      void fetchOrders({ silent: true });
+      if (document.visibilityState === 'visible') {
+        void fetchOrders({ silent: true });
+      }
     }, POLLING_INTERVALS.lists);
 
     window.addEventListener('focus', refreshSilently);
     document.addEventListener('visibilitychange', refreshSilently);
 
     return () => {
+      activeRequestRef.current?.abort();
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);

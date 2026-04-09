@@ -23,22 +23,28 @@ const generateOrderNumber = async (): Promise<string> => {
   return `AUTO-${timestamp}-${random}`;
 };
 
-const generateDisplayOrderNumber = async (serviceCompanyId: string): Promise<string> => {
-  const lastOrder = await prisma.order.findFirst({
-    where: { serviceCompanyId },
-    orderBy: { createdAt: 'desc' },
-    select: { displayOrderNumber: true },
-  });
+const generateDisplayOrderNumber = async (
+  tx: any,
+  serviceCompanyId: string
+): Promise<string> => {
+  // Lock company row so concurrent order creations in the same service
+  // serialize and cannot generate duplicate display numbers.
+  await tx.$executeRaw`
+    SELECT id
+    FROM "service_companies"
+    WHERE id = ${serviceCompanyId}
+    FOR UPDATE
+  `;
 
-  let nextNum = 1;
-  if (lastOrder?.displayOrderNumber) {
-    const match = lastOrder.displayOrderNumber.match(/(\d+)$/);
-    if (match) {
-      nextNum = parseInt(match[1], 10) + 1;
-    }
-  }
+  const result = await tx.$queryRaw<{ maxNumber: number | null }[]>`
+    SELECT MAX(CAST(SUBSTRING("displayOrderNumber" FROM '#([0-9]+)$') AS INTEGER)) AS "maxNumber"
+    FROM "orders"
+    WHERE "serviceCompanyId" = ${serviceCompanyId}
+      AND "displayOrderNumber" ~ '^#[0-9]+$'
+  `;
 
-  return `#${nextNum}`;
+  const nextNumber = (result[0]?.maxNumber ?? 0) + 1;
+  return `#${nextNumber}`;
 };
 
 export const createOrder = async (
@@ -142,9 +148,13 @@ export const createOrder = async (
     }
 
     const orderNumber = await generateOrderNumber();
-    const displayOrderNumber = await generateDisplayOrderNumber(serviceCompanyId);
 
     const result = await prisma.$transaction(async (tx: any) => {
+      const displayOrderNumber = await generateDisplayOrderNumber(
+        tx,
+        serviceCompanyId
+      );
+
       const order = await tx.order.create({
         data: {
           orderNumber,

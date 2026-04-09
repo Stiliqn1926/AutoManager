@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import {
   ArrowLeft,
   Edit,
@@ -17,6 +18,7 @@ import { Button } from '../../components/common/Button';
 import FinalizeOrderModal from './FinalizeOrderModal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface OrderItem {
   id: string;
@@ -77,24 +79,96 @@ const OrderDetails = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      setIsLoading(true);
+  const fetchOrder = useCallback(
+    async (options?: { silent?: boolean; redirectOnError?: boolean }) => {
+      if (!id) {
+        return;
+      }
+
+      const silent = options?.silent ?? false;
+      const redirectOnError = options?.redirectOnError ?? !silent;
+      const requestSeq = requestSeqRef.current + 1;
+      requestSeqRef.current = requestSeq;
+
+      activeRequestRef.current?.abort();
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
+      if (!silent) {
+        setIsLoading(true);
+      }
+
       try {
-        const response = await api.get(`/orders/${id}`);
+        const response = await api.get(`/orders/${id}`, {
+          signal: controller.signal,
+        });
+
+        if (requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
         setOrder(response.data.order);
-      } catch {
-        toast.error('Грешка при зареждане на поръчка');
-        navigate('/admin/orders');
+      } catch (error: unknown) {
+        if (
+          axios.isCancel(error) ||
+          (error instanceof Error && error.name === 'AbortError')
+        ) {
+          return;
+        }
+
+        if (!silent) {
+          toast.error('\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0440\u0435\u0436\u0434\u0430\u043d\u0435 \u043d\u0430 \u043f\u043e\u0440\u044a\u0447\u043a\u0430');
+        }
+
+        if (redirectOnError) {
+          navigate('/admin/orders');
+        }
       } finally {
-        setIsLoading(false);
+        if (requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
+        if (!silent) {
+          setIsLoading(false);
+        }
+
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
+      }
+    },
+    [id, navigate]
+  );
+
+  useEffect(() => {
+    void fetchOrder({ silent: false, redirectOnError: true });
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrder({ silent: true, redirectOnError: false });
       }
     };
 
-    fetchOrder();
-  }, [id, navigate]);
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrder({ silent: true, redirectOnError: false });
+      }
+    }, POLLING_INTERVALS.details);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      activeRequestRef.current?.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchOrder]);
 
   const handleDelete = async () => {
     if (!order) return;
@@ -112,12 +186,10 @@ const OrderDetails = () => {
   const handleFinalize = async () => {
     try {
       await api.post(`/orders/${id}/finalize`);
-      toast.success('Фактурата е генерирана и изпратена');
-      // Refresh order data
-      const response = await api.get(`/orders/${id}`);
-      setOrder(response.data.order);
+      toast.success('\u0424\u0430\u043a\u0442\u0443\u0440\u0430\u0442\u0430 \u0435 \u0433\u0435\u043d\u0435\u0440\u0438\u0440\u0430\u043d\u0430 \u0438 \u0438\u0437\u043f\u0440\u0430\u0442\u0435\u043d\u0430');
+      await fetchOrder({ silent: true, redirectOnError: false });
     } catch {
-      toast.error('Грешка при финализиране');
+      toast.error('\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0444\u0438\u043d\u0430\u043b\u0438\u0437\u0438\u0440\u0430\u043d\u0435');
     }
   };
 

@@ -470,30 +470,34 @@ export const getMechanicVehicles = async (
     });
 
     // Добави последна поръчка и статус
-    const vehiclesWithStatus = await Promise.all(
-      vehicles.map(async (vehicle) => {
-        const lastOrder = await prisma.order.findFirst({
-          where: {
-            vehicleId: vehicle.id,
-            workerId: worker.id,
-            serviceCompanyId: serviceCompanyId,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          select: {
-            createdAt: true,
-          },
-        });
+    const vehicleIdsOnPage = vehicles.map((vehicle) => vehicle.id);
 
-        return {
-          ...vehicle,
-          hasActiveOrder: vehicle.orders.length > 0,
-          activeOrdersCount: vehicle.orders.length,
-          lastOrderDate: lastOrder?.createdAt || null,
-        };
-      })
-    );
+    let lastOrderDateByVehicle = new Map<string, Date | null>();
+
+    if (vehicleIdsOnPage.length > 0) {
+      const lastOrdersByVehicle = await prisma.order.groupBy({
+        by: ['vehicleId'],
+        where: {
+          vehicleId: { in: vehicleIdsOnPage },
+          workerId: worker.id,
+          serviceCompanyId: serviceCompanyId,
+        },
+        _max: {
+          createdAt: true,
+        },
+      });
+
+      lastOrderDateByVehicle = new Map(
+        lastOrdersByVehicle.map((row) => [row.vehicleId, row._max.createdAt ?? null])
+      );
+    }
+
+    const vehiclesWithStatus = vehicles.map((vehicle) => ({
+      ...vehicle,
+      hasActiveOrder: vehicle.orders.length > 0,
+      activeOrdersCount: vehicle.orders.length,
+      lastOrderDate: lastOrderDateByVehicle.get(vehicle.id) ?? null,
+    }));
 
     const pagination = getPaginationMeta(totalItems, page, limit);
 

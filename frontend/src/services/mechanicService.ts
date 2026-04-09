@@ -120,8 +120,11 @@ export const getMechanicOrders = async (params?: {
   return response.data;
 };
 
-export const getMechanicOrderById = async (id: string): Promise<{ order: MechanicOrderDetails }> => {
-  const response = await api.get(`/orders/${id}`);
+export const getMechanicOrderById = async (
+  id: string,
+  signal?: AbortSignal
+): Promise<{ order: MechanicOrderDetails }> => {
+  const response = await api.get(`/orders/${id}`, { signal });
   return response.data;
 };
 

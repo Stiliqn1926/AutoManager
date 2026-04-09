@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { UserRole } from '../types';
 import api from '../services/api';
 import { ActiveServiceContext } from './ActiveServiceContext';
+import { POLLING_INTERVALS } from '../config/polling';
 
 interface Props {
   children: ReactNode;
@@ -60,8 +61,10 @@ export const ActiveServiceProvider = ({ children }: Props) => {
     }
 
     const interval = setInterval(() => {
-      checkActiveService();
-    }, 10000); 
+      if (document.visibilityState === 'visible') {
+        void checkActiveService();
+      }
+    }, POLLING_INTERVALS.activeServiceCheck);
 
     return () => clearInterval(interval);
   }, [user, hasActiveService, isLoading, checkActiveService]);

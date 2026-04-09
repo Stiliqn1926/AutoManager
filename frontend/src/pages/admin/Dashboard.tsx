@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 import MainLayout from '../../components/layout/MainLayout';
 import SetupWizard from '../../components/admin/SetupWizard';
 import StatsDashboard from '../../components/admin/StatsDashboard';
@@ -56,24 +57,54 @@ interface DashboardData {
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
 
   const fetchDashboard = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
 
     if (!silent) {
       setIsLoading(true);
     }
 
     try {
-      const response = await api.get('/dashboard/overview');
+      const response = await api.get('/dashboard/overview', {
+        signal: controller.signal,
+      });
+
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       setDashboardData(response.data);
-    } catch {
+    } catch (error: unknown) {
+      if (
+        axios.isCancel(error) ||
+        (error instanceof Error && error.name === 'AbortError')
+      ) {
+        return;
+      }
+
       if (!silent) {
-        toast.error('Грешка при зареждане на dashboard');
+        toast.error('Възникна грешка при зареждане на таблото');
       }
     } finally {
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       if (!silent) {
         setIsLoading(false);
+      }
+
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
       }
     }
   }, []);
@@ -89,13 +120,16 @@ const AdminDashboard = () => {
     };
 
     const intervalId = window.setInterval(() => {
-      void fetchDashboard({ silent: true });
+      if (document.visibilityState === 'visible') {
+        void fetchDashboard({ silent: true });
+      }
     }, POLLING_INTERVALS.dashboard);
 
     window.addEventListener('focus', refreshSilently);
     document.addEventListener('visibilitychange', refreshSilently);
 
     return () => {
+      activeRequestRef.current?.abort();
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);

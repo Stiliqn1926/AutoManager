@@ -10,7 +10,16 @@ interface AuthRequest extends Request {
   };
 }
 
-// Get All Pending Requests (само ADMIN)
+class PendingRequestError extends Error {
+  statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
+// Get All Pending Requests (admin only)
 export const getAllPendingRequests = async (
   req: AuthRequest,
   res: Response
@@ -49,22 +58,25 @@ export const getAllPendingRequests = async (
       },
     });
 
-    // Разделяме по тип
-    const mechanicRequests = pendingRequests.filter(r => r.requestType === 'MECHANIC');
-    const clientRequests = pendingRequests.filter(r => r.requestType === 'CLIENT');
+    const mechanicRequests = pendingRequests.filter(
+      (request) => request.requestType === 'MECHANIC'
+    );
+    const clientRequests = pendingRequests.filter(
+      (request) => request.requestType === 'CLIENT'
+    );
 
     res.status(200).json({
       mechanicRequests,
       clientRequests,
-      // За backward compatibility
-      requests: pendingRequests
+      // Backward compatibility
+      requests: pendingRequests,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
 };
 
-// Approve Pending Request (само ADMIN)
+// Approve Pending Request (admin only)
 export const approvePendingRequest = async (
   req: AuthRequest,
   res: Response
@@ -82,107 +94,85 @@ export const approvePendingRequest = async (
       return;
     }
 
-    const pendingRequest = await prisma.pendingRequest.findUnique({
-      where: { id },
-    });
-
-    if (!pendingRequest) {
-      res.status(404).json({ message: 'Pending request not found' });
-      return;
-    }
-
-    if (pendingRequest.serviceCompanyId !== serviceCompany.id) {
-      res.status(403).json({ message: 'Forbidden' });
-      return;
-    }
-
-    if (pendingRequest.status !== 'PENDING') {
-      res.status(400).json({ message: 'Request already processed' });
-      return;
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: pendingRequest.email },
-    });
-
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
-
-    // 🆕 Разделяме логиката по requestType
-    if (pendingRequest.requestType === 'MECHANIC') {
-      // === MECHANIC APPROVAL LOGIC ===
-      const worker = await prisma.worker.findUnique({
-        where: { userId: user.id },
-      });
-
-      if (!worker) {
-        res.status(404).json({ message: 'Worker not found' });
-        return;
-      }
-
-      await prisma.worker.update({
-        where: { id: worker.id },
-        data: {
-          isActive: true,
+    const result = await prisma.$transaction(async (tx) => {
+      const pendingRequest = await tx.pendingRequest.findFirst({
+        where: {
+          id,
           serviceCompanyId: serviceCompany.id,
         },
       });
 
-      const membership = await prisma.mechanicServiceCompany.findFirst({
+      if (!pendingRequest) {
+        throw new PendingRequestError(404, 'Pending request not found');
+      }
+
+      // Atomic claim to prevent double approve/reject races.
+      const claim = await tx.pendingRequest.updateMany({
         where: {
-          workerId: worker.id,
+          id,
           serviceCompanyId: serviceCompany.id,
           status: 'PENDING',
         },
-      });
-
-      if (membership) {
-        await prisma.mechanicServiceCompany.update({
-          where: { id: membership.id },
-          data: { status: 'ACTIVE' },
-        });
-      }
-
-      void sendEmail(
-          user.email,
-          'Одобрена заявка за регистрация',
-          emailTemplates.mechanicApproved(
-            pendingRequest.firstName,
-            serviceCompany.name
-          )
-
-      ).catch((emailError) => {
-
-        console.error('Failed to send approval email:', emailError);
-
-      });
-    } else if (pendingRequest.requestType === 'CLIENT') {
-      // === CLIENT APPROVAL LOGIC ===
-
-      // Провери дали вече има Client за ТОЗИ user И ТОЗИ serviceCompany
-      const existingClient = await prisma.client.findFirst({
-        where: {
-          userId: user.id,
-          serviceCompanyId: serviceCompany.id,
+        data: {
+          status: 'APPROVED',
         },
       });
 
-      if (existingClient) {
-        // Ако съществува, само го активирай
-        await prisma.client.update({
-          where: { id: existingClient.id },
+      if (claim.count === 0) {
+        throw new PendingRequestError(409, 'Request already processed');
+      }
+
+      const user = await tx.user.findUnique({
+        where: { email: pendingRequest.email },
+      });
+
+      if (!user) {
+        throw new PendingRequestError(404, 'User not found');
+      }
+
+      if (pendingRequest.requestType === 'MECHANIC') {
+        const worker = await tx.worker.findUnique({
+          where: { userId: user.id },
+        });
+
+        if (!worker) {
+          throw new PendingRequestError(404, 'Worker not found');
+        }
+
+        await tx.worker.update({
+          where: { id: worker.id },
           data: {
             isActive: true,
-            deletedAt: null,
+            serviceCompanyId: serviceCompany.id,
+          },
+        });
+
+        await tx.mechanicServiceCompany.updateMany({
+          where: {
+            workerId: worker.id,
+            serviceCompanyId: serviceCompany.id,
+            status: 'PENDING',
+          },
+          data: {
+            status: 'ACTIVE',
           },
         });
       } else {
-        // Създай НОВ Client запис за този сервиз
-        // (потребителят може да има други Client записи в други сервизи)
-        await prisma.client.create({
-          data: {
+        await tx.client.upsert({
+          where: {
+            userId_serviceCompanyId: {
+              userId: user.id,
+              serviceCompanyId: serviceCompany.id,
+            },
+          },
+          update: {
+            firstName: pendingRequest.firstName,
+            lastName: pendingRequest.lastName,
+            phone: pendingRequest.phone || '',
+            isActive: true,
+            deletedAt: null,
+          },
+          create: {
             firstName: pendingRequest.firstName,
             lastName: pendingRequest.lastName,
             phone: pendingRequest.phone || '',
@@ -194,34 +184,50 @@ export const approvePendingRequest = async (
         });
       }
 
-      // Изпрати email за одобрение на клиента
+      await tx.pendingRequest.delete({
+        where: { id },
+      });
+
+      return {
+        requestType: pendingRequest.requestType,
+        firstName: pendingRequest.firstName,
+        userEmail: user.email,
+      };
+    });
+
+    if (result.requestType === 'MECHANIC') {
       void sendEmail(
-          user.email,
-          'Одобрена заявка за клиентски достъп',
-          emailTemplates.clientApproved(
-            pendingRequest.firstName,
-            serviceCompany.name
-          )
+        result.userEmail,
+        '\u041e\u0434\u043e\u0431\u0440\u0435\u043d\u0430 \u0437\u0430\u044f\u0432\u043a\u0430 \u0437\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f',
+        emailTemplates.mechanicApproved(result.firstName, serviceCompany.name)
+      ).catch((emailError) => {
+        console.error('Failed to send approval email:', emailError);
+      });
+    } else {
+      void sendEmail(
+        result.userEmail,
+        '\u041e\u0434\u043e\u0431\u0440\u0435\u043d\u0430 \u0437\u0430\u044f\u0432\u043a\u0430 \u0437\u0430 \u043a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438 \u0434\u043e\u0441\u0442\u044a\u043f',
+        emailTemplates.clientApproved(result.firstName, serviceCompany.name)
       ).catch((emailError) => {
         console.error('Failed to send approval email:', emailError);
       });
     }
 
-    // Изтрий одобрения request (вече не е pending)
-    await prisma.pendingRequest.delete({
-      where: { id },
-    });
-
     res.status(200).json({
       message: 'Pending request approved successfully',
     });
   } catch (error) {
+    if (error instanceof PendingRequestError) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+
     console.error('[approvePendingRequest] error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
 
-// Reject Pending Request (само ADMIN)
+// Reject Pending Request (admin only)
 export const rejectPendingRequest = async (
   req: AuthRequest,
   res: Response
@@ -240,91 +246,104 @@ export const rejectPendingRequest = async (
       return;
     }
 
-    const pendingRequest = await prisma.pendingRequest.findUnique({
-      where: { id },
-    });
-
-    if (!pendingRequest) {
-      res.status(404).json({ message: 'Pending request not found' });
-      return;
-    }
-
-    if (pendingRequest.serviceCompanyId !== serviceCompany.id) {
-      res.status(403).json({ message: 'Forbidden' });
-      return;
-    }
-
-    if (pendingRequest.status !== 'PENDING') {
-      res.status(400).json({ message: 'Request already processed' });
-      return;
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: pendingRequest.email },
-    });
-
-    if (user) {
-      const worker = await prisma.worker.findUnique({
-        where: { userId: user.id },
+    const result = await prisma.$transaction(async (tx) => {
+      const pendingRequest = await tx.pendingRequest.findFirst({
+        where: {
+          id,
+          serviceCompanyId: serviceCompany.id,
+        },
       });
 
-      if (worker) {
-        // Маркирай PENDING membership като INACTIVE вместо да го изтриваш
-        await prisma.mechanicServiceCompany.updateMany({
-          where: {
-            workerId: worker.id,
-            serviceCompanyId: serviceCompany.id,
-            status: 'PENDING',
-          },
-          data: {
-            status: 'INACTIVE',
-            leftAt: new Date(),
-          },
+      if (!pendingRequest) {
+        throw new PendingRequestError(404, 'Pending request not found');
+      }
+
+      // Atomic claim to prevent double approve/reject races.
+      const claim = await tx.pendingRequest.updateMany({
+        where: {
+          id,
+          serviceCompanyId: serviceCompany.id,
+          status: 'PENDING',
+        },
+        data: {
+          status: 'REJECTED',
+          rejectionReason: rejectionReason || null,
+        },
+      });
+
+      if (claim.count === 0) {
+        throw new PendingRequestError(409, 'Request already processed');
+      }
+
+      const user = await tx.user.findUnique({
+        where: { email: pendingRequest.email },
+      });
+
+      if (user && pendingRequest.requestType === 'MECHANIC') {
+        const worker = await tx.worker.findUnique({
+          where: { userId: user.id },
         });
 
-        // Провери дали има други активни или pending memberships
-        const otherMemberships = await prisma.mechanicServiceCompany.findMany({
-          where: {
-            workerId: worker.id,
-            status: { in: ['ACTIVE', 'PENDING'] },
-          },
-        });
-
-        // Ако няма други memberships, маркирай Worker-a като неактивен
-        if (otherMemberships.length === 0) {
-          await prisma.worker.update({
-            where: { id: worker.id },
+        if (worker) {
+          await tx.mechanicServiceCompany.updateMany({
+            where: {
+              workerId: worker.id,
+              serviceCompanyId: serviceCompany.id,
+              status: 'PENDING',
+            },
             data: {
-              serviceCompanyId: null,
-              isActive: false,
+              status: 'INACTIVE',
+              leftAt: new Date(),
             },
           });
+
+          const activeOrPendingMemberships = await tx.mechanicServiceCompany.count({
+            where: {
+              workerId: worker.id,
+              status: { in: ['ACTIVE', 'PENDING'] },
+            },
+          });
+
+          if (activeOrPendingMemberships === 0) {
+            await tx.worker.update({
+              where: { id: worker.id },
+              data: {
+                serviceCompanyId: null,
+                isActive: false,
+              },
+            });
+          }
         }
       }
-    }
 
-    // Изпрати email нотификация за отхвърляне
-    void sendEmail(
-      pendingRequest.email,
-      'Отхвърлена заявка за регистрация',
-      emailTemplates.mechanicRejected(
-        pendingRequest.firstName,
-        serviceCompany.name
-      )
-    ).catch((emailError) => {
-      console.error('Failed to send rejection email:', emailError);
-      // Продължаваме въпреки грешката при email-а
+      await tx.pendingRequest.delete({
+        where: { id },
+      });
+
+      return {
+        firstName: pendingRequest.firstName,
+        email: pendingRequest.email,
+      };
     });
 
-    // Изтрий напълно отхвърлената заявка от базата
-    await prisma.pendingRequest.delete({
-      where: { id },
+    void sendEmail(
+      result.email,
+      '\u041e\u0442\u0445\u0432\u044a\u0440\u043b\u0435\u043d\u0430 \u0437\u0430\u044f\u0432\u043a\u0430 \u0437\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f',
+      emailTemplates.mechanicRejected(result.firstName, serviceCompany.name)
+    ).catch((emailError) => {
+      console.error('Failed to send rejection email:', emailError);
     });
 
     res.status(200).json({
       message: 'Pending request rejected successfully',
     });
   } catch (error) {
+    if (error instanceof PendingRequestError) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+
+    console.error('[rejectPendingRequest] error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };

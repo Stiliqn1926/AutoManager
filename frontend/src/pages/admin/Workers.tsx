@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -64,6 +65,13 @@ const Workers = () => {
   const [filterStatus, setFilterStatus] =
     useState<'all' | 'active' | 'inactive' | 'pending' | 'left'>('all');
   const [showReassignModal, setShowReassignModal] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  });
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
   const [workerToDelete, setWorkerToDelete] = useState<{
     id: string;
     name: string;
@@ -74,24 +82,61 @@ const Workers = () => {
 
   const fetchWorkers = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
 
     if (!silent) {
       setIsLoading(true);
     }
 
     try {
-      const response = await api.get('/workers');
+      const response = await api.get('/workers', {
+        signal: controller.signal,
+        params: {
+          page: pagination.currentPage,
+          limit: 20,
+        },
+      });
+
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       setWorkers(response.data.workers || []);
-    } catch {
+      setPagination({
+        currentPage: response.data.pagination?.currentPage || 1,
+        totalPages: response.data.pagination?.totalPages || 1,
+        totalItems: response.data.pagination?.totalItems || 0,
+      });
+    } catch (error: unknown) {
+      if (
+        axios.isCancel(error) ||
+        (error instanceof Error && error.name === 'AbortError')
+      ) {
+        return;
+      }
+
       if (!silent) {
-        toast.error('Грешка при зареждане на работници');
+        toast.error('Грешка при зареждане на механици');
       }
     } finally {
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       if (!silent) {
         setIsLoading(false);
       }
+
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
+      }
     }
-  }, []);
+  }, [pagination.currentPage]);
 
   useEffect(() => {
     void fetchWorkers();
@@ -103,13 +148,16 @@ const Workers = () => {
     };
 
     const intervalId = window.setInterval(() => {
-      void fetchWorkers({ silent: true });
+      if (document.visibilityState === 'visible') {
+        void fetchWorkers({ silent: true });
+      }
     }, POLLING_INTERVALS.lists);
 
     window.addEventListener('focus', refreshSilently);
     document.addEventListener('visibilitychange', refreshSilently);
 
     return () => {
+      activeRequestRef.current?.abort();
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);
@@ -494,6 +542,34 @@ const Workers = () => {
               </tbody>
             </table>
           </div>
+
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-2 sm:px-0 pt-4 border-t border-borderSubtle mt-4">
+              <div className="text-sm text-textSecondary">
+                Страница {pagination.currentPage} от {pagination.totalPages}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }))
+                  }
+                  disabled={pagination.currentPage === 1}
+                  className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Предишна
+                </button>
+                <button
+                  onClick={() =>
+                    setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }))
+                  }
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Следваща
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -516,5 +592,4 @@ const Workers = () => {
 };
 
 export default Workers;
-
 

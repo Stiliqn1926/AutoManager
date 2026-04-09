@@ -217,7 +217,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             <button
               onClick={() => navigate('/client/notifications')}
               className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-              title="????????"
+              title="Известия"
             >
               <Bell className="w-5 h-5" />
               {unreadNotifications > 0 && (

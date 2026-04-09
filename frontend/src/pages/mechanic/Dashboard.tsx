@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   ClipboardList,
@@ -38,6 +39,8 @@ const MechanicDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<ScheduleTaskForModal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
 
   const handleTaskClick = (task: ScheduleTaskForModal) => {
     setSelectedTask(task);
@@ -49,31 +52,56 @@ const MechanicDashboard = () => {
     setSelectedTask(null);
   };
 
-  const fetchDashboard = useCallback(async (options?: { signal?: AbortSignal; silent?: boolean }) => {
+  const fetchDashboard = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
 
     if (!silent) {
       setIsLoading(true);
     }
 
     try {
-      const data = await getMechanicDashboard(options?.signal);
+      const data = await getMechanicDashboard(controller.signal);
+
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       setDashboardData(data);
-    } catch  {
+    } catch (error: unknown) {
+      if (
+        axios.isCancel(error) ||
+        (error instanceof Error && error.name === 'AbortError')
+      ) {
+        return;
+      }
+
       if (!silent) {
         toast.error('Грешка при зареждане на данни');
       }
     } finally {
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       if (!silent) {
         setIsLoading(false);
+      }
+
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
       }
     }
   }, []);
 
   // ✅ САМО ЕДНА заявка, САМО веднъж
   useEffect(() => {
-    const controller = new AbortController();
-    void fetchDashboard({ signal: controller.signal });
+    void fetchDashboard();
 
     const refreshSilently = () => {
       if (document.visibilityState === 'visible') {
@@ -82,14 +110,16 @@ const MechanicDashboard = () => {
     };
 
     const intervalId = window.setInterval(() => {
-      void fetchDashboard({ silent: true });
+      if (document.visibilityState === 'visible') {
+        void fetchDashboard({ silent: true });
+      }
     }, POLLING_INTERVALS.dashboard);
 
     window.addEventListener('focus', refreshSilently);
     document.addEventListener('visibilitychange', refreshSilently);
 
     return () => {
-      controller.abort();
+      activeRequestRef.current?.abort();
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);
@@ -434,5 +464,4 @@ const MechanicDashboard = () => {
 };
 
 export default MechanicDashboard;
-
 

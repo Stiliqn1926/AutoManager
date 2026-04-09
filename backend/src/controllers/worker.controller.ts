@@ -790,12 +790,13 @@ export const getWorkersAvailability = async (
     const requestedEnd = new Date(`${date}T${endTime}`);
 
     // Провери за конфликти - САМО активни графици
-    const workersWithAvailability = await Promise.all(
-      workers.map(async (worker) => {
-        const conflicts = await prisma.schedule.findMany({
+    const workerIds = workers.map((worker) => worker.id);
+
+    const conflicts = workerIds.length > 0
+      ? await prisma.schedule.findMany({
           where: {
-            workerId: worker.id,
-            status: { in: ['SCHEDULED', 'IN_PROGRESS'] }, // ✅ САМО активни статуси
+            workerId: { in: workerIds },
+            status: { in: ['SCHEDULED', 'IN_PROGRESS'] }, // Only active schedule statuses
             OR: [
               {
                 AND: [
@@ -826,31 +827,46 @@ export const getWorkersAvailability = async (
               },
             },
           },
-        });
+        })
+      : [];
 
-        // Филтрирай само конфликти със активни поръчки
-        const activeConflicts = conflicts.filter(schedule => {
-          // Ако няма свързана поръчка, значи е самостоятелна задача - брои като конфликт
-          if (!schedule.order) return true;
+    const conflictsByWorkerId = new Map<string, (typeof conflicts)[number][]>();
 
-          // Ако има поръчка, провери дали е активна
-          return ['WAITING', 'IN_PROGRESS', 'READY'].includes(schedule.order.status);
-        });
+    for (const schedule of conflicts) {
+      if (!schedule.workerId) {
+        continue;
+      }
 
-        return {
-          ...worker,
-          isAvailable: activeConflicts.length === 0,
-          conflictingSchedules: activeConflicts.map(s => ({
-            id: s.id,
-            title: s.title,
-            startTime: s.startTime,
-            endTime: s.endTime,
-            orderNumber: s.order?.orderNumber,
-            displayOrderNumber: s.order?.displayOrderNumber,
-          })),
-        };
-      })
-    );
+      const workerConflicts = conflictsByWorkerId.get(schedule.workerId) ?? [];
+      workerConflicts.push(schedule);
+      conflictsByWorkerId.set(schedule.workerId, workerConflicts);
+    }
+
+    const workersWithAvailability = workers.map((worker) => {
+      const workerConflicts = conflictsByWorkerId.get(worker.id) ?? [];
+
+      // Keep only conflicts that block worker availability
+      const activeConflicts = workerConflicts.filter((schedule) => {
+        // Task without order still blocks the requested slot
+        if (!schedule.order) return true;
+
+        // If there is an order, block only while the order is active
+        return ['WAITING', 'IN_PROGRESS', 'READY'].includes(schedule.order.status);
+      });
+
+      return {
+        ...worker,
+        isAvailable: activeConflicts.length === 0,
+        conflictingSchedules: activeConflicts.map((s) => ({
+          id: s.id,
+          title: s.title,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          orderNumber: s.order?.orderNumber,
+          displayOrderNumber: s.order?.displayOrderNumber,
+        })),
+      };
+    });
 
     res.status(200).json({ workers: workersWithAvailability });
   } catch (error) {

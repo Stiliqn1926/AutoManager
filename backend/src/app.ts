@@ -63,7 +63,43 @@ app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url}`);
+  const startedAt = Date.now();
+
+  res.on('finish', () => {
+    const durationMs = Date.now() - startedAt;
+    const pathName = req.originalUrl || req.url;
+
+    if (pathName === '/api/health' || pathName === '/') {
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      logger.debug(
+        `HTTP ${req.method} ${pathName} ${res.statusCode} ${durationMs}ms`
+      );
+      return;
+    }
+
+    if (res.statusCode >= 500) {
+      logger.error('HTTP request failed', {
+        method: req.method,
+        path: pathName,
+        statusCode: res.statusCode,
+        durationMs,
+      });
+      return;
+    }
+
+    if (durationMs >= 2000) {
+      logger.warn('Slow HTTP request', {
+        method: req.method,
+        path: pathName,
+        statusCode: res.statusCode,
+        durationMs,
+      });
+    }
+  });
+
   next();
 });
 
@@ -94,4 +130,3 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 export default app;
-

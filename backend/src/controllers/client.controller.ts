@@ -225,44 +225,60 @@ export const getAllClients = async (
     });
 
     // Добави _count и активни поръчки мануално от филтрираните масиви
-    const clientsWithCount = await Promise.all(
-      clients.map(async (client) => {
-        // Брой активни поръчки
-        const activeOrdersCount = workerId
-          ? await prisma.order.count({
-              where: {
-                clientId: client.id,
-                workerId: workerId,
-                serviceCompanyId: serviceCompanyId,
-                status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
-              },
-            })
-          : 0;
+    const clientIds = clients.map((client) => client.id);
 
-        // Последна поръчка
-        const lastOrder = workerId
-          ? await prisma.order.findFirst({
-              where: {
-                clientId: client.id,
-                workerId: workerId,
-                serviceCompanyId: serviceCompanyId,
-              },
-              orderBy: { createdAt: 'desc' },
-              select: { createdAt: true },
-            })
-          : null;
+    let activeOrderCountsByClient = new Map<string, number>();
+    let lastOrderDateByClient = new Map<string, Date | null>();
 
-        return {
-          ...client,
-          _count: {
-            vehicles: client.vehicles.length,
-            orders: client.orders.length,
+    if (workerId && clientIds.length > 0) {
+      const [activeOrderCounts, lastOrdersByClient] = await Promise.all([
+        prisma.order.groupBy({
+          by: ['clientId'],
+          where: {
+            clientId: { in: clientIds },
+            workerId: workerId,
+            serviceCompanyId: serviceCompanyId,
+            status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] },
           },
-          activeOrdersCount,
-          lastOrderDate: lastOrder?.createdAt || null,
-        };
-      })
-    );
+          _count: {
+            _all: true,
+          },
+        }),
+        prisma.order.groupBy({
+          by: ['clientId'],
+          where: {
+            clientId: { in: clientIds },
+            workerId: workerId,
+            serviceCompanyId: serviceCompanyId,
+          },
+          _max: {
+            createdAt: true,
+          },
+        }),
+      ]);
+
+      activeOrderCountsByClient = new Map(
+        activeOrderCounts.map((row) => [row.clientId, row._count._all])
+      );
+
+      lastOrderDateByClient = new Map(
+        lastOrdersByClient.map((row) => [row.clientId, row._max.createdAt ?? null])
+      );
+    }
+
+    const clientsWithCount = clients.map((client) => ({
+      ...client,
+      _count: {
+        vehicles: client.vehicles.length,
+        orders: client.orders.length,
+      },
+      activeOrdersCount: workerId
+        ? activeOrderCountsByClient.get(client.id) ?? 0
+        : 0,
+      lastOrderDate: workerId
+        ? lastOrderDateByClient.get(client.id) ?? null
+        : null,
+    }));
 
     const pagination = getPaginationMeta(totalItems, page, limit);
 

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -21,6 +22,7 @@ import {
 } from '../../services/mechanicService';
 import type { MechanicOrderDetails } from '../../types/mechanic';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 const MechanicOrderDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,25 +31,93 @@ const MechanicOrderDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [diagnosis, setDiagnosis] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
 
-  const fetchOrderDetails = useCallback(async () => {
-    if (!id) return;
+  const fetchOrderDetails = useCallback(
+    async (options?: { silent?: boolean; redirectOnError?: boolean }) => {
+      if (!id) return;
 
-    setIsLoading(true);
-    try {
-      const data = await getMechanicOrderById(id);
-      setOrder(data.order);
-      setDiagnosis(data.order.diagnosis || '');
-    } catch {
-      toast.error('Грешка при зареждане на данни');
-      navigate('/mechanic/orders');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [id, navigate]);
+      const silent = options?.silent ?? false;
+      const redirectOnError = options?.redirectOnError ?? !silent;
+      const requestSeq = requestSeqRef.current + 1;
+      requestSeqRef.current = requestSeq;
+
+      activeRequestRef.current?.abort();
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
+      if (!silent) {
+        setIsLoading(true);
+      }
+
+      try {
+        const data = await getMechanicOrderById(id, controller.signal);
+
+        if (requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
+        setOrder(data.order);
+        setDiagnosis((currentDiagnosis) =>
+          isEditingNotes ? currentDiagnosis : data.order.diagnosis || ''
+        );
+      } catch (error: unknown) {
+        if (
+          axios.isCancel(error) ||
+          (error instanceof Error && error.name === 'AbortError')
+        ) {
+          return;
+        }
+
+        if (!silent) {
+          toast.error('\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u0440\u0435\u0436\u0434\u0430\u043d\u0435 \u043d\u0430 \u0434\u0430\u043d\u043d\u0438');
+        }
+
+        if (redirectOnError) {
+          navigate('/mechanic/orders');
+        }
+      } finally {
+        if (requestSeq !== requestSeqRef.current) {
+          return;
+        }
+
+        if (!silent) {
+          setIsLoading(false);
+        }
+
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
+      }
+    },
+    [id, isEditingNotes, navigate]
+  );
 
   useEffect(() => {
-    fetchOrderDetails();
+    void fetchOrderDetails({ silent: false, redirectOnError: true });
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrderDetails({ silent: true, redirectOnError: false });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrderDetails({ silent: true, redirectOnError: false });
+      }
+    }, POLLING_INTERVALS.details);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      activeRequestRef.current?.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
   }, [fetchOrderDetails]);
 
   const handleStatusChange = async (newStatus: string) => {
@@ -56,7 +126,7 @@ const MechanicOrderDetails = () => {
     try {
       await updateMechanicOrderStatus(id, newStatus);
       toast.success('Статусът е обновен успешно');
-      fetchOrderDetails();
+      void fetchOrderDetails({ silent: true, redirectOnError: false });
     } catch {
       toast.error('Грешка при обновяване на статуса');
     }
@@ -69,7 +139,7 @@ const MechanicOrderDetails = () => {
       await updateMechanicOrder(id, { diagnosis });
       toast.success('Диагностичните бележки са запазени');
       setIsEditingNotes(false);
-      fetchOrderDetails();
+      void fetchOrderDetails({ silent: true, redirectOnError: false });
     } catch {
       toast.error('Грешка при запазване на бележките');
     }

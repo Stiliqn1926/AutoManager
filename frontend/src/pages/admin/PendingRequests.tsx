@@ -43,7 +43,7 @@ const PendingRequests = () => {
 
   const handleApprove = async (id: string, type: 'MECHANIC' | 'CLIENT') => {
   try {
-    await api.post(`/pending-requests/${id}/approve`);
+    await api.patch(`/pending-requests/${id}/approve`);
     toast.success(`${type === 'MECHANIC' ? 'Механикът' : 'Клиентът'} е одобрен успешно`);
     await fetchPendingRequests();
     
@@ -62,7 +62,7 @@ const PendingRequests = () => {
     if (reason === null) return; // Cancelled
 
     try {
-      await api.post(`/pending-requests/${id}/reject`, { rejectionReason: reason });
+      await api.patch(`/pending-requests/${id}/reject`, { rejectionReason: reason });
       toast.success(`${type === 'MECHANIC' ? 'Механикът' : 'Клиентът'} е отхвърлен`);
       await fetchPendingRequests();
     } catch (error) {

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Search, UserX, UserCheck, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -52,22 +53,45 @@ const Clients = () => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+  });
+  const activeRequestRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
 
   const navigate = useNavigate();
 
   const fetchClients = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    const requestSeq = requestSeqRef.current + 1;
+    requestSeqRef.current = requestSeq;
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
 
     if (!silent) {
       setIsLoading(true);
     }
 
     try {
-      // Зареди активни и неактивни клиенти + pending заявки паралелно
+      // Вземи клиенти с бекенд пагинация + pending заявки одобрени
       const [response, pendingResponse] = await Promise.all([
-        api.get('/clients'),
-        api.get('/pending-requests'),
+        api.get('/clients', {
+          signal: controller.signal,
+          params: {
+            page: pagination.currentPage,
+            limit: 20,
+          },
+        }),
+        api.get('/pending-requests', { signal: controller.signal }),
       ]);
+
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
 
       const activeClients = (response.data.clients || []).map((c: Client) => ({
         ...c,
@@ -80,13 +104,13 @@ const Clients = () => {
         ? pendingResponse.data.clientRequests
         : [];
 
-      // Преобразувай pending requests в Client формат
+      // Конвертирай pending requests в Client формат
       const pendingClients: Client[] = pendingRequests.map((req) => ({
         id: req.id,
         firstName: req.firstName || req.email.split('@')[0],
         lastName: req.lastName || '',
         phone: req.phone || '',
-        email: req.email, // 🆕 Добавено за fallback
+        email: req.email,
         address: null,
         isActive: false,
         createdAt: req.createdAt,
@@ -110,18 +134,37 @@ const Clients = () => {
         return !pendingEmails.has(email);
       });
 
-      // Комбинирай и постави pending отгоре
       setClients([...pendingClients, ...filteredActiveClients]);
-    } catch {
+      setPagination({
+        currentPage: response.data.pagination?.currentPage || 1,
+        totalPages: Math.max(response.data.pagination?.totalPages || 1, 1),
+        totalItems: (response.data.pagination?.totalItems || 0) + pendingClients.length,
+      });
+    } catch (error: unknown) {
+      if (
+        axios.isCancel(error) ||
+        (error instanceof Error && error.name === 'AbortError')
+      ) {
+        return;
+      }
+
       if (!silent) {
         toast.error('Грешка при зареждане на клиенти');
       }
     } finally {
+      if (requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
       if (!silent) {
         setIsLoading(false);
       }
+
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
+      }
     }
-  }, []);
+  }, [pagination.currentPage]);
 
   useEffect(() => {
     void fetchClients();
@@ -133,13 +176,16 @@ const Clients = () => {
     };
 
     const intervalId = window.setInterval(() => {
-      void fetchClients({ silent: true });
+      if (document.visibilityState === 'visible') {
+        void fetchClients({ silent: true });
+      }
     }, POLLING_INTERVALS.lists);
 
     window.addEventListener('focus', refreshSilently);
     document.addEventListener('visibilitychange', refreshSilently);
 
     return () => {
+      activeRequestRef.current?.abort();
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);
@@ -471,6 +517,34 @@ const Clients = () => {
               </tbody>
             </table>
           </div>
+
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-2 sm:px-0 pt-4 border-t border-borderSubtle mt-4">
+              <div className="text-sm text-textSecondary">
+                Страница {pagination.currentPage} от {pagination.totalPages}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }))
+                  }
+                  disabled={pagination.currentPage === 1}
+                  className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Предишна
+                </button>
+                <button
+                  onClick={() =>
+                    setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }))
+                  }
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Следваща
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>
@@ -478,6 +552,5 @@ const Clients = () => {
 };
 
 export default Clients;
-
 
 
