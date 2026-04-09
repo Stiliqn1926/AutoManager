@@ -10,6 +10,7 @@ import {
 } from '../controllers/vehicle.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 import { createVehicleSchema, updateVehicleSchema } from '../validators/schemas';
@@ -33,6 +34,7 @@ router.get(
 // ========== ADMIN ROUTES ==========
 router.use(authenticate);
 router.use(authorize('ADMIN'));
+router.use(requireActiveAdminSubscription);
 
 // POST /api/vehicles - Създай автомобил с валидация
 router.post('/', validate(createVehicleSchema), createVehicle);

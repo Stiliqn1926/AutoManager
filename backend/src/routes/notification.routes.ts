@@ -9,11 +9,13 @@ import {
 } from '../controllers/notification.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 
 const router = Router();
 
 // Всички routes изискват authentication
 router.use(authenticate);
+router.use(requireActiveAdminSubscription);
 
 // GET /api/notifications - Вземи всички известия (CLIENT или MECHANIC)
 router.get('/', authorize('CLIENT', 'MECHANIC'), getAllNotifications);

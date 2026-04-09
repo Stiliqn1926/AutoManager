@@ -21,11 +21,13 @@ import {
 } from '../controllers/worker.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 
 const router = Router();
 
 router.use(authenticate);
+router.use(requireActiveAdminSubscription);
 
 // ========== MECHANIC SPECIFIC ROUTES (не изискват активен сервиз) ==========
 router.get('/profile', authorize('MECHANIC'), getMechanicProfile);

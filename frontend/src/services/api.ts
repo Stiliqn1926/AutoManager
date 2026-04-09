@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================
  * API SERVICE С АВТОМАТИЧЕН TOKEN REFRESH
  * ============================================
@@ -107,6 +107,14 @@ api.interceptors.response.use(
     // Проверяваме дали грешката е 403 (Forbidden) - механик изтрит от админ
     if (error.response?.status === 403 && !skipAutoLogout) {
       const errorCode = error.response?.data?.code;
+
+      if (errorCode === 'NO_ACTIVE_SUBSCRIPTION') {
+        const currentPath = window.location.pathname;
+        if (!currentPath.startsWith('/billing')) {
+          window.location.href = '/billing/cancel';
+        }
+        return Promise.reject(error);
+      }
 
       // Ако механикът е изтрит или няма активен сервиз, logout
       if (errorCode === 'NO_ACTIVE_SERVICE' || errorCode === 'NO_ACTIVE_MEMBERSHIP' || errorCode === 'WORKER_DELETED') {

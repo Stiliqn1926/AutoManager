@@ -6,6 +6,7 @@ import {
 } from '../controllers/serviceCompany.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { createServiceCompanySchema } from '../validators/schemas';
 
@@ -14,6 +15,7 @@ const router = Router();
 // Всички routes изискват authentication и ADMIN роля
 router.use(authenticate);
 router.use(authorize('ADMIN'));
+router.use(requireActiveAdminSubscription);
 
 // POST /api/service-company
 router.post('/', validate(createServiceCompanySchema), createServiceCompany);

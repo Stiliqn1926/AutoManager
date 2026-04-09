@@ -13,6 +13,7 @@ import {
 } from '../controllers/schedule.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { requireActiveService } from '../middleware/mechanicServiceCheck.middleware';
 import {
@@ -23,6 +24,7 @@ import {
 const router = Router();
 
 router.use(authenticate);
+router.use(requireActiveAdminSubscription);
 
 router.post(
   '/',

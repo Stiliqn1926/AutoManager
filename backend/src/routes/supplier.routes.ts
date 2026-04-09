@@ -10,12 +10,14 @@ import {
 } from '../controllers/supplier.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
+import { requireActiveAdminSubscription } from '../middleware/subscription.middleware';
 
 const router = Router();
 
 // Всички routes изискват authentication и ADMIN роля
 router.use(authenticate);
 router.use(authorize('ADMIN'));
+router.use(requireActiveAdminSubscription);
 
 // POST /api/suppliers - Създай доставчик
 router.post('/', createSupplier);
