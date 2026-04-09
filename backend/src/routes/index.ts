@@ -13,7 +13,8 @@ import scheduleRoutes from './schedule.routes';
 import clientDashboardRoutes from './clientDashboard.routes';
 import supplierRoutes from './supplier.routes';
 import financeRoutes from './finance.routes';
-import dashboardRoutes from './dashboard.routes'; // НОВО
+import dashboardRoutes from './dashboard.routes';
+import billingRoutes from './billing.routes';
 
 const router = Router();
 
@@ -62,8 +63,11 @@ router.use('/suppliers', supplierRoutes);
 // Finance routes
 router.use('/finances', financeRoutes);
 
-// Dashboard routes (ADMIN & MECHANIC) - НОВО
+// Dashboard routes (ADMIN & MECHANIC)
 router.use('/dashboard', dashboardRoutes);
+
+// Billing routes (Stripe subscription)
+router.use('/billing', billingRoutes);
 
 // Health check
 router.get('/health', (req, res) => {
@@ -71,3 +75,4 @@ router.get('/health', (req, res) => {
 });
 
 export default router;
+

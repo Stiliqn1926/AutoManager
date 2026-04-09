@@ -22,24 +22,33 @@ enum VerificationCodeType {
   EMAIL_VERIFICATION
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      UserRole
-  isActive  Boolean  @default(true)
-  emailVerified Boolean @default(true)
-  tokenVersion Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum SubscriptionStatus {
+  INCOMPLETE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
 
-  serviceCompany     ServiceCompany?
-  clients            Client[]
-  worker             Worker?
-  refreshTokens      RefreshToken[]
-  passwordResets     PasswordReset[]
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  role          UserRole
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(true)
+  tokenVersion  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  serviceCompany         ServiceCompany?
+  clients                Client[]
+  worker                 Worker?
+  refreshTokens          RefreshToken[]
+  passwordResets         PasswordReset[]
   emailVerificationCodes EmailVerificationCode[]
-  blacklistedTokens  BlacklistedToken[]
+  blacklistedTokens      BlacklistedToken[]
 
   @@index([email])
   @@index([role])
@@ -47,11 +56,11 @@ model User {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  revokedAt DateTime?
+  id              String    @id @default(uuid())
+  token           String    @unique
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  revokedAt       DateTime?
   replacedByToken String?
 
   userId String
@@ -118,32 +127,37 @@ model BlacklistedToken {
 // =====================
 
 model ServiceCompany {
-  id          String   @id @default(uuid())
-  name        String
-  address     String?
-  phone       String
-  email       String
-  uniqueCode  String   @unique
-  bulstat     String?
-  vatNumber   String?
-  description String?  @db.Text
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                            String              @id @default(uuid())
+  name                          String
+  address                       String?
+  phone                         String
+  email                         String
+  uniqueCode                    String              @unique
+  bulstat                       String?
+  vatNumber                     String?
+  description                   String?             @db.Text
+  stripeCustomerId              String?             @unique
+  stripeSubscriptionId          String?             @unique
+  subscriptionStatus            SubscriptionStatus?
+  subscriptionCurrentPeriodEnd  DateTime?
+  subscriptionCancelAtPeriodEnd Boolean             @default(false)
+  isActive                      Boolean             @default(true)
+  createdAt                     DateTime            @default(now())
+  updatedAt                     DateTime            @updatedAt
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  clients         Client[]
-  workers         Worker[]
-  vehicles        Vehicle[]
-  orders          Order[]
-  orderItems      OrderItem[]
-  invoices        Invoice[]
-  schedules       Schedule[]
-  suppliers       Supplier[]
-  finances        Finance[]
-  pendingRequests PendingRequest[]
+  clients                  Client[]
+  workers                  Worker[]
+  vehicles                 Vehicle[]
+  orders                   Order[]
+  orderItems               OrderItem[]
+  invoices                 Invoice[]
+  schedules                Schedule[]
+  suppliers                Supplier[]
+  finances                 Finance[]
+  pendingRequests          PendingRequest[]
   mechanicServiceCompanies MechanicServiceCompany[]
 
   @@index([uniqueCode])
@@ -165,20 +179,19 @@ model Client {
 
   userId           String?
   serviceCompanyId String?
-  user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  serviceCompany   ServiceCompany?  @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
+  user             User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  serviceCompany   ServiceCompany? @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
 
   vehicles      Vehicle[]
   orders        Order[]
   notifications Notification[]
 
+  @@unique([userId, serviceCompanyId])
+  @@index([userId])
   @@index([serviceCompanyId])
   @@index([phone])
   @@index([email])
-  @@map("clients") 
-  @@unique([userId, serviceCompanyId]) 
+  @@map("clients")
 }
 
 model Worker {
@@ -194,13 +207,13 @@ model Worker {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  userId           String  @unique
+  userId           String          @unique
   serviceCompanyId String?
   user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   serviceCompany   ServiceCompany? @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
 
-  orders    Order[]
-  schedules Schedule[]
+  orders                   Order[]
+  schedules                Schedule[]
   mechanicServiceCompanies MechanicServiceCompany[]
 
   @@index([serviceCompanyId])
@@ -221,12 +234,12 @@ enum RequestStatus {
 
 model PendingRequest {
   id              String        @id @default(uuid())
-  requestType     RequestType   @default(MECHANIC)  // 🆕 ДОБАВЕНО
+  requestType     RequestType   @default(MECHANIC) // 🆕 ДОБАВЕНО
   email           String
   firstName       String
   lastName        String
   phone           String
-  specialization  String?       // 🆕 Nullable (само за MECHANIC)
+  specialization  String? // 🆕 Nullable (само за MECHANIC)
   skills          String?       @db.Text
   status          RequestStatus @default(PENDING)
   rejectionReason String?
@@ -238,7 +251,7 @@ model PendingRequest {
 
   @@index([serviceCompanyId])
   @@index([status])
-  @@index([requestType])  // 🆕 ДОБАВЕНО
+  @@index([requestType]) // 🆕 ДОБАВЕНО
   @@map("pending_requests")
 }
 
@@ -317,17 +330,17 @@ model Order {
   orderNumber        String           @unique
   displayOrderNumber String?
   description        String           @db.Text
-  diagnosis     String?          @db.Text
-  status        OrderStatus      @default(WAITING)
-  priority      SchedulePriority @default(NORMAL)
-  startDate     DateTime?
-  endDate       DateTime?
-  completedDate DateTime?
-  totalPrice    Decimal?         @db.Decimal(10, 2)
-  notes         String?          @db.Text
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  deletedAt     DateTime?
+  diagnosis          String?          @db.Text
+  status             OrderStatus      @default(WAITING)
+  priority           SchedulePriority @default(NORMAL)
+  startDate          DateTime?
+  endDate            DateTime?
+  completedDate      DateTime?
+  totalPrice         Decimal?         @db.Decimal(10, 2)
+  notes              String?          @db.Text
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
 
   clientId         String
   vehicleId        String
@@ -452,35 +465,35 @@ enum SchedulePriority {
 }
 
 model Schedule {
-  id                 String           @id @default(uuid())
-  title              String
-  description        String?          @db.Text
+  id          String  @id @default(uuid())
+  title       String
+  description String? @db.Text
 
   // Основна дата (за дневен / седмичен / месечен изглед)
-  date               DateTime
+  date DateTime
 
   // Реални часове
-  startTime          DateTime
-  endTime            DateTime
+  startTime DateTime
+  endTime   DateTime
 
-  status             ScheduleStatus   @default(SCHEDULED)
-  priority           SchedulePriority @default(NORMAL)
+  status   ScheduleStatus   @default(SCHEDULED)
+  priority SchedulePriority @default(NORMAL)
 
-  estimatedDuration  Int?
-  notes              String?          @db.Text
-  isCompleted        Boolean          @default(false)
+  estimatedDuration Int?
+  notes             String? @db.Text
+  isCompleted       Boolean @default(false)
 
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  workerId           String?
-  orderId            String?
-  serviceCompanyId   String
+  workerId         String?
+  orderId          String?
+  serviceCompanyId String
 
-  worker             Worker?        @relation(fields: [workerId], references: [id], onDelete: SetNull)
-  order              Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  serviceCompany     ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  worker         Worker?        @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  order          Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
 
   @@index([serviceCompanyId])
   @@index([workerId])
@@ -500,7 +513,7 @@ enum SupplierType {
 }
 
 model Supplier {
-  id             String        @id @default(uuid())
+  id             String       @id @default(uuid())
   name           String
   type           SupplierType
   contactPerson  String?
@@ -512,13 +525,13 @@ model Supplier {
   eik            String?
   vatNumber      String?
   website        String?
-  notes          String?       @db.Text
-  deliveryNotes  String?       @db.Text
-  isActive       Boolean       @default(true)
-  isPreferred    Boolean       @default(false)
+  notes          String?      @db.Text
+  deliveryNotes  String?      @db.Text
+  isActive       Boolean      @default(true)
+  isPreferred    Boolean      @default(false)
   lastOrderDate  DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
   deletedAt      DateTime?
 
   serviceCompanyId String
