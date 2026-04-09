@@ -9,6 +9,7 @@ import { Checkbox } from '../../components/common/Checkbox';
 import toast from 'react-hot-toast';
 import type { ErrorResponse, ValidationError } from '../../types';
 import { validateEmail } from '../../utils/validation';
+import { createCheckoutSession } from '../../services/billingService';
 
 type RoleContent = {
   title: string;
@@ -18,6 +19,7 @@ type RoleContent = {
 const Login = () => {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || 'service';
+  const nextAction = searchParams.get('next');
   const forgotRole =
     roleParam === 'admin' || roleParam === 'mechanic' || roleParam === 'client'
       ? roleParam
@@ -69,11 +71,29 @@ const Login = () => {
 
     try {
       await login(email, password, expectedRole, rememberMe);
+
+      if (expectedRole === 'ADMIN' && nextAction === 'checkout') {
+        const checkoutData = await createCheckoutSession();
+        window.location.href = checkoutData.checkoutUrl;
+        return;
+      }
+
       toast.success('Успешен вход!');
       navigate('/');
     } catch (error) {
       const err = error as { response?: { status?: number; data?: ErrorResponse } };
       const errorData = err.response?.data;
+
+      if (
+        expectedRole === 'ADMIN' &&
+        nextAction === 'checkout' &&
+        err.response?.status &&
+        err.response.status !== 401
+      ) {
+        toast.error(errorData?.message || 'Неуспешно стартиране на плащането');
+        navigate('/billing/cancel');
+        return;
+      }
 
       if (err.response?.status === 401) {
         toast.error('Грешен имейл или парола');

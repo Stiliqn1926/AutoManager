@@ -56,8 +56,16 @@ const VerifyEmail = () => {
       await api.post('/auth/verify-email-code', { email, code });
       toast.success('Имейлът е потвърден успешно!');
 
+      if (roleParam === 'admin') {
+        toast.success('Влезте в профила си, за да продължите към плащане.');
+        navigate('/login?role=admin&next=checkout');
+        return;
+      }
+
       if (roleParam === 'mechanic') {
-        toast.success('Потвърждението е успешно. Изчакайте одобрение от администратор.');
+        toast.success(
+          'Потвърждението е успешно. Изчакайте одобрение от администратор.'
+        );
       }
 
       navigate(getLoginPath());
@@ -101,7 +109,9 @@ const VerifyEmail = () => {
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
         </h1>
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Потвърждение на имейл</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
+          Потвърждение на имейл
+        </h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-4">
           Въведете 6-цифрения код, който изпратихме на имейла ви.
         </p>
@@ -119,11 +129,7 @@ const VerifyEmail = () => {
 
           {!codeExpired && (
             <div className="mb-6 p-4 bg-mainBg rounded-lg border border-borderSubtle">
-              <CountdownTimer
-                key={timerKey}
-                initialSeconds={10 * 60}
-                onExpire={handleExpire}
-              />
+              <CountdownTimer key={timerKey} initialSeconds={10 * 60} onExpire={handleExpire} />
             </div>
           )}
 
@@ -194,3 +200,4 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
+

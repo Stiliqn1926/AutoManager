@@ -14,6 +14,8 @@ import RegisterClient from '../pages/auth/RegisterClient';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 import VerifyEmail from '../pages/auth/VerifyEmail';
+import BillingSuccess from '../pages/auth/BillingSuccess';
+import BillingCancel from '../pages/auth/BillingCancel';
 import TermsAndConditions from '../pages/TermsAndConditions';
 
 // ================= ADMIN PAGES =================
@@ -192,6 +194,8 @@ export const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/billing/success" element={<BillingSuccess />} />
+      <Route path="/billing/cancel" element={<BillingCancel />} />
       <Route path="/terms" element={<TermsAndConditions />} />
 
       {/* ================= ADMIN ================= */}
