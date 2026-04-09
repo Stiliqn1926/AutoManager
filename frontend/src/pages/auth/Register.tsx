@@ -174,17 +174,14 @@ const Register = () => {
         ...(companyData.description && { description: companyData.description }),
       };
 
-      const response = await api.post('/auth/register-admin', payload);
-      const { serviceCompany } = response.data;
+      await api.post('/auth/register-admin', payload);
 
       // Clear registration data
       localStorage.removeItem(STORAGE_KEY_COMPANY);
       localStorage.removeItem(STORAGE_KEY_ADMIN);
       localStorage.removeItem('registerStep');
 
-      toast.success(
-        `Сервизът е създаден успешно! Код на сервиза: ${serviceCompany.uniqueCode}. Потвърдете имейла си.`
-      );
+      toast.success('Код за потвърждение е изпратен на имейла. Потвърдете и продължете към плащане.');
 
       navigate(`/verify-email?email=${encodeURIComponent(adminData.email)}&role=admin`);
     } catch (error) {

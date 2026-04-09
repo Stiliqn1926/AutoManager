@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -12,6 +12,7 @@ import MainLayout from '../../components/layout/MainLayout';
 import { Button } from '../../components/common/Button';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface Order {
   id: string;
@@ -61,20 +62,47 @@ const Orders = () => {
 
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
       const response = await api.get('/orders');
       setOrders(response.data.orders || []);
     } catch {
       toast.error('Грешка при зареждане на поръчки');
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    void fetchOrders();
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrders({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchOrders({ silent: true });
+    }, POLLING_INTERVALS.lists);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchOrders]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {

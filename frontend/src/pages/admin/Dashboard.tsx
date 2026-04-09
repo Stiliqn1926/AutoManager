@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import SetupWizard from '../../components/admin/SetupWizard';
 import StatsDashboard from '../../components/admin/StatsDashboard';
@@ -9,6 +9,7 @@ import RecentClients from '../../components/admin/RecentClients';
 import FinanceChart from '../../components/admin/FinanceChart';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface Order {
   id: string;
@@ -56,22 +57,50 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ САМО ЕДНА заявка, САМО веднъж
-  useEffect(() => {
-    fetchDashboard();
-  }, []); // НИКОГА без [] - това предотвратява infinite loop
+  const fetchDashboard = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
 
-  const fetchDashboard = async () => {
-    setIsLoading(true);
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
       const response = await api.get('/dashboard/overview');
       setDashboardData(response.data);
     } catch {
-      toast.error('Грешка при зареждане на dashboard');
+      if (!silent) {
+        toast.error('Грешка при зареждане на dashboard');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
+
+  // ✅ САМО ЕДНА заявка, САМО веднъж
+  useEffect(() => {
+    void fetchDashboard();
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchDashboard({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchDashboard({ silent: true });
+    }, POLLING_INTERVALS.dashboard);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchDashboard]); // НИКОГА без [] - това предотвратява infinite loop
 
   if (isLoading) {
     return (
@@ -89,7 +118,7 @@ const AdminDashboard = () => {
         <div className="text-center py-12">
           <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
           <button
-            onClick={fetchDashboard}
+            onClick={() => void fetchDashboard()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
           >
             Опитай отново

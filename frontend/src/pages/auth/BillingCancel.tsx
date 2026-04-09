@@ -1,17 +1,26 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button } from '../../components/common/Button';
-import { createCheckoutSession } from '../../services/billingService';
+import {
+  createAdminRegistrationCheckoutSession,
+  createCheckoutSession,
+} from '../../services/billingService';
 
 const BillingCancel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const flow = searchParams.get('flow');
+  const email = searchParams.get('email') || '';
+  const isAdminRegisterFlow = flow === 'admin-register' && Boolean(email);
 
   const handleRetry = async () => {
     setIsLoading(true);
     try {
-      const checkoutData = await createCheckoutSession();
+      const checkoutData = isAdminRegisterFlow
+        ? await createAdminRegistrationCheckoutSession(email)
+        : await createCheckoutSession();
       window.location.href = checkoutData.checkoutUrl;
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -53,9 +62,11 @@ const BillingCancel = () => {
             <Button
               fullWidth
               variant="outline"
-              onClick={() => navigate('/login?role=admin')}
+              onClick={() =>
+                navigate(isAdminRegisterFlow ? '/register-admin' : '/login?role=admin')
+              }
             >
-              Към вход за администратор
+              {isAdminRegisterFlow ? 'Към регистрация' : 'Към вход за администратор'}
             </Button>
           </div>
         </div>

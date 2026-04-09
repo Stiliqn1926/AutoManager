@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
-import { SubscriptionStatus } from '@prisma/client';
+import {
+  AdminRegistrationStatus,
+  SubscriptionStatus,
+  UserRole,
+} from '@prisma/client';
 import prisma from '../config/database';
 import logger from '../services/logger.service';
+import { generateUniqueCode } from '../utils/generateUniqueCode';
 import {
   getFrontendUrl,
   getStripe,
@@ -104,6 +109,146 @@ const buildSubscriptionUpdatePayload = (subscription: any) => {
     subscriptionCurrentPeriodEnd: unixToDate(subscription.current_period_end),
     subscriptionCancelAtPeriodEnd: subscription.cancel_at_period_end,
   };
+};
+
+const finalizePendingAdminRegistration = async (params: {
+  pendingRegistrationId: string;
+  customerId: string | null;
+  subscriptionId: string | null;
+  subscriptionPayload?: ReturnType<typeof buildSubscriptionUpdatePayload>;
+}) => {
+  const {
+    pendingRegistrationId,
+    customerId,
+    subscriptionId,
+    subscriptionPayload,
+  } = params;
+
+  const pendingRegistration = await prisma.pendingAdminRegistration.findUnique({
+    where: { id: pendingRegistrationId },
+  });
+
+  if (!pendingRegistration) {
+    logger.warn(
+      `checkout.session.completed for unknown pending registration (${pendingRegistrationId})`
+    );
+    return;
+  }
+
+  if (pendingRegistration.status === AdminRegistrationStatus.COMPLETED) {
+    return;
+  }
+
+  if (!pendingRegistration.emailVerifiedAt) {
+    logger.warn(
+      `checkout.session.completed before email verification (${pendingRegistrationId})`
+    );
+    return;
+  }
+
+  if (pendingRegistration.expiresAt < new Date()) {
+    await prisma.pendingAdminRegistration.update({
+      where: { id: pendingRegistration.id },
+      data: { status: AdminRegistrationStatus.EXPIRED },
+    });
+    return;
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email: pendingRegistration.email },
+    include: { serviceCompany: true },
+  });
+
+  if (existingUser) {
+    if (existingUser.serviceCompany) {
+      const updateData: {
+        stripeCustomerId?: string;
+        stripeSubscriptionId?: string;
+        subscriptionStatus?: SubscriptionStatus;
+        subscriptionCurrentPeriodEnd?: Date | null;
+        subscriptionCancelAtPeriodEnd?: boolean;
+      } = {};
+
+      if (customerId) updateData.stripeCustomerId = customerId;
+      if (subscriptionPayload) Object.assign(updateData, subscriptionPayload);
+      if (subscriptionId && !updateData.stripeSubscriptionId) {
+        updateData.stripeSubscriptionId = subscriptionId;
+      }
+      if (!updateData.subscriptionStatus) {
+        updateData.subscriptionStatus = SubscriptionStatus.ACTIVE;
+      }
+
+      await prisma.serviceCompany.update({
+        where: { id: existingUser.serviceCompany.id },
+        data: updateData,
+      });
+
+      await prisma.pendingAdminRegistration.update({
+        where: { id: pendingRegistration.id },
+        data: {
+          status: AdminRegistrationStatus.COMPLETED,
+          completedAt: new Date(),
+          createdUserId: existingUser.id,
+          createdServiceCompanyId: existingUser.serviceCompany.id,
+          verificationCodeHash: null,
+          verificationCodeExpiresAt: null,
+        },
+      });
+    } else {
+      logger.warn(
+        `Pending registration email already exists without service company (${pendingRegistration.email})`
+      );
+    }
+    return;
+  }
+
+  const uniqueCode = generateUniqueCode();
+
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email: pendingRegistration.email,
+        password: pendingRegistration.passwordHash,
+        role: UserRole.ADMIN,
+        emailVerified: true,
+      },
+    });
+
+    const serviceCompany = await tx.serviceCompany.create({
+      data: {
+        name: pendingRegistration.companyName,
+        address: pendingRegistration.companyAddress,
+        phone: pendingRegistration.companyPhone,
+        email: pendingRegistration.companyEmail,
+        uniqueCode,
+        bulstat: pendingRegistration.bulstat,
+        vatNumber: pendingRegistration.vatNumber,
+        description: pendingRegistration.description,
+        userId: user.id,
+        stripeCustomerId: customerId || pendingRegistration.stripeCustomerId || null,
+        stripeSubscriptionId:
+          subscriptionPayload?.stripeSubscriptionId || subscriptionId || null,
+        subscriptionStatus:
+          subscriptionPayload?.subscriptionStatus || SubscriptionStatus.ACTIVE,
+        subscriptionCurrentPeriodEnd:
+          subscriptionPayload?.subscriptionCurrentPeriodEnd || null,
+        subscriptionCancelAtPeriodEnd:
+          subscriptionPayload?.subscriptionCancelAtPeriodEnd || false,
+      },
+    });
+
+    await tx.pendingAdminRegistration.update({
+      where: { id: pendingRegistration.id },
+      data: {
+        status: AdminRegistrationStatus.COMPLETED,
+        completedAt: new Date(),
+        createdUserId: user.id,
+        createdServiceCompanyId: serviceCompany.id,
+        verificationCodeHash: null,
+        verificationCodeExpiresAt: null,
+      },
+    });
+  });
 };
 
 export const createCheckoutSession = async (
@@ -304,6 +449,8 @@ export const handleStripeWebhook = async (
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as any;
+        const pendingAdminRegistrationId =
+          session.metadata?.pendingAdminRegistrationId ?? null;
         const serviceCompanyId =
           session.metadata?.serviceCompanyId ?? session.client_reference_id ?? null;
         const customerId =
@@ -314,6 +461,25 @@ export const handleStripeWebhook = async (
           typeof session.subscription === 'string'
             ? session.subscription
             : session.subscription?.id ?? null;
+
+        if (pendingAdminRegistrationId) {
+          let subscriptionPayload:
+            | ReturnType<typeof buildSubscriptionUpdatePayload>
+            | undefined;
+
+          if (subscriptionId) {
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            subscriptionPayload = buildSubscriptionUpdatePayload(subscription);
+          }
+
+          await finalizePendingAdminRegistration({
+            pendingRegistrationId: pendingAdminRegistrationId,
+            customerId,
+            subscriptionId,
+            subscriptionPayload,
+          });
+          break;
+        }
 
         if (!serviceCompanyId) {
           logger.warn('checkout.session.completed without serviceCompanyId metadata');
@@ -344,6 +510,27 @@ export const handleStripeWebhook = async (
         await prisma.serviceCompany.update({
           where: { id: serviceCompanyId },
           data: updateData,
+        });
+        break;
+      }
+
+      case 'checkout.session.expired': {
+        const session = event.data.object as any;
+        const pendingAdminRegistrationId =
+          session.metadata?.pendingAdminRegistrationId ?? null;
+
+        if (!pendingAdminRegistrationId) {
+          break;
+        }
+
+        await prisma.pendingAdminRegistration.updateMany({
+          where: {
+            id: pendingAdminRegistrationId,
+            status: { not: AdminRegistrationStatus.COMPLETED },
+          },
+          data: {
+            status: AdminRegistrationStatus.CANCELED,
+          },
         });
         break;
       }

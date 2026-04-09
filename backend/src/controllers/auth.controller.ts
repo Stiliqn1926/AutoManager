@@ -6,12 +6,19 @@
  */
 
 import { Request, Response } from 'express';
+import { AdminRegistrationStatus } from '@prisma/client';
 import crypto from 'crypto';
 import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/hashPassword';
 import { generateToken } from '../utils/generateToken';
 import { validateEmailDomain } from '../utils/emailValidator';
 import logger from '../services/logger.service';
+import {
+  getStripe,
+  getStripeCancelUrl,
+  getStripePriceId,
+  getStripeSuccessUrl,
+} from '../services/stripe.service';
 import {
   createRefreshToken,
   validateRefreshToken,
@@ -24,6 +31,7 @@ const PASSWORD_RESET_CODE_TTL_MINUTES = 15;
 const EMAIL_VERIFICATION_CODE_TTL_MINUTES = 10;
 const CODE_RESEND_COOLDOWN_SECONDS = 60;
 const CODE_GENERATION_MAX_ATTEMPTS = 5;
+const PENDING_ADMIN_REGISTRATION_TTL_HOURS = 24;
 
 const getExpiryDate = (minutes: number): Date =>
   new Date(Date.now() + minutes * 60 * 1000);
@@ -31,8 +39,13 @@ const getExpiryDate = (minutes: number): Date =>
 const getRecentCodeThreshold = (): Date =>
   new Date(Date.now() - CODE_RESEND_COOLDOWN_SECONDS * 1000);
 
+const getPendingAdminRegistrationExpiryDate = (): Date =>
+  new Date(Date.now() + PENDING_ADMIN_REGISTRATION_TTL_HOURS * 60 * 60 * 1000);
+
 const generateSixDigitCode = (): string =>
   crypto.randomInt(100000, 999999).toString();
+
+const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 
 const doesCodeConflictWithHashes = async (
   code: string,
@@ -225,19 +238,74 @@ const issueEmailVerificationCode = async (userId: string, email: string) => {
   return { cooldown: false as const };
 };
 
+const issuePendingAdminVerificationCode = async (
+  registrationId: string,
+  email: string
+) => {
+  const registration = await prisma.pendingAdminRegistration.findUnique({
+    where: { id: registrationId },
+    select: {
+      id: true,
+      lastCodeSentAt: true,
+      status: true,
+    },
+  });
+
+  if (!registration) {
+    throw new Error('Липсва заявка за регистрация на администратор');
+  }
+
+  if (
+    registration.lastCodeSentAt &&
+    registration.lastCodeSentAt >= getRecentCodeThreshold()
+  ) {
+    return { cooldown: true as const };
+  }
+
+  const verificationCode = generateSixDigitCode();
+  const hashedCode = await hashPassword(verificationCode);
+
+  await prisma.pendingAdminRegistration.update({
+    where: { id: registrationId },
+    data: {
+      verificationCodeHash: hashedCode,
+      verificationCodeExpiresAt: getExpiryDate(EMAIL_VERIFICATION_CODE_TTL_MINUTES),
+      lastCodeSentAt: new Date(),
+      status:
+        registration.status === AdminRegistrationStatus.EMAIL_VERIFIED
+          ? AdminRegistrationStatus.EMAIL_VERIFIED
+          : AdminRegistrationStatus.PENDING_EMAIL_VERIFICATION,
+    },
+  });
+
+  await sendEmailVerificationCodeEmail(email, verificationCode);
+  return { cooldown: false as const };
+};
+
 // Register (ADMIN and CLIENT)
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, role, firstName, lastName, phone } = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (role === 'ADMIN') {
+      res.status(400).json({
+        message:
+          'Регистрацията на администратор е достъпна само през формата за регистрация на сервиз.',
+      });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existingUser) {
       res.status(400).json({ message: 'Потребител с този имейл вече съществува' });
       return;
     }
 
     // Check if email domain exists
-    const isDomainValid = await validateEmailDomain(email);
+    const isDomainValid = await validateEmailDomain(normalizedEmail);
     if (!isDomainValid) {
       res.status(400).json({
         message: 'Имейл домейнът не съществува или не може да получава имейли',
@@ -249,7 +317,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role,
         emailVerified: false,
@@ -263,7 +331,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           firstName: firstName || '',
           lastName: lastName || '',
           phone: phone || '',
-          email: email,
+          email: normalizedEmail,
           userId: user.id,
         },
       });
@@ -1007,64 +1075,124 @@ export const verifyEmailCode = async (
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      res.status(400).json({ message: 'Невалиден имейл или код' });
-      return;
-    }
+    const normalizedEmail = normalizeEmail(email);
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-    if (user.emailVerified) {
-      res.status(200).json({ message: 'Имейлът вече е потвърден' });
-      return;
-    }
-
-    const verificationCodes = await prisma.emailVerificationCode.findMany({
-      where: {
-        userId: user.id,
-        type: 'EMAIL_VERIFICATION',
-        usedAt: null,
-        expiresAt: { gte: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    let validCode = null;
-    for (const item of verificationCodes) {
-      const isCodeValid = await comparePassword(code, item.token);
-      if (isCodeValid) {
-        validCode = item;
-        break;
+    if (user) {
+      if (user.emailVerified) {
+        res.status(200).json({ message: 'Имейлът вече е потвърден' });
+        return;
       }
-    }
 
-    if (!validCode) {
-      res.status(400).json({ message: 'Невалиден или изтекъл код' });
-      return;
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: { id: user.id },
-        data: { emailVerified: true },
-      });
-
-      await tx.emailVerificationCode.update({
-        where: { id: validCode.id },
-        data: { usedAt: new Date() },
-      });
-
-      await tx.emailVerificationCode.updateMany({
+      const verificationCodes = await prisma.emailVerificationCode.findMany({
         where: {
           userId: user.id,
           type: 'EMAIL_VERIFICATION',
           usedAt: null,
-          id: { not: validCode.id },
+          expiresAt: { gte: new Date() },
         },
-        data: { usedAt: new Date() },
+        orderBy: { createdAt: 'desc' },
       });
+
+      let validCode = null;
+      for (const item of verificationCodes) {
+        const isCodeValid = await comparePassword(code, item.token);
+        if (isCodeValid) {
+          validCode = item;
+          break;
+        }
+      }
+
+      if (!validCode) {
+        res.status(400).json({ message: 'Невалиден или изтекъл код' });
+        return;
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: user.id },
+          data: { emailVerified: true },
+        });
+
+        await tx.emailVerificationCode.update({
+          where: { id: validCode.id },
+          data: { usedAt: new Date() },
+        });
+
+        await tx.emailVerificationCode.updateMany({
+          where: {
+            userId: user.id,
+            type: 'EMAIL_VERIFICATION',
+            usedAt: null,
+            id: { not: validCode.id },
+          },
+          data: { usedAt: new Date() },
+        });
+      });
+
+      res.status(200).json({ message: 'Имейлът е потвърден успешно' });
+      return;
+    }
+
+    const pendingRegistration = await prisma.pendingAdminRegistration.findUnique({
+      where: { email: normalizedEmail },
     });
 
-    res.status(200).json({ message: 'Имейлът е потвърден успешно' });
+    if (!pendingRegistration) {
+      res.status(400).json({ message: 'Невалиден имейл или код' });
+      return;
+    }
+
+    if (pendingRegistration.status === AdminRegistrationStatus.COMPLETED) {
+      res.status(200).json({ message: 'Имейлът вече е потвърден' });
+      return;
+    }
+
+    if (pendingRegistration.expiresAt < new Date()) {
+      await prisma.pendingAdminRegistration.update({
+        where: { id: pendingRegistration.id },
+        data: { status: AdminRegistrationStatus.EXPIRED },
+      });
+      res.status(400).json({
+        message:
+          'Регистрационната сесия е изтекла. Моля, започнете регистрацията отново.',
+      });
+      return;
+    }
+
+    if (
+      !pendingRegistration.verificationCodeHash ||
+      !pendingRegistration.verificationCodeExpiresAt ||
+      pendingRegistration.verificationCodeExpiresAt < new Date()
+    ) {
+      res.status(400).json({ message: 'Невалиден или изтекъл код' });
+      return;
+    }
+
+    const isValidCode = await comparePassword(
+      code,
+      pendingRegistration.verificationCodeHash
+    );
+
+    if (!isValidCode) {
+      res.status(400).json({ message: 'Невалиден или изтекъл код' });
+      return;
+    }
+
+    await prisma.pendingAdminRegistration.update({
+      where: { id: pendingRegistration.id },
+      data: {
+        emailVerifiedAt: new Date(),
+        status: AdminRegistrationStatus.EMAIL_VERIFIED,
+        verificationCodeHash: null,
+        verificationCodeExpiresAt: null,
+      },
+    });
+
+    res.status(200).json({
+      message: 'Имейлът е потвърден успешно',
+      nextAction: 'CHECKOUT',
+    });
   } catch (error) {
     logger.error('Auth error:', error);
     res.status(500).json({ message: 'Сървърна грешка' });
@@ -1078,21 +1206,64 @@ export const resendEmailVerificationCode = async (
 ): Promise<void> => {
   try {
     const { email } = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (user) {
+      if (user.emailVerified) {
+        res.status(200).json({ message: 'Имейлът вече е потвърден' });
+        return;
+      }
+
+      const result = await issueEmailVerificationCode(user.id, user.email);
+      if (result.cooldown) {
+        res.status(429).json({
+          message: 'Изчакайте малко преди да заявите нов код.',
+        });
+        return;
+      }
+
+      res.status(200).json({ message: 'Код за потвърждение е изпратен на имейла' });
+      return;
+    }
+
+    const pendingRegistration = await prisma.pendingAdminRegistration.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (!pendingRegistration) {
       res.status(200).json({
         message: 'Ако имейлът съществува, е изпратен код за потвърждение',
       });
       return;
     }
 
-    if (user.emailVerified) {
+    if (pendingRegistration.status === AdminRegistrationStatus.COMPLETED) {
       res.status(200).json({ message: 'Имейлът вече е потвърден' });
       return;
     }
 
-    const result = await issueEmailVerificationCode(user.id, user.email);
+    if (pendingRegistration.expiresAt < new Date()) {
+      await prisma.pendingAdminRegistration.update({
+        where: { id: pendingRegistration.id },
+        data: { status: AdminRegistrationStatus.EXPIRED },
+      });
+      res.status(400).json({
+        message:
+          'Регистрационната сесия е изтекла. Моля, започнете регистрацията отново.',
+      });
+      return;
+    }
+
+    if (pendingRegistration.emailVerifiedAt) {
+      res.status(200).json({ message: 'Имейлът вече е потвърден' });
+      return;
+    }
+
+    const result = await issuePendingAdminVerificationCode(
+      pendingRegistration.id,
+      pendingRegistration.email
+    );
     if (result.cooldown) {
       res.status(429).json({
         message: 'Изчакайте малко преди да заявите нов код.',
@@ -1125,13 +1296,18 @@ export const registerAdminWithCompany = async (
       description,
     } = req.body;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedCompanyEmail = normalizeEmail(companyEmail);
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existingUser) {
       res.status(400).json({ message: 'Потребител с този имейл вече съществува' });
       return;
     }
 
-    const isDomainValid = await validateEmailDomain(email);
+    const isDomainValid = await validateEmailDomain(normalizedEmail);
     if (!isDomainValid) {
       res.status(400).json({
         message: 'Имейл домейнът не съществува или не може да получава имейли',
@@ -1139,7 +1315,7 @@ export const registerAdminWithCompany = async (
       return;
     }
 
-    const isCompanyEmailValid = await validateEmailDomain(companyEmail);
+    const isCompanyEmailValid = await validateEmailDomain(normalizedCompanyEmail);
     if (!isCompanyEmailValid) {
       res.status(400).json({
         message: 'Имейл домейнът на фирмата не съществува или не може да получава имейли',
@@ -1148,62 +1324,266 @@ export const registerAdminWithCompany = async (
     }
 
     const hashedPassword = await hashPassword(password);
-    const { generateUniqueCode } = await import('../utils/generateUniqueCode');
-    const uniqueCode = generateUniqueCode();
-
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          role: 'ADMIN',
-          emailVerified: false,
-        },
-      });
-
-      const serviceCompany = await tx.serviceCompany.create({
-        data: {
-          name: companyName,
-          address: companyAddress,
-          phone: companyPhone,
-          email: companyEmail,
-          uniqueCode,
-          bulstat,
-          vatNumber,
-          description,
-          userId: user.id,
-        },
-      });
-
-      return { user, serviceCompany };
+    const pendingRegistration = await prisma.pendingAdminRegistration.upsert({
+      where: { email: normalizedEmail },
+      update: {
+        passwordHash: hashedPassword,
+        companyName,
+        companyAddress,
+        companyPhone,
+        companyEmail: normalizedCompanyEmail,
+        bulstat: bulstat || null,
+        vatNumber: vatNumber || null,
+        description: description || null,
+        verificationCodeHash: null,
+        verificationCodeExpiresAt: null,
+        lastCodeSentAt: null,
+        emailVerifiedAt: null,
+        stripeCheckoutSessionId: null,
+        stripeCustomerId: null,
+        status: AdminRegistrationStatus.PENDING_EMAIL_VERIFICATION,
+        expiresAt: getPendingAdminRegistrationExpiryDate(),
+        createdUserId: null,
+        createdServiceCompanyId: null,
+        completedAt: null,
+      },
+      create: {
+        email: normalizedEmail,
+        passwordHash: hashedPassword,
+        companyName,
+        companyAddress,
+        companyPhone,
+        companyEmail: normalizedCompanyEmail,
+        bulstat: bulstat || null,
+        vatNumber: vatNumber || null,
+        description: description || null,
+        status: AdminRegistrationStatus.PENDING_EMAIL_VERIFICATION,
+        expiresAt: getPendingAdminRegistrationExpiryDate(),
+      },
     });
 
-    const { user, serviceCompany } = result;
-
     try {
-      await issueEmailVerificationCode(user.id, user.email);
+      await issuePendingAdminVerificationCode(
+        pendingRegistration.id,
+        pendingRegistration.email
+      );
     } catch (emailError) {
       logger.error('Failed to send verification code email:', emailError);
     }
 
     res.status(201).json({
       message:
-        'Администраторът и сервизът са създадени успешно. Код за потвърждение е изпратен на имейла.',
+        'Данните са приети. Потвърдете имейла, за да продължите към плащане.',
       requiresEmailVerification: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        serviceCompanyId: serviceCompany.id,
-      },
-      serviceCompany: {
-        id: serviceCompany.id,
-        name: serviceCompany.name,
-        uniqueCode: serviceCompany.uniqueCode,
-      },
+      email: pendingRegistration.email,
     });
   } catch (error) {
     logger.error('Auth error:', error);
+    res.status(500).json({ message: 'Сървърна грешка' });
+  }
+};
+
+export const createAdminRegistrationCheckoutSession = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: 'Имейлът е задължителен' });
+      return;
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      res.status(400).json({
+        message: 'Регистрацията вече е финализирана. Влезте в системата.',
+      });
+      return;
+    }
+
+    const registration = await prisma.pendingAdminRegistration.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (!registration) {
+      res.status(404).json({
+        message: 'Липсва активна регистрация. Моля, започнете отново.',
+      });
+      return;
+    }
+
+    if (registration.expiresAt < new Date()) {
+      await prisma.pendingAdminRegistration.update({
+        where: { id: registration.id },
+        data: { status: AdminRegistrationStatus.EXPIRED },
+      });
+      res.status(400).json({
+        message:
+          'Регистрационната сесия е изтекла. Моля, започнете регистрацията отново.',
+      });
+      return;
+    }
+
+    if (!registration.emailVerifiedAt) {
+      res.status(403).json({
+        code: 'EMAIL_NOT_VERIFIED',
+        message: 'Потвърдете имейла си, за да продължите към плащане.',
+      });
+      return;
+    }
+
+    if (registration.status === AdminRegistrationStatus.COMPLETED) {
+      res.status(400).json({
+        message: 'Регистрацията вече е финализирана. Влезте в системата.',
+      });
+      return;
+    }
+
+    const stripe = getStripe();
+    let stripeCustomerId = registration.stripeCustomerId;
+
+    if (!stripeCustomerId) {
+      const customer = await stripe.customers.create({
+        email: registration.companyEmail,
+        name: registration.companyName,
+        metadata: {
+          pendingAdminRegistrationId: registration.id,
+        },
+      });
+      stripeCustomerId = customer.id;
+    }
+
+    const successUrl = new URL(getStripeSuccessUrl());
+    successUrl.searchParams.set('flow', 'admin-register');
+    successUrl.searchParams.set('email', registration.email);
+    successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
+
+    const cancelUrl = new URL(getStripeCancelUrl());
+    cancelUrl.searchParams.set('flow', 'admin-register');
+    cancelUrl.searchParams.set('email', registration.email);
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: stripeCustomerId,
+      line_items: [
+        {
+          price: getStripePriceId(),
+          quantity: 1,
+        },
+      ],
+      success_url: successUrl.toString(),
+      cancel_url: cancelUrl.toString(),
+      allow_promotion_codes: true,
+      client_reference_id: registration.id,
+      metadata: {
+        pendingAdminRegistrationId: registration.id,
+      },
+      subscription_data: {
+        metadata: {
+          pendingAdminRegistrationId: registration.id,
+        },
+      },
+    });
+
+    if (!checkoutSession.url) {
+      res.status(500).json({ message: 'Неуспешно създаване на Checkout сесия' });
+      return;
+    }
+
+    await prisma.pendingAdminRegistration.update({
+      where: { id: registration.id },
+      data: {
+        stripeCustomerId,
+        stripeCheckoutSessionId: checkoutSession.id,
+        status: AdminRegistrationStatus.CHECKOUT_STARTED,
+      },
+    });
+
+    res.status(200).json({
+      checkoutUrl: checkoutSession.url,
+      sessionId: checkoutSession.id,
+    });
+  } catch (error) {
+    logger.error('Create admin registration checkout session error:', error);
+    res.status(500).json({ message: 'Сървърна грешка' });
+  }
+};
+
+export const getAdminRegistrationStatus = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const queryEmail = req.query.email;
+    const emailParam =
+      typeof queryEmail === 'string'
+        ? queryEmail
+        : Array.isArray(queryEmail) && typeof queryEmail[0] === 'string'
+          ? queryEmail[0]
+          : undefined;
+
+    if (!emailParam) {
+      res.status(400).json({ message: 'Имейлът е задължителен' });
+      return;
+    }
+
+    const normalizedEmail = normalizeEmail(emailParam);
+
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, role: true },
+    });
+
+    if (user) {
+      res.status(200).json({
+        status: AdminRegistrationStatus.COMPLETED,
+        isCompleted: true,
+      });
+      return;
+    }
+
+    const registration = await prisma.pendingAdminRegistration.findUnique({
+      where: { email: normalizedEmail },
+      select: {
+        status: true,
+        expiresAt: true,
+      },
+    });
+
+    if (!registration) {
+      res.status(404).json({
+        message: 'Липсва активна регистрация',
+      });
+      return;
+    }
+
+    if (
+      registration.status !== AdminRegistrationStatus.COMPLETED &&
+      registration.expiresAt < new Date()
+    ) {
+      await prisma.pendingAdminRegistration.update({
+        where: { email: normalizedEmail },
+        data: { status: AdminRegistrationStatus.EXPIRED },
+      });
+      res.status(200).json({
+        status: AdminRegistrationStatus.EXPIRED,
+        isCompleted: false,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: registration.status,
+      isCompleted: registration.status === AdminRegistrationStatus.COMPLETED,
+    });
+  } catch (error) {
+    logger.error('Get admin registration status error:', error);
     res.status(500).json({ message: 'Сървърна грешка' });
   }
 };

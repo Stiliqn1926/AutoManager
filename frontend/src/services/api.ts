@@ -25,6 +25,7 @@ import axios from 'axios';
 declare module 'axios' {
   export interface AxiosRequestConfig {
     skipAutoLogout?: boolean;
+    _retry?: boolean;
   }
 }
 
@@ -54,9 +55,13 @@ api.interceptors.request.use(
   }
 );
 
-// 🆕 Flag за да избегнем infinite loop при refresh
-// Ако refresh fail-не, не искаме да retry-ваме refresh-а безкрайно
-let isRefreshing = false;
+const forceLogout = () => {
+  localStorage.removeItem('user');
+  window.location.href = '/';
+};
+
+// Една обща promise за refresh - всички паралелни 401 заявки чакат нея
+let refreshPromise: Promise<void> | null = null;
 
 // Response interceptor - обработва errors И автоматичен token refresh
 api.interceptors.response.use(
@@ -66,36 +71,38 @@ api.interceptors.response.use(
 
     // Проверяваме дали грешката е 401 (Unauthorized)
     if (error.response?.status === 401) {
-      // Ако вече сме правили refresh или това Е refresh request-а, logout
-      if (isRefreshing || originalRequest.url === '/auth/refresh') {
-        // Refresh token също е изтекъл или невалиден
-        // 🆕 Изчистваме само user и redirect към начална страница
-        localStorage.removeItem('user');
-        window.location.href = '/';
+      if (!originalRequest) {
         return Promise.reject(error);
       }
 
-      // Опитваме се да refresh-нем токена
-      isRefreshing = true;
+      // Ако самият refresh endpoint върне 401 -> logout
+      if (originalRequest.url === '/auth/refresh') {
+        forceLogout();
+        return Promise.reject(error);
+      }
+
+      // Предпазване от безкраен retry loop
+      if (originalRequest._retry) {
+        return Promise.reject(error);
+      }
 
       try {
-        // Викаме /auth/refresh
-        // 🆕 Refresh token се изпраща автоматично в httpOnly cookie
-        // Backend връща нов accessToken cookie
-        await api.post('/auth/refresh');
+        if (!refreshPromise) {
+          refreshPromise = api
+            .post('/auth/refresh')
+            .then(() => undefined)
+            .finally(() => {
+              refreshPromise = null;
+            });
+        }
 
-        // Reset flag
-        isRefreshing = false;
+        // Чакаме общия refresh
+        await refreshPromise;
 
-        // 🆕 Retry оригиналната заявка
-        // Новият accessToken cookie се изпраща автоматично
+        originalRequest._retry = true;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh fail-на - logout
-        isRefreshing = false;
-        // 🆕 Изчистваме само user и redirect към начална страница
-        localStorage.removeItem('user');
-        window.location.href = '/';
+        forceLogout();
         return Promise.reject(refreshError);
       }
     }

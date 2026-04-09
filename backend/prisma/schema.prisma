@@ -31,6 +31,15 @@ enum SubscriptionStatus {
   UNPAID
 }
 
+enum AdminRegistrationStatus {
+  PENDING_EMAIL_VERIFICATION
+  EMAIL_VERIFIED
+  CHECKOUT_STARTED
+  COMPLETED
+  CANCELED
+  EXPIRED
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -163,6 +172,37 @@ model ServiceCompany {
   @@index([uniqueCode])
   @@index([userId])
   @@map("service_companies")
+}
+
+model PendingAdminRegistration {
+  id                      String                  @id @default(uuid())
+  email                   String                  @unique
+  passwordHash            String
+  companyName             String
+  companyAddress          String
+  companyPhone            String
+  companyEmail            String
+  bulstat                 String?
+  vatNumber               String?
+  description             String?                 @db.Text
+  verificationCodeHash    String?
+  verificationCodeExpiresAt DateTime?
+  lastCodeSentAt          DateTime?
+  emailVerifiedAt         DateTime?
+  stripeCheckoutSessionId String?                 @unique
+  stripeCustomerId        String?
+  status                  AdminRegistrationStatus @default(PENDING_EMAIL_VERIFICATION)
+  expiresAt               DateTime
+  createdUserId           String?
+  createdServiceCompanyId String?
+  completedAt             DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("pending_admin_registrations")
 }
 
 model Client {

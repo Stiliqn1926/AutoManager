@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ClipboardList,
@@ -16,6 +16,7 @@ import ScheduleDetailsModal from '../../components/mechanic/ScheduleDetailsModal
 import { getMechanicDashboard } from '../../services/mechanicService';
 import type { MechanicDashboardData } from '../../types/mechanic';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface ScheduleTaskForModal {
   id: string;
@@ -48,22 +49,52 @@ const MechanicDashboard = () => {
     setSelectedTask(null);
   };
 
-  // ✅ САМО ЕДНА заявка, САМО веднъж
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
+  const fetchDashboard = useCallback(async (options?: { signal?: AbortSignal; silent?: boolean }) => {
+    const silent = options?.silent ?? false;
 
-  const fetchDashboard = async () => {
-    setIsLoading(true);
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
-      const data = await getMechanicDashboard();
+      const data = await getMechanicDashboard(options?.signal);
       setDashboardData(data);
     } catch  {
-      toast.error('Грешка при зареждане на данни');
+      if (!silent) {
+        toast.error('Грешка при зареждане на данни');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
+
+  // ✅ САМО ЕДНА заявка, САМО веднъж
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetchDashboard({ signal: controller.signal });
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchDashboard({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchDashboard({ silent: true });
+    }, POLLING_INTERVALS.dashboard);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchDashboard]);
 
   // Status badge helper
   const getStatusBadge = (status: string) => {
@@ -131,7 +162,7 @@ const MechanicDashboard = () => {
         <div className="text-center py-12">
           <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
           <button
-            onClick={fetchDashboard}
+            onClick={() => void fetchDashboard()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
           >
             Опитай отново
@@ -156,7 +187,7 @@ const MechanicDashboard = () => {
             </p>
           </div>
           <button
-            onClick={fetchDashboard}
+            onClick={() => void fetchDashboard()}
             className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-cardBg border border-borderSubtle rounded-lg hover:bg-mainBg text-sm font-medium text-textSecondary"
           >
             Обнови

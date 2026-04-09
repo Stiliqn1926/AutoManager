@@ -6,6 +6,7 @@ import MainLayout from '../../components/layout/MainLayout';
 import { getMechanicOrders } from '../../services/mechanicService';
 import type { MechanicOrder } from '../../types/mechanic';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 const MechanicOrders = () => {
   const navigate = useNavigate();
@@ -18,14 +19,19 @@ const MechanicOrders = () => {
     totalItems: 0,
   });
 
-  const fetchOrders = useCallback(async (signal?: AbortSignal) => {
-    setIsLoading(true);
+  const fetchOrders = useCallback(async (options?: { signal?: AbortSignal; silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
       const data = await getMechanicOrders({
         page: pagination.currentPage,
         limit: 20,
         status: statusFilter || undefined,
-        signal,
+        signal: options?.signal,
       });
       setOrders(data.orders);
       setPagination({
@@ -38,18 +44,43 @@ const MechanicOrders = () => {
       if (axios.isCancel(error) || (error instanceof Error && error.name === 'AbortError')) {
         return;
       }
-      toast.error('Грешка при зареждане на поръчки');
+      if (!silent) {
+        toast.error('Грешка при зареждане на поръчки');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
   }, [pagination.currentPage, statusFilter]);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchOrders(controller.signal);
+    void fetchOrders({ signal: controller.signal });
 
     return () => {
       controller.abort();
+    };
+  }, [fetchOrders]);
+
+  useEffect(() => {
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchOrders({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchOrders({ silent: true });
+    }, POLLING_INTERVALS.lists);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
     };
   }, [fetchOrders]);
 

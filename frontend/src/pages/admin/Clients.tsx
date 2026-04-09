@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, UserX, UserCheck, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface Client {
   id: string;
@@ -54,17 +55,25 @@ const Clients = () => {
 
   const navigate = useNavigate();
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
-      // Зареди активни и неактивни клиенти
-      const response = await api.get('/clients');
+      // Зареди активни и неактивни клиенти + pending заявки паралелно
+      const [response, pendingResponse] = await Promise.all([
+        api.get('/clients'),
+        api.get('/pending-requests'),
+      ]);
+
       const activeClients = (response.data.clients || []).map((c: Client) => ({
         ...c,
         isPending: false,
       }));
 
-      // Зареди pending заявки
-      const pendingResponse = await api.get('/pending-requests');
       const pendingRequests: PendingClientRequest[] = Array.isArray(
         pendingResponse.data?.clientRequests
       )
@@ -104,15 +113,38 @@ const Clients = () => {
       // Комбинирай и постави pending отгоре
       setClients([...pendingClients, ...filteredActiveClients]);
     } catch {
-      toast.error('Грешка при зареждане на клиенти');
+      if (!silent) {
+        toast.error('Грешка при зареждане на клиенти');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchClients();
-  }, []);
+    void fetchClients();
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchClients({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchClients({ silent: true });
+    }, POLLING_INTERVALS.lists);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchClients]);
 
   const handleDeactivate = async (id: string, name: string, isActive: boolean) => {
     const action = isActive ? 'деактивирате' : 'активирате';
@@ -121,7 +153,7 @@ const Clients = () => {
     try {
       await api.patch(`/clients/${id}/toggle-active`);
       toast.success(`Клиентът е ${isActive ? 'деактивиран' : 'активиран'}`);
-      fetchClients();
+      void fetchClients({ silent: true });
     } catch {
       toast.error('Грешка при промяна на статус');
     }
@@ -133,7 +165,7 @@ const Clients = () => {
     try {
       await api.delete(`/clients/${id}`);
       toast.success('Клиентът е изтрит успешно');
-      fetchClients();
+      void fetchClients({ silent: true });
     } catch {
       toast.error('Грешка при изтриване на клиент');
     }

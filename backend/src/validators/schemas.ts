@@ -299,6 +299,13 @@ export const registerAdminWithCompanySchema = Joi.object({
   description: Joi.string().max(500).optional(),
 });
 
+export const adminRegistrationCheckoutSessionSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
+  }),
+});
+
 // ============================================
 // ORDER SCHEMAS
 // ============================================

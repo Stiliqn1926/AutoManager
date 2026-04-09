@@ -6,6 +6,7 @@ import { Input } from '../../components/common/Input';
 import { CountdownTimer } from '../../components/common/CountdownTimer';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+import { createAdminRegistrationCheckoutSession } from '../../services/billingService';
 import { validateEmail, validateRequired } from '../../utils/validation';
 
 const VerifyEmail = () => {
@@ -57,8 +58,9 @@ const VerifyEmail = () => {
       toast.success('Имейлът е потвърден успешно!');
 
       if (roleParam === 'admin') {
-        toast.success('Влезте в профила си, за да продължите към плащане.');
-        navigate('/login?role=admin&next=checkout');
+        const checkoutData = await createAdminRegistrationCheckoutSession(email);
+        toast.success('Пренасочваме ви към плащане...');
+        window.location.href = checkoutData.checkoutUrl;
         return;
       }
 
@@ -200,4 +202,3 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
-

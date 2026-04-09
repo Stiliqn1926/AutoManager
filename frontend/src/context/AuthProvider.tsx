@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AuthContext } from './AuthContext';
 import type { User } from '../types';
 import api from '../services/api';
+import { POLLING_INTERVALS } from '../config/polling';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -25,6 +26,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const refreshSession = async () => {
+      try {
+        await api.post('/auth/refresh');
+      } catch {
+        // При 401 interceptor-ът ще се погрижи за logout.
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshSession();
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void refreshSession();
+      }
+    }, POLLING_INTERVALS.keepAlive);
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [user]);
 
   /**
    * Login функция

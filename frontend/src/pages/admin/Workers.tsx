@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -13,6 +13,7 @@ import MainLayout from '../../components/layout/MainLayout';
 import ReassignWorkerModal from '../../components/admin/ReassignWorkerModal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { POLLING_INTERVALS } from '../../config/polling';
 
 interface Worker {
   id: string;
@@ -71,20 +72,49 @@ const Workers = () => {
 
   const navigate = useNavigate();
 
-  const fetchWorkers = async () => {
+  const fetchWorkers = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
       const response = await api.get('/workers');
       setWorkers(response.data.workers || []);
     } catch {
-      toast.error('Грешка при зареждане на работници');
+      if (!silent) {
+        toast.error('Грешка при зареждане на работници');
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchWorkers();
-  }, []);
+    void fetchWorkers();
+
+    const refreshSilently = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchWorkers({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(() => {
+      void fetchWorkers({ silent: true });
+    }, POLLING_INTERVALS.lists);
+
+    window.addEventListener('focus', refreshSilently);
+    document.addEventListener('visibilitychange', refreshSilently);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshSilently);
+      document.removeEventListener('visibilitychange', refreshSilently);
+    };
+  }, [fetchWorkers]);
 
   // ✅ 1. Toggle Active/Inactive (отпуска)
   const handleToggleActive = async (id: string, name: string, isActive: boolean) => {
@@ -94,7 +124,7 @@ const Workers = () => {
     try {
       await api.put(`/workers/${id}/toggle-active`);
       toast.success(`Работникът е ${isActive ? 'деактивиран' : 'активиран'}`);
-      fetchWorkers();
+      void fetchWorkers({ silent: true });
     } catch {
       toast.error('Грешка при промяна на статус');
     }
@@ -107,7 +137,7 @@ const Workers = () => {
     try {
       await api.delete(`/workers/${id}`);
       toast.success('Работникът е изтрит от списъка');
-      fetchWorkers();
+      void fetchWorkers({ silent: true });
     } catch (error) {
       const apiData = (error as { response?: { data?: ActiveTasksData } }).response?.data;
       // Провери дали има активни задачи
@@ -132,7 +162,7 @@ const Workers = () => {
     try {
       await api.delete(`/workers/${id}/permanent`);
       toast.success('Механикът е изтрит напълно от таблицата');
-      fetchWorkers();
+      void fetchWorkers({ silent: true });
     } catch {
       toast.error('Грешка при изтриване');
     }
@@ -141,7 +171,7 @@ const Workers = () => {
   const handleReassignSuccess = () => {
     setShowReassignModal(false);
     setWorkerToDelete(null);
-    fetchWorkers();
+    void fetchWorkers({ silent: true });
   };
 
 
