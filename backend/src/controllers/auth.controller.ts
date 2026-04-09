@@ -6,7 +6,11 @@
  */
 
 import { Request, Response } from 'express';
-import { AdminRegistrationStatus } from '@prisma/client';
+import {
+  AdminRegistrationStatus,
+  MembershipStatus,
+  RequestType,
+} from '@prisma/client';
 import crypto from 'crypto';
 import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/hashPassword';
@@ -46,6 +50,184 @@ const generateSixDigitCode = (): string =>
   crypto.randomInt(100000, 999999).toString();
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase();
+const normalizeUniqueCode = (uniqueCode: string): string =>
+  uniqueCode.trim().toUpperCase();
+
+type PendingApprovalInfo = {
+  role: 'MECHANIC' | 'CLIENT';
+  serviceCompanyName?: string;
+};
+
+const getPendingApprovalInfo = async (user: {
+  id: string;
+  email: string;
+  role: string;
+}): Promise<PendingApprovalInfo | null> => {
+  if (user.role === 'MECHANIC') {
+    const worker = await prisma.worker.findUnique({
+      where: { userId: user.id },
+      select: {
+        mechanicServiceCompanies: {
+          where: {
+            status: { in: [MembershipStatus.ACTIVE, MembershipStatus.PENDING] },
+          },
+          select: {
+            status: true,
+            serviceCompany: {
+              select: { name: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!worker) {
+      return null;
+    }
+
+    const hasActiveMembership = worker.mechanicServiceCompanies.some(
+      (membership) => membership.status === MembershipStatus.ACTIVE
+    );
+
+    if (hasActiveMembership) {
+      return null;
+    }
+
+    const pendingMembership = worker.mechanicServiceCompanies.find(
+      (membership) => membership.status === MembershipStatus.PENDING
+    );
+
+    if (pendingMembership) {
+      return {
+        role: 'MECHANIC',
+        serviceCompanyName: pendingMembership.serviceCompany.name,
+      };
+    }
+
+    const pendingRequest = await prisma.pendingRequest.findFirst({
+      where: {
+        email: user.email,
+        requestType: RequestType.MECHANIC,
+        status: 'PENDING',
+      },
+      select: {
+        serviceCompany: {
+          select: { name: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!pendingRequest) {
+      return null;
+    }
+
+    return {
+      role: 'MECHANIC',
+      serviceCompanyName: pendingRequest.serviceCompany.name,
+    };
+  }
+
+  if (user.role === 'CLIENT') {
+    const activeClientMembership = await prisma.client.findFirst({
+      where: {
+        userId: user.id,
+        serviceCompanyId: { not: null },
+        isActive: true,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (activeClientMembership) {
+      return null;
+    }
+
+    const pendingRequest = await prisma.pendingRequest.findFirst({
+      where: {
+        email: user.email,
+        requestType: RequestType.CLIENT,
+        status: 'PENDING',
+      },
+      select: {
+        serviceCompany: {
+          select: { name: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!pendingRequest) {
+      return null;
+    }
+
+    return {
+      role: 'CLIENT',
+      serviceCompanyName: pendingRequest.serviceCompany.name,
+    };
+  }
+
+  return null;
+};
+
+const hasActiveMembershipAccess = async (user: {
+  id: string;
+  role: string;
+}): Promise<boolean> => {
+  if (user.role === 'MECHANIC') {
+    const worker = await prisma.worker.findUnique({
+      where: { userId: user.id },
+      select: {
+        isActive: true,
+        serviceCompanyId: true,
+        mechanicServiceCompanies: {
+          where: { status: MembershipStatus.ACTIVE },
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
+
+    return Boolean(
+      worker?.isActive &&
+        (worker.serviceCompanyId || worker.mechanicServiceCompanies[0])
+    );
+  }
+
+  if (user.role === 'CLIENT') {
+    const activeClientMembership = await prisma.client.findFirst({
+      where: {
+        userId: user.id,
+        serviceCompanyId: { not: null },
+        isActive: true,
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+
+    return Boolean(activeClientMembership);
+  }
+
+  return true;
+};
+
+const sendPendingApprovalResponse = (
+  res: Response,
+  pendingInfo: PendingApprovalInfo
+): void => {
+  const roleLabel = pendingInfo.role === 'MECHANIC' ? 'механик' : 'клиент';
+  const serviceCompanyPart = pendingInfo.serviceCompanyName
+    ? ` за сервиз "${pendingInfo.serviceCompanyName}"`
+    : '';
+
+  res.status(403).json({
+    code: 'ACCOUNT_PENDING_APPROVAL',
+    message: `Профилът ви като ${roleLabel}${serviceCompanyPart} е регистриран, но все още чака одобрение от администратор.`,
+    pendingRole: pendingInfo.role,
+    serviceCompanyName: pendingInfo.serviceCompanyName ?? null,
+  });
+};
 
 const doesCodeConflictWithHashes = async (
   code: string,
@@ -285,7 +467,8 @@ const issuePendingAdminVerificationCode = async (
 // Register (ADMIN and CLIENT)
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role, firstName, lastName, phone } = req.body;
+    const { email, password, role, firstName, lastName, phone, uniqueCode } =
+      req.body;
     const normalizedEmail = normalizeEmail(email);
 
     if (role === 'ADMIN') {
@@ -313,6 +496,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    let serviceCompany = null;
+    if (role === 'CLIENT') {
+      if (!uniqueCode || typeof uniqueCode !== 'string') {
+        res.status(400).json({ message: 'Кодът на сервиза е задължителен' });
+        return;
+      }
+
+      serviceCompany = await prisma.serviceCompany.findUnique({
+        where: { uniqueCode: normalizeUniqueCode(uniqueCode) },
+      });
+
+      if (!serviceCompany) {
+        res.status(404).json({ message: 'Невалиден код на сервиза' });
+        return;
+      }
+    }
+
     const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
@@ -324,15 +524,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    // Create Client record if role is CLIENT
+    // Create pending request for CLIENT (requires admin approval)
     if (role === 'CLIENT') {
-      await prisma.client.create({
+      await prisma.pendingRequest.create({
         data: {
+          requestType: RequestType.CLIENT,
+          status: 'PENDING',
+          serviceCompanyId: serviceCompany!.id,
+          email: normalizedEmail,
           firstName: firstName || '',
           lastName: lastName || '',
           phone: phone || '',
-          email: normalizedEmail,
-          userId: user.id,
         },
       });
     }
@@ -344,7 +546,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     res.status(201).json({
-      message: 'Регистрацията е успешна. Код за потвърждение е изпратен на имейла.',
+      message:
+        role === 'CLIENT'
+          ? 'Регистрацията е успешна. Код за потвърждение е изпратен на имейла. След потвърждение изчакайте одобрение от сервиза.'
+          : 'Регистрацията е успешна. Код за потвърждение е изпратен на имейла.',
       requiresEmailVerification: true,
       user: {
         id: user.id,
@@ -362,8 +567,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, rememberMe, role: expectedRole } = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (!user) {
       res.status(401).json({ message: 'Грешен имейл или парола' });
       return;
@@ -393,6 +599,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const pendingApprovalInfo = await getPendingApprovalInfo(user);
+    if (pendingApprovalInfo) {
+      sendPendingApprovalResponse(res, pendingApprovalInfo);
+      return;
+    }
+
+    if (
+      (user.role === 'MECHANIC' || user.role === 'CLIENT') &&
+      !(await hasActiveMembershipAccess(user))
+    ) {
+      res.status(403).json({
+        code: 'NO_ACTIVE_MEMBERSHIP',
+        message:
+          'Профилът ви няма активно одобрение от сервиз. Свържете се с администратор.',
+      });
+      return;
+    }
+
     let serviceCompanyId: string | undefined;
 
     if (user.role === 'ADMIN') {
@@ -403,9 +627,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     } else if (user.role === 'MECHANIC') {
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
+        select: {
+          serviceCompanyId: true,
+          mechanicServiceCompanies: {
+            where: { status: MembershipStatus.ACTIVE },
+            select: { serviceCompanyId: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       });
       if (worker) {
-        serviceCompanyId = worker.serviceCompanyId ?? undefined;
+        serviceCompanyId =
+          worker.serviceCompanyId ??
+          worker.mechanicServiceCompanies[0]?.serviceCompanyId ??
+          undefined;
       }
     }
 
@@ -703,6 +939,26 @@ export const refreshToken = async (
     }
 
     const user = refreshRecord.user;
+    const pendingApprovalInfo = await getPendingApprovalInfo(user);
+    if (pendingApprovalInfo) {
+      await revokeAllUserRefreshTokens(user.id);
+      sendPendingApprovalResponse(res, pendingApprovalInfo);
+      return;
+    }
+
+    if (
+      (user.role === 'MECHANIC' || user.role === 'CLIENT') &&
+      !(await hasActiveMembershipAccess(user))
+    ) {
+      await revokeAllUserRefreshTokens(user.id);
+      res.status(403).json({
+        code: 'NO_ACTIVE_MEMBERSHIP',
+        message:
+          'Профилът ви няма активно одобрение от сервиз. Свържете се с администратор.',
+      });
+      return;
+    }
+
     let serviceCompanyId: string | undefined;
 
     if (user.role === 'ADMIN') {
@@ -713,9 +969,21 @@ export const refreshToken = async (
     } else if (user.role === 'MECHANIC') {
       const worker = await prisma.worker.findUnique({
         where: { userId: user.id },
+        select: {
+          serviceCompanyId: true,
+          mechanicServiceCompanies: {
+            where: { status: MembershipStatus.ACTIVE },
+            select: { serviceCompanyId: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       });
       if (worker) {
-        serviceCompanyId = worker.serviceCompanyId ?? undefined;
+        serviceCompanyId =
+          worker.serviceCompanyId ??
+          worker.mechanicServiceCompanies[0]?.serviceCompanyId ??
+          undefined;
       }
     }
 
@@ -786,14 +1054,18 @@ export const registerMechanic = async (
       skills,
       uniqueCode,
     } = req.body;
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedUniqueCode = normalizeUniqueCode(uniqueCode);
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existingUser) {
       res.status(400).json({ message: 'User with this email already exists' });
       return;
     }
 
-    const isDomainValid = await validateEmailDomain(email);
+    const isDomainValid = await validateEmailDomain(normalizedEmail);
     if (!isDomainValid) {
       res.status(400).json({
         message: 'Имейл домейнът не съществува или не може да получава имейли',
@@ -802,7 +1074,7 @@ export const registerMechanic = async (
     }
 
     const serviceCompany = await prisma.serviceCompany.findUnique({
-      where: { uniqueCode },
+      where: { uniqueCode: normalizedUniqueCode },
     });
 
     if (!serviceCompany) {
@@ -815,7 +1087,7 @@ export const registerMechanic = async (
     const user = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
-          email,
+          email: normalizedEmail,
           password: hashedPassword,
           role: 'MECHANIC',
           emailVerified: false,
@@ -826,7 +1098,7 @@ export const registerMechanic = async (
         data: {
           firstName,
           lastName,
-          email,
+          email: normalizedEmail,
           phone,
           specialization: specialization ?? '',
           skills: skills ?? null,
@@ -838,7 +1110,8 @@ export const registerMechanic = async (
 
       await tx.pendingRequest.create({
         data: {
-          email,
+          requestType: RequestType.MECHANIC,
+          email: normalizedEmail,
           firstName,
           lastName,
           phone,

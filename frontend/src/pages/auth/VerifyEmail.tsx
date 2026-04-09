@@ -70,6 +70,12 @@ const VerifyEmail = () => {
         );
       }
 
+      if (roleParam === 'client') {
+        toast.success(
+          'Потвърждението е успешно. Изчакайте одобрение от сервиза.'
+        );
+      }
+
       navigate(getLoginPath());
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };

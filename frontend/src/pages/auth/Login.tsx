@@ -107,6 +107,29 @@ const Login = () => {
         return;
       }
 
+      if (err.response?.status === 403 && errorData?.code === 'ACCOUNT_PENDING_APPROVAL') {
+        const details = errorData as ErrorResponse & { serviceCompanyName?: string | null };
+        const params = new URLSearchParams();
+
+        if (forgotRole) params.set('role', forgotRole);
+        params.set('email', email);
+        if (details.message) params.set('message', details.message);
+        if (details.serviceCompanyName) {
+          params.set('serviceCompanyName', details.serviceCompanyName);
+        }
+
+        navigate(`/pending-approval?${params.toString()}`);
+        return;
+      }
+
+      if (err.response?.status === 403 && errorData?.code === 'NO_ACTIVE_MEMBERSHIP') {
+        toast.error(
+          errorData.message ||
+            'Профилът ви няма активно одобрение от сервиз. Свържете се с администратор.'
+        );
+        return;
+      }
+
       if (errorData?.errors) {
         const validationErrors: Record<string, string> = {};
         errorData.errors.forEach((validationError: ValidationError) => {

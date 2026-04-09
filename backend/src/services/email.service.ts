@@ -123,6 +123,23 @@ export const emailTemplates = {
   `,
 
   // ------------------------------------------
+  // Client approved
+  // ------------------------------------------
+  clientApproved: (firstName: string, serviceCompanyName: string) => `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #10b981;">Профилът ви е одобрен!</h2>
+      <p>Здравей, ${firstName}!</p>
+      <p>
+        Вашата заявка за достъп като клиент към
+        <strong>${serviceCompanyName}</strong> беше одобрена.
+      </p>
+      <p>Вече можете да влезете в системата и да използвате клиентския си профил.</p>
+      <br />
+      <p>С уважение,<br />Екипът на AutoManager</p>
+    </div>
+  `,
+
+  // ------------------------------------------
   // Mechanic rejected
   // ------------------------------------------
   mechanicRejected: (firstName: string, serviceCompanyName: string) => `

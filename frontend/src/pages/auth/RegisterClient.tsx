@@ -15,32 +15,30 @@ import {
 } from '../../utils/validation';
 
 const STORAGE_KEY = 'registerClientFormData';
+const DEFAULT_FORM_DATA = {
+  firstName: '',
+  lastName: '',
+  phone: '',
+  uniqueCode: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+};
 
 const RegisterClient = () => {
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return JSON.parse(saved);
-      } catch {
         return {
-          firstName: '',
-          lastName: '',
-          phone: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
+          ...DEFAULT_FORM_DATA,
+          ...JSON.parse(saved),
         };
+      } catch {
+        return DEFAULT_FORM_DATA;
       }
     }
-    return {
-      firstName: '',
-      lastName: '',
-      phone: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    };
+    return DEFAULT_FORM_DATA;
   });
 
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
@@ -71,6 +69,10 @@ const RegisterClient = () => {
       newErrors.phone = 'Телефонният номер е задължителен';
     } else if (!/^[0-9+\s()-]+$/.test(formData.phone)) {
       newErrors.phone = 'Невалиден телефонен номер';
+    }
+
+    if (!formData.uniqueCode.trim()) {
+      newErrors.uniqueCode = 'Кодът на сервиза е задължителен';
     }
 
     const emailError = validateEmail(formData.email);
@@ -108,13 +110,16 @@ const RegisterClient = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
+        uniqueCode: formData.uniqueCode,
         email: formData.email,
         password: formData.password,
         role: 'CLIENT',
       });
 
       localStorage.removeItem(STORAGE_KEY);
-      toast.success('Регистрацията е успешна! Потвърдете имейла си.');
+      toast.success(
+        'Регистрацията е успешна! Потвърдете имейла си, след което изчакайте одобрение от сервиза.'
+      );
       navigate(`/verify-email?email=${encodeURIComponent(formData.email)}&role=client`);
     } catch (error) {
       const err = error as {
@@ -195,6 +200,20 @@ const RegisterClient = () => {
               }
               error={errors.phone}
               placeholder="+359 88 123 4567"
+            />
+
+            <Input
+              label="Код на сервиза *"
+              type="text"
+              value={formData.uniqueCode}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setFormData({
+                  ...formData,
+                  uniqueCode: e.target.value.toUpperCase(),
+                })
+              }
+              error={errors.uniqueCode}
+              placeholder="Напр. AM1234"
             />
 
             <Input

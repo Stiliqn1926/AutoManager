@@ -80,12 +80,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   ) => {
     setIsLoading(true);
     try {
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-        role,
-        rememberMe,
-      });
+      const response = await api.post(
+        '/auth/login',
+        {
+          email,
+          password,
+          role,
+          rememberMe,
+        },
+        {
+          skipAutoLogout: true,
+        }
+      );
 
       // 🆕 Backend връща само user (токените са в cookies)
       const { user: userData } = response.data;

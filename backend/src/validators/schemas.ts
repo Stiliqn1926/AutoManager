@@ -56,6 +56,10 @@ export const registerClientSchema = Joi.object({
         'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
       'any.required': 'Паролата е задължителна',
     }),
+  uniqueCode: Joi.string().required().messages({
+    'any.required': 'Кодът на сервиза е задължителен',
+    'string.empty': 'Кодът на сервиза е задължителен',
+  }),
   role: Joi.string().valid('CLIENT').default('CLIENT').optional(),
 });
 

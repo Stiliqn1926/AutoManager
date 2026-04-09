@@ -197,8 +197,8 @@ export const approvePendingRequest = async (
       // Изпрати email за одобрение на клиента
       void sendEmail(
           user.email,
-          'Одобрена заявка',
-          emailTemplates.mechanicApproved(
+          'Одобрена заявка за клиентски достъп',
+          emailTemplates.clientApproved(
             pendingRequest.firstName,
             serviceCompany.name
           )
