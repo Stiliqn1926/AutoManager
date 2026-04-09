@@ -47,7 +47,7 @@ const serviceSeeds: ServiceSeed[] = [
     address: 'бул. България 101',
     city: 'София',
     phone: '+359 2 910 1001',
-    email: 'autopoint.center@automanager.demo',
+    email: 'autopoint.center@automanager.bg',
     bulstat: '206000001',
     vatNumber: 'BG206000001',
     description: 'Сервиз за диагностика, годишно обслужване и комплексни ремонти.',
@@ -58,7 +58,7 @@ const serviceSeeds: ServiceSeed[] = [
     address: 'бул. Александър Малинов 68',
     city: 'София',
     phone: '+359 32 910 1002',
-    email: 'motorlab.mladost@automanager.demo',
+    email: 'motorlab.mladost@automanager.bg',
     bulstat: '206000002',
     vatNumber: 'BG206000002',
     description: 'Специализиран сервиз за електроника, окачване и автопаркове.',
@@ -69,7 +69,7 @@ const serviceSeeds: ServiceSeed[] = [
     address: 'бул. Панчо Владигеров 21',
     city: 'София',
     phone: '+359 52 910 1003',
-    email: 'primegarage.lyulin@automanager.demo',
+    email: 'primegarage.lyulin@automanager.bg',
     bulstat: '206000003',
     vatNumber: 'BG206000003',
     description: 'Сервиз с фокус върху климатични системи, спирачки и гуми.',
@@ -80,7 +80,7 @@ const serviceSeeds: ServiceSeed[] = [
     address: 'бул. Освобождение 97',
     city: 'Пловдив',
     phone: '+359 56 910 1004',
-    email: 'trackcar.plovdiv@automanager.demo',
+    email: 'trackcar.plovdiv@automanager.bg',
     bulstat: '206000004',
     vatNumber: 'BG206000004',
     description: 'Комплексно обслужване, бързи ремонти и партньорство с корпоративни клиенти.',
@@ -91,7 +91,7 @@ const serviceSeeds: ServiceSeed[] = [
     address: 'бул. Дунав 5',
     city: 'Пловдив',
     phone: '+359 82 910 1005',
-    email: 'autohub.karshiyaka@automanager.demo',
+    email: 'autohub.karshiyaka@automanager.bg',
     bulstat: '206000005',
     vatNumber: 'BG206000005',
     description: 'Сервиз за поддръжка, дизелови системи и сезонни кампании.',
@@ -103,7 +103,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 1,
     firstName: 'Иван',
     lastName: 'Петров',
-    email: 'mechanic1@automanager.demo',
+    email: 'mechanic1@automanager.bg',
     phone: '+359 88 100 0001',
     specialization: 'Двигатели',
     skills: 'Диагностика, смяна ангренаж, турбини',
@@ -113,7 +113,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 2,
     firstName: 'Георги',
     lastName: 'Илиев',
-    email: 'mechanic2@automanager.demo',
+    email: 'mechanic2@automanager.bg',
     phone: '+359 88 100 0002',
     specialization: 'Окачване',
     skills: 'Ходова част, амортисьори, реглаж',
@@ -123,7 +123,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 3,
     firstName: 'Димитър',
     lastName: 'Стоянов',
-    email: 'mechanic3@automanager.demo',
+    email: 'mechanic3@automanager.bg',
     phone: '+359 88 100 0003',
     specialization: 'Електроника',
     skills: 'Диагностика, инсталации, акумулатори',
@@ -133,7 +133,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 4,
     firstName: 'Пламен',
     lastName: 'Григоров',
-    email: 'mechanic4@automanager.demo',
+    email: 'mechanic4@automanager.bg',
     phone: '+359 88 100 0004',
     specialization: 'Скоростни кутии',
     skills: 'Автоматични кутии, съединители',
@@ -143,7 +143,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 5,
     firstName: 'Николай',
     lastName: 'Тодоров',
-    email: 'mechanic5@automanager.demo',
+    email: 'mechanic5@automanager.bg',
     phone: '+359 88 100 0005',
     specialization: 'Климатични системи',
     skills: 'Зареждане, компресори, течове',
@@ -153,7 +153,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 6,
     firstName: 'Станислав',
     lastName: 'Маринов',
-    email: 'mechanic6@automanager.demo',
+    email: 'mechanic6@automanager.bg',
     phone: '+359 88 100 0006',
     specialization: 'Спирачни системи',
     skills: 'ABS, накладки, дискове',
@@ -163,7 +163,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 7,
     firstName: 'Теодор',
     lastName: 'Василев',
-    email: 'mechanic7@automanager.demo',
+    email: 'mechanic7@automanager.bg',
     phone: '+359 88 100 0007',
     specialization: 'Диагностика',
     skills: 'OBD, живи данни, софтуерни адаптации',
@@ -173,7 +173,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 8,
     firstName: 'Алекс',
     lastName: 'Попов',
-    email: 'mechanic8@automanager.demo',
+    email: 'mechanic8@automanager.bg',
     phone: '+359 88 100 0008',
     specialization: 'Гуми и джанти',
     skills: 'Баланс, монтаж, TPMS',
@@ -183,7 +183,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 9,
     firstName: 'Борис',
     lastName: 'Колев',
-    email: 'mechanic9@automanager.demo',
+    email: 'mechanic9@automanager.bg',
     phone: '+359 88 100 0009',
     specialization: 'Общо обслужване',
     skills: 'Масла, филтри, ремъци',
@@ -193,7 +193,7 @@ const mechanicSeeds: MechanicSeed[] = [
     index: 10,
     firstName: 'Мартин',
     lastName: 'Димов',
-    email: 'mechanic10@automanager.demo',
+    email: 'mechanic10@automanager.bg',
     phone: '+359 88 100 0010',
     specialization: 'Дизелови системи',
     skills: 'Дюзи, EGR, DPF',
@@ -330,7 +330,7 @@ async function main() {
   const serviceByIndex = new Map<number, { id: string; name: string }>();
 
   for (const serviceSeed of serviceSeeds) {
-    const adminEmail = `admin${serviceSeed.index}@automanager.demo`;
+    const adminEmail = `admin${serviceSeed.index}@automanager.bg`;
 
     const adminUser = await prisma.user.upsert({
       where: { email: adminEmail },
@@ -479,7 +479,7 @@ async function main() {
   for (let i = 1; i <= 20; i += 1) {
     const firstName = clientFirstNames[i - 1];
     const lastName = clientLastNames[i - 1];
-    const email = `client${i}@automanager.demo`;
+    const email = `client${i}@automanager.bg`;
     const phone = `+359 88 200 ${String(i).padStart(4, '0')}`;
 
     const clientUser = await prisma.user.upsert({
@@ -603,7 +603,7 @@ async function main() {
           type: SupplierType.PARTS,
           contactPerson: 'Иван Партсов',
           phonePrimary: `+359 88 500 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.parts.${serviceSeed.index}@automanager.demo`,
+          email: `supplier.parts.${serviceSeed.index}@automanager.bg`,
           city: serviceSeed.city,
           addressLine: `Индустриална зона, ${serviceSeed.city}`,
           eik: `2071${String(serviceSeed.index).padStart(5, '0')}`,
@@ -617,7 +617,7 @@ async function main() {
           type: SupplierType.TIRES,
           contactPerson: 'Мария Николова',
           phonePrimary: `+359 88 510 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.tires.${serviceSeed.index}@automanager.demo`,
+          email: `supplier.tires.${serviceSeed.index}@automanager.bg`,
           city: serviceSeed.city,
           addressLine: `Логистичен парк, ${serviceSeed.city}`,
           eik: `2072${String(serviceSeed.index).padStart(5, '0')}`,
@@ -631,7 +631,7 @@ async function main() {
           type: SupplierType.CONSUMABLES,
           contactPerson: 'Петър Стойчев',
           phonePrimary: `+359 88 520 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.consumables.${serviceSeed.index}@automanager.demo`,
+          email: `supplier.consumables.${serviceSeed.index}@automanager.bg`,
           city: serviceSeed.city,
           addressLine: `ул. Складова 5, ${serviceSeed.city}`,
           eik: `2073${String(serviceSeed.index).padStart(5, '0')}`,
@@ -877,10 +877,10 @@ async function main() {
         where: { uniqueCode: { in: serviceSeeds.map((s) => toServiceCode(s.index)) } },
       }),
       prisma.worker.count({
-        where: { email: { endsWith: '@automanager.demo' } },
+        where: { email: { endsWith: '@automanager.bg' } },
       }),
       prisma.client.count({
-        where: { email: { endsWith: '@automanager.demo' } },
+        where: { email: { endsWith: '@automanager.bg' } },
       }),
       prisma.vehicle.count({
         where: { licensePlate: { startsWith: 'DE' } },

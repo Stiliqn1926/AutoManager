@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const DEMO_EMAIL_DOMAIN = '@automanager.demo';
+const DEMO_EMAIL_DOMAIN = '@automanager.bg';
 const DEMO_UNIQUE_CODES = ['SRV001', 'SRV002', 'SRV003', 'SRV004', 'SRV005'];
 
 async function main() {
@@ -186,4 +186,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

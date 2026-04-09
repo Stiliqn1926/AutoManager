@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "seed:demo": "ts-node src/scripts/seedDemoData.ts",
     "seed:demo:cleanup": "ts-node src/scripts/cleanupDemoData.ts",
+    "load:test": "ts-node src/scripts/loadTest.ts",
     "test": "jest --runInBand",
     "test:watch": "jest --watch --runInBand",
     "test:coverage": "jest --coverage --runInBand"
