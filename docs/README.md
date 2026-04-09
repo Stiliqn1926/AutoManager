@@ -1,96 +1,42 @@
 # AutoManager
 
-**Система за управление на автосервизи**
+Уеб платформа за управление на автосервизи с роли `ADMIN`, `MECHANIC`, `CLIENT`, процес за одобрение на заявки, имейл верификация и Stripe абонамент.
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-19-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/License-Private-red.svg)]()
+Последна актуализация: 10 април 2026 г.
 
 ---
 
 ## Съдържание
 
-- [Описание](#описание)
-- [Основни функционалности](#основни-функционалности)
-- [Технологичен стек](#технологичен-стек)
-- [Архитектура](#архитектура)
-- [Инсталация](#инсталация)
-- [Конфигурация](#конфигурация)
-- [Стартиране](#стартиране)
-- [API документация](#api-документация)
-- [База данни](#база-данни)
-- [Сигурност](#сигурност)
-- [Тестване](#тестване)
-- [Структура на проекта](#структура-на-проекта)
+1. [Общ преглед](#общ-преглед)
+2. [Технологичен стек](#технологичен-стек)
+3. [Функционалности](#функционалности)
+4. [Роли и достъп](#роли-и-достъп)
+5. [Auth и onboarding потоци](#auth-и-onboarding-потоци)
+6. [Stripe абонаменти](#stripe-абонаменти)
+7. [Сигурност и стабилност](#сигурност-и-стабилност)
+8. [Локален старт](#локален-старт)
+9. [Environment променливи](#environment-променливи)
+10. [Demo данни и натоварващи тестове](#demo-данни-и-натоварващи-тестове)
+11. [Основни API маршрути](#основни-api-маршрути)
+12. [Deployment](#deployment)
+13. [Структура на проекта](#структура-на-проекта)
 
 ---
 
-## Описание
+## Общ преглед
 
-**AutoManager** е цялостна уеб платформа за управление на автосервизи, която предоставя инструменти за:
+AutoManager покрива целия оперативен цикъл в сервиз:
 
-- Управление на клиенти и техните превозни средства
-- Проследяване на поръчки и ремонти
-- Планиране на график за механици
-- Издаване на фактури с PDF експорт
-- Финансов отчет и анализ
-- Управление на доставчици
-
-Системата поддържа **три потребителски роли** с различни нива на достъп:
-
-| Роля | Описание |
-|------|----------|
-| **ADMIN** | Собственик на сервиз - пълен достъп до всички функции |
-| **MECHANIC** | Механик - достъп до възложени задачи и график |
-| **CLIENT** | Клиент - преглед на поръчки, фактури и известия |
-
----
-
-## Основни функционалности
-
-### Управление на клиенти
-- Регистрация и профил на клиенти
-- Свързване с множество сервизи
-- История на поръчките
-- Система за известия
-
-### Управление на превозни средства
-- Регистрация на автомобили (марка, модел, година, рег. номер, VIN)
-- Проследяване на километраж
-- История на ремонтите
-
-### Поръчки и ремонти
-- Създаване на поръчки с детайлно описание
-- Статуси: WAITING → IN_PROGRESS → READY → COMPLETED
-- Приоритети: LOW, NORMAL, HIGH, URGENT
-- Артикули: части, труд, консумативи
-- Автоматично изчисление на цени
-
-### График и планиране
-- Календарен изглед: дневен, седмичен, месечен
-- Възлагане на задачи към механици
-- Проследяване на статус и продължителност
-- Приоритизиране на задачи
-
-### Фактуриране
-- Автоматично генериране от завършени поръчки
-- PDF експорт с българска поддръжка (кирилица)
-- Проследяване на плащания
-- Номерация на фактури
-
-### Финансов модул
-- Приходи и разходи по категории
-- Категории: Части, Труд, Консумативи, Наем, Заплати, Данъци и др.
-- Графики и статистики
-- Финансово табло
-
-### Доставчици
-- База данни с доставчици
-- Типове: PARTS, CONSUMABLES, SERVICES, TIRES
-- Предпочитани доставчици
-- Контактна информация
+- клиенти и автомобили
+- поръчки и артикули по поръчка
+- график и задачи
+- фактуриране и PDF
+- финанси и dashboard статистики
+- доставчици
+- известия
+- заявки за одобрение (механици/клиенти)
+- SaaS абонамент за администраторите чрез Stripe
 
 ---
 
@@ -98,702 +44,367 @@
 
 ### Backend
 
-| Технология | Версия | Предназначение |
-|------------|--------|----------------|
-| Node.js | 18+ | Runtime среда |
-| Express.js | 5.2.1 | Web framework |
-| TypeScript | 5.9 | Типизация |
-| Prisma | 5.21.1 | ORM |
-| PostgreSQL | 15+ | База данни |
-| JWT | - | Автентикация |
-| Winston | 3.19.0 | Логване |
-| PDFKit | 0.17.2 | PDF генериране |
-| Nodemailer | 7.0.12 | Email изпращане |
-| Jest | 30.2.0 | Тестване |
+- Node.js + TypeScript
+- Express `5.2.1`
+- Prisma `5.21.1`
+- PostgreSQL
+- JWT + httpOnly cookies
+- Stripe `22.x`
+- Resend (имейли)
+- Supabase Storage (PDF фактури)
+- Jest + Supertest
 
 ### Frontend
 
-| Технология | Версия | Предназначение |
-|------------|--------|----------------|
-| React | 19.2.0 | UI библиотека |
-| Vite | 7.2.4 | Build tool |
-| TypeScript | 5.9 | Типизация |
-| Tailwind CSS | 3.4.19 | Стилизиране |
-| Axios | 1.13.2 | HTTP клиент |
-| React Router | 7.11.0 | Маршрутизация |
-| Recharts | 3.6.0 | Графики |
-| Lucide React | 0.562.0 | Икони |
+- React `19`
+- React Router `7`
+- TypeScript
+- Vite `7`
+- Tailwind CSS
+- Axios
+- Recharts
 
 ---
 
-## Архитектура
+## Функционалности
 
-### Обща структура
-
-```
-AutoManager/
-├── .vscode/                          # VS Code настройки
-│   └── settings.json
-├── backend/                          # REST API сървър
-├── frontend/                         # React SPA клиент
-└── docs/                             # Документация
-    └── README.md
-
-```
-
-### Backend структура
-
-```
-backend/
-├── fonts/                            # Шрифтове за PDF
-│   ├── DejaVuSans.ttf
-│   └── DejaVuSans-Bold.ttf
-├── logs/                             # Лог файлове
-│   ├── combined.log
-│   └── error.log
-├── prisma/                           # Prisma ORM
-│   ├── migrations/                   # Database миграции
-│   └── schema.prisma                 # Database схема
-├── src/
-│   ├── __tests__/                    # Unit тестове
-│   │   ├── auth.test.ts
-│   │   ├── clients.test.ts
-│   │   ├── finance.test.ts
-│   │   ├── invoices.test.ts
-│   │   ├── notifications.test.ts
-│   │   ├── order.test.ts
-│   │   ├── permissions.test.ts
-│   │   ├── schedule.test.ts
-│   │   ├── serviceCompany.test.ts
-│   │   ├── suppliers.test.ts
-│   │   ├── vehicles.test.ts
-│   │   └── workers.test.ts
-│   ├── config/                       # Конфигурации
-│   │   ├── database.ts
-│   ├── controllers/                  # Request handlers
-│   │   ├── auth.controller.ts
-│   │   ├── client.controller.ts
-│   │   ├── clientDashboard.controller.ts
-│   │   ├── dashboard.controller.ts
-│   │   ├── finance.controller.ts
-│   │   ├── invoice.controller.ts
-│   │   ├── notification.controller.ts
-│   │   ├── order.controller.ts
-│   │   ├── orderItem.controller.ts
-│   │   ├── pendingRequest.controller.ts
-│   │   ├── schedule.controller.ts
-│   │   ├── serviceCompany.controller.ts
-│   │   ├── supplier.controller.ts
-│   │   ├── vehicle.controller.ts
-│   │   └── worker.controller.ts
-│   ├── jobs/                         # Cron задачи
-│   │   └── tokenCleanup.job.ts
-│   ├── logs/                         # Лог директория (runtime)
-│   ├── middleware/                   # Express middleware
-│   │   ├── auth.middleware.ts
-│   │   ├── errorHandler.middleware.ts
-│   │   ├── mechanicServiceCheck.middleware.ts
-│   │   ├── rateLimiter.middleware.ts
-│   │   ├── role.middleware.ts
-│   │   └── validation.middleware.ts
-│   ├── routes/                       # API endpoints
-│   │   ├── auth.routes.ts
-│   │   ├── client.routes.ts
-│   │   ├── clientDashboard.routes.ts
-│   │   ├── dashboard.routes.ts
-│   │   ├── finance.routes.ts
-│   │   ├── index.ts
-│   │   ├── invoice.routes.ts
-│   │   ├── notification.routes.ts
-│   │   ├── order.routes.ts
-│   │   ├── orderItem.routes.ts
-│   │   ├── pendingRequest.routes.ts
-│   │   ├── schedule.routes.ts
-│   │   ├── serviceCompany.routes.ts
-│   │   ├── supplier.routes.ts
-│   │   ├── vehicle.routes.ts
-│   │   └── worker.routes.ts
-│   ├── services/                     # Бизнес логика
-│   │   ├── email.service.ts
-│   │   ├── logger.service.ts
-│   │   └── pdf.service.ts
-│   ├── types/                        # TypeScript типове
-│   │   ├── express.d.ts
-│   │   └── index.ts
-│   ├── utils/                        # Помощни функции
-│   │   ├── emailDnsValidation.ts
-│   │   ├── emailValidator.ts
-│   │   ├── generateToken.ts
-│   │   ├── generateUniqueCode.ts
-│   │   ├── generateVerificationToken.ts
-│   │   ├── hashPassword.ts
-│   │   ├── pagination.ts
-│   │   └── tokenUtils.ts
-│   ├── validators/                   # Joi валидации
-│   │   └── schemas.ts
-│   ├── app.ts                        # Express app setup
-│   └── server.ts                     # Server entry point
-├── uploads/                          # Качени файлове
-├── .env                              # Environment variables
-├── .env.example                      # Environment template
-├── check-db.js
-├── fix-enum.js
-├── jest.config.js
-├── package.json
-├── prisma.config.js
-├── prisma.config.ts
-├── test-orders.js
-├── tsconfig.json
-└── tsconfig.test.json
-
-```
-
-### Frontend структура
-
-```
-frontend/
-├── dist/                             # Production build
-├── src/
-│   ├── assets/                       # Статични ресурси
-│   │   └── react.svg
-│   ├── components/                   # React компоненти
-│   │   ├── admin/                    # Admin компоненти
-│   │   │   ├── CreateTaskModal.tsx
-│   │   │   ├── EditTaskModal.tsx
-│   │   │   ├── FinanceChart.tsx
-│   │   │   ├── OrdersCalendar.tsx
-│   │   │   ├── ReassignWorkerModal.tsx
-│   │   │   ├── RecentClients.tsx
-│   │   │   ├── RecentOrders.tsx
-│   │   │   ├── SetupWizard.tsx
-│   │   │   ├── StatsCard.tsx
-│   │   │   ├── StatsDashboard.tsx
-│   │   │   ├── UpcomingSchedule.tsx
-│   │   │   └── WorkersList.tsx
-│   │   ├── common/                   # Общи компоненти
-│   │   │   ├── Button.tsx
-│   │   │   ├── Checkbox.tsx
-│   │   │   ├── CountdownTimer.tsx
-│   │   │   ├── Input.tsx
-│   │   │   ├── PasswordInput.tsx
-│   │   │   └── PasswordStrengthBar.tsx
-│   │   ├── layout/                   # Layout компоненти
-│   │   │   ├── Header.tsx
-│   │   │   ├── MainLayout.tsx
-│   │   │   └── Sidebar.tsx
-│   │   └── mechanic/                 # Mechanic компоненти
-│   │       └── ScheduleDetailsModal.tsx
-│   ├── context/                      # React Context
-│   │   ├── ActiveServiceContext.ts
-│   │   ├── ActiveServiceProvider.tsx
-│   │   ├── AuthContext.tsx
-│   │   ├── AuthProvider.tsx
-│   │   ├── ServiceCompanyContext.tsx
-│   │   └── ServiceCompanyProvider.tsx
-│   ├── hooks/                        # Custom hooks
-│   │   ├── useActiveService.ts
-│   │   ├── useAuth.ts
-│   │   ├── useMechanicService.ts
-│   │   └── useServiceCompany.ts
-│   ├── pages/                        # Страници
-│   │   ├── admin/                    # Admin страници
-│   │   ├── auth/                     # Auth страници
-│   │   ├── client/                   # Client страници
-│   │   ├── mechanic/                 # Mechanic страници
-│   │   ├── NotFound.tsx
-│   │   ├── TermsAndConditions.tsx
-│   │   └── Unauthorized.tsx
-│   ├── routes/                       # Маршрутизация
-│   │   ├── AppRoutes.tsx
-│   │   └── ProtectedRoute.tsx
-│   ├── services/                     # API услуги
-│   │   ├── api.ts
-│   │   ├── authService.ts
-│   │   ├── dashboardService.ts
-│   │   └── mechanicService.ts
-│   ├── styles/                       # CSS стилове
-│   │   └── schedule.css
-│   ├── types/                        # TypeScript типове
-│   │   ├── client.ts
-│   │   ├── index.ts
-│   │   └── mechanic.ts
-│   ├── utils/                        # Помощни функции
-│   │   └── validation.ts
-│   ├── App.css
-│   ├── App.tsx
-│   ├── index.css
-│   ├── main.tsx
-│   └── vite-env.d.ts
-├── .env
-├── eslint.config.js
-├── index.html
-├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.node.json
-└── vite.config.ts
-
-```
+- Landing страница за продукта с отделни вход/регистрация потоци.
+- Админ модул:
+  - dashboard с KPI и графики
+  - управление на работници, клиенти, автомобили, поръчки, график, доставчици, финанси
+  - управление на pending заявки (approve/reject)
+- Механик модул:
+  - dashboard
+  - поръчки и детайли
+  - клиенти/автомобили
+  - график
+  - профил
+- Клиент модул:
+  - dashboard
+  - сервизни компании и смяна на активна компания
+  - автомобили, поръчки, фактури, известия
+  - профил
+- Имейл потоци:
+  - код за верификация на имейл
+  - код за reset password
+  - имейли при одобрение/отхвърляне
+  - имейли за фактури и ключови събития
 
 ---
 
-## Инсталация
+## Роли и достъп
 
-### Изисквания
+| Роля | Достъп |
+|---|---|
+| `ADMIN` | Пълен достъп до сервиза + billing. Оперативните admin endpoints изискват активен абонамент. |
+| `MECHANIC` | Работи в контекст на активна сервизна принадлежност. |
+| `CLIENT` | Достъп до собствени данни в избран сервиз (чрез membership). |
+
+Допълнително:
+
+- механик и клиент могат да имат membership към повече от един сервиз;
+- достъпът е разрешен само при активен membership;
+- pending membership блокира входа в системата до одобрение.
+
+---
+
+## Auth и onboarding потоци
+
+### 1) Регистрация на администратор на сервиз
+
+1. `POST /api/auth/register-admin` създава `PendingAdminRegistration`.
+2. Системата изпраща код за имейл верификация.
+3. Потребителят потвърждава кода през `POST /api/auth/verify-email-code`.
+4. Frontend стартира Stripe checkout чрез `POST /api/auth/register-admin/checkout-session`.
+5. `checkout.session.completed` (webhook) финализира регистрацията:
+   - създава `User (ADMIN)` и `ServiceCompany`
+   - записва Stripe customer/subscription данни
+6. Админът влиза в системата.
+
+Важно: преди успешно плащане администраторски акаунт не се финализира.
+
+### 2) Регистрация на механик
+
+1. Механикът подава форма с `uniqueCode` на сервиз.
+2. Създава се `User (MECHANIC)`, `Worker` и `PendingRequest`.
+3. Имейлът се потвърждава с код.
+4. До одобрение от admin входът връща `ACCOUNT_PENDING_APPROVAL`.
+5. При approve се активира membership и се изпраща имейл.
+
+### 3) Регистрация на клиент
+
+1. Клиентът подава форма с `uniqueCode` на сервиз (задължително).
+2. Създава се `User (CLIENT)` + `PendingRequest`.
+3. Имейл верификация с код.
+4. До approve от admin няма достъп до вътрешните екрани.
+5. При approve се активира client membership и се изпраща имейл.
+
+### 4) Вход и сесии
+
+- `POST /api/auth/login` приема `rememberMe`.
+- Access token: 15 минути (httpOnly cookie).
+- Refresh token: 1 ден или 30 дни при `rememberMe` (httpOnly cookie).
+- Автоматичен refresh е имплементиран в `frontend/src/services/api.ts`.
+
+### 5) Кодове и изтичане
+
+- имейл верификация: 10 минути
+- reset password код: 15 минути
+- resend cooldown: 60 секунди
+
+---
+
+## Stripe абонаменти
+
+### Какво е свързано
+
+- Admin checkout: `POST /api/billing/checkout-session`
+- Billing portal: `POST /api/billing/portal-session`
+- Subscription status sync: `GET /api/billing/subscription-status`
+- Webhook endpoint: `POST /api/billing/webhook` (raw body)
+
+### Какво се пази в базата
+
+В `ServiceCompany`:
+
+- `stripeCustomerId`
+- `stripeSubscriptionId`
+- `subscriptionStatus`
+- `subscriptionCurrentPeriodEnd`
+- `subscriptionCancelAtPeriodEnd`
+
+### Enforcement
+
+Middleware `requireActiveAdminSubscription` допуска само:
+
+- `ACTIVE`
+- `TRIALING`
+
+При неактивен абонамент се връща `NO_ACTIVE_SUBSCRIPTION` и frontend пренасочва към `/billing/cancel`.
+
+---
+
+## Сигурност и стабилност
+
+- CORS allowlist + `.vercel.app` домейни.
+- `trust proxy = 1` за коректни IP-та зад Railway/Vercel.
+- Global API rate limit: `1000` заявки / `15` минути.
+- Login brute-force limiter: `5` неуспешни опита / `15` минути (по IP + email).
+- Blacklist на access tokens при logout и revoke на refresh tokens.
+- Ежедневен cleanup job (03:00 Europe/Sofia) за изтекли tokens/codes.
+- Polling в frontend за критични екрани (dashboard/lists/details), за да няма „заседнали“ данни след refresh.
+
+---
+
+## Локален старт
+
+### 1) Изисквания
 
 - Node.js 18+
-- PostgreSQL 15+
-- npm или yarn
+- PostgreSQL
+- npm
 
-### Стъпки
+### 2) Backend
 
-1. **Клониране на репозиторито**
-```bash
-git clone <repository-url>
-cd AutoManager
-```
-
-2. **Инсталиране на backend зависимости**
 ```bash
 cd backend
 npm install
 ```
 
-3. **Инсталиране на frontend зависимости**
+Създай `backend/.env` (виж секцията [Environment променливи](#environment-променливи)).
+
 ```bash
-cd ../frontend
+npx prisma migrate dev
+npx prisma generate
+npm run dev
+```
+
+Backend URL по подразбиране: `http://localhost:5000`
+
+### 3) Frontend
+
+```bash
+cd frontend
 npm install
 ```
 
-4. **Настройка на база данни**
-```bash
-cd ../backend
-npx prisma migrate dev
-npx prisma generate
-```
-
----
-
-## Конфигурация
-
-### Backend (.env)
-
-Копирайте `.env.example` в `.env` и попълнете стойностите:
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/automanager"
-
-# Server
-PORT=5000
-
-# JWT
-JWT_SECRET="your-jwt-secret-key"
-REFRESH_TOKEN_SECRET="your-refresh-token-secret"
-
-# Frontend URL (for CORS)
-FRONTEND_URL="http://localhost:5173"
-
-# Email (optional)
-SMTP_HOST="smtp.example.com"
-SMTP_PORT=587
-SMTP_USER="your-email@example.com"
-SMTP_PASS="your-password"
-```
-
-### Frontend (.env)
+Създай `frontend/.env`:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
----
+Стартирай:
 
-## Стартиране
-
-### Development режим
-
-**Backend:**
 ```bash
-cd backend
 npm run dev
 ```
-Сървърът стартира на `http://localhost:5000`
 
-**Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-Приложението е достъпно на `http://localhost:5173`
-
-### Production build
-
-**Frontend:**
-```bash
-cd frontend
-npm run build
-```
+Frontend URL по подразбиране: `http://localhost:5173`
 
 ---
 
-## API документация
+## Environment променливи
 
-### Автентикация
+### Backend (`backend/.env`)
 
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| POST | `/api/auth/register` | Регистрация |
-| POST | `/api/auth/login` | Вход |
-| POST | `/api/auth/logout` | Изход |
-| POST | `/api/auth/refresh` | Обновяване на токен |
-| POST | `/api/auth/forgot-password` | Забравена парола |
-| POST | `/api/auth/reset-password` | Нова парола |
+| Променлива | Задължителна | Описание |
+|---|---|---|
+| `PORT` | не | Порт на backend (default: `5000`) |
+| `NODE_ENV` | да | `development` / `production` / `test` |
+| `FRONTEND_URL` | да | Frontend origin за CORS и redirect-и |
+| `DATABASE_URL` | да | PostgreSQL connection string |
+| `JWT_SECRET` | да | Secret за подписване на JWT |
+| `DEFAULT_TAX_RATE` | не | Default ДДС ставка |
+| `DEFAULT_PAGINATION_LIMIT` | не | Default лимит за списъци |
+| `MAX_PAGINATION_LIMIT` | не | Max лимит за списъци |
+| `RESEND_API_KEY` | да | API ключ за изпращане на имейли |
+| `EMAIL_FROM` | да | Sender адрес за системните имейли |
+| `SUPABASE_URL` | да | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | да | Service role ключ |
+| `SUPABASE_BUCKET` | не | Bucket за PDF файлове (default: `invoices`) |
+| `STRIPE_PRICE_ID` | да | `price_...` за абонаментния план |
+| `STRIPE_SECRET_KEY` | да | `sk_test_...` / `sk_live_...` |
+| `STRIPE_WEBHOOK_SECRET` | да | `whsec_...` |
+| `STRIPE_SUCCESS_URL` | да | Frontend success URL |
+| `STRIPE_CANCEL_URL` | да | Frontend cancel URL |
+| `AUTH_USER_CACHE_TTL_MS` | не | Cache TTL за auth middleware |
+| `AUTH_BLACKLIST_HIT_TTL_MS` | не | Cache TTL при blacklist hit |
+| `AUTH_BLACKLIST_MISS_TTL_MS` | не | Cache TTL при blacklist miss |
+| `AUTH_CACHE_MAX_ENTRIES` | не | Max cache entries |
 
-### Поръчки
+Забележка: текущият код използва `Resend` и `Supabase`. Ако копираш стар `.env.example`, добави липсващите ключове за тези интеграции.
 
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/orders` | Списък поръчки |
-| POST | `/api/orders` | Създаване на поръчка |
-| GET | `/api/orders/:id` | Детайли на поръчка |
-| PUT | `/api/orders/:id` | Редакция на поръчка |
-| PATCH | `/api/orders/:id/status` | Промяна на статус |
-| DELETE | `/api/orders/:id` | Изтриване |
+### Frontend (`frontend/.env`)
 
-### Клиенти
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/clients` | Списък клиенти |
-| POST | `/api/clients` | Създаване |
-| GET | `/api/clients/:id` | Детайли |
-| PUT | `/api/clients/:id` | Редакция |
-| DELETE | `/api/clients/:id` | Изтриване |
-
-### Превозни средства
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/vehicles` | Списък превозни средства |
-| POST | `/api/vehicles` | Създаване |
-| GET | `/api/vehicles/:id` | Детайли |
-| PUT | `/api/vehicles/:id` | Редакция |
-| DELETE | `/api/vehicles/:id` | Изтриване |
-
-### График
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/schedules` | Списък задачи |
-| POST | `/api/schedules` | Създаване |
-| GET | `/api/schedules/:id` | Детайли |
-| PUT | `/api/schedules/:id` | Редакция |
-| DELETE | `/api/schedules/:id` | Изтриване |
-
-### Фактури
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/invoices` | Списък фактури |
-| POST | `/api/invoices` | Създаване |
-| GET | `/api/invoices/:id` | Детайли |
-| GET | `/api/invoices/:id/pdf` | PDF изтегляне |
-| PATCH | `/api/invoices/:id/payment` | Маркиране като платена |
-
-### Финанси
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/finances` | Списък записи |
-| POST | `/api/finances` | Създаване |
-| GET | `/api/finances/dashboard` | Финансово табло |
-
-### Доставчици
-
-| Метод | Endpoint | Описание |
-|-------|----------|----------|
-| GET | `/api/suppliers` | Списък доставчици |
-| POST | `/api/suppliers` | Създаване |
-| GET | `/api/suppliers/:id` | Детайли |
-| PUT | `/api/suppliers/:id` | Редакция |
+| Променлива | Задължителна | Описание |
+|---|---|---|
+| `VITE_API_URL` | да | Пълният base URL към backend API (пример: `https://<backend>/api`) |
 
 ---
 
-## База данни
+## Demo данни и натоварващи тестове
 
-### Основни модели
-
-```prisma
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  firstName     String
-  lastName      String
-  phone         String?
-  role          UserRole  @default(CLIENT)
-  isActive      Boolean   @default(true)
-  tokenVersion  Int       @default(0)
-}
-
-model ServiceCompany {
-  id          String   @id @default(uuid())
-  name        String
-  address     String?
-  phone       String?
-  email       String?
-  ownerId     String   @unique
-}
-
-model Client {
-  id          String    @id @default(uuid())
-  userId      String    @unique
-  vehicles    Vehicle[]
-  orders      Order[]
-}
-
-model Worker {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  specialization  String?
-  skills          String[]
-}
-
-model Vehicle {
-  id           String   @id @default(uuid())
-  brand        String
-  model        String
-  year         Int
-  licensePlate String
-  vin          String?
-  mileage      Int?
-  clientId     String
-}
-
-model Order {
-  id           String      @id @default(uuid())
-  displayId    Int
-  status       OrderStatus @default(WAITING)
-  priority     String      @default("NORMAL")
-  diagnosis    String?
-  clientId     String
-  vehicleId    String
-  workerId     String?
-  items        OrderItem[]
-  invoice      Invoice?
-}
-
-model Invoice {
-  id            String   @id @default(uuid())
-  invoiceNumber String   @unique
-  totalAmount   Float
-  taxAmount     Float
-  isPaid        Boolean  @default(false)
-  paidDate      DateTime?
-  paymentMethod String?
-  orderId       String   @unique
-}
-
-model Schedule {
-  id          String         @id @default(uuid())
-  title       String
-  description String?
-  startTime   DateTime
-  endTime     DateTime?
-  status      ScheduleStatus @default(SCHEDULED)
-  priority    SchedulePriority @default(NORMAL)
-  workerId    String
-  orderId     String?
-}
-
-model Finance {
-  id          String        @id @default(uuid())
-  type        FinanceType
-  category    FinanceCategory
-  amount      Float
-  description String?
-  date        DateTime
-}
-
-model Supplier {
-  id          String       @id @default(uuid())
-  name        String
-  type        SupplierType
-  phone       String?
-  email       String?
-  address     String?
-  isPreferred Boolean      @default(false)
-}
-```
-
-### Енумерации
-
-```prisma
-enum UserRole {
-  ADMIN
-  CLIENT
-  MECHANIC
-}
-
-enum OrderStatus {
-  WAITING
-  IN_PROGRESS
-  READY
-  COMPLETED
-  CANCELLED
-}
-
-enum ScheduleStatus {
-  SCHEDULED
-  IN_PROGRESS
-  READY
-  COMPLETED
-  CANCELLED
-  DELAYED
-}
-
-enum SchedulePriority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
-}
-
-enum FinanceType {
-  INCOME
-  EXPENSE
-}
-
-enum FinanceCategory {
-  PARTS
-  LABOR
-  CONSUMABLES
-  RENT
-  UTILITIES
-  SALARIES
-  TAXES
-  INSURANCE
-  MARKETING
-  MAINTENANCE
-  SUPPLIES
-  OTHER
-}
-
-enum SupplierType {
-  PARTS
-  CONSUMABLES
-  SERVICES
-  TIRES
-  OTHER
-}
-```
-
----
-
-## Сигурност
-
-### Автентикация
-- **JWT токени** с 15-минутен живот
-- **Refresh токени** в httpOnly cookies (30 дни)
-- **Token blacklisting** при изход
-- **Автоматично почистване** на изтекли токени (cron job)
-
-### Защита
-- **Rate limiting**: 1000 заявки / 15 минути
-- **CORS whitelist**: само разрешени домейни
-- **Password hashing**: bcryptjs
-- **Input validation**: Joi schemas
-- **Role-based access control**: middleware проверки
-
-### Препоръки
-- Използвайте силни JWT секрети (минимум 32 символа)
-- Редовно обновявайте зависимостите
-- Конфигурирайте HTTPS в production
-
----
-
-## Тестване
+### Seed demo данни
 
 ```bash
 cd backend
-npm test
+npm run seed:demo
 ```
 
-Тестовете включват:
-- Автентикация (login, register, refresh)
-- CRUD операции за поръчки
-- Проверка на права за достъп
+Създава:
+
+- 5 сервиза (София/Пловдив)
+- 5 admin акаунта
+- 10 механика (част от тях в повече от един сервиз)
+- 20 клиента (част от тях в повече от един сервиз)
+- автомобили, поръчки, график, финанси, доставчици, фактури
+
+Demo парола: `Demo12345!`
+
+Примерни акаунти:
+
+- admin: `admin1@automanager.bg` ... `admin5@automanager.bg`
+- mechanic: `mechanic1@automanager.bg` ... `mechanic10@automanager.bg`
+- client: `client1@automanager.bg` ... `client20@automanager.bg`
+
+### Изчистване на demo данни
+
+```bash
+cd backend
+npm run seed:demo:cleanup
+```
+
+### Load test (read + write сценарии)
+
+```bash
+cd backend
+npm run load:test
+```
+
+Поддържани ENV за теста:
+
+- `LOAD_TEST_BASE_URL`
+- `LOAD_TEST_CONCURRENCY`
+- `LOAD_TEST_ITERATIONS`
+- `LOAD_TEST_REQUEST_TIMEOUT_MS`
+- `LOAD_TEST_ENABLE_WRITES`
+- `LOAD_TEST_PASSWORD`
+
+Скриптът изпълнява реални сценарии по роли и извежда p50/p95/p99 latency, error rate и endpoint breakdown.
+
+---
+
+## Основни API маршрути
+
+Base path: `/api`
+
+| Група | Префикс |
+|---|---|
+| Auth | `/auth` |
+| Billing | `/billing` |
+| Dashboard | `/dashboard` |
+| Service company | `/service-company` |
+| Workers | `/worker`, `/workers` |
+| Clients | `/clients` |
+| Pending approvals | `/pending-requests` |
+| Vehicles | `/vehicles` |
+| Orders | `/orders` |
+| Order items | `/order-items` |
+| Invoices | `/invoices` |
+| Notifications | `/notifications` |
+| Schedules | `/schedules` |
+| Client dashboard APIs | `/client` |
+| Suppliers | `/suppliers` |
+| Finances | `/finances` |
+| Health check | `/health` |
+
+---
+
+## Deployment
+
+Текущата архитектура е:
+
+- Frontend: Vercel
+- Backend: Railway
+- DB: PostgreSQL (Neon)
+- Billing: Stripe
+
+### Критични настройки
+
+1. Stripe webhook endpoint трябва да сочи към Railway backend:
+   - `https://<your-backend>.up.railway.app/api/billing/webhook`
+2. `STRIPE_SUCCESS_URL` и `STRIPE_CANCEL_URL` трябва да сочат към frontend домейна (Vercel), не към localhost.
+3. `FRONTEND_URL` в backend трябва да е production frontend домейнът.
+4. `VITE_API_URL` във frontend трябва да е production backend `/api` URL.
 
 ---
 
 ## Структура на проекта
 
-### Backend контролери
-
-| Файл | Описание |
-|------|----------|
-| `auth.controller.ts` | Автентикация и управление на сесии |
-| `order.controller.ts` | CRUD и статус на поръчки |
-| `client.controller.ts` | Управление на клиенти |
-| `worker.controller.ts` | Управление на механици |
-| `vehicle.controller.ts` | Управление на превозни средства |
-| `schedule.controller.ts` | График и планиране |
-| `invoice.controller.ts` | Фактуриране |
-| `finance.controller.ts` | Финансов модул |
-| `supplier.controller.ts` | Доставчици |
-| `dashboard.controller.ts` | Статистики и табла |
-
-### Frontend страници
-
-| Директория | Описание |
-|------------|----------|
-| `pages/admin/` | Admin панел (20+ страници) |
-| `pages/mechanic/` | Механик панел (11 страници) |
-| `pages/client/` | Клиентски панел (8 страници) |
-| `pages/auth/` | Автентикация (8 страници) |
-
-### Middleware
-
-| Файл | Описание |
-|------|----------|
-| `auth.middleware.ts` | JWT верификация |
-| `role.middleware.ts` | Проверка на роли |
-| `validation.middleware.ts` | Валидация на входни данни |
-| `errorHandler.middleware.ts` | Глобална обработка на грешки |
-| `rateLimiter.middleware.ts` | Rate limiting |
-
----
-
-## Скриптове
-
-### Backend
-
-| Команда | Описание |
-|---------|----------|
-| `npm run dev` | Стартиране в development режим |
-| `npm test` | Изпълнение на тестове |
-| `npm run build` | Production build |
-
-### Frontend
-
-| Команда | Описание |
-|---------|----------|
-| `npm run dev` | Стартиране в development режим |
-| `npm run build` | Production build |
-| `npm run preview` | Преглед на build |
-| `npm run lint` | Проверка на код |
-
----
-
-## Лиценз
-
-Този проект е частна собственост. Всички права запазени.
-
----
-
-## Автор
-
-Разработено с TypeScript, React и Express.js.
+```text
+AutoManager/
+├─ backend/
+│  ├─ prisma/
+│  │  ├─ schema.prisma
+│  │  └─ migrations/
+│  └─ src/
+│     ├─ controllers/
+│     ├─ middleware/
+│     ├─ routes/
+│     ├─ services/
+│     ├─ scripts/
+│     ├─ utils/
+│     ├─ app.ts
+│     └─ server.ts
+├─ frontend/
+│  └─ src/
+│     ├─ pages/
+│     ├─ components/
+│     ├─ context/
+│     ├─ routes/
+│     ├─ services/
+│     └─ App.tsx
+└─ docs/
+   └─ README.md
+```
