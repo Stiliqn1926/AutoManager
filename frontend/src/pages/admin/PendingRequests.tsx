@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { UserCheck, UserX, Users, Clock, Phone, Mail, User, Calendar } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
@@ -34,7 +34,7 @@ const PendingRequests = () => {
       setMechanicRequests(response.data.mechanicRequests || []);
       setClientRequests(response.data.clientRequests || []);
     } catch (error) {
-      toast.error('Грешка при зареждане на заявки');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ¸');
       console.error('Error fetching pending requests:', error);
     } finally {
       setIsLoading(false);
@@ -44,29 +44,29 @@ const PendingRequests = () => {
   const handleApprove = async (id: string, type: 'MECHANIC' | 'CLIENT') => {
   try {
     await api.patch(`/pending-requests/${id}/approve`);
-    toast.success(`${type === 'MECHANIC' ? 'Механикът' : 'Клиентът'} е одобрен успешно`);
+    toast.success(`${type === 'MECHANIC' ? 'ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚' : 'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚'} Ðµ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾`);
     await fetchPendingRequests();
     
-    // ✅ Emit event за да се обнови списъка с клиенти (ако е отворен)
+
     if (type === 'CLIENT') {
       window.dispatchEvent(new Event('clients-updated'));
     }
   } catch (error) {
-    toast.error('Грешка при одобряване');
+    toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð´Ð¾Ð±Ñ€ÑÐ²Ð°Ð½Ðµ');
     console.error('Error approving request:', error);
   }
 };
 
   const handleReject = async (id: string, type: 'MECHANIC' | 'CLIENT') => {
-    const reason = window.prompt('Причина за отхвърляне (опционално):');
+    const reason = window.prompt('ÐŸÑ€Ð¸Ñ‡Ð¸Ð½Ð° Ð·Ð° Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»ÑÐ½Ðµ (Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»Ð½Ð¾):');
     if (reason === null) return; // Cancelled
 
     try {
       await api.patch(`/pending-requests/${id}/reject`, { rejectionReason: reason });
-      toast.success(`${type === 'MECHANIC' ? 'Механикът' : 'Клиентът'} е отхвърлен`);
+      toast.success(`${type === 'MECHANIC' ? 'ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚' : 'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚'} Ðµ Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»ÐµÐ½`);
       await fetchPendingRequests();
     } catch (error) {
-      toast.error('Грешка при отхвърляне');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»ÑÐ½Ðµ');
       console.error('Error rejecting request:', error);
     }
   };
@@ -99,9 +99,9 @@ const PendingRequests = () => {
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Заявки за одобрение</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð—Ð°ÑÐ²ÐºÐ¸ Ð·Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ</h1>
           <p className="text-textSecondary mt-1">
-            Преглед и одобрение на чакащи заявки за механици и клиенти
+            ÐŸÑ€ÐµÐ³Ð»ÐµÐ´ Ð¸ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð½Ð° Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸ Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸
           </p>
         </div>
 
@@ -114,7 +114,7 @@ const PendingRequests = () => {
               </div>
               <div>
                 <div className="text-xl sm:text-2xl font-bold text-textPrimary">{mechanicRequests.length}</div>
-                <div className="text-sm text-textSecondary">Механици в изчакване</div>
+                <div className="text-sm text-textSecondary">ÐœÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸ Ð² Ð¸Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ</div>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ const PendingRequests = () => {
               </div>
               <div>
                 <div className="text-xl sm:text-2xl font-bold text-textPrimary">{clientRequests.length}</div>
-                <div className="text-sm text-textSecondary">Клиенти в изчакване</div>
+                <div className="text-sm text-textSecondary">ÐšÐ»Ð¸ÐµÐ½Ñ‚Ð¸ Ð² Ð¸Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ</div>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ const PendingRequests = () => {
                   : 'border-transparent text-textSecondary hover:text-textPrimary'
               }`}
             >
-              Механици ({mechanicRequests.length})
+              ÐœÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸ ({mechanicRequests.length})
             </button>
             <button
               onClick={() => setSelectedTab('CLIENT')}
@@ -153,7 +153,7 @@ const PendingRequests = () => {
                   : 'border-transparent text-textSecondary hover:text-textPrimary'
               }`}
             >
-              Клиенти ({clientRequests.length})
+              ÐšÐ»Ð¸ÐµÐ½Ñ‚Ð¸ ({clientRequests.length})
             </button>
           </div>
         </div>
@@ -163,7 +163,7 @@ const PendingRequests = () => {
           {currentRequests.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Няма чакащи заявки за {selectedTab === 'MECHANIC' ? 'механици' : 'клиенти'}</p>
+              <p>ÐÑÐ¼Ð° Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° {selectedTab === 'MECHANIC' ? 'Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸' : 'ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸'}</p>
             </div>
           ) : (
             <div className="divide-y divide-borderSubtle max-h-[70vh] overflow-y-auto">
@@ -177,7 +177,7 @@ const PendingRequests = () => {
                         </h3>
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                           <Clock className="w-3 h-3" />
-                          Чака одобрение
+                          Ð§Ð°ÐºÐ° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ
                         </span>
                       </div>
 
@@ -193,18 +193,18 @@ const PendingRequests = () => {
                         {request.specialization && (
                           <div className="flex items-center gap-2 text-textSecondary">
                             <User className="w-4 h-4" />
-                            <span>Специализация: {request.specialization}</span>
+                            <span>Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ: {request.specialization}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-2 text-textSecondary">
                           <Calendar className="w-4 h-4" />
-                          <span>Заявено на: {formatDate(request.createdAt)}</span>
+                          <span>Ð—Ð°ÑÐ²ÐµÐ½Ð¾ Ð½Ð°: {formatDate(request.createdAt)}</span>
                         </div>
                       </div>
 
                       {request.skills && (
                         <div className="mt-2 sm:mt-3 text-sm text-textSecondary">
-                          <span className="font-medium">Умения:</span> {request.skills}
+                          <span className="font-medium">Ð£Ð¼ÐµÐ½Ð¸Ñ:</span> {request.skills}
                         </div>
                       )}
                     </div>
@@ -216,14 +216,14 @@ const PendingRequests = () => {
                       className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium w-full sm:w-auto"
                     >
                       <UserCheck className="w-4 h-4" />
-                      Одобри
+                      ÐžÐ´Ð¾Ð±Ñ€Ð¸
                     </button>
                     <button
                       onClick={() => handleReject(request.id, request.requestType)}
                       className="flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium w-full sm:w-auto"
                     >
                       <UserX className="w-4 h-4" />
-                      Отхвърли
+                      ÐžÑ‚Ñ…Ð²ÑŠÑ€Ð»Ð¸
                     </button>
                   </div>
                 </div>
@@ -237,4 +237,5 @@ const PendingRequests = () => {
 };
 
 export default PendingRequests;
+
 

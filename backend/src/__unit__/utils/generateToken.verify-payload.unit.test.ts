@@ -1,4 +1,4 @@
-import { generateToken, verifyToken } from '../../utils/generateToken';
+﻿import { generateToken, verifyToken } from '../../utils/generateToken';
 
 describe('generateToken/verifyToken - valid payload', () => {
   it('generates and verifies token payload correctly', () => {
@@ -29,3 +29,4 @@ describe('generateToken/verifyToken - valid payload', () => {
     }
   });
 });
+

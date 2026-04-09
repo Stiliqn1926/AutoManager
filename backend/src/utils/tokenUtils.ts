@@ -1,4 +1,4 @@
-// Token utilities for refresh tokens, blacklist, and cleanup
+﻿// Token utilities for refresh tokens, blacklist, and cleanup
 
 import crypto from 'crypto';
 import prisma from '../config/database';
@@ -139,3 +139,4 @@ export const cleanupExpiredTokens = async () => {
     throw error;
   }
 };
+

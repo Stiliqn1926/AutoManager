@@ -1,4 +1,4 @@
-import { authorize } from '../../middleware/role.middleware';
+﻿import { authorize } from '../../middleware/role.middleware';
 
 const makeRes = () => {
   const res: any = {};
@@ -23,4 +23,5 @@ describe('authorize - forbidden role', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+
 

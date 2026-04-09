@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Finance Endpoints', () => {
@@ -97,3 +97,4 @@ describe('Finance Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+

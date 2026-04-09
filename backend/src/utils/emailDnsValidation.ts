@@ -1,13 +1,8 @@
-import { promises as dns } from 'dns';
+﻿import { promises as dns } from 'dns';
 
 /**
- * Проверява дали email domain съществува
- * @param email - email адрес
- * @returns true ако domain-ът съществува, false ако не
- *
- * DEVELOPMENT MODE:
- * В development mode (NODE_ENV !== 'production') пропускаме DNS проверката
- * за да можем да използваме test email адреси като test@example.com
+ * Validates email domain DNS records.
+ * In non-production environments this check is intentionally skipped.
  */
 export const validateEmailDomain = async (email: string): Promise<boolean> => {
   try {
@@ -17,19 +12,20 @@ export const validateEmailDomain = async (email: string): Promise<boolean> => {
       return false;
     }
 
-    // 🆕 В development mode пропускаме DNS проверката
-    // Това позволява използването на test email адреси
+
+
     if (process.env.NODE_ENV !== 'production') {
       console.log(`[DEV] Skipping DNS validation for: ${email}`);
-      return true; // Винаги приемаме в development
+      return true;
     }
 
-    // Проверка за MX records (mail exchange) само в production
+
     const mxRecords = await dns.resolveMx(domain);
 
     return mxRecords && mxRecords.length > 0;
   } catch (error) {
-    // Ако DNS проверката фейлне, domain-ът не съществува
+
     return false;
   }
 };
+

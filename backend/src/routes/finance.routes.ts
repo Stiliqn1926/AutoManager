@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   createFinance,
   getAllFinances,
@@ -16,10 +16,10 @@ import { createFinanceSchema, getFinanceFiltersSchema } from '../validators/sche
 const router = Router();
 
 // ============================================
-// FINANCE ROUTES (само ADMIN има достъп)
+
 // ============================================
 
-// CREATE - Създаване на транзакция
+
 router.post(
   '/',
   authenticate,
@@ -29,7 +29,7 @@ router.post(
   createFinance
 );
 
-// GET ALL - Списък с филтри и pagination
+
 router.get(
   '/',
   authenticate,
@@ -39,7 +39,7 @@ router.get(
   getAllFinances
 );
 
-// GET SUMMARY - Обобщение (приходи, разходи, печалба)
+
 router.get(
   '/summary',
   authenticate,
@@ -48,7 +48,7 @@ router.get(
   getFinanceSummary
 );
 
-// GET BY ID - Конкретна транзакция
+
 router.get(
   '/:id',
   authenticate,
@@ -57,7 +57,7 @@ router.get(
   getFinanceById
 );
 
-// UPDATE - Редактиране на транзакция
+
 router.put(
   '/:id',
   authenticate,
@@ -67,7 +67,7 @@ router.put(
   updateFinance
 );
 
-// DELETE - Изтриване на транзакция
+
 router.delete(
   '/:id',
   authenticate,
@@ -77,3 +77,4 @@ router.delete(
 );
 
 export default router;
+

@@ -114,7 +114,7 @@ const MechanicClientDetails = () => {
           </div>
         </div>
 
-        {/* ==================== СЕКЦИЯ 1: Основна информация ==================== */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary" />
@@ -124,7 +124,7 @@ const MechanicClientDetails = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Телефон */}
+            
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Phone className="w-4 h-4" />
@@ -154,7 +154,7 @@ const MechanicClientDetails = () => {
               </div>
             )}
 
-            {/* Адрес */}
+            
             {client.address && (
               <div className="sm:col-span-2">
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
@@ -167,7 +167,7 @@ const MechanicClientDetails = () => {
           </div>
         </div>
 
-        {/* ==================== СЕКЦИЯ 2: Автомобили ==================== */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -226,7 +226,7 @@ const MechanicClientDetails = () => {
           </div>
         </div>
 
-        {/* ==================== СЕКЦИЯ 3: Поръчки ==================== */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -346,3 +346,4 @@ const MechanicClientDetails = () => {
 
 const ClientDetailsPage = MechanicClientDetails;
 export default ClientDetailsPage;
+

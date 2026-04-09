@@ -12,3 +12,4 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
 });
 
 export const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || 'invoices';
+

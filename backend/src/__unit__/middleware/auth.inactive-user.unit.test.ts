@@ -1,4 +1,4 @@
-import prisma from '../../config/database';
+﻿import prisma from '../../config/database';
 import * as generateTokenUtils from '../../utils/generateToken';
 import * as tokenUtils from '../../utils/tokenUtils';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -40,3 +40,4 @@ describe('authenticate - inactive user', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+

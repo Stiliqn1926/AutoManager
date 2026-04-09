@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Permission Tests', () => {
@@ -7,7 +7,7 @@ describe('Permission Tests', () => {
   let clientAgent: any;
   let serviceCompanyId: string;
 
-  // ✅ Setup - създай ADMIN, MECHANIC и CLIENT (С AGENTS!)
+
   beforeAll(async () => {
     await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
     const timestamp = Date.now();
@@ -27,7 +27,7 @@ describe('Permission Tests', () => {
       password: 'Password123!',
     });
 
-    // Създай Service Company
+
     const companyResponse = await adminAgent.post('/api/service-company').send({
       name: `Test Garage Perm ${timestamp}`,
       address: 'Test Street 123',
@@ -42,7 +42,7 @@ describe('Permission Tests', () => {
     serviceCompanyId = companyResponse.body.serviceCompany.id;
     const uniqueCode = companyResponse.body.serviceCompany.uniqueCode;
 
-    // Login отново (за serviceCompanyId в token)
+
     await adminAgent.post('/api/auth/login').send({
       email: adminEmail,
       password: 'Password123!',
@@ -55,13 +55,13 @@ describe('Permission Tests', () => {
     await mechanicAgent.post('/api/auth/register-mechanic').send({
       email: mechanicEmail,
       password: 'Password123!',
-      firstName: 'Георги',
-      lastName: 'Механик',
+      firstName: 'Ð“ÐµÐ¾Ñ€Ð³Ð¸',
+      lastName: 'ÐœÐµÑ…Ð°Ð½Ð¸Ðº',
       phone: '0888222333',
       uniqueCode,
     });
 
-    // Одобри pending request
+
     const pendingRequests = await prisma.pendingRequest.findMany({
       where: { email: mechanicEmail, status: 'PENDING' },
     });
@@ -72,7 +72,7 @@ describe('Permission Tests', () => {
         .send();
     }
 
-    // Login на механика
+
     await mechanicAgent.post('/api/auth/login').send({
       email: mechanicEmail,
       password: 'Password123!',
@@ -105,7 +105,7 @@ describe('Permission Tests', () => {
     it('ADMIN should create vehicles', async () => {
       const timestamp = Date.now();
 
-      // Първо създай клиент
+
       const clientResponse = await adminAgent.post('/api/clients').send({
         firstName: 'Test',
         lastName: 'Client',
@@ -148,7 +148,7 @@ describe('Permission Tests', () => {
     it('MECHANIC should access clients', async () => {
       const response = await mechanicAgent.get('/api/clients/mechanic');
 
-      // Механикът трябва да има worker профил за да види клиенти
+
       expect([200, 403]).toContain(response.status);
     });
   });
@@ -191,10 +191,11 @@ describe('Permission Tests', () => {
     it('should deny access with invalid token', async () => {
       const unauthAgent = createTestAgent();
 
-      // Можем да пробваме с празен cookie jar (няма да има валиден cookie)
+
       const response = await unauthAgent.get('/api/vehicles');
 
       expect(response.status).toBe(401);
     });
   });
 });
+

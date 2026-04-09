@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
 
 process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || 're_test';
@@ -13,8 +13,8 @@ import app from '../app';
 
 const prisma = new PrismaClient();
 
-// 🆕 Export helper за създаване на test agent
-// Agent запазва cookies между requests (критично за httpOnly cookie auth!)
+
+
 export const createTestAgent = () => request.agent(app);
 
 afterAll(async () => {
@@ -22,3 +22,4 @@ afterAll(async () => {
 });
 
 jest.setTimeout(30000);
+

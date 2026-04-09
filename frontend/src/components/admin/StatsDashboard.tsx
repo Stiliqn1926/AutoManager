@@ -1,4 +1,4 @@
-import StatsCard from './StatsCard';
+﻿import StatsCard from './StatsCard';
 import { ClipboardList, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface Stats {
@@ -19,31 +19,31 @@ const StatsDashboard = ({ stats }: StatsDashboardProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <StatsCard
         icon={ClipboardList}
-        label="Общо поръчки"
+        label="ÐžÐ±Ñ‰Ð¾ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
         value={stats.totalOrders}
-        subtitle="Всички"
+        subtitle="Ð’ÑÐ¸Ñ‡ÐºÐ¸"
       />
 
       <StatsCard
         icon={ClipboardList}
-        label="Активни поръчки"
+        label="ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
         value={stats.activeOrders}
-        subtitle="В процес"
+        subtitle="Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ"
       />
 
       <StatsCard
         icon={TrendingUp}
-        label="Приходи"
-        value={`${stats.totalRevenue.toLocaleString()} €`}
-        subtitle="Общо"
+        label="ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð¸"
+        value={`${stats.totalRevenue.toLocaleString()} â‚¬`}
+        subtitle="ÐžÐ±Ñ‰Ð¾"
         trend="up"
       />
 
       <StatsCard
         icon={TrendingDown}
-        label="Разходи"
-        value={`${stats.totalExpenses.toLocaleString()} €`}
-        subtitle="Общо"
+        label="Ð Ð°Ð·Ñ…Ð¾Ð´Ð¸"
+        value={`${stats.totalExpenses.toLocaleString()} â‚¬`}
+        subtitle="ÐžÐ±Ñ‰Ð¾"
         trend="down"
       />
     </div>
@@ -51,3 +51,4 @@ const StatsDashboard = ({ stats }: StatsDashboardProps) => {
 };
 
 export default StatsDashboard;
+

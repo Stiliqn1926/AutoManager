@@ -1,4 +1,4 @@
-// Pagination helper
+﻿// Pagination helper
 export interface PaginationParams {
   page?: number;
   limit?: number;
@@ -28,7 +28,7 @@ export const getPagination = (
   page: number = 1,
   limit: number = DEFAULT_LIMIT
 ): PaginationResult => {
-  // Валидации
+
   const validPage = Math.max(1, Math.floor(page));
   const validLimit = Math.min(MAX_LIMIT, Math.max(1, Math.floor(limit)));
 
@@ -58,3 +58,4 @@ export const getPaginationMeta = (
     hasPreviousPage: page > 1,
   };
 };
+

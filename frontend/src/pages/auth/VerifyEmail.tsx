@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
@@ -36,7 +36,7 @@ const VerifyEmail = () => {
     e.preventDefault();
 
     if (codeExpired) {
-      toast.error('Кодът е изтекъл. Изпратете нов код.');
+      toast.error('ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ». Ð˜Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð½Ð¾Ð² ÐºÐ¾Ð´.');
       return;
     }
 
@@ -46,7 +46,7 @@ const VerifyEmail = () => {
       return;
     }
 
-    const codeError = validateRequired(code, 'Кодът');
+    const codeError = validateRequired(code, 'ÐšÐ¾Ð´ÑŠÑ‚');
     if (codeError) {
       toast.error(codeError);
       return;
@@ -55,31 +55,31 @@ const VerifyEmail = () => {
     setIsLoading(true);
     try {
       await api.post('/auth/verify-email-code', { email, code });
-      toast.success('Имейлът е потвърден успешно!');
+      toast.success('Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð¿Ð¾Ñ‚Ð²ÑŠÑ€Ð´ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾!');
 
       if (roleParam === 'admin') {
         const checkoutData = await createAdminRegistrationCheckoutSession(email);
-        toast.success('Пренасочваме ви към плащане...');
+        toast.success('ÐŸÑ€ÐµÐ½Ð°ÑÐ¾Ñ‡Ð²Ð°Ð¼Ðµ Ð²Ð¸ ÐºÑŠÐ¼ Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ...');
         window.location.href = checkoutData.checkoutUrl;
         return;
       }
 
       if (roleParam === 'mechanic') {
         toast.success(
-          'Потвърждението е успешно. Изчакайте одобрение от администратор.'
+          'ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸ÐµÑ‚Ð¾ Ðµ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. Ð˜Ð·Ñ‡Ð°ÐºÐ°Ð¹Ñ‚Ðµ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€.'
         );
       }
 
       if (roleParam === 'client') {
         toast.success(
-          'Потвърждението е успешно. Изчакайте одобрение от сервиза.'
+          'ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸ÐµÑ‚Ð¾ Ðµ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. Ð˜Ð·Ñ‡Ð°ÐºÐ°Ð¹Ñ‚Ðµ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ ÑÐµÑ€Ð²Ð¸Ð·Ð°.'
         );
       }
 
       navigate(getLoginPath());
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Невалиден или изтекъл код');
+      toast.error(err.response?.data?.message || 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð»Ð¸ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ» ÐºÐ¾Ð´');
     } finally {
       setIsLoading(false);
     }
@@ -95,12 +95,12 @@ const VerifyEmail = () => {
     setIsResending(true);
     try {
       await api.post('/auth/resend-email-verification-code', { email });
-      toast.success('Нов код е изпратен на имейла.');
+      toast.success('ÐÐ¾Ð² ÐºÐ¾Ð´ Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»Ð°.');
       setCodeExpired(false);
       setTimerKey((prev) => prev + 1);
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Грешка при изпращане на нов код');
+      toast.error(err.response?.data?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° Ð½Ð¾Ð² ÐºÐ¾Ð´');
     } finally {
       setIsResending(false);
     }
@@ -108,7 +108,7 @@ const VerifyEmail = () => {
 
   const handleExpire = () => {
     setCodeExpired(true);
-    toast.error('Кодът изтече. Изпратете нов код.');
+    toast.error('ÐšÐ¾Ð´ÑŠÑ‚ Ð¸Ð·Ñ‚ÐµÑ‡Ðµ. Ð˜Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð½Ð¾Ð² ÐºÐ¾Ð´.');
   };
 
   return (
@@ -118,21 +118,21 @@ const VerifyEmail = () => {
           Auto<span className="text-primary">Manager</span>
         </h1>
         <h2 className="text-2xl sm:text-3xl font-semibold mb-4">
-          Потвърждение на имейл
+          ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»
         </h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-4">
-          Въведете 6-цифрения код, който изпратихме на имейла ви.
+          Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ 6-Ñ†Ð¸Ñ„Ñ€ÐµÐ½Ð¸Ñ ÐºÐ¾Ð´, ÐºÐ¾Ð¹Ñ‚Ð¾ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚Ð¸Ñ…Ð¼Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»Ð° Ð²Ð¸.
         </p>
-        <p className="text-gray-300">Кодът е валиден за 10 минути.</p>
+        <p className="text-gray-300">ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° 10 Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8">
         <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
-              Потвърди имейл
+              ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¸Ð¼ÐµÐ¹Ð»
             </h2>
-            <p className="text-textSecondary">Въведете имейла и кода от писмото</p>
+            <p className="text-textSecondary">Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ Ð¸Ð¼ÐµÐ¹Ð»Ð° Ð¸ ÐºÐ¾Ð´Ð° Ð¾Ñ‚ Ð¿Ð¸ÑÐ¼Ð¾Ñ‚Ð¾</p>
           </div>
 
           {!codeExpired && (
@@ -143,21 +143,21 @@ const VerifyEmail = () => {
 
           {codeExpired && (
             <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-              <p className="text-sm text-red-600 text-center mb-3">Кодът е изтекъл.</p>
+              <p className="text-sm text-red-600 text-center mb-3">ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ».</p>
               <Button
                 onClick={handleResendCode}
                 isLoading={isResending}
                 fullWidth
                 variant="outline"
               >
-                Изпрати нов код
+                Ð˜Ð·Ð¿Ñ€Ð°Ñ‚Ð¸ Ð½Ð¾Ð² ÐºÐ¾Ð´
               </Button>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Имейл"
+              label="Ð˜Ð¼ÐµÐ¹Ð»"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -165,7 +165,7 @@ const VerifyEmail = () => {
             />
 
             <Input
-              label="6-цифрен код"
+              label="6-Ñ†Ð¸Ñ„Ñ€ÐµÐ½ ÐºÐ¾Ð´"
               type="text"
               placeholder="123456"
               value={code}
@@ -176,7 +176,7 @@ const VerifyEmail = () => {
             />
 
             <Button type="submit" fullWidth isLoading={isLoading} disabled={codeExpired}>
-              Потвърди имейл
+              ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¸Ð¼ÐµÐ¹Ð»
             </Button>
           </form>
 
@@ -188,7 +188,7 @@ const VerifyEmail = () => {
                 disabled={isResending}
                 className="text-sm text-primary hover:text-primary-700 hover:underline transition-colors disabled:opacity-50"
               >
-                Не сте получили код? Изпратете отново
+                ÐÐµ ÑÑ‚Ðµ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸ ÐºÐ¾Ð´? Ð˜Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾
               </button>
             </div>
           )}
@@ -198,7 +198,7 @@ const VerifyEmail = () => {
               href={getLoginPath()}
               className="text-sm text-primary hover:text-primary-700 hover:underline transition-colors"
             >
-              Назад към вход
+              ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð²Ñ…Ð¾Ð´
             </a>
           </div>
         </div>
@@ -208,3 +208,4 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
+

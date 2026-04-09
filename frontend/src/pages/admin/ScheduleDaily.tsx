@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -38,7 +38,7 @@ const ScheduleDaily = () => {
         });
         setSchedules(response.data.schedules || []);
       } catch {
-        toast.error('Грешка при зареждане на дневен график');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð½ÐµÐ²ÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº');
       } finally {
         setIsLoading(false);
       }
@@ -63,7 +63,7 @@ const ScheduleDaily = () => {
     setCurrentDate(new Date());
   };
 
-  // Генерира часови слотове (08:00 – 18:00)
+
   const generateTimeSlots = (): string[] => {
     const slots: string[] = [];
     for (let hour = 8; hour <= 18; hour++) {
@@ -110,15 +110,15 @@ const ScheduleDaily = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="Назад към график"
-            title="Назад към график"
+            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
-              Дневен График
+              Ð”Ð½ÐµÐ²ÐµÐ½ Ð“Ñ€Ð°Ñ„Ð¸Ðº
             </h1>
             <p className="text-textSecondary mt-1">
               {currentDate.toLocaleDateString('bg-BG', {
@@ -135,14 +135,14 @@ const ScheduleDaily = () => {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
-              Днес
+              Ð”Ð½ÐµÑ
             </Button>
             <Button variant="secondary" onClick={goToNextDay}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Добави задача
+              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð°
             </Button>
           </div>
         </div>
@@ -153,10 +153,10 @@ const ScheduleDaily = () => {
               <thead className="bg-mainBg">
                 <tr>
                   <th className="w-20 sm:w-24 py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold border-r">
-                    Час
+                    Ð§Ð°Ñ
                   </th>
                   <th className="py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold">
-                    Задачи
+                    Ð—Ð°Ð´Ð°Ñ‡Ð¸
                   </th>
                 </tr>
               </thead>
@@ -226,5 +226,6 @@ const ScheduleDaily = () => {
 };
 
 export default ScheduleDaily;
+
 
 

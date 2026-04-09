@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -29,7 +29,7 @@ describe('Auth Endpoints', () => {
       expect(response.body).toHaveProperty('user');
       expect(response.body.user.role).toBe('ADMIN');
 
-      // ✅ Проверка за httpOnly cookies
+
       const cookies = response.headers['set-cookie'] as unknown as string[] | undefined;
       expect(cookies).toBeDefined();
       expect(Array.isArray(cookies)).toBe(true);
@@ -73,7 +73,7 @@ describe('Auth Endpoints', () => {
     const testPassword = 'Password123!';
 
     beforeAll(async () => {
-      // Създай test user преди login тестовете
+
       const agent = createTestAgent();
       testEmail = `login-${Date.now()}@test.com`;
 
@@ -95,10 +95,10 @@ describe('Auth Endpoints', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('user');  // ✅ БЕЗ token check
+      expect(response.body).toHaveProperty('user');
       expect(response.body.user.email).toBe(testEmail);
 
-      // ✅ Проверка за httpOnly cookies
+
       const cookies = response.headers['set-cookie'] as unknown as string[] | undefined;
       expect(cookies).toBeDefined();
       expect(Array.isArray(cookies)).toBe(true);
@@ -133,3 +133,4 @@ describe('Auth Endpoints', () => {
     });
   });
 });
+

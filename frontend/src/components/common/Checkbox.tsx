@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from 'react';
+﻿import type { InputHTMLAttributes } from 'react';
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string | React.ReactNode;
@@ -22,3 +22,4 @@ export const Checkbox = ({ label, error, className = '', ...props }: CheckboxPro
     </div>
   );
 };
+

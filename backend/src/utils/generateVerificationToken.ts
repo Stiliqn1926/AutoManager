@@ -1,8 +1,9 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 
 /**
- * Генерира уникален verification token
+ * Generates a cryptographically secure verification token.
  */
 export const generateVerificationToken = (): string => {
   return crypto.randomBytes(32).toString('hex');
 };
+

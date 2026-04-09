@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+﻿import { createContext } from 'react';
 
 export type Theme = 'light' | 'dark';
 
@@ -9,3 +9,4 @@ export interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+

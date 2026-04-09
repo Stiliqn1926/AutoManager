@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -18,7 +18,7 @@ const getErrorMessage = (error: unknown): string => {
   return 'Unknown error';
 };
 
-// Create Vehicle (ADMIN добавя автомобил към клиент)
+
 export const createVehicle = async (
   req: AuthRequest,
   res: Response
@@ -36,7 +36,7 @@ export const createVehicle = async (
     } = req.body;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId на ADMIN
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -46,7 +46,7 @@ export const createVehicle = async (
       return;
     }
 
-    // Провери дали клиентът принадлежи към този сервиз
+
     const client = await prisma.client.findFirst({
       where: {
         id: clientId,
@@ -65,7 +65,7 @@ export const createVehicle = async (
       return;
     }
 
-    // Създай автомобил
+
     const vehicle = await prisma.vehicle.create({
       data: {
         brand,
@@ -89,7 +89,7 @@ export const createVehicle = async (
   }
 };
 
-// Get All Vehicles (за този сервиз)
+
 export const getAllVehicles = async (
   req: AuthRequest,
   res: Response
@@ -159,7 +159,7 @@ export const getVehicleById = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -197,7 +197,7 @@ export const getVehicleById = async (
       return;
     }
 
-    // Провери ownership
+
     if (vehicle.serviceCompanyId !== serviceCompany.id) {
       res.status(403).json({ message: 'Forbidden' });
       return;
@@ -227,7 +227,7 @@ export const updateVehicle = async (
     } = req.body;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -237,7 +237,7 @@ export const updateVehicle = async (
       return;
     }
 
-    // Провери ownership
+
     const vehicle = await prisma.vehicle.findUnique({
       where: { id },
     });
@@ -274,7 +274,7 @@ export const updateVehicle = async (
   }
 };
 
-// Delete Vehicle (деактивира)
+
 export const deleteVehicle = async (
   req: AuthRequest,
   res: Response
@@ -283,7 +283,7 @@ export const deleteVehicle = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -293,7 +293,7 @@ export const deleteVehicle = async (
       return;
     }
 
-    // Провери ownership
+
     const vehicle = await prisma.vehicle.findUnique({
       where: { id },
     });
@@ -308,27 +308,27 @@ export const deleteVehicle = async (
       return;
     }
 
-    // Провери дали има свързани поръчки
+
     const ordersCount = await prisma.order.count({
       where: { vehicleId: id },
     });
 
     if (ordersCount > 0) {
       res.status(400).json({
-        message: `Не може да изтриете този автомобил, защото има ${ordersCount} свързани поръчки`,
+        message: `ÐÐµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð», Ð·Ð°Ñ‰Ð¾Ñ‚Ð¾ Ð¸Ð¼Ð° ${ordersCount} ÑÐ²ÑŠÑ€Ð·Ð°Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸`,
         hasOrders: true,
         ordersCount,
       });
       return;
     }
 
-    // Няма поръчки - изтрий напълно
+
     await prisma.vehicle.delete({
       where: { id },
     });
 
     res.status(200).json({
-      message: 'Автомобилът е изтрит успешно',
+      message: 'ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -336,7 +336,7 @@ export const deleteVehicle = async (
 };
 
 // ============================================
-// GET MECHANIC VEHICLES (само автомобили с поръчки при механика)
+
 // ============================================
 export const getMechanicVehicles = async (
   req: AuthRequest,
@@ -345,7 +345,7 @@ export const getMechanicVehicles = async (
   try {
     const userId = req.user!.userId;
 
-    // Вземи worker профил
+
     const worker = await prisma.worker.findUnique({
       where: { userId },
     });
@@ -355,13 +355,13 @@ export const getMechanicVehicles = async (
       return;
     }
 
-    // Параметри за търсене и филтриране
+
     const { search, activeOnly } = req.query;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
     if (!worker.serviceCompanyId) {
-      // Няма активен сервиз - върни празни данни вместо 400
+
       res.status(200).json({
         vehicles: [],
         pagination: { totalItems: 0, totalPages: 0, currentPage: page, itemsPerPage: limit },
@@ -373,7 +373,7 @@ export const getMechanicVehicles = async (
     const serviceCompanyId = worker.serviceCompanyId;
     const { skip, take } = getPagination(page, limit);
 
-    // Намери всички vehicleId-та от поръчки на механика
+
     const ordersByMechanic = await prisma.order.findMany({
       where: {
         workerId: worker.id,
@@ -395,10 +395,10 @@ export const getMechanicVehicles = async (
       return;
     }
 
-    // Определи списъка с ID-та за филтриране
+
     let allowedVehicleIds: string[] = vehicleIds;
 
-    // Филтър за активни поръчки - пресичане на ID-та
+
     if (activeOnly === 'true') {
       const vehiclesWithActiveOrders = await prisma.order.findMany({
         where: {
@@ -413,17 +413,17 @@ export const getMechanicVehicles = async (
       });
 
       const activeVehicleIds = vehiclesWithActiveOrders.map(o => o.vehicleId);
-      // Пресечи с вече намерените ID-та
+
       allowedVehicleIds = allowedVehicleIds.filter(id => activeVehicleIds.includes(id));
     }
 
-    // Филтри за търсене
+
     const whereClause: any = {
       id: { in: allowedVehicleIds },
       serviceCompanyId: serviceCompanyId,
     };
 
-    // Търсене по номер или марка/модел
+
     if (search) {
       whereClause.OR = [
         { licensePlate: { contains: search as string, mode: 'insensitive' } },
@@ -469,7 +469,7 @@ export const getMechanicVehicles = async (
       },
     });
 
-    // Добави последна поръчка и статус
+
     const vehicleIdsOnPage = vehicles.map((vehicle) => vehicle.id);
 
     let lastOrderDateByVehicle = new Map<string, Date | null>();
@@ -509,7 +509,7 @@ export const getMechanicVehicles = async (
 };
 
 // ============================================
-// GET MECHANIC VEHICLE BY ID (само неговите поръчки)
+
 // ============================================
 export const getMechanicVehicleById = async (
   req: AuthRequest,
@@ -519,7 +519,7 @@ export const getMechanicVehicleById = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Вземи worker профил
+
     const worker = await prisma.worker.findUnique({
       where: { userId },
     });
@@ -537,7 +537,7 @@ export const getMechanicVehicleById = async (
     // Store serviceCompanyId in a local variable for TypeScript
     const serviceCompanyId = worker.serviceCompanyId;
 
-    // Провери дали автомобилът има поръчки при механика
+
     const hasOrders = await prisma.order.findFirst({
       where: {
         vehicleId: id,
@@ -590,7 +590,7 @@ export const getMechanicVehicleById = async (
       return;
     }
 
-    // Провери ownership
+
     if (vehicle.serviceCompanyId !== serviceCompanyId) {
       res.status(403).json({ message: 'Forbidden' });
       return;
@@ -602,4 +602,5 @@ export const getMechanicVehicleById = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 

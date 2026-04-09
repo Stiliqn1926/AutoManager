@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -285,7 +285,7 @@ export const toggleSupplierStatus = async (
 };
 
 // ============================================
-// TOGGLE PREFERRED ⭐ (НОВО)
+
 // ============================================
 export const toggleSupplierPreferred = async (
   req: AuthRequest,
@@ -324,3 +324,4 @@ export const toggleSupplierPreferred = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

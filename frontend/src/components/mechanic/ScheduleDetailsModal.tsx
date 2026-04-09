@@ -1,4 +1,4 @@
-import { X, Clock, Calendar, User, Car, FileText, CheckCircle2 } from 'lucide-react';
+﻿import { X, Clock, Calendar, User, Car, FileText, CheckCircle2 } from 'lucide-react';
 
 interface ScheduleTask {
   id: string;
@@ -54,12 +54,12 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      SCHEDULED: { label: 'Планирана', className: 'bg-blue-100 text-blue-800' },
-      IN_PROGRESS: { label: 'В процес', className: 'bg-yellow-100 text-yellow-800' },
-      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
-      CANCELLED: { label: 'Отменена', className: 'bg-red-100 text-red-800' },
-      DELAYED: { label: 'Забавена', className: 'bg-orange-100 text-orange-800' },
+      SCHEDULED: { label: 'ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°', className: 'bg-blue-100 text-blue-800' },
+      IN_PROGRESS: { label: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ', className: 'bg-yellow-100 text-yellow-800' },
+      READY: { label: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½Ð°', className: 'bg-red-100 text-red-800' },
+      DELAYED: { label: 'Ð—Ð°Ð±Ð°Ð²ÐµÐ½Ð°', className: 'bg-orange-100 text-orange-800' },
     };
 
     const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
@@ -85,14 +85,14 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
         <div className="sticky top-0 bg-white border-b border-borderSubtle px-6 py-4 rounded-t-2xl">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-xl font-semibold text-textPrimary">Детайли за задачата</h3>
+              <h3 className="text-xl font-semibold text-textPrimary">Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð·Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°</h3>
               <p className="text-sm text-textSecondary mt-1">{formatDate(schedule.startTime)}</p>
             </div>
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Затвори"
-              title="Затвори"
+              aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
+              title="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
             >
               <X className="w-5 h-5 text-textSecondary" />
             </button>
@@ -101,33 +101,33 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
 
         {/* Content */}
         <div className="p-6 space-y-5">
-          {/* Време */}
+          
           <div className="flex items-start gap-3">
             <div className="mt-1 p-2 bg-primary/10 rounded-lg">
               <Clock className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-textSecondary">Време</label>
+              <label className="text-sm font-medium text-textSecondary">Ð’Ñ€ÐµÐ¼Ðµ</label>
               <p className="text-base font-semibold text-textPrimary mt-1">
                 {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
               </p>
             </div>
           </div>
 
-          {/* Статус */}
+          
           <div className="flex items-start gap-3">
             <div className="mt-1 p-2 bg-primary/10 rounded-lg">
               <Calendar className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-textSecondary">Статус</label>
+              <label className="text-sm font-medium text-textSecondary">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</label>
               <div className="mt-2">
                 {getStatusBadge(schedule.status)}
               </div>
             </div>
           </div>
 
-          {/* Поръчка информация */}
+          
           {schedule.order && (
             <>
               <div className="border-t border-borderSubtle pt-4">
@@ -136,7 +136,7 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm font-medium text-textSecondary">Поръчка</label>
+                    <label className="text-sm font-medium text-textSecondary">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°</label>
                     <p className="text-base font-semibold text-textPrimary mt-1">
                       {schedule.order.displayOrderNumber || schedule.order.orderNumber}
                     </p>
@@ -144,14 +144,14 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
                 </div>
               </div>
 
-              {/* Клиент */}
+              
               {schedule.order.client && (
                 <div className="flex items-start gap-3">
                   <div className="mt-1 p-2 bg-primary/10 rounded-lg">
                     <User className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm font-medium text-textSecondary">Клиент</label>
+                    <label className="text-sm font-medium text-textSecondary">ÐšÐ»Ð¸ÐµÐ½Ñ‚</label>
                     <p className="text-base font-semibold text-textPrimary mt-1">
                       {schedule.order.client.firstName} {schedule.order.client.lastName}
                     </p>
@@ -164,14 +164,14 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
                 </div>
               )}
 
-              {/* Автомобил */}
+              
               {schedule.order.vehicle && (
                 <div className="flex items-start gap-3">
                   <div className="mt-1 p-2 bg-primary/10 rounded-lg">
                     <Car className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm font-medium text-textSecondary">Автомобил</label>
+                    <label className="text-sm font-medium text-textSecondary">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»</label>
                     <p className="text-base font-semibold text-textPrimary mt-1">
                       {schedule.order.vehicle.brand} {schedule.order.vehicle.model}
                     </p>
@@ -182,10 +182,10 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
                 </div>
               )}
 
-              {/* Описание на поръчката */}
+              
               {schedule.order.description && (
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="text-sm font-medium text-textSecondary">Описание</label>
+                  <label className="text-sm font-medium text-textSecondary">ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ</label>
                   <p className="text-sm text-textPrimary mt-2 whitespace-pre-wrap">
                     {schedule.order.description}
                   </p>
@@ -194,10 +194,10 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
             </>
           )}
 
-          {/* Описание на задачата (ако няма поръчка) */}
+          
           {!schedule.order && schedule.description && (
             <div className="bg-gray-50 rounded-lg p-4">
-              <label className="text-sm font-medium text-textSecondary">Описание</label>
+              <label className="text-sm font-medium text-textSecondary">ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ</label>
               <p className="text-sm text-textPrimary mt-2 whitespace-pre-wrap">
                 {schedule.description}
               </p>
@@ -211,9 +211,9 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
             type="button"
             onClick={onClose}
             className="w-full px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
-            aria-label="Затвори"
+            aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
           >
-            Затвори
+            Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸
           </button>
         </div>
       </div>
@@ -222,3 +222,4 @@ const ScheduleDetailsModal = ({ isOpen, onClose, schedule }: ScheduleDetailsModa
 };
 
 export default ScheduleDetailsModal;
+

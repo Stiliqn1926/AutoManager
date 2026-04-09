@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -33,8 +33,8 @@ export const getAllWorkers = async (
       return;
     }
 
-    // За списъка показваме ACTIVE, PENDING и INACTIVE (напуснали) механици
-    // За dashboard (без pagination) показваме само ACTIVE
+
+
     const showOnlyActive = !req.query.page && !req.query.limit;
 
     const totalItems = await prisma.mechanicServiceCompany.count({
@@ -71,7 +71,7 @@ export const getAllWorkers = async (
       },
     });
 
-    // Transform data за по-лесна frontend обработка
+
     const workersWithMembership = memberships.map((membership) => ({
       id: membership.worker.id,
       firstName: membership.worker.firstName,
@@ -83,7 +83,7 @@ export const getAllWorkers = async (
       createdAt: membership.worker.createdAt,
       updatedAt: membership.worker.updatedAt,
       user: membership.worker.user,
-      // ✅ Membership информация
+
       membershipStatus: membership.status,
       isCurrentlyActive: membership.worker.serviceCompanyId === serviceCompany.id,
       leftAt: membership.leftAt,
@@ -126,7 +126,7 @@ export const getWorkerById = async (
         lastName: true,
         phone: true,
         specialization: true,
-        skills: true, // ✅ ДОБАВЕНО
+        skills: true,
         isActive: true,
         createdAt: true,
         user: {
@@ -144,7 +144,7 @@ export const getWorkerById = async (
       return;
     }
 
-    // Провери дали има membership за този сервиз (ACTIVE, INACTIVE, или PENDING)
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         workerId: worker.id,
@@ -201,7 +201,7 @@ export const updateWorker = async (
       return;
     }
 
-    // Провери дали има membership за този сервиз (ACTIVE, INACTIVE, или PENDING)
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         workerId: worker.id,
@@ -222,7 +222,7 @@ export const updateWorker = async (
         ...(lastName !== undefined && { lastName }),
         ...(phone !== undefined && { phone }),
         ...(specialization !== undefined && { specialization }),
-        ...(skills !== undefined && { skills }), // ✅ КЛЮЧОВО
+        ...(skills !== undefined && { skills }),
       },
     });
 
@@ -236,7 +236,7 @@ export const updateWorker = async (
 };
 
 // ==============================
-// 1. TOGGLE ACTIVE/INACTIVE (временна деактивация - отпуска)
+
 // ==============================
 export const toggleWorkerActive = async (
   req: AuthRequest,
@@ -255,7 +255,7 @@ export const toggleWorkerActive = async (
       return;
     }
 
-    // Провери дали механикът принадлежи към този сервиз
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         worker: { id },
@@ -272,7 +272,7 @@ export const toggleWorkerActive = async (
       return;
     }
 
-    // Toggle worker.isActive (НЕ user.isActive!)
+
     const updatedWorker = await prisma.worker.update({
       where: { id: membership.worker.id },
       data: { isActive: !membership.worker.isActive },
@@ -289,7 +289,7 @@ export const toggleWorkerActive = async (
 };
 
 // ==============================
-// 2. REMOVE FROM SERVICE (премахване от ТОЗИ сервиз)
+
 // ==============================
 export const removeWorkerFromService = async (
   req: AuthRequest,
@@ -308,7 +308,7 @@ export const removeWorkerFromService = async (
       return;
     }
 
-    // Намери membership записа
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         worker: { id },
@@ -324,7 +324,7 @@ export const removeWorkerFromService = async (
       return;
     }
 
-    // Маркирай като INACTIVE
+
     await prisma.mechanicServiceCompany.update({
       where: { id: membership.id },
       data: {
@@ -333,7 +333,7 @@ export const removeWorkerFromService = async (
       },
     });
 
-    // Ако това е активният му сервиз, switch към друг ACTIVE (ако има)
+
     if (membership.worker.serviceCompanyId === serviceCompany.id) {
       const otherActiveMembership = await prisma.mechanicServiceCompany.findFirst({
         where: {
@@ -349,7 +349,7 @@ export const removeWorkerFromService = async (
           data: { serviceCompanyId: otherActiveMembership.serviceCompanyId },
         });
       } else {
-        // Няма други активни сервизи - задай null и isActive = false
+
         await prisma.worker.update({
           where: { id: membership.worker.id },
           data: {
@@ -370,7 +370,7 @@ export const removeWorkerFromService = async (
 };
 
 // ==============================
-// 3. PERMANENT DELETE (изтриване от системата)
+
 // ==============================
 export const deleteWorkerPermanently = async (
   req: AuthRequest,
@@ -401,7 +401,7 @@ export const deleteWorkerPermanently = async (
       return;
     }
 
-    // Намери membership записа за този сервиз
+
     const membership = worker.mechanicServiceCompanies.find(
       (m) => m.serviceCompanyId === serviceCompany.id
     );
@@ -411,8 +411,8 @@ export const deleteWorkerPermanently = async (
       return;
     }
 
-    // Провери дали membership-ът е INACTIVE (напуснал)
-    // Позволяваме изтриване САМО на напуснали механици
+
+
     if (membership.status !== 'INACTIVE') {
       res.status(400).json({
         message: 'Cannot permanently delete worker. Worker must leave the service first.',
@@ -420,18 +420,18 @@ export const deleteWorkerPermanently = async (
       return;
     }
 
-    // ИЗТРИЙ напълно MechanicServiceCompany записа
+
     await prisma.mechanicServiceCompany.delete({
       where: { id: membership.id },
     });
 
-    // Ако механикът няма други сервизи, обнови Worker записа
+
     const remainingMemberships = await prisma.mechanicServiceCompany.count({
       where: { workerId: worker.id },
     });
 
     if (remainingMemberships === 0) {
-      // Няма други сервизи - задай null на serviceCompanyId
+
       await prisma.worker.update({
         where: { id: worker.id },
         data: {
@@ -452,7 +452,7 @@ export const deleteWorkerPermanently = async (
 
 // ==============================
 // DELETE WORKER FROM SERVICE LIST
-// Изтрива механика от списъка на сервиза, но НЕ изтрива профила му
+
 // ==============================
 export const deleteWorker = async (
   req: AuthRequest,
@@ -471,7 +471,7 @@ export const deleteWorker = async (
       return;
     }
 
-    // Намери membership записа
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         worker: { id },
@@ -487,7 +487,7 @@ export const deleteWorker = async (
       return;
     }
 
-    // ✅ ПРОВЕРКА: Има ли активни поръчки или задачи?
+
     const [activeOrders, activeSchedules] = await Promise.all([
       prisma.order.findMany({
         where: {
@@ -518,7 +518,7 @@ export const deleteWorker = async (
       }),
     ]);
 
-    // Ако има активни поръчки или задачи, НЕ позволяваме изтриване
+
     if (activeOrders.length > 0 || activeSchedules.length > 0) {
       res.status(400).json({
         message: 'Cannot delete worker with active tasks',
@@ -531,7 +531,7 @@ export const deleteWorker = async (
       return;
     }
 
-    // Изтрий свързани pending requests (ако има)
+
     await prisma.pendingRequest.deleteMany({
       where: {
         email: membership.worker.email,
@@ -540,7 +540,7 @@ export const deleteWorker = async (
       },
     });
 
-    // МАРКИРАЙ membership като INACTIVE (вместо да го изтриваш)
+
     await prisma.mechanicServiceCompany.update({
       where: { id: membership.id },
       data: {
@@ -549,7 +549,7 @@ export const deleteWorker = async (
       },
     });
 
-    // Ако това е активният му сервиз, switch към друг ACTIVE (ако има)
+
     if (membership.worker.serviceCompanyId === serviceCompany.id) {
       const otherActiveMembership = await prisma.mechanicServiceCompany.findFirst({
         where: {
@@ -565,7 +565,7 @@ export const deleteWorker = async (
           data: { serviceCompanyId: otherActiveMembership.serviceCompanyId },
         });
       } else {
-        // Няма други активни сервизи - задай null и isActive = false
+
         await prisma.worker.update({
           where: { id: membership.worker.id },
           data: {
@@ -587,7 +587,7 @@ export const deleteWorker = async (
 
 // ==============================
 // REASSIGN WORKER TASKS AND DELETE
-// Прехвърля активни поръчки/задачи към друг механик и изтрива стария
+
 // ==============================
 export const reassignWorkerAndDelete = async (
   req: AuthRequest,
@@ -612,7 +612,7 @@ export const reassignWorkerAndDelete = async (
       return;
     }
 
-    // Намери старият механик
+
     const oldMembership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         worker: { id },
@@ -628,7 +628,7 @@ export const reassignWorkerAndDelete = async (
       return;
     }
 
-    // Провери дали новият механик съществува и е ACTIVE в този сервиз
+
     const newMembership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         worker: { id: newWorkerId },
@@ -645,7 +645,7 @@ export const reassignWorkerAndDelete = async (
       return;
     }
 
-    // Прехвърли всички активни поръчки към новия механик
+
     await prisma.order.updateMany({
       where: {
         workerId: oldMembership.worker.id,
@@ -657,7 +657,7 @@ export const reassignWorkerAndDelete = async (
       },
     });
 
-    // Прехвърли всички активни задачи към новия механик
+
     await prisma.schedule.updateMany({
       where: {
         workerId: oldMembership.worker.id,
@@ -669,7 +669,7 @@ export const reassignWorkerAndDelete = async (
       },
     });
 
-    // Изтрий pending requests
+
     await prisma.pendingRequest.deleteMany({
       where: {
         email: oldMembership.worker.email,
@@ -678,7 +678,7 @@ export const reassignWorkerAndDelete = async (
       },
     });
 
-    // МАРКИРАЙ membership като INACTIVE (вместо да го изтриваш)
+
     await prisma.mechanicServiceCompany.update({
       where: { id: oldMembership.id },
       data: {
@@ -687,7 +687,7 @@ export const reassignWorkerAndDelete = async (
       },
     });
 
-    // Обнови worker serviceCompanyId ако е нужно
+
     if (oldMembership.worker.serviceCompanyId === serviceCompany.id) {
       const otherActiveMembership = await prisma.mechanicServiceCompany.findFirst({
         where: {
@@ -746,7 +746,7 @@ export const getWorkersAvailability = async (
       return;
     }
 
-    // Вземи всички активни механици с ACTIVE membership
+
     const activeMemberships = await prisma.mechanicServiceCompany.findMany({
       where: {
         serviceCompanyId: serviceCompany.id,
@@ -773,7 +773,7 @@ export const getWorkersAvailability = async (
 
     const workers = activeMemberships.map((membership) => membership.worker);
 
-    // Ако няма дата/час, върни само списъка
+
     if (!date || !startTime || !endTime) {
       const workersWithAvailability = workers.map(worker => ({
         ...worker,
@@ -785,11 +785,11 @@ export const getWorkersAvailability = async (
       return;
     }
 
-    // Изгради времевите граници
+
     const requestedStart = new Date(`${date}T${startTime}`);
     const requestedEnd = new Date(`${date}T${endTime}`);
 
-    // Провери за конфликти - САМО активни графици
+
     const workerIds = workers.map((worker) => worker.id);
 
     const conflicts = workerIds.length > 0
@@ -876,7 +876,7 @@ export const getWorkersAvailability = async (
 };
  
 // ============================================
-// GET MECHANIC PROFILE (собствен профил)
+
 // ============================================
 export const getMechanicProfile = async (
   req: AuthRequest,
@@ -993,7 +993,7 @@ export const getMechanicStatistics = async (
       return;
     }
 
-    // Ако няма активен сервиз, върни празна статистика
+
     if (!worker.serviceCompanyId) {
       res.status(200).json({
         statistics: {
@@ -1009,7 +1009,7 @@ export const getMechanicStatistics = async (
       return;
     }
 
-    // Обща статистика
+
     const totalOrders = await prisma.order.count({
       where: {
         workerId: worker.id,
@@ -1033,7 +1033,7 @@ export const getMechanicStatistics = async (
       },
     });
 
-    // Последна завършена поръчка
+
     const lastCompletedOrder = await prisma.order.findFirst({
       where: {
         workerId: worker.id,
@@ -1051,7 +1051,7 @@ export const getMechanicStatistics = async (
       },
     });
 
-    // Поръчки днес
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -1066,7 +1066,7 @@ export const getMechanicStatistics = async (
       },
     });
 
-    // Поръчки тази седмица
+
     const weekStart = new Date(today);
     const dayOfWeek = weekStart.getDay();
     const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -1084,7 +1084,7 @@ export const getMechanicStatistics = async (
       },
     });
 
-    // Предстоящи задачи (от графика)
+
     const upcomingTasks = await prisma.schedule.count({
       where: {
         workerId: worker.id,
@@ -1112,7 +1112,7 @@ export const getMechanicStatistics = async (
 }; 
 
 // ============================================
-// GET MECHANIC SERVICE COMPANIES (всички сервизи)
+
 // ============================================
 export const getMechanicServiceCompanies = async (
   req: AuthRequest,
@@ -1130,7 +1130,7 @@ export const getMechanicServiceCompanies = async (
       return;
     }
 
-    // Вземи всички сервизи на механика
+
     const serviceCompanies = await prisma.mechanicServiceCompany.findMany({
       where: {
         workerId: worker.id,
@@ -1168,7 +1168,7 @@ export const getMechanicServiceCompanies = async (
 };
 
 // ============================================
-// GET ACTIVE SERVICE COMPANY (активен сервиз)
+
 // ============================================
 export const getActiveServiceCompany = async (
   req: AuthRequest,
@@ -1190,7 +1190,7 @@ export const getActiveServiceCompany = async (
       return;
     }
 
-    // Провери дали има активен сервиз
+
     if (!worker.serviceCompanyId) {
       res.status(403).json({
         message: 'No active service company selected',
@@ -1199,7 +1199,7 @@ export const getActiveServiceCompany = async (
       return;
     }
 
-    // Провери дали има ACTIVE membership
+
     const activeMembership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         workerId: worker.id,
@@ -1238,7 +1238,7 @@ export const getActiveServiceCompany = async (
 };
 
 // ============================================
-// REQUEST NEW SERVICE COMPANY (заявка за нов сервиз)
+
 // ============================================
 export const requestServiceCompany = async (
   req: AuthRequest,
@@ -1257,17 +1257,17 @@ export const requestServiceCompany = async (
       return;
     }
 
-    // Намери сервиза по код
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { uniqueCode },
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Невалиден код на сервиз' });
+      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
       return;
     }
 
-    // Провери дали вече има членство
+
     const existingMembership = await prisma.mechanicServiceCompany.findUnique({
       where: {
         workerId_serviceCompanyId: {
@@ -1279,21 +1279,21 @@ export const requestServiceCompany = async (
 
     if (existingMembership) {
       if (existingMembership.status === 'ACTIVE') {
-        res.status(400).json({ message: 'Вече сте член на този сервиз' });
+        res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ñ‡Ð»ÐµÐ½ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
         return;
       }
       if (existingMembership.status === 'PENDING') {
-        res.status(400).json({ message: 'Вече имате чакаща заявка за този сервиз' });
+        res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ Ð¸Ð¼Ð°Ñ‚Ðµ Ñ‡Ð°ÐºÐ°Ñ‰Ð° Ð·Ð°ÑÐ²ÐºÐ° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
         return;
       }
 
-      // Ако е INACTIVE, обнови съществуващия запис вместо да създаваш нов
+
       if (existingMembership.status === 'INACTIVE') {
-        // ✅ КРИТИЧНА ПОПРАВКА: ВИНАГИ PENDING, НИКОГА автоматично ACTIVE!
-        // Механикът ТРЯБВА да чака одобрение от админа за ВСЯКА заявка
+
+
         const membershipStatus = 'PENDING';
 
-        // Обнови съществуващия запис
+
         const updatedMembership = await prisma.mechanicServiceCompany.update({
           where: { id: existingMembership.id },
           data: {
@@ -1314,7 +1314,7 @@ export const requestServiceCompany = async (
           },
         });
 
-        // Създай PendingRequest за админа
+
         await prisma.pendingRequest.create({
           data: {
             email: worker.email,
@@ -1329,7 +1329,7 @@ export const requestServiceCompany = async (
         });
 
         res.status(201).json({
-          message: 'Заявката е изпратена успешно. Очаква одобрение от администратор.',
+          message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€.',
           membership: {
             id: updatedMembership.id,
             status: updatedMembership.status,
@@ -1340,11 +1340,11 @@ export const requestServiceCompany = async (
       }
     }
 
-    // ✅ КРИТИЧНА ПОПРАВКА: ВИНАГИ PENDING, НИКОГА автоматично ACTIVE!
-    // Механикът ТРЯБВА да чака одобрение от админа за ВСЯКА заявка
+
+
     const membershipStatus = 'PENDING';
 
-    // Създай нова заявка
+
     const membership = await prisma.mechanicServiceCompany.create({
       data: {
         workerId: worker.id,
@@ -1364,7 +1364,7 @@ export const requestServiceCompany = async (
       },
     });
 
-    // Създай PendingRequest за админа
+
     await prisma.pendingRequest.create({
       data: {
         email: worker.email,
@@ -1379,7 +1379,7 @@ export const requestServiceCompany = async (
     });
 
     res.status(201).json({
-      message: 'Заявката е изпратена успешно. Очаква одобрение от администратор.',
+      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€.',
       membership: {
         id: membership.id,
         status: membership.status,
@@ -1393,7 +1393,7 @@ export const requestServiceCompany = async (
 };
 
 // ============================================
-// SWITCH ACTIVE SERVICE COMPANY (смяна на активен сервиз)
+
 // ============================================
 export const switchServiceCompany = async (
   req: AuthRequest,
@@ -1412,7 +1412,7 @@ export const switchServiceCompany = async (
       return;
     }
 
-    // Провери дали има ACTIVE членство в този сервиз
+
     const membership = await prisma.mechanicServiceCompany.findFirst({
       where: {
         workerId: worker.id,
@@ -1423,12 +1423,12 @@ export const switchServiceCompany = async (
 
     if (!membership) {
       res.status(404).json({ 
-        message: 'Не сте активен член на този сервиз' 
+        message: 'ÐÐµ ÑÑ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ Ñ‡Ð»ÐµÐ½ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' 
       });
       return;
     }
 
-    // Обнови активния сервиз в Worker
+
     await prisma.worker.update({
       where: { id: worker.id },
       data: {
@@ -1437,7 +1437,7 @@ export const switchServiceCompany = async (
     });
 
     res.status(200).json({
-      message: 'Активният сервиз е сменен успешно',
+      message: 'ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ÑÑ‚ ÑÐµÑ€Ð²Ð¸Ð· Ðµ ÑÐ¼ÐµÐ½ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
       serviceCompanyId,
     });
   } catch (error) {
@@ -1447,7 +1447,7 @@ export const switchServiceCompany = async (
 };
 
 // ============================================
-// CANCEL PENDING REQUEST (отказ от чакаща заявка)
+
 // ============================================
 export const cancelPendingRequest = async (
   req: AuthRequest,
@@ -1466,7 +1466,7 @@ export const cancelPendingRequest = async (
       return;
     }
 
-    // Намери membership-а
+
     const membership = await prisma.mechanicServiceCompany.findUnique({
       where: { id: membershipId },
     });
@@ -1476,15 +1476,15 @@ export const cancelPendingRequest = async (
       return;
     }
 
-    // Проверка дали е PENDING
+
     if (membership.status !== 'PENDING') {
       res.status(400).json({
-        message: 'Можете да откажете само чакащи заявки'
+        message: 'ÐœÐ¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ ÑÐ°Ð¼Ð¾ Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸'
       });
       return;
     }
 
-    // Изтрий съответния PendingRequest (ако има)
+
     await prisma.pendingRequest.deleteMany({
       where: {
         email: worker.email,
@@ -1493,8 +1493,8 @@ export const cancelPendingRequest = async (
       },
     });
 
-    // ✅ ПОПРАВКА: Маркирай като INACTIVE вместо DELETE
-    // Това предотвратява създаване на ново ACTIVE membership при повторна заявка
+
+
     await prisma.mechanicServiceCompany.update({
       where: { id: membershipId },
       data: {
@@ -1504,7 +1504,7 @@ export const cancelPendingRequest = async (
     });
 
     res.status(200).json({
-      message: 'Заявката е отказана успешно',
+      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
     });
   } catch (error) {
     console.error('Cancel pending request error:', error);
@@ -1513,7 +1513,7 @@ export const cancelPendingRequest = async (
 };
 
 // ============================================
-// LEAVE SERVICE COMPANY (напускане на сервиз)
+
 // ============================================
 export const leaveServiceCompany = async (
   req: AuthRequest,
@@ -1532,7 +1532,7 @@ export const leaveServiceCompany = async (
       return;
     }
 
-    // Намери membership-а
+
     const membership = await prisma.mechanicServiceCompany.findUnique({
       where: { id: membershipId },
     });
@@ -1542,7 +1542,7 @@ export const leaveServiceCompany = async (
       return;
     }
 
-    // Провери дали механикът има активни поръчки за този сервиз
+
     const activeOrders = await prisma.order.count({
       where: {
         workerId: worker.id,
@@ -1551,7 +1551,7 @@ export const leaveServiceCompany = async (
       },
     });
 
-    // Провери дали механикът има активни schedule за този сервиз
+
     const activeSchedules = await prisma.schedule.count({
       where: {
         workerId: worker.id,
@@ -1562,15 +1562,15 @@ export const leaveServiceCompany = async (
 
     if (activeOrders > 0 || activeSchedules > 0) {
       res.status(400).json({
-        message: 'Не можете да напуснете сервиза докато имате активни задачи',
+        message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð° Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸',
         activeOrdersCount: activeOrders,
         activeSchedulesCount: activeSchedules,
       });
       return;
     }
 
-    // ✅ ПОПРАВКА: Механикът МОЖЕ да напусне последния си сервиз
-    // Ако напуска текущия активен сервиз, смени го с друг ACTIVE (ако има)
+
+
     if (worker.serviceCompanyId === membership.serviceCompanyId) {
       const anotherMembership = await prisma.mechanicServiceCompany.findFirst({
         where: {
@@ -1581,7 +1581,7 @@ export const leaveServiceCompany = async (
       });
 
       if (anotherMembership) {
-        // Има друг ACTIVE сервиз - смени към него
+
         await prisma.worker.update({
           where: { id: worker.id },
           data: {
@@ -1589,7 +1589,7 @@ export const leaveServiceCompany = async (
           },
         });
       } else {
-        // Няма други ACTIVE сервизи - задай null и isActive = false
+
         await prisma.worker.update({
           where: { id: worker.id },
           data: {
@@ -1600,7 +1600,7 @@ export const leaveServiceCompany = async (
       }
     }
 
-    // Маркирай членството като INACTIVE
+
     await prisma.mechanicServiceCompany.update({
       where: { id: membershipId },
       data: {
@@ -1610,10 +1610,11 @@ export const leaveServiceCompany = async (
     });
 
     res.status(200).json({
-      message: 'Напуснахте сервиза успешно',
+      message: 'ÐÐ°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
     });
   } catch (error) {
     console.error('Leave service company error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

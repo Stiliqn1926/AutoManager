@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 
 interface AuthRequest extends Request {
@@ -26,7 +26,7 @@ export const getDashboardOverview = async (
     }
 
 
-    // Паралелно зареждане на всички данни
+
     const [
       totalOrders,
       activeOrders,
@@ -61,7 +61,7 @@ export const getDashboardOverview = async (
 
       // Clients & Workers
       prisma.client.count({ where: { serviceCompanyId } }),
-      // ✅ ПОПРАВКА: Брой механици с ACTIVE membership (не директно по serviceCompanyId)
+
       prisma.mechanicServiceCompany.count({
         where: {
           serviceCompanyId,
@@ -78,7 +78,7 @@ export const getDashboardOverview = async (
         where: { serviceCompanyId, status: 'PENDING' },
       }),
 
-      // Recent orders (за списък)
+
       prisma.order.findMany({
         where: { serviceCompanyId, status: { in: ['WAITING', 'IN_PROGRESS', 'READY'] } },
         take: 5,
@@ -89,11 +89,11 @@ export const getDashboardOverview = async (
         },
       }),
 
-      // Today's active schedules ONLY - само активни статуси
+
       prisma.schedule.findMany({
         where: {
           serviceCompanyId,
-          status: { in: ['SCHEDULED', 'IN_PROGRESS'] }, // ✅ САМО активни графици
+          status: { in: ['SCHEDULED', 'IN_PROGRESS'] },
           startTime: { lte: new Date() },
           endTime: { gt: new Date() },
         },
@@ -118,12 +118,12 @@ export const getDashboardOverview = async (
     const totalRevenue = orderRevenue + otherIncome;
     const totalExpenses = financeExpenses.reduce((sum, f) => sum + Number(f.amount), 0);
 
-    // ✅ Филтрирай графици - само онези без поръчка ИЛИ с активна поръчка
+
     const activeSchedules = todaySchedules.filter(schedule => {
-      // Ако няма свързана поръчка, това е самостоятелна задача - покажи я
+
       if (!schedule.order) return true;
 
-      // Ако има поръчка, покажи само ако е активна (не COMPLETED/CANCELLED)
+
       return ['WAITING', 'IN_PROGRESS', 'READY'].includes(schedule.order.status);
     });
 
@@ -147,7 +147,7 @@ export const getDashboardOverview = async (
 };
 
 // ============================================
-// GET FINANCE CHART DATA (ADMIN) - МЕСЕЧНИ ДАННИ
+
 // ============================================
 export const getFinanceChartData = async (
   req: AuthRequest,
@@ -170,7 +170,7 @@ export const getFinanceChartData = async (
 
     if (period === 'week') {
       startDate = new Date(now);
-      startDate.setDate(now.getDate() - 6); // Последните 7 дни (включително днес)
+      startDate.setDate(now.getDate() - 6);
       daysToShow = 7;
     } else if (period === 'month') {
       monthsToShow = 1;
@@ -202,7 +202,7 @@ export const getFinanceChartData = async (
       },
     });
 
-    // ОТ ПЛАТЕНИ ФАКТУРИ
+
     const paidInvoices = await prisma.invoice.findMany({
       where: {
         serviceCompanyId,
@@ -233,8 +233,8 @@ export const getFinanceChartData = async (
 
     const formatMonth = (date: Date): string => {
       const months = [
-        'Яну', 'Фев', 'Мар', 'Апр', 'Май', 'Юни',
-        'Юли', 'Авг', 'Сеп', 'Окт', 'Ное', 'Дек',
+        'Ð¯Ð½Ñƒ', 'Ð¤ÐµÐ²', 'ÐœÐ°Ñ€', 'ÐÐ¿Ñ€', 'ÐœÐ°Ð¹', 'Ð®Ð½Ð¸',
+        'Ð®Ð»Ð¸', 'ÐÐ²Ð³', 'Ð¡ÐµÐ¿', 'ÐžÐºÑ‚', 'ÐÐ¾Ðµ', 'Ð”ÐµÐº',
       ];
       return `${months[date.getMonth()]} ${date.getFullYear()}`;
     };
@@ -391,8 +391,8 @@ export const getMechanicDashboard = async (
       return;
     }
 
-    // ✅ КРИТИЧНА ПРОВЕРКА: Провери дали има ACTIVE membership
-    // Не е достатъчно само worker.serviceCompanyId - трябва и ACTIVE membership!
+
+
     let activeMembership = null;
 
     if (worker.serviceCompanyId) {
@@ -405,9 +405,9 @@ export const getMechanicDashboard = async (
       });
     }
 
-    // Ако няма ACTIVE membership ИЛИ worker.isActive = false → върни празна статистика
+
     if (!activeMembership || !worker.isActive) {
-      // Няма активен сервиз или не е одобрен - върни празна статистика за onboarding UI
+
       res.status(200).json({
         worker: {
           id: worker.id,
@@ -429,14 +429,14 @@ export const getMechanicDashboard = async (
       return;
     }
 
-    // ✅ Вземи serviceCompanyId от activeMembership (не от worker, защото може да е null)
+
     const activeServiceCompanyId = activeMembership.serviceCompanyId;
 
     const now = new Date();
     const todayStart = new Date(now.setHours(0, 0, 0, 0));
     const todayEnd = new Date(now.setHours(23, 59, 59, 999));
 
-    // Паралелно зареждане
+
     const [
       myOrders,
       todaySchedule,
@@ -444,7 +444,7 @@ export const getMechanicDashboard = async (
       totalOrders,
       completedOrders,
     ] = await Promise.all([
-      // Активни поръчки
+
       prisma.order.findMany({
         where: {
           workerId: worker.id,
@@ -478,7 +478,7 @@ export const getMechanicDashboard = async (
         },
       }),
 
-      // Днешен график
+
       prisma.schedule.findMany({
         where: {
           workerId: worker.id,
@@ -503,7 +503,7 @@ export const getMechanicDashboard = async (
         },
       }),
 
-      // Предстоящи задачи (без днешните)
+
       prisma.schedule.findMany({
         where: {
           workerId: worker.id,
@@ -528,7 +528,7 @@ export const getMechanicDashboard = async (
         take: 10,
       }),
 
-      // Статистики
+
       prisma.order.count({
         where: {
           workerId: worker.id,
@@ -550,7 +550,7 @@ export const getMechanicDashboard = async (
         id: worker.id,
         name: `${worker.firstName} ${worker.lastName}`,
         specialization: worker.specialization,
-        isActive: worker.isActive, // ✅ Винаги true тук, но добавено за консистентност
+        isActive: worker.isActive,
       },
       hasActiveService: true,
       statistics: {
@@ -568,3 +568,4 @@ export const getMechanicDashboard = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

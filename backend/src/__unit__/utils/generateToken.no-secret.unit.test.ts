@@ -1,4 +1,4 @@
-import { generateToken } from '../../utils/generateToken';
+﻿import { generateToken } from '../../utils/generateToken';
 
 describe('generateToken - missing JWT_SECRET', () => {
   it('throws error when JWT_SECRET is not defined', () => {
@@ -20,4 +20,5 @@ describe('generateToken - missing JWT_SECRET', () => {
     }
   });
 });
+
 

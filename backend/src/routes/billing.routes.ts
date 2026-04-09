@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   createBillingPortalSession,
   createCheckoutSession,
@@ -17,4 +17,5 @@ router.post('/portal-session', createBillingPortalSession);
 router.get('/subscription-status', getSubscriptionStatus);
 
 export default router;
+
 

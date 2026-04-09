@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Suppliers Endpoints', () => {
@@ -102,3 +102,4 @@ describe('Suppliers Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+

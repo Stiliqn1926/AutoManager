@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -51,7 +51,7 @@ const ScheduleWeekly = () => {
       });
       setSchedules(response.data.schedules || []);
     } catch {
-      toast.error('Грешка при зареждане на седмичен график');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÑÐµÐ´Ð¼Ð¸Ñ‡ÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº');
     } finally {
       setIsLoading(false);
     }
@@ -124,14 +124,14 @@ const ScheduleWeekly = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="Назад към график"
-            title="Назад към график"
+            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Седмичен График</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð¡ÐµÐ´Ð¼Ð¸Ñ‡ÐµÐ½ Ð“Ñ€Ð°Ñ„Ð¸Ðº</h1>
             <p className="text-textSecondary mt-1">
               {currentWeekStart.toLocaleDateString('bg-BG', { day: 'numeric', month: 'long' })} -{' '}
               {weekEnd.toLocaleDateString('bg-BG', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -143,14 +143,14 @@ const ScheduleWeekly = () => {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
-              Днес
+              Ð”Ð½ÐµÑ
             </Button>
             <Button variant="secondary" onClick={goToNextWeek}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Добави задача
+              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð°
             </Button>
           </div>
         </div>
@@ -160,7 +160,7 @@ const ScheduleWeekly = () => {
             {weekDays.map((day, index) => {
               const daySchedules = getSchedulesForDay(day);
               const isToday = day.toDateString() === new Date().toDateString();
-              const dayNames = ['Пон', 'Вто', 'Сря', 'Чет', 'Пет', 'Съб', 'Нед'];
+              const dayNames = ['ÐŸÐ¾Ð½', 'Ð’Ñ‚Ð¾', 'Ð¡Ñ€Ñ', 'Ð§ÐµÑ‚', 'ÐŸÐµÑ‚', 'Ð¡ÑŠÐ±', 'ÐÐµÐ´'];
 
               return (
                 <div
@@ -207,7 +207,7 @@ const ScheduleWeekly = () => {
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-textSecondary text-center mt-8">Няма задачи</p>
+                      <p className="text-xs text-textSecondary text-center mt-8">ÐÑÐ¼Ð° Ð·Ð°Ð´Ð°Ñ‡Ð¸</p>
                     )}
                   </div>
                 </div>
@@ -221,3 +221,4 @@ const ScheduleWeekly = () => {
 };
 
 export default ScheduleWeekly;
+

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -10,7 +10,7 @@ interface AuthRequest extends Request {
   };
 }
 
-// Create Client (ADMIN или MECHANIC добавя клиент)
+
 export const createClient = async (
   req: AuthRequest,
   res: Response
@@ -19,7 +19,7 @@ export const createClient = async (
     const { firstName, lastName, phone, email, address } = req.body;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     let serviceCompanyId: string;
 
     if (req.user!.role === 'ADMIN') {
@@ -49,7 +49,7 @@ export const createClient = async (
       return;
     }
 
-    // Създай клиент
+
     const client = await prisma.client.create({
       data: {
         firstName,
@@ -83,10 +83,10 @@ export const getAllClients = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const { skip, take } = getPagination(page, limit);
 
-    // Search и filter параметри
+
     const { search, activeOnly } = req.query;
 
-    // Вземи serviceCompanyId
+
     let serviceCompanyId: string;
     let workerId: string | null = null;
 
@@ -108,7 +108,7 @@ export const getAllClients = async (
         return;
       }
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 403
+
         const pagination = getPaginationMeta(0, page, limit);
         res.status(200).json({ clients: [], pagination });
         return;
@@ -120,7 +120,7 @@ export const getAllClients = async (
       return;
     }
 
-    // За механик - намери клиентите с поръчки при него
+
     let clientIdsForMechanic: string[] | null = null;
     if (req.user!.role === 'MECHANIC' && workerId) {
       const ordersForMechanic = await prisma.order.findMany({
@@ -142,22 +142,22 @@ export const getAllClients = async (
       }
     }
 
-    // За dashboard (без pagination) показваме само активни клиенти с userId
-    // За пълния списък показваме всички
+
+
     const showOnlyActive = !req.query.page && !req.query.limit;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const whereClause: any = showOnlyActive
       ? {
           serviceCompanyId,
-          userId: { not: null }, // Само клиенти с userId (не pending)
+          userId: { not: null },
         }
       : { serviceCompanyId };
 
-    // Определи списъка с ID-та за филтриране
+
     let allowedClientIds: string[] | null = clientIdsForMechanic;
 
-    // Филтър за активни поръчки (само за механик) - пресичане на ID-та
+
     if (activeOnly === 'true' && workerId) {
       const clientsWithActiveOrders = await prisma.order.findMany({
         where: {
@@ -173,7 +173,7 @@ export const getAllClients = async (
 
       const activeClientIds = clientsWithActiveOrders.map(o => o.clientId);
 
-      // Пресечи с вече намерените ID-та ако има такива
+
       if (allowedClientIds) {
         allowedClientIds = allowedClientIds.filter(id => activeClientIds.includes(id));
       } else {
@@ -181,12 +181,12 @@ export const getAllClients = async (
       }
     }
 
-    // Приложи филтъра по ID-та
+
     if (allowedClientIds) {
       whereClause.id = { in: allowedClientIds };
     }
 
-    // Търсене по име или телефон
+
     if (search) {
       whereClause.OR = [
         { firstName: { contains: search as string, mode: 'insensitive' } },
@@ -224,7 +224,7 @@ export const getAllClients = async (
       },
     });
 
-    // Добави _count и активни поръчки мануално от филтрираните масиви
+
     const clientIds = clients.map((client) => client.id);
 
     let activeOrderCountsByClient = new Map<string, number>();
@@ -297,7 +297,7 @@ export const getClientById = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     let serviceCompanyId: string;
     let mechanicWorkerId: string | null = null;
 
@@ -398,7 +398,7 @@ export const getClientById = async (
       return;
     }
 
-    // Провери ownership
+
     if (client.serviceCompanyId !== serviceCompanyId) {
       res.status(403).json({ message: 'Forbidden' });
       return;
@@ -409,7 +409,7 @@ export const getClientById = async (
       return;
     }
 
-    // Добави _count мануално от филтрираните масиви
+
     const clientWithCount = {
       ...client,
       _count: {
@@ -434,7 +434,7 @@ export const updateClient = async (
     const { firstName, lastName, phone, email, address } = req.body;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     let serviceCompanyId: string;
 
     if (req.user!.role === 'ADMIN') {
@@ -464,7 +464,7 @@ export const updateClient = async (
       return;
     }
 
-    // Провери ownership
+
     const client = await prisma.client.findUnique({
       where: { id },
     });
@@ -499,7 +499,7 @@ export const updateClient = async (
   }
 };
 
-// Delete Client (изтрива напълно само ако няма поръчки и автомобили)
+
 export const deleteClient = async (
   req: AuthRequest,
   res: Response
@@ -508,9 +508,9 @@ export const deleteClient = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Само ADMIN може да изтрива клиенти
+
     if (req.user!.role !== 'ADMIN') {
-      res.status(403).json({ message: 'Само администратори могат да изтриват клиенти' });
+      res.status(403).json({ message: 'Ð¡Ð°Ð¼Ð¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð¸ Ð¼Ð¾Ð³Ð°Ñ‚ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ñ‚ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸' });
       return;
     }
 
@@ -522,7 +522,7 @@ export const deleteClient = async (
       return;
     }
 
-    // Провери ownership и вземи броя на поръчки/автомобили
+
     const client = await prisma.client.findUnique({
       where: { id },
       include: {
@@ -545,21 +545,21 @@ export const deleteClient = async (
       return;
     }
 
-    // Провери дали има поръчки или автомобили
+
     if (client._count.vehicles > 0 || client._count.orders > 0) {
       res.status(400).json({
-        message: 'Не може да изтриете клиент с поръчки или автомобили. Деактивирайте го вместо това.'
+        message: 'ÐÐµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ÐºÐ»Ð¸ÐµÐ½Ñ‚ Ñ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ Ð¸Ð»Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸. Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ð³Ð¾ Ð²Ð¼ÐµÑÑ‚Ð¾ Ñ‚Ð¾Ð²Ð°.'
       });
       return;
     }
 
-    // Изтрий клиента напълно
+
     await prisma.client.delete({
       where: { id },
     });
 
     res.status(200).json({
-      message: 'Клиентът е изтрит успешно',
+      message: 'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -575,7 +575,7 @@ export const toggleClientActive = async (
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // Само ADMIN може да toggle-ва
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -585,7 +585,7 @@ export const toggleClientActive = async (
       return;
     }
 
-    // Провери ownership
+
     const client = await prisma.client.findUnique({
       where: { id },
     });
@@ -614,7 +614,7 @@ export const toggleClientActive = async (
   }
 };
 
-// 🆕 Добави се към сервиз (чрез uniqueCode)
+
 export const addToService = async (
   req: AuthRequest,
   res: Response
@@ -623,17 +623,17 @@ export const addToService = async (
     const userId = req.user!.userId;
     const { uniqueCode, firstName, lastName, phone, address } = req.body;
 
-    // Намери сервиза по код
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { uniqueCode },
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Невалиден код на сервиз' });
+      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
       return;
     }
 
-    // Провери дали вече не е добавен
+
     const existingClient = await prisma.client.findFirst({
       where: {
         userId,
@@ -642,16 +642,16 @@ export const addToService = async (
     });
 
     if (existingClient) {
-      res.status(400).json({ message: 'Вече сте добавен към този сервиз' });
+      res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½ ÐºÑŠÐ¼ Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
       return;
     }
 
-    // Вземи User email
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
-    // Създай нов Client профил
+
     const newClient = await prisma.client.create({
       data: {
         userId,
@@ -668,10 +668,11 @@ export const addToService = async (
     });
 
     res.status(201).json({
-      message: 'Успешно се добавихте към сервиза',
+      message: 'Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ ÑÐµ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ…Ñ‚Ðµ ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·Ð°',
       client: newClient,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Грешка при добавяне към сервиз', error });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð´Ð¾Ð±Ð°Ð²ÑÐ½Ðµ ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·', error });
   }
 };
+

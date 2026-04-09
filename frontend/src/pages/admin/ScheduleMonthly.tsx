@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -38,7 +38,7 @@ const ScheduleMonthly = () => {
         });
         setSchedules(response.data.schedules || []);
       } catch {
-        toast.error('Грешка при зареждане на месечен график');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑÐµÑ‡ÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº');
       } finally {
         setIsLoading(false);
       }
@@ -63,21 +63,21 @@ const ScheduleMonthly = () => {
     setCurrentDate(new Date());
   };
 
-  // Генерира дните на месеца
+
   const generateCalendarDays = (): Date[] => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    // Първи ден на месеца
+
     const firstDay = new Date(year, month, 1);
 
-    // Започни от понеделник преди първи ден
+
     const startDate = new Date(firstDay);
     const dayOfWeek = firstDay.getDay();
     const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     startDate.setDate(firstDay.getDate() - daysToSubtract);
 
-    // Генерирай 42 дни (6 седмици)
+
     const days: Date[] = [];
     for (let i = 0; i < 42; i++) {
       const day = new Date(startDate);
@@ -123,7 +123,7 @@ const ScheduleMonthly = () => {
   };
 
   const calendarDays = generateCalendarDays();
-  const weekDays = ['Пон', 'Вто', 'Сря', 'Чет', 'Пет', 'Съб', 'Нед'];
+  const weekDays = ['ÐŸÐ¾Ð½', 'Ð’Ñ‚Ð¾', 'Ð¡Ñ€Ñ', 'Ð§ÐµÑ‚', 'ÐŸÐµÑ‚', 'Ð¡ÑŠÐ±', 'ÐÐµÐ´'];
 
   if (isLoading) {
     return (
@@ -142,14 +142,14 @@ const ScheduleMonthly = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="Назад към график"
-            title="Назад към график"
+            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Месечен График</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐœÐµÑÐµÑ‡ÐµÐ½ Ð“Ñ€Ð°Ñ„Ð¸Ðº</h1>
             <p className="text-textSecondary mt-1">
               {currentDate.toLocaleDateString('bg-BG', {
                 month: 'long',
@@ -163,20 +163,20 @@ const ScheduleMonthly = () => {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
-              Днес
+              Ð”Ð½ÐµÑ
             </Button>
             <Button variant="secondary" onClick={goToNextMonth}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Добави задача
+              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð°
             </Button>
           </div>
         </div>
 
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-          {/* Header със седмичните дни */}
+          
           <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
             {weekDays.map((day) => (
               <div
@@ -188,7 +188,7 @@ const ScheduleMonthly = () => {
             ))}
           </div>
 
-          {/* Календарна мрежа */}
+          
           <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {calendarDays.map((day, index) => {
               const daySchedules = getSchedulesForDay(day);
@@ -241,6 +241,7 @@ const ScheduleMonthly = () => {
 };
 
 export default ScheduleMonthly;
+
 
 
 

@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+﻿import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -50,10 +50,10 @@ const SupplierCreate = () => {
 
     try {
       await api.post('/suppliers', formData);
-      toast.success('Доставчикът е създаден');
+      toast.success('Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸ÐºÑŠÑ‚ Ðµ ÑÑŠÐ·Ð´Ð°Ð´ÐµÐ½');
       navigate('/admin/suppliers');
     } catch {
-      toast.error('Грешка при създаване на доставчик');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð½Ðµ Ð½Ð° Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº');
     } finally {
       setIsSaving(false);
     }
@@ -66,25 +66,25 @@ const SupplierCreate = () => {
           <button
             onClick={() => navigate('/admin/suppliers')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="Назад към доставчици"
-            title="Назад към доставчици"
+            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸"
+            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Нов доставчик</h1>
-            <p className="text-textSecondary mt-1">Добавете нов доставчик на части и услуги</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐÐ¾Ð² Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº</h1>
+            <p className="text-textSecondary mt-1">Ð”Ð¾Ð±Ð°Ð²ÐµÑ‚Ðµ Ð½Ð¾Ð² Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº Ð½Ð° Ñ‡Ð°ÑÑ‚Ð¸ Ð¸ ÑƒÑÐ»ÑƒÐ³Ð¸</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
           <div className="space-y-4 sm:space-y-6">
-            {/* Основна информация */}
+            
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Основна информация</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="Име на доставчик *"
+                  label="Ð˜Ð¼Ðµ Ð½Ð° Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº *"
                   type="text"
                   value={formData.name}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -95,7 +95,7 @@ const SupplierCreate = () => {
 
                 <div>
                   <label htmlFor="type" className="block text-sm font-medium text-textPrimary mb-2">
-                    Тип *
+                    Ð¢Ð¸Ð¿ *
                   </label>
                   <select
                     id="type"
@@ -106,22 +106,22 @@ const SupplierCreate = () => {
                     className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   >
-                    <option value="PARTS">Части</option>
-                    <option value="CONSUMABLES">Консумативи</option>
-                    <option value="SERVICES">Услуги</option>
-                    <option value="TIRES">Гуми</option>
-                    <option value="OTHER">Друго</option>
+                    <option value="PARTS">Ð§Ð°ÑÑ‚Ð¸</option>
+                    <option value="CONSUMABLES">ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸</option>
+                    <option value="SERVICES">Ð£ÑÐ»ÑƒÐ³Ð¸</option>
+                    <option value="TIRES">Ð“ÑƒÐ¼Ð¸</option>
+                    <option value="OTHER">Ð”Ñ€ÑƒÐ³Ð¾</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* Контакти */}
+            
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚Ð¸</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="Телефон *"
+                  label="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ *"
                   type="tel"
                   value={formData.phonePrimary}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -132,7 +132,7 @@ const SupplierCreate = () => {
                 />
 
                 <Input
-                  label="Втори телефон"
+                  label="Ð’Ñ‚Ð¾Ñ€Ð¸ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½"
                   type="tel"
                   value={formData.phoneSecondary}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -152,17 +152,17 @@ const SupplierCreate = () => {
                 />
 
                 <Input
-                  label="Лице за контакт"
+                  label="Ð›Ð¸Ñ†Ðµ Ð·Ð° ÐºÐ¾Ð½Ñ‚Ð°ÐºÑ‚"
                   type="text"
                   value={formData.contactPerson}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setFormData({ ...formData, contactPerson: e.target.value })
                   }
-                  placeholder="Иван Иванов"
+                  placeholder="Ð˜Ð²Ð°Ð½ Ð˜Ð²Ð°Ð½Ð¾Ð²"
                 />
 
                 <Input
-                  label="Уебсайт"
+                  label="Ð£ÐµÐ±ÑÐ°Ð¹Ñ‚"
                   type="url"
                   value={formData.website}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -173,38 +173,38 @@ const SupplierCreate = () => {
               </div>
             </div>
 
-            {/* Адрес */}
+            
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Адрес</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐÐ´Ñ€ÐµÑ</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="Адрес"
+                  label="ÐÐ´Ñ€ÐµÑ"
                   type="text"
                   value={formData.addressLine}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setFormData({ ...formData, addressLine: e.target.value })
                   }
-                  placeholder="ул. Примерна 123"
+                  placeholder="ÑƒÐ». ÐŸÑ€Ð¸Ð¼ÐµÑ€Ð½Ð° 123"
                 />
 
                 <Input
-                  label="Град"
+                  label="Ð“Ñ€Ð°Ð´"
                   type="text"
                   value={formData.city}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setFormData({ ...formData, city: e.target.value })
                   }
-                  placeholder="София"
+                  placeholder="Ð¡Ð¾Ñ„Ð¸Ñ"
                 />
               </div>
             </div>
 
-            {/* Фирмени данни */}
+            
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Фирмени данни</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Ð¤Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="ЕИК / Булстат"
+                  label="Ð•Ð˜Ðš / Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚"
                   type="text"
                   value={formData.eik}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -214,7 +214,7 @@ const SupplierCreate = () => {
                 />
 
                 <Input
-                  label="ДДС номер"
+                  label="Ð”Ð”Ð¡ Ð½Ð¾Ð¼ÐµÑ€"
                   type="text"
                   value={formData.vatNumber}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -225,13 +225,13 @@ const SupplierCreate = () => {
               </div>
             </div>
 
-            {/* Условия и бележки */}
+            
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Ð£ÑÐ»Ð¾Ð²Ð¸Ñ Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸</h2>
               <div className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-textPrimary mb-2">
-                    Условия за доставка
+                    Ð£ÑÐ»Ð¾Ð²Ð¸Ñ Ð·Ð° Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ°
                   </label>
                   <textarea
                     value={formData.deliveryNotes}
@@ -240,14 +240,14 @@ const SupplierCreate = () => {
                     }
                     className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
-                    placeholder="Доставка в същия ден, минимална поръчка 50 €..."
-                    aria-label="Условия за доставка"
+                    placeholder="Ð”Ð¾ÑÑ‚Ð°Ð²ÐºÐ° Ð² ÑÑŠÑ‰Ð¸Ñ Ð´ÐµÐ½, Ð¼Ð¸Ð½Ð¸Ð¼Ð°Ð»Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° 50 â‚¬..."
+                    aria-label="Ð£ÑÐ»Ð¾Ð²Ð¸Ñ Ð·Ð° Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ°"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-textPrimary mb-2">
-                    Вътрешни бележки
+                    Ð’ÑŠÑ‚Ñ€ÐµÑˆÐ½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸
                   </label>
                   <textarea
                     value={formData.notes}
@@ -256,8 +256,8 @@ const SupplierCreate = () => {
                     }
                     className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     rows={3}
-                    placeholder="Бързи, но скъпи. Имат отстъпка 10%..."
-                    aria-label="Вътрешни бележки"
+                    placeholder="Ð‘ÑŠÑ€Ð·Ð¸, Ð½Ð¾ ÑÐºÑŠÐ¿Ð¸. Ð˜Ð¼Ð°Ñ‚ Ð¾Ñ‚ÑÑ‚ÑŠÐ¿ÐºÐ° 10%..."
+                    aria-label="Ð’ÑŠÑ‚Ñ€ÐµÑˆÐ½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸"
                   />
                 </div>
 
@@ -272,7 +272,7 @@ const SupplierCreate = () => {
                     className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                   />
                   <label htmlFor="isPreferred" className="text-sm text-textPrimary cursor-pointer">
-                    Маркирай като предпочитан доставчик
+                    ÐœÐ°Ñ€ÐºÐ¸Ñ€Ð°Ð¹ ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº
                   </label>
                 </div>
               </div>
@@ -281,10 +281,10 @@ const SupplierCreate = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <Button type="button" variant="secondary" onClick={() => navigate('/admin/suppliers')} className="w-full sm:w-auto">
-              Отказ
+              ÐžÑ‚ÐºÐ°Ð·
             </Button>
             <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
-              Създай доставчик
+              Ð¡ÑŠÐ·Ð´Ð°Ð¹ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº
             </Button>
           </div>
         </form>
@@ -294,5 +294,6 @@ const SupplierCreate = () => {
 };
 
 export default SupplierCreate;
+
 
 

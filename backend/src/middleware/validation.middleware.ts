@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
 
 // Validation middleware factory
@@ -7,8 +7,8 @@ export const validate = (schema: Joi.ObjectSchema, source: 'body' | 'query' = 'b
     const dataToValidate = source === 'query' ? req.query : req.body;
 
     const { error, value } = schema.validate(dataToValidate, {
-      abortEarly: false, // Показва ВСИЧКИ грешки, не само първата
-      stripUnknown: true, // Премахва непознати полета
+      abortEarly: false,
+      stripUnknown: true,
     });
 
     if (error) {
@@ -24,9 +24,9 @@ export const validate = (schema: Joi.ObjectSchema, source: 'body' | 'query' = 'b
       return;
     }
 
-    // Замени req.body или добави validated data в req
+
     if (source === 'query') {
-      // За query - добави validated data като нова property
+
       (req as any).validatedQuery = value;
     } else {
       req.body = value;
@@ -35,3 +35,4 @@ export const validate = (schema: Joi.ObjectSchema, source: 'body' | 'query' = 'b
     next();
   };
 };
+

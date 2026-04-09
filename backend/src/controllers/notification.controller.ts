@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -11,7 +11,7 @@ interface AuthRequest extends Request {
   };
 }
 
-// Get All Notifications (CLIENT или MECHANIC)
+
 export const getAllNotifications = async (
   req: AuthRequest,
   res: Response
@@ -26,7 +26,7 @@ export const getAllNotifications = async (
     const { skip, take } = getPagination(page, limit);
 
     if (userRole === 'CLIENT') {
-      // CLIENT вижда своите нотификации
+
       const clients = await prisma.client.findMany({
         where: { userId },
       });
@@ -63,7 +63,7 @@ export const getAllNotifications = async (
 
       res.status(200).json({ notifications, pagination });
     } else if (userRole === 'MECHANIC') {
-      // MECHANIC вижда нотификациите на клиентите в сервиза
+
       const worker = await prisma.worker.findUnique({
         where: { userId },
       });
@@ -198,7 +198,7 @@ export const markAsRead = async (
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
-    // Провери дали нотификацията съществува
+
     const notification = await prisma.notification.findUnique({
       where: { id },
       include: {
@@ -211,7 +211,7 @@ export const markAsRead = async (
       return;
     }
 
-    // Провери права
+
     if (userRole === 'CLIENT') {
       const clients = await prisma.client.findMany({
         where: { userId },
@@ -302,7 +302,7 @@ export const deleteNotification = async (
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
-    // Провери дали нотификацията съществува
+
     const notification = await prisma.notification.findUnique({
       where: { id },
       include: {
@@ -315,7 +315,7 @@ export const deleteNotification = async (
       return;
     }
 
-    // Само CLIENT може да трие
+
     if (userRole !== 'CLIENT') {
       res.status(403).json({ message: 'Only clients can delete notifications' });
       return;
@@ -344,7 +344,7 @@ export const deleteNotification = async (
   }
 };
 
-// Create Notification (helper за ADMIN - ръчно известие)
+
 export const createNotification = async (
   req: AuthRequest,
   res: Response
@@ -388,3 +388,4 @@ export const createNotification = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

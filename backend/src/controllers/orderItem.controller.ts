@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 
 interface AuthRequest extends Request {
@@ -236,3 +236,4 @@ const updateOrderTotalPrice = async (orderId: string): Promise<void> => {
     data: { totalPrice },
   });
 };
+

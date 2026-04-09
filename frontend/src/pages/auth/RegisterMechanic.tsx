@@ -326,3 +326,4 @@ const RegisterMechanic = () => {
 };
 
 export default RegisterMechanic;
+

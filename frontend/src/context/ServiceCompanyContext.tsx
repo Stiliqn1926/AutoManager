@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+﻿import { createContext } from 'react';
 
 export interface ServiceCompany {
   id: string;
@@ -29,3 +29,4 @@ export interface ServiceCompanyContextType {
 export const ServiceCompanyContext = createContext<ServiceCompanyContextType | undefined>(
   undefined
 );
+

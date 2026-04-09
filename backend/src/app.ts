@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
@@ -107,7 +107,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
   message:
-    'Твърде много заявки от този IP, моля опитайте отново след 15 минути.',
+    'Ð¢Ð²ÑŠÑ€Ð´Ðµ Ð¼Ð½Ð¾Ð³Ð¾ Ð·Ð°ÑÐ²ÐºÐ¸ Ð¾Ñ‚ Ñ‚Ð¾Ð·Ð¸ IP, Ð¼Ð¾Ð»Ñ Ð¾Ð¿Ð¸Ñ‚Ð°Ð¹Ñ‚Ðµ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾ ÑÐ»ÐµÐ´ 15 Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -130,3 +130,4 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 export default app;
+

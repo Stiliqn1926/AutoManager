@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -7,3 +7,4 @@ const prisma = new PrismaClient({
 });
 
 export default prisma;
+

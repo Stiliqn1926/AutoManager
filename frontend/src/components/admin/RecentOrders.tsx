@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 
 interface Order {
@@ -34,9 +34,9 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
     };
 
     const labels: Record<string, string> = {
-      WAITING: 'Изчакване',
-      IN_PROGRESS: 'В процес',
-      READY: 'Готова за плащане',
+      WAITING: 'Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ',
+      IN_PROGRESS: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ',
+      READY: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
     };
 
     return (
@@ -54,19 +54,19 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
     <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 h-full flex flex-col">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
         <h2 className="text-base sm:text-lg font-semibold text-textPrimary">
-          Активни поръчки
+          ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸
         </h2>
         <button
           onClick={() => navigate('/admin/orders')}
           className="text-sm text-primary hover:text-primary-700 font-medium"
         >
-          Виж всички →
+          Ð’Ð¸Ð¶ Ð²ÑÐ¸Ñ‡ÐºÐ¸ â†’
         </button>
       </div>
 
       {orders.length === 0 ? (
         <p className="text-textSecondary text-center py-8">
-          Няма активни поръчки
+          ÐÑÐ¼Ð° Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸
         </p>
       ) : (
         <div className="space-y-3 flex-1 overflow-y-auto pr-1">
@@ -82,7 +82,7 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
                   {order.vehicle.licensePlate})
                 </p>
                 <p className="text-sm text-textSecondary">
-                  {order.client.firstName} {order.client.lastName} •{' '}
+                  {order.client.firstName} {order.client.lastName} â€¢{' '}
                   {order.displayOrderNumber || order.orderNumber}
                 </p>
               </div>
@@ -105,3 +105,4 @@ const RecentOrders = ({ orders }: RecentOrdersProps) => {
 };
 
 export default RecentOrders;
+

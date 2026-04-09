@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/generateToken';
 import prisma from '../config/database';
 import { isTokenBlacklisted } from '../utils/tokenUtils';
@@ -185,3 +185,4 @@ export const authenticate = async (
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
+

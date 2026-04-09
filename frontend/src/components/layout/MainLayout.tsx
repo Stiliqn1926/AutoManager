@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+﻿import { type ReactNode, useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
@@ -11,10 +11,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   return (
     <div className="flex h-screen bg-mainBg">
-      {/* Sidebar - фиксиран вляво */}
+      
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      {/* Дясна част - Header + Content */}
+      
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onOpenSidebar={() => setIsSidebarOpen(true)} />
         
@@ -30,3 +30,4 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 };
 
 export default MainLayout;
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -47,7 +47,7 @@ const Vehicles = () => {
       const response = await api.get('/vehicles');
       setVehicles(response.data.vehicles || []);
     } catch {
-      toast.error('Грешка при зареждане на автомобили');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -58,15 +58,15 @@ const Vehicles = () => {
   }, []);
 
   const handleDelete = async (id: string, licensePlate: string) => {
-    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${licensePlate}?`)) return;
+    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ${licensePlate}?`)) return;
 
     try {
       await api.delete(`/vehicles/${id}`);
-      toast.success('Автомобилът е изтрит успешно');
+      toast.success('ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       fetchVehicles();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || 'Грешка при изтриване';
+      const errorMessage = err.response?.data?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ';
       toast.error(errorMessage);
     }
   };
@@ -80,7 +80,7 @@ const Vehicles = () => {
     }
   };
 
-  /* ✅ const вместо let */
+  // Keep the derived list immutable before render to avoid accidental mutations.
   const filteredVehicles = (() => {
     const filtered = vehicles.filter((vehicle) => {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -160,10 +160,10 @@ const Vehicles = () => {
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Автомобили</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸</h1>
           <Button onClick={() => navigate('/admin/vehicles/create')} className="w-full sm:w-auto lg:ml-auto">
             <Plus className="w-4 h-4" />
-            Добави автомобил
+            Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»
           </Button>
         </div>
 
@@ -173,8 +173,8 @@ const Vehicles = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
                 type="text"
-                aria-label="Търсене на автомобили"
-                placeholder="Търси по рег. номер, марка или клиент"
+                aria-label="Ð¢ÑŠÑ€ÑÐµÐ½Ðµ Ð½Ð° Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸"
+                placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ñ€ÐµÐ³. Ð½Ð¾Ð¼ÐµÑ€, Ð¼Ð°Ñ€ÐºÐ° Ð¸Ð»Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -187,11 +187,11 @@ const Vehicles = () => {
               <thead>
                 <tr className="border-b border-borderSubtle">
                   {[
-                    ['licensePlate', 'Рег. номер'],
-                    ['brand', 'Марка / Модел'],
-                    ['client', 'Клиент'],
-                    ['orders', 'Поръчки'],
-                    ['updatedAt', 'Последно обслужване'],
+                    ['licensePlate', 'Ð ÐµÐ³. Ð½Ð¾Ð¼ÐµÑ€'],
+                    ['brand', 'ÐœÐ°Ñ€ÐºÐ° / ÐœÐ¾Ð´ÐµÐ»'],
+                    ['client', 'ÐšÐ»Ð¸ÐµÐ½Ñ‚'],
+                    ['orders', 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸'],
+                    ['updatedAt', 'ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¾ Ð¾Ð±ÑÐ»ÑƒÐ¶Ð²Ð°Ð½Ðµ'],
                   ].map(([key, label]) => (
                     <th
                       key={key}
@@ -204,7 +204,7 @@ const Vehicles = () => {
                       </div>
                     </th>
                   ))}
-                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">Действия</th>
+                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ</th>
                 </tr>
               </thead>
 
@@ -212,7 +212,7 @@ const Vehicles = () => {
                 {filteredVehicles.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="text-center py-12 text-textSecondary">
-                      Няма намерени автомобили
+                      ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸
                     </td>
                   </tr>
                 ) : (
@@ -238,8 +238,8 @@ const Vehicles = () => {
                         >
                           <button
                             type="button"
-                            aria-label="Редактирай автомобил"
-                            title="Редактирай"
+                            aria-label="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»"
+                            title="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹"
                             onClick={() => navigate(`/admin/vehicles/${vehicle.id}/edit`)}
                             className="p-2 rounded-lg hover:bg-gray-100"
                           >
@@ -248,8 +248,8 @@ const Vehicles = () => {
                           {(vehicle._count?.orders === 0) && (
                             <button
                               type="button"
-                              aria-label="Изтрий автомобил"
-                              title="Изтрий"
+                              aria-label="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»"
+                              title="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹"
                               onClick={() => handleDelete(vehicle.id, vehicle.licensePlate)}
                               className="p-2 rounded-lg hover:bg-gray-100"
                             >
@@ -271,5 +271,6 @@ const Vehicles = () => {
 };
 
 export default Vehicles;
+
 
 

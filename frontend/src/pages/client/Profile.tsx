@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, MapPin, Lock, Save, Edit2, X } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
@@ -40,7 +40,7 @@ const Profile = () => {
       setPhone(response.data.profile.phone);
       setAddress(response.data.profile.address || '');
     } catch {
-      toast.error('Грешка при зареждане на профил');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¿Ñ€Ð¾Ñ„Ð¸Ð»');
     } finally {
       setIsLoading(false);
     }
@@ -53,11 +53,11 @@ const Profile = () => {
   const handleSaveInfo = async () => {
     try {
       await api.put('/client/profile', { firstName, lastName, phone, address });
-      toast.success('Данните са актуализирани успешно');
+      toast.success('Ð”Ð°Ð½Ð½Ð¸Ñ‚Ðµ ÑÐ° Ð°ÐºÑ‚ÑƒÐ°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð½Ð¸ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       setIsEditingInfo(false);
       fetchProfile();
     } catch {
-      toast.error('Грешка при актуализиране на данните');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð°ÐºÑ‚ÑƒÐ°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸Ñ‚Ðµ');
     }
   };
 
@@ -65,12 +65,12 @@ const Profile = () => {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Паролите не съвпадат');
+      toast.error('ÐŸÐ°Ñ€Ð¾Ð»Ð¸Ñ‚Ðµ Ð½Ðµ ÑÑŠÐ²Ð¿Ð°Ð´Ð°Ñ‚');
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      toast.error('Паролата трябва да е поне 8 символа');
+      toast.error('ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°');
       return;
     }
 
@@ -81,12 +81,12 @@ const Profile = () => {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
-      toast.success('Паролата е сменена успешно');
+      toast.success('ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ ÑÐ¼ÐµÐ½ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordModal(false);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || 'Грешка при смяна на парола');
+      toast.error(err.response?.data?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÑÐ¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°');
     } finally {
       setIsChangingPassword(false);
     }
@@ -115,7 +115,7 @@ const Profile = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">Профилът не е намерен</p>
+          <p className="text-textSecondary">ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½</p>
         </div>
       </MainLayout>
     );
@@ -125,17 +125,17 @@ const Profile = () => {
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Профил</h1>
-          <p className="text-textSecondary mt-1">Лична информация и настройки</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐŸÑ€Ð¾Ñ„Ð¸Ð»</h1>
+          <p className="text-textSecondary mt-1">Ð›Ð¸Ñ‡Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð¸ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸</p>
         </div>
 
-        {/* Основна информация */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold text-textPrimary">
-                Основна информация
+                ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ
               </h2>
             </div>
             {!isEditingInfo && (
@@ -143,8 +143,8 @@ const Profile = () => {
                 type="button"
                 onClick={() => setIsEditingInfo(true)}
                 className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 self-start sm:self-auto"
-                aria-label="Редактирай"
-                title="Редактирай"
+                aria-label="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹"
+                title="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
@@ -156,53 +156,53 @@ const Profile = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
-                    Име
+                    Ð˜Ð¼Ðµ
                   </label>
                   <input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full px-4 py-2 bg-white border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Име"
+                    placeholder="Ð˜Ð¼Ðµ"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
-                    Фамилия
+                    Ð¤Ð°Ð¼Ð¸Ð»Ð¸Ñ
                   </label>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full px-4 py-2 bg-white border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Фамилия"
+                    placeholder="Ð¤Ð°Ð¼Ð¸Ð»Ð¸Ñ"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
-                    Телефон
+                    Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½
                   </label>
                   <input
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full px-4 py-2 bg-white border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Телефон"
+                    placeholder="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-2">
-                    Адрес
+                    ÐÐ´Ñ€ÐµÑ
                   </label>
                   <input
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full px-4 py-2 bg-white border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Адрес"
+                    placeholder="ÐÐ´Ñ€ÐµÑ"
                   />
                 </div>
               </div>
@@ -214,7 +214,7 @@ const Profile = () => {
                   className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  Запази
+                  Ð—Ð°Ð¿Ð°Ð·Ð¸
                 </button>
                 <button
                   type="button"
@@ -230,7 +230,7 @@ const Profile = () => {
                   className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2"
                 >
                   <X className="w-4 h-4" />
-                  Отказ
+                  ÐžÑ‚ÐºÐ°Ð·
                 </button>
               </div>
             </div>
@@ -239,7 +239,7 @@ const Profile = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <User className="w-4 h-4" />
-                  <span>Име и фамилия</span>
+                  <span>Ð˜Ð¼Ðµ Ð¸ Ñ„Ð°Ð¼Ð¸Ð»Ð¸Ñ</span>
                 </div>
                 <p className="text-base font-semibold text-textPrimary">
                   {profile.firstName} {profile.lastName}
@@ -249,7 +249,7 @@ const Profile = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Mail className="w-4 h-4" />
-                  <span>Имейл</span>
+                  <span>Ð˜Ð¼ÐµÐ¹Ð»</span>
                 </div>
                 <p className="text-base text-textPrimary">{profile.email}</p>
               </div>
@@ -257,7 +257,7 @@ const Profile = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Phone className="w-4 h-4" />
-                  <span>Телефон</span>
+                  <span>Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</span>
                 </div>
                 <a
                   href={`tel:${profile.phone}`}
@@ -271,7 +271,7 @@ const Profile = () => {
                 <div>
                   <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                     <MapPin className="w-4 h-4" />
-                    <span>Адрес</span>
+                    <span>ÐÐ´Ñ€ÐµÑ</span>
                   </div>
                   <p className="text-base text-textPrimary">{profile.address}</p>
                 </div>
@@ -280,17 +280,17 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Смяна на парола */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Сигурност</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¾ÑÑ‚</h2>
             </div>
           </div>
 
           <p className="text-textSecondary mb-4">
-            Сменете паролата си, за да осигурите сигурността на акаунта.
+            Ð¡Ð¼ÐµÐ½ÐµÑ‚Ðµ Ð¿Ð°Ñ€Ð¾Ð»Ð°Ñ‚Ð° ÑÐ¸, Ð·Ð° Ð´Ð° Ð¾ÑÐ¸Ð³ÑƒÑ€Ð¸Ñ‚Ðµ ÑÐ¸Ð³ÑƒÑ€Ð½Ð¾ÑÑ‚Ñ‚Ð° Ð½Ð° Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð°.
           </p>
 
           <button
@@ -299,18 +299,18 @@ const Profile = () => {
             className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
           >
             <Lock className="w-4 h-4" />
-            Смяна на парола
+            Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°
           </button>
         </div>
 
-        {/* Статистика */}
+        
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4">
-            Информация за акаунта
+            Ð˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð·Ð° Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð°
           </h2>
           <div className="space-y-3">
             <div>
-              <p className="text-sm text-textSecondary">Регистрация</p>
+              <p className="text-sm text-textSecondary">Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ</p>
               <p className="font-medium text-textPrimary">
                 {formatDate(profile.createdAt)}
               </p>
@@ -325,14 +325,14 @@ const Profile = () => {
           <div className="bg-white rounded-2xl shadow-card p-4 sm:p-6 max-w-md w-full">
             <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4 flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" />
-              Смяна на парола
+              Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°
             </h2>
 
             <form onSubmit={handleChangePassword}>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="currentPassword" className="block text-sm font-medium text-textPrimary mb-1">
-                    Текуща парола
+                    Ð¢ÐµÐºÑƒÑ‰Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°
                   </label>
                   <input
                     id="currentPassword"
@@ -348,7 +348,7 @@ const Profile = () => {
 
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-textPrimary mb-1">
-                    Нова парола
+                    ÐÐ¾Ð²Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°
                   </label>
                   <input
                     id="newPassword"
@@ -361,12 +361,12 @@ const Profile = () => {
                     required
                     minLength={8}
                   />
-                  <p className="text-xs text-textMuted mt-1">Минимум 8 символа</p>
+                  <p className="text-xs text-textMuted mt-1">ÐœÐ¸Ð½Ð¸Ð¼ÑƒÐ¼ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°</p>
                 </div>
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-textPrimary mb-1">
-                    Потвърди парола
+                    ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð°
                   </label>
                   <input
                     id="confirmPassword"
@@ -387,7 +387,7 @@ const Profile = () => {
                   disabled={isChangingPassword}
                   className="w-full sm:w-auto flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {isChangingPassword ? 'Смяна...' : 'Смени парола'}
+                  {isChangingPassword ? 'Ð¡Ð¼ÑÐ½Ð°...' : 'Ð¡Ð¼ÐµÐ½Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð°'}
                 </button>
                 <button
                   type="button"
@@ -397,7 +397,7 @@ const Profile = () => {
                   }}
                   className="w-full sm:w-auto flex-1 px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300"
                 >
-                  Отказ
+                  ÐžÑ‚ÐºÐ°Ð·
                 </button>
               </div>
             </form>
@@ -409,3 +409,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

@@ -125,11 +125,11 @@ const WorkerDetails = () => {
 
     try {
       if (isActive) {
-        // Премахни от сервиз (маркирай като INACTIVE)
+
         await api.post(`/workers/${id}/remove-from-service`);
         toast.success('Механикът е премахнат от сервиза');
       } else {
-        // Изтрий напълно
+
         await api.delete(`/workers/${id}/permanent`);
         toast.success('Механикът е изтрит напълно');
       }
@@ -312,6 +312,7 @@ const WorkerDetails = () => {
 };
 
 export default WorkerDetails;
+
 
 
 

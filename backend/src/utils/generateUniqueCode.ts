@@ -1,4 +1,4 @@
-export const generateUniqueCode = (): string => {
+﻿export const generateUniqueCode = (): string => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
   
@@ -8,3 +8,4 @@ export const generateUniqueCode = (): string => {
   
   return code;
 };
+

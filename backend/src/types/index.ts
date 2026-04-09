@@ -1,34 +1,35 @@
-// Роли на потребителите
+﻿
 export enum UserRole {
   ADMIN = 'ADMIN',
   MECHANIC = 'MECHANIC',
   CLIENT = 'CLIENT'
 }
 
-// Статуси на поръчките
+
 export enum OrderStatus {
-  WAITING = 'WAITING',        // Изчакване
-  IN_PROGRESS = 'IN_PROGRESS', // В процес
-  READY = 'READY',            // Готова за плащане
-  COMPLETED = 'COMPLETED'      // Завършена
+  WAITING = 'WAITING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  READY = 'READY',
+  COMPLETED = 'COMPLETED'
 }
 
-// Статуси на заявки
+
 export enum RequestStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED'
 }
 
-// Типове транзакции
+
 export enum TransactionType {
-  INCOME = 'INCOME',    // Приход
-  EXPENSE = 'EXPENSE'   // Разход
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE'
 }
 
-// Типове елементи в поръчка
+
 export enum OrderItemType {
-  PART = 'PART',           // Част
-  LABOR = 'LABOR',         // Труд
-  CONSUMABLE = 'CONSUMABLE' // Консуматив
+  PART = 'PART',
+  LABOR = 'LABOR',
+  CONSUMABLE = 'CONSUMABLE'
 }
+

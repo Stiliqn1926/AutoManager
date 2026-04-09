@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -60,7 +60,7 @@ const OrdersCalendar = () => {
       setOrders(ordersRes.data.orders || []);
       setSchedules(schedulesRes.data.schedules || []);
     } catch {
-      toast.error('Грешка при зареждане на данни');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -102,8 +102,8 @@ const OrdersCalendar = () => {
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Предишен месец"
-            title="Предишен месец"
+            aria-label="ÐŸÑ€ÐµÐ´Ð¸ÑˆÐµÐ½ Ð¼ÐµÑÐµÑ†"
+            title="ÐŸÑ€ÐµÐ´Ð¸ÑˆÐµÐ½ Ð¼ÐµÑÐµÑ†"
           >
             <ChevronLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -111,8 +111,8 @@ const OrdersCalendar = () => {
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Следващ месец"
-            title="Следващ месец"
+            aria-label="Ð¡Ð»ÐµÐ´Ð²Ð°Ñ‰ Ð¼ÐµÑÐµÑ†"
+            title="Ð¡Ð»ÐµÐ´Ð²Ð°Ñ‰ Ð¼ÐµÑÐµÑ†"
           >
             <ChevronRight className="w-5 h-5 text-textSecondary" />
           </button>
@@ -122,7 +122,7 @@ const OrdersCalendar = () => {
   };
 
   const renderDays = () => {
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+    const days = ['ÐŸÐ½', 'Ð’Ñ‚', 'Ð¡Ñ€', 'Ð§Ñ‚', 'ÐŸÑ‚', 'Ð¡Ð±', 'ÐÐ´'];
     return (
       <div className="grid grid-cols-7 gap-1 mb-2">
         {days.map((day) => (
@@ -243,7 +243,7 @@ const OrdersCalendar = () => {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-6">
         <h2 className="text-lg font-semibold text-textPrimary mb-4">
-          Календар
+          ÐšÐ°Ð»ÐµÐ½Ð´Ð°Ñ€
         </h2>
         <div className="animate-pulse h-96 bg-gray-200 rounded" />
       </div>
@@ -282,3 +282,4 @@ const OrdersCalendar = () => {
 };
 
 export default OrdersCalendar;
+

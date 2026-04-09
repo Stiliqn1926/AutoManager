@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+﻿import { createContext } from 'react';
 
 export interface ActiveServiceContextType {
   hasActiveService: boolean;
@@ -11,3 +11,4 @@ export const ActiveServiceContext = createContext<ActiveServiceContextType>({
   isLoading: true,
   checkActiveService: async () => {},
 });
+

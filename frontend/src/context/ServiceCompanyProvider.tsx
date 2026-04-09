@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { ServiceCompanyContext } from './ServiceCompanyContext';
 import type { ServiceCompany, ClientServiceCompany } from './ServiceCompanyContext';
@@ -19,7 +19,7 @@ export const ServiceCompanyProvider = ({ children }: ServiceCompanyProviderProps
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch service companies от backend
+
   const fetchServiceCompanies = useCallback(async () => {
     if (!isAuthenticated || user?.role !== UserRole.CLIENT) {
       return;
@@ -38,19 +38,19 @@ export const ServiceCompanyProvider = ({ children }: ServiceCompanyProviderProps
         return;
       }
 
-      // Ако има запазен избор в localStorage, възстанови го
+
      const savedCompanyId = localStorage.getItem('selectedServiceCompanyId');
 if (savedCompanyId && companies.length > 0) {
   const found = companies.find(
     (c: ClientServiceCompany) => c.serviceCompany?.id === savedCompanyId
   );
-  if (found && found.serviceCompany) {  // 🆕 null check
+  if (found && found.serviceCompany) {
     setSelectedServiceCompanyState(found.serviceCompany);
     setSelectedClientId(found.clientId);
   } else {
-    // Ако запазеният сервиз не съществува, избери първия валиден
+
     const firstValid = companies.find((c: ClientServiceCompany) => c.serviceCompany !== null);
-    if (firstValid && firstValid.serviceCompany) {  // ð null check
+    if (firstValid && firstValid.serviceCompany) {
       setSelectedServiceCompanyState(firstValid.serviceCompany);
       setSelectedClientId(firstValid.clientId);
       localStorage.setItem('selectedServiceCompanyId', firstValid.serviceCompany.id);
@@ -61,9 +61,9 @@ if (savedCompanyId && companies.length > 0) {
     }
   }
 } else if (companies.length > 0) {
-  // Ако няма запазен избор, избери първия валиден
+
   const firstValid = companies.find((c: ClientServiceCompany) => c.serviceCompany !== null);
-    if (firstValid && firstValid.serviceCompany) {  // ð null check
+    if (firstValid && firstValid.serviceCompany) {
       setSelectedServiceCompanyState(firstValid.serviceCompany);
       setSelectedClientId(firstValid.clientId);
       localStorage.setItem('selectedServiceCompanyId', firstValid.serviceCompany.id);
@@ -74,14 +74,14 @@ if (savedCompanyId && companies.length > 0) {
     }
 }
 } catch (error) {
-  toast.error('Грешка при зареждане на сервизи');
+  toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð¸');
   console.error('Failed to fetch service companies:', error);
 } finally {
   setIsLoading(false);
 }
 }, [isAuthenticated, user?.role]);
 
-  // Смяна на избран сервиз
+
   const setSelectedServiceCompany = (companyId: string) => {
     const found = serviceCompanies.find((c) => c.serviceCompany.id === companyId);
     if (found) {
@@ -89,7 +89,7 @@ if (savedCompanyId && companies.length > 0) {
       setSelectedClientId(found.clientId);
       localStorage.setItem('selectedServiceCompanyId', companyId);
 
-      // Emit custom event за да се знае че сервизът е сменен
+
       window.dispatchEvent(
         new CustomEvent('service-company-changed', {
           detail: { serviceCompany: found.serviceCompany, clientId: found.clientId },
@@ -98,12 +98,12 @@ if (savedCompanyId && companies.length > 0) {
     }
   };
 
-    // Зареди сервизи при login
+
  useEffect(() => {
   if (isAuthenticated && user?.role === UserRole.CLIENT) {
     fetchServiceCompanies();
   } else if (!isAuthenticated) {
-    // Изчисти state САМО при logout (не за ADMIN/MECHANIC)
+
     setServiceCompanies([]);
     setSelectedServiceCompanyState(null);
     setSelectedClientId(null);
@@ -126,3 +126,4 @@ if (savedCompanyId && companies.length > 0) {
     </ServiceCompanyContext.Provider>
   );
 };
+

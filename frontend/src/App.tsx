@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+﻿import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthProvider';
 import { ServiceCompanyProvider } from './context/ServiceCompanyProvider';
 import { ActiveServiceProvider } from './context/ActiveServiceProvider';
@@ -24,3 +24,4 @@ function App() {
 }
 
 export default App;
+

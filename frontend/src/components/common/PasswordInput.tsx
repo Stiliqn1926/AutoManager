@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
 import { PasswordStrengthBar } from './PasswordStrengthBar';
 
@@ -55,3 +55,4 @@ export const PasswordInput = ({
     </div>
   );
 };
+

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Car, User, Phone, Calendar, ClipboardList, ChevronUp, ChevronDown } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -21,14 +21,14 @@ const MechanicVehicles = () => {
   const fetchVehicles = async () => {
     setIsLoading(true);
     try {
-      // Зареждаме всички автомобили без pagination (лимит 1000)
+
       const data = await getMechanicVehicles({
         page: 1,
         limit: 1000,
       });
       setVehicles(data.vehicles);
     } catch {
-      toast.error('Грешка при зареждане на автомобили');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -47,25 +47,25 @@ const MechanicVehicles = () => {
     }
   };
 
-  // Нормализира телефонен номер за търсене (+359 → 0)
+
   const normalizePhone = (phone: string): string => {
-    // Премахни всички символи освен цифри
+
     const digits = phone.replace(/\D/g, '');
-    // Ако започва с 359, замени с 0
+
     if (digits.startsWith('359')) {
       return '0' + digits.slice(3);
     }
     return digits;
   };
 
-  // Филтрация и сортиране на автомобили (клиентски)
+
   const filteredVehicles = useMemo(() => {
     const searchLower = searchTerm.toLowerCase().trim();
     const searchNormalized = normalizePhone(searchTerm);
     const tokens = searchLower.split(/\s+/).filter(Boolean);
 
     const filtered = vehicles.filter((vehicle) => {
-      // Търсене по рег. номер, марка, модел или име на клиент
+
       const fields = [
         vehicle.licensePlate,
         vehicle.brand,
@@ -78,19 +78,19 @@ const MechanicVehicles = () => {
         ? true
         : tokens.every((token) => fields.some((field) => field.startsWith(token)));
 
-      // Търсене по телефон на клиент (нормализирано)
+
       const clientPhoneNormalized = normalizePhone(vehicle.client?.phone || '');
       const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.startsWith(searchNormalized);
 
       const matchesSearch = matchesText || matchesPhone;
 
-      // Филтър за активни поръчки
+
       const matchesActive = !activeOnly || vehicle.hasActiveOrder;
 
       return matchesSearch && matchesActive;
     });
 
-    // Сортиране
+
     filtered.sort((a, b) => {
       let aValue: string | number = '';
       let bValue: string | number = '';
@@ -135,7 +135,7 @@ const MechanicVehicles = () => {
   }, [vehicles, searchTerm, activeOnly, sortField, sortOrder]);
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Няма';
+    if (!dateString) return 'ÐÑÐ¼Ð°';
     const date = new Date(dateString);
     return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
@@ -165,11 +165,11 @@ const MechanicVehicles = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Автомобили</h1>
-            <p className="text-textSecondary mt-1">Автомобили с поръчки при теб</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸</h1>
+            <p className="text-textSecondary mt-1">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸ Ñ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ Ð¿Ñ€Ð¸ Ñ‚ÐµÐ±</p>
           </div>
           <div className="text-sm text-textSecondary sm:ml-auto sm:text-right">
-            Показани: <span className="font-semibold text-textPrimary">{filteredVehicles.length}</span> от {vehicles.length} автомобила
+            ÐŸÐ¾ÐºÐ°Ð·Ð°Ð½Ð¸: <span className="font-semibold text-textPrimary">{filteredVehicles.length}</span> Ð¾Ñ‚ {vehicles.length} Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð°
           </div>
         </div>
 
@@ -181,7 +181,7 @@ const MechanicVehicles = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
               <input
                 type="text"
-                placeholder="Търси по рег. номер, марка, модел или клиент..."
+                placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ñ€ÐµÐ³. Ð½Ð¾Ð¼ÐµÑ€, Ð¼Ð°Ñ€ÐºÐ°, Ð¼Ð¾Ð´ÐµÐ» Ð¸Ð»Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -197,7 +197,7 @@ const MechanicVehicles = () => {
                   onChange={(e) => setActiveOnly(e.target.checked)}
                   className="w-4 h-4 text-primary rounded focus:ring-primary"
                 />
-                <span className="text-sm text-textSecondary">Само с активни поръчки</span>
+                <span className="text-sm text-textSecondary">Ð¡Ð°Ð¼Ð¾ Ñ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</span>
               </label>
             </div>
           </div>
@@ -208,7 +208,7 @@ const MechanicVehicles = () => {
           {filteredVehicles.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Няма намерени автомобили</p>
+              <p>ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -220,7 +220,7 @@ const MechanicVehicles = () => {
                       className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        Автомобил
+                        ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»
                         <SortIcon field="vehicle" />
                       </div>
                     </th>
@@ -229,7 +229,7 @@ const MechanicVehicles = () => {
                       className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        Рег. номер
+                        Ð ÐµÐ³. Ð½Ð¾Ð¼ÐµÑ€
                         <SortIcon field="licensePlate" />
                       </div>
                     </th>
@@ -238,7 +238,7 @@ const MechanicVehicles = () => {
                       className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        Клиент
+                        ÐšÐ»Ð¸ÐµÐ½Ñ‚
                         <SortIcon field="client" />
                       </div>
                     </th>
@@ -247,7 +247,7 @@ const MechanicVehicles = () => {
                       className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center justify-center gap-2">
-                        Статус
+                        Ð¡Ñ‚Ð°Ñ‚ÑƒÑ
                         <SortIcon field="status" />
                       </div>
                     </th>
@@ -256,12 +256,12 @@ const MechanicVehicles = () => {
                       className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        Последна поръчка
+                        ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
                         <SortIcon field="lastOrder" />
                       </div>
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Действие
+                      Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ
                     </th>
                   </tr>
                 </thead>
@@ -308,11 +308,11 @@ const MechanicVehicles = () => {
                         {vehicle.hasActiveOrder ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
                             <ClipboardList className="w-3 h-3" />
-                            Активна поръчка
+                            ÐÐºÑ‚Ð¸Ð²Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-                            Няма активна
+                            ÐÑÐ¼Ð° Ð°ÐºÑ‚Ð¸Ð²Ð½Ð°
                           </span>
                         )}
                       </td>
@@ -331,7 +331,7 @@ const MechanicVehicles = () => {
                           }}
                           className="text-primary hover:text-primary-700 text-sm font-medium"
                         >
-                          Детайли
+                          Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸
                         </button>
                       </td>
                     </tr>
@@ -347,3 +347,4 @@ const MechanicVehicles = () => {
 };
 
 export default MechanicVehicles;
+

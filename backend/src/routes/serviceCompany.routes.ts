@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   createServiceCompany,
   getMyServiceCompany,
@@ -12,7 +12,7 @@ import { createServiceCompanySchema } from '../validators/schemas';
 
 const router = Router();
 
-// Всички routes изискват authentication и ADMIN роля
+
 router.use(authenticate);
 router.use(authorize('ADMIN'));
 router.use(requireActiveAdminSubscription);
@@ -27,3 +27,4 @@ router.get('/', getMyServiceCompany);
 router.put('/', validate(createServiceCompanySchema), updateServiceCompany);
 
 export default router;
+

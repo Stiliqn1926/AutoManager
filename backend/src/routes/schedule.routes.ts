@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   createSchedule,
   getAllSchedules,
@@ -56,10 +56,11 @@ router.patch('/:id/complete', authorize('ADMIN'), completeSchedule);
 router.put(
   '/:id',
   authorize('ADMIN'),
-  validate(updateScheduleSchema), // 🔥 ТУК Е КЛЮЧОВОТО
+  validate(updateScheduleSchema),
   updateSchedule
 );
 
 router.delete('/:id', authorize('ADMIN'), deleteSchedule);
 
 export default router;
+

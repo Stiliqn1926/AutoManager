@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, User, Calendar, FileText, AlertCircle } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -58,7 +58,7 @@ const ScheduleDetails = () => {
         const response = await api.get(`/schedules/${id}`);
         setSchedule(response.data.schedule);
       } catch {
-        toast.error('Грешка при зареждане на задача');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°');
         navigate('/admin/schedules');
       } finally {
         setIsLoading(false);
@@ -70,14 +70,14 @@ const ScheduleDetails = () => {
 
   const handleDelete = async () => {
     if (!schedule) return;
-    if (!confirm(`Сигурни ли сте, че искате да изтриете задача "${schedule.title}"?`)) return;
+    if (!confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð° "${schedule.title}"?`)) return;
 
     try {
       await api.delete(`/schedules/${id}`);
-      toast.success('Задачата е изтрита');
+      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚Ð°');
       navigate('/admin/schedules');
     } catch {
-      toast.error('Грешка при изтриване');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ');
     }
   };
 
@@ -86,11 +86,11 @@ const ScheduleDetails = () => {
 
     try {
       await api.patch(`/schedules/${id}/complete`);
-      toast.success('Задачата е маркирана като завършена');
+      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ðµ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð½Ð° ÐºÐ°Ñ‚Ð¾ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°');
       const response = await api.get(`/schedules/${id}`);
       setSchedule(response.data.schedule);
     } catch {
-      toast.error('Грешка при обновяване');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ');
     }
   };
 
@@ -104,12 +104,12 @@ const ScheduleDetails = () => {
       DELAYED: 'bg-orange-100 text-orange-800',
     };
     const labels = {
-      SCHEDULED: 'Планирана',
-      IN_PROGRESS: 'В процес',
-      READY: 'Готова за плащане',
-      COMPLETED: 'Платена',
-      CANCELLED: 'Отменена',
-      DELAYED: 'Забавена',
+      SCHEDULED: 'ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°',
+      IN_PROGRESS: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ',
+      READY: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
+      COMPLETED: 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°',
+      CANCELLED: 'ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½Ð°',
+      DELAYED: 'Ð—Ð°Ð±Ð°Ð²ÐµÐ½Ð°',
     };
     return (
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[status as keyof typeof styles]}`}>
@@ -126,10 +126,10 @@ const ScheduleDetails = () => {
       URGENT: 'bg-red-100 text-red-800',
     };
     const labels = {
-      LOW: 'Нисък',
-      NORMAL: 'Нормален',
-      HIGH: 'Висок',
-      URGENT: 'Спешен',
+      LOW: 'ÐÐ¸ÑÑŠÐº',
+      NORMAL: 'ÐÐ¾Ñ€Ð¼Ð°Ð»ÐµÐ½',
+      HIGH: 'Ð’Ð¸ÑÐ¾Ðº',
+      URGENT: 'Ð¡Ð¿ÐµÑˆÐµÐ½',
     };
     return (
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[priority as keyof typeof styles]}`}>
@@ -152,7 +152,7 @@ const ScheduleDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">Задачата не е намерена</p>
+          <p className="text-textSecondary">Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°</p>
         </div>
       </MainLayout>
     );
@@ -165,8 +165,8 @@ const ScheduleDetails = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="Назад към график"
-            title="Назад към график"
+            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -182,30 +182,30 @@ const ScheduleDetails = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             {!schedule.isCompleted && schedule.status !== 'COMPLETED' && (
               <Button onClick={handleComplete} className="w-full sm:w-auto">
-                Маркирай като завършена
+                ÐœÐ°Ñ€ÐºÐ¸Ñ€Ð°Ð¹ ÐºÐ°Ñ‚Ð¾ Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°
               </Button>
             )}
             {schedule.status !== 'COMPLETED' && (
               <Button onClick={() => navigate(`/admin/schedules/${id}/edit`)} className="w-full sm:w-auto">
                 <Edit className="w-4 h-4" />
-                Редактирай
+                Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹
               </Button>
             )}
             <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
-              Изтрий
+              Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* Механик */}
+            
             {schedule.worker && (
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <User className="w-5 h-5" />
-                  Механик
+                  ÐœÐµÑ…Ð°Ð½Ð¸Ðº
                 </h2>
                 <div
                   onClick={() => navigate(`/admin/workers/${schedule.worker!.id}`)}
@@ -219,12 +219,12 @@ const ScheduleDetails = () => {
               </div>
             )}
 
-            {/* Свързана поръчка */}
+            
             {schedule.order && (
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5" />
-                  Свързана поръчка
+                  Ð¡Ð²ÑŠÑ€Ð·Ð°Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
                 </h2>
                 <div
                   onClick={() => navigate(`/admin/orders/${schedule.order!.id}`)}
@@ -232,25 +232,25 @@ const ScheduleDetails = () => {
                 >
                   <p className="font-medium text-textPrimary">{schedule.order.displayOrderNumber || schedule.order.orderNumber}</p>
                   <p className="text-sm text-textSecondary mt-1">
-                    Клиент: {schedule.order.client.firstName} {schedule.order.client.lastName}
+                    ÐšÐ»Ð¸ÐµÐ½Ñ‚: {schedule.order.client.firstName} {schedule.order.client.lastName}
                   </p>
                   <p className="text-sm text-textSecondary">
-                    Автомобил: {schedule.order.vehicle.brand} {schedule.order.vehicle.model} ({schedule.order.vehicle.licensePlate})
+                    ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»: {schedule.order.vehicle.brand} {schedule.order.vehicle.model} ({schedule.order.vehicle.licensePlate})
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Описание и бележки */}
+            
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
-                Описание и бележки
+                ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸
               </h2>
               <div className="space-y-3 sm:space-y-4">
                 {schedule.description && (
                   <div>
-                    <p className="text-sm font-medium text-textSecondary mb-2">Описание:</p>
+                    <p className="text-sm font-medium text-textSecondary mb-2">ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ:</p>
                     <p className="text-textPrimary bg-mainBg p-3 rounded-lg">
                       {schedule.description}
                     </p>
@@ -258,27 +258,27 @@ const ScheduleDetails = () => {
                 )}
                 {schedule.notes && (
                   <div>
-                    <p className="text-sm font-medium text-textSecondary mb-2">Бележки:</p>
+                    <p className="text-sm font-medium text-textSecondary mb-2">Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸:</p>
                     <p className="text-textPrimary bg-mainBg p-3 rounded-lg">{schedule.notes}</p>
                   </div>
                 )}
                 {!schedule.description && !schedule.notes && (
-                  <p className="text-textSecondary">Няма описание или бележки</p>
+                  <p className="text-textSecondary">ÐÑÐ¼Ð° Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¸Ð»Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸</p>
                 )}
               </div>
             </div>
           </div>
 
           <div className="space-y-4 sm:space-y-6">
-            {/* Време и дата */}
+            
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                Време и дата
+                Ð’Ñ€ÐµÐ¼Ðµ Ð¸ Ð´Ð°Ñ‚Ð°
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-textSecondary">Дата</p>
+                  <p className="text-sm text-textSecondary">Ð”Ð°Ñ‚Ð°</p>
                   <p className="font-medium text-textPrimary">
                     {new Date(schedule.date).toLocaleDateString('bg-BG', {
                       weekday: 'long',
@@ -289,7 +289,7 @@ const ScheduleDetails = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-textSecondary">Време</p>
+                  <p className="text-sm text-textSecondary">Ð’Ñ€ÐµÐ¼Ðµ</p>
                   <p className="font-medium text-textPrimary">
                     {new Date(schedule.startTime).toLocaleTimeString('bg-BG', {
                       hour: '2-digit',
@@ -304,12 +304,12 @@ const ScheduleDetails = () => {
                 </div>
                 {schedule.estimatedDuration && (
                   <div>
-                    <p className="text-sm text-textSecondary">Очаквана продължителност</p>
-                    <p className="font-medium text-textPrimary">{schedule.estimatedDuration} минути</p>
+                    <p className="text-sm text-textSecondary">ÐžÑ‡Ð°ÐºÐ²Ð°Ð½Ð° Ð¿Ñ€Ð¾Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾ÑÑ‚</p>
+                    <p className="font-medium text-textPrimary">{schedule.estimatedDuration} Ð¼Ð¸Ð½ÑƒÑ‚Ð¸</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm text-textSecondary">Създадена на</p>
+                  <p className="text-sm text-textSecondary">Ð¡ÑŠÐ·Ð´Ð°Ð´ÐµÐ½Ð° Ð½Ð°</p>
                   <p className="font-medium text-textPrimary">
                     {new Date(schedule.createdAt).toLocaleString('bg-BG')}
                   </p>
@@ -324,4 +324,5 @@ const ScheduleDetails = () => {
 };
 
 export default ScheduleDetails;
+
 

@@ -1,4 +1,4 @@
-import api from './api';
+﻿import api from './api';
 import axios from 'axios';
 import type { 
   MechanicDashboardData, 
@@ -242,8 +242,8 @@ export const getMechanicServiceCompanies = async (): Promise<MechanicServiceComp
 };
 
 export const getActiveServiceCompany = async (): Promise<ActiveServiceCompanyResponse> => {
-  // 🆕 ВАЖНО: skipAutoLogout: true предотвратява автоматичен logout при 403
-  // Този endpoint проверява за активен сервиз и очакваме 403 когато няма
+
+
   const response = await api.get('/workers/service-companies/active', { skipAutoLogout: true });
   return response.data;
 };
@@ -267,3 +267,4 @@ export const leaveServiceCompany = async (membershipId: string): Promise<LeaveSe
   const response = await api.delete(`/workers/service-companies/${membershipId}`);
   return response.data;
 };
+

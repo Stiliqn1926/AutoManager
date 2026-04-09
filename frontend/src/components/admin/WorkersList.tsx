@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 import api from '../../services/api';
@@ -22,7 +22,7 @@ const WorkersList = () => {
         const response = await api.get('/workers');
         setWorkers(response.data.workers || []);
       } catch  {
-        toast.error('Грешка при зареждане на механици');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸');
       } finally {
         setIsLoading(false);
       }
@@ -34,7 +34,7 @@ const WorkersList = () => {
   if (isLoading) {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-        <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Последно добавени механици</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-gray-200 rounded"></div>
@@ -47,17 +47,17 @@ const WorkersList = () => {
   return (
     <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">Последно добавени механици</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸</h2>
         <button
           onClick={() => navigate('/admin/workers')}
           className="text-sm text-primary hover:text-primary-700 font-medium"
         >
-          Виж всички →
+          Ð’Ð¸Ð¶ Ð²ÑÐ¸Ñ‡ÐºÐ¸ â†’
         </button>
       </div>
 
       {workers.length === 0 ? (
-        <p className="text-textSecondary text-center py-8">Няма механици</p>
+        <p className="text-textSecondary text-center py-8">ÐÑÐ¼Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸</p>
       ) : (
         <div className="space-y-2">
           {workers.slice(0, 5).map((worker) => (
@@ -86,3 +86,4 @@ const WorkersList = () => {
 };
 
 export default WorkersList;
+

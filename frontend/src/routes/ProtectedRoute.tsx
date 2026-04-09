@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+﻿import { Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { UserRole } from '../types';
@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Зареждане...</div>
+        <div className="text-xl">Ð—Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ...</div>
       </div>
     );
   }
@@ -29,3 +29,4 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
 
   return <>{children}</>;
 };
+

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+﻿import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 
 export const useTheme = () => {
@@ -10,3 +10,4 @@ export const useTheme = () => {
 
   return context;
 };
+

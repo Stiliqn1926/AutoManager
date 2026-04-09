@@ -1,4 +1,4 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+﻿import { useState, useEffect, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Star, Phone, Mail } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -37,7 +37,7 @@ const Suppliers = () => {
       const response = await api.get('/suppliers');
       setSuppliers(response.data.suppliers || []);
     } catch {
-      toast.error('Грешка при зареждане на доставчици');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +52,11 @@ const Suppliers = () => {
       OTHER: 'bg-yellow-100 text-yellow-800',
     };
     const labels = {
-      PARTS: 'Части',
-      CONSUMABLES: 'Консумативи',
-      SERVICES: 'Услуги',
-      TIRES: 'Гуми',
-      OTHER: 'Друго',
+      PARTS: 'Ð§Ð°ÑÑ‚Ð¸',
+      CONSUMABLES: 'ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸',
+      SERVICES: 'Ð£ÑÐ»ÑƒÐ³Ð¸',
+      TIRES: 'Ð“ÑƒÐ¼Ð¸',
+      OTHER: 'Ð”Ñ€ÑƒÐ³Ð¾',
     };
     return (
       <span
@@ -108,14 +108,14 @@ const Suppliers = () => {
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Доставчици</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸</h1>
             <p className="text-textSecondary mt-1">
-              Управление на доставчици на части и услуги
+              Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð½Ð° Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸ Ð½Ð° Ñ‡Ð°ÑÑ‚Ð¸ Ð¸ ÑƒÑÐ»ÑƒÐ³Ð¸
             </p>
           </div>
           <Button onClick={() => navigate('/admin/suppliers/create')} className="w-full sm:w-auto lg:ml-auto">
             <Plus className="w-4 h-4" />
-            Добави доставчик
+            Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº
           </Button>
         </div>
 
@@ -126,13 +126,13 @@ const Suppliers = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Търси по име, телефон, email..."
+                  placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ð¸Ð¼Ðµ, Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½, email..."
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     setSearchTerm(e.target.value)
                   }
                   className="w-full pl-10 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label="Търсене"
+                  aria-label="Ð¢ÑŠÑ€ÑÐµÐ½Ðµ"
                 />
               </div>
             </div>
@@ -143,14 +143,14 @@ const Suppliers = () => {
                 setTypeFilter(e.target.value)
               }
               className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Филтър по тип"
+              aria-label="Ð¤Ð¸Ð»Ñ‚ÑŠÑ€ Ð¿Ð¾ Ñ‚Ð¸Ð¿"
             >
-              <option value="">Всички типове</option>
-              <option value="PARTS">Части</option>
-              <option value="CONSUMABLES">Консумативи</option>
-              <option value="SERVICES">Услуги</option>
-              <option value="TIRES">Гуми</option>
-              <option value="OTHER">Друго</option>
+              <option value="">Ð’ÑÐ¸Ñ‡ÐºÐ¸ Ñ‚Ð¸Ð¿Ð¾Ð²Ðµ</option>
+              <option value="PARTS">Ð§Ð°ÑÑ‚Ð¸</option>
+              <option value="CONSUMABLES">ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸</option>
+              <option value="SERVICES">Ð£ÑÐ»ÑƒÐ³Ð¸</option>
+              <option value="TIRES">Ð“ÑƒÐ¼Ð¸</option>
+              <option value="OTHER">Ð”Ñ€ÑƒÐ³Ð¾</option>
             </select>
 
             <select
@@ -159,11 +159,11 @@ const Suppliers = () => {
                 setActiveFilter(e.target.value)
               }
               className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Филтър по статус"
+              aria-label="Ð¤Ð¸Ð»Ñ‚ÑŠÑ€ Ð¿Ð¾ ÑÑ‚Ð°Ñ‚ÑƒÑ"
             >
-              <option value="">Всички статуси</option>
-              <option value="true">Активен</option>
-              <option value="false">Неактивен</option>
+              <option value="">Ð’ÑÐ¸Ñ‡ÐºÐ¸ ÑÑ‚Ð°Ñ‚ÑƒÑÐ¸</option>
+              <option value="true">ÐÐºÑ‚Ð¸Ð²ÐµÐ½</option>
+              <option value="false">ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½</option>
             </select>
 
             <select
@@ -172,11 +172,11 @@ const Suppliers = () => {
                 setPreferredFilter(e.target.value)
               }
               className="w-full sm:w-auto px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Филтър по предпочитан"
+              aria-label="Ð¤Ð¸Ð»Ñ‚ÑŠÑ€ Ð¿Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½"
             >
-              <option value="">Всички</option>
-              <option value="true">Предпочитани</option>
-              <option value="false">Не предпочитани</option>
+              <option value="">Ð’ÑÐ¸Ñ‡ÐºÐ¸</option>
+              <option value="true">ÐŸÑ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð¸</option>
+              <option value="false">ÐÐµ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð¸</option>
             </select>
           </div>
 
@@ -186,25 +186,25 @@ const Suppliers = () => {
                 <tr>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle w-8"></th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Име
+                    Ð˜Ð¼Ðµ
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Тип
+                    Ð¢Ð¸Ð¿
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Телефон
+                    Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Email
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Контакт
+                    ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Град
+                    Ð“Ñ€Ð°Ð´
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Статус
+                    Ð¡Ñ‚Ð°Ñ‚ÑƒÑ
                   </th>
                 </tr>
               </thead>
@@ -259,11 +259,11 @@ const Suppliers = () => {
                       <td className="py-3 px-3 sm:px-4">
                         {supplier.isActive ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                            Активен
+                            ÐÐºÑ‚Ð¸Ð²ÐµÐ½
                           </span>
                         ) : (
                           <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                            Неактивен
+                            ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½
                           </span>
                         )}
                       </td>
@@ -272,7 +272,7 @@ const Suppliers = () => {
                 ) : (
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-textSecondary">
-                      Няма намерени доставчици
+                      ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸
                     </td>
                   </tr>
                 )}
@@ -286,4 +286,5 @@ const Suppliers = () => {
 };
 
 export default Suppliers;
+
 

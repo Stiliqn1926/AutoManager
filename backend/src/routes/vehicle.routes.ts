@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   createVehicle,
   getAllVehicles,
@@ -17,7 +17,7 @@ import { createVehicleSchema, updateVehicleSchema } from '../validators/schemas'
 
 const router = Router();
 
-// ========== MECHANIC SPECIFIC ROUTES (преди общите) ==========
+
 router.get(
   '/mechanic',
   authenticate,
@@ -36,19 +36,20 @@ router.use(authenticate);
 router.use(authorize('ADMIN'));
 router.use(requireActiveAdminSubscription);
 
-// POST /api/vehicles - Създай автомобил с валидация
+
 router.post('/', validate(createVehicleSchema), createVehicle);
 
-// GET /api/vehicles - Всички автомобили
+
 router.get('/', getAllVehicles);
 
-// GET /api/vehicles/:id - Автомобил по ID
+
 router.get('/:id', getVehicleById);
 
-// PUT /api/vehicles/:id - Обнови автомобил с валидация
+
 router.put('/:id', validate(updateVehicleSchema), updateVehicle);
 
-// DELETE /api/vehicles/:id - Деактивирай автомобил
+
 router.delete('/:id', deleteVehicle);
 
 export default router;
+

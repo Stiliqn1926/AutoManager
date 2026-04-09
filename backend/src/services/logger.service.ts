@@ -1,7 +1,7 @@
-import winston from 'winston';
+﻿import winston from 'winston';
 import path from 'path';
 
-// Конфигурация на логове
+
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(
@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'automanager-api' },
   transports: [
-    // Error logs - само грешки
+
     new winston.transports.File({
       filename: path.join('logs', 'error.log'),
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // Combined logs - всичко
+
     new winston.transports.File({
       filename: path.join('logs', 'combined.log'),
       maxsize: 5242880, // 5MB
@@ -27,7 +27,7 @@ const logger = winston.createLogger({
   ],
 });
 
-// В development режим - логвай и в конзолата
+
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
@@ -40,3 +40,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export default logger;
+

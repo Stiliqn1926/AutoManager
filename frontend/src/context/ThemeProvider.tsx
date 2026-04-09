@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ThemeContext, type Theme } from './ThemeContext';
 
@@ -48,3 +48,4 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
+

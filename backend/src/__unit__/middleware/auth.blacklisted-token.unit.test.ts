@@ -1,4 +1,4 @@
-import prisma from '../../config/database';
+﻿import prisma from '../../config/database';
 import * as generateTokenUtils from '../../utils/generateToken';
 import * as tokenUtils from '../../utils/tokenUtils';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -41,3 +41,4 @@ describe('authenticate - blacklisted token', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+

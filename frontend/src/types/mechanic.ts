@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // MECHANIC DASHBOARD TYPES
 // ============================================
 
@@ -6,7 +6,7 @@ export interface MechanicWorker {
   id: string;
   name: string;
   specialization: string | null;
-  isActive?: boolean; // ✅ Добавено - true = одобрен, false = чака одобрение
+  isActive?: boolean;
 }
 
 
@@ -454,3 +454,4 @@ export interface SwitchServiceCompanyResponse {
 export interface LeaveServiceCompanyResponse {
   message: string;
 }
+

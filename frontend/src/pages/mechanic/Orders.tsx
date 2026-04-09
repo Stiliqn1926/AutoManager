@@ -131,6 +131,7 @@ const MechanicOrders = () => {
   const getPriorityBadge = (priority: string) => {
     const priorityConfig: Record<string, { label: string; className: string }> = {
       LOW: { label: 'Нисък', className: 'bg-gray-100 text-gray-600' },
+      NORMAL: { label: 'Нормален', className: 'bg-blue-100 text-blue-700' },
       MEDIUM: { label: 'Среден', className: 'bg-blue-100 text-blue-700' },
       HIGH: { label: 'Висок', className: 'bg-orange-100 text-orange-700' },
       URGENT: { label: 'Спешен', className: 'bg-red-100 text-red-700' },

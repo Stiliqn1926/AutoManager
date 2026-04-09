@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   getDashboardOverview,
   getFinanceChartData,
@@ -27,7 +27,8 @@ router.get(
   getFinanceChartData
 );
 
-// MECHANIC Dashboard (работи и без активен сервиз - показва onboarding UI)
+
 router.get('/mechanic', authenticate, authorize('MECHANIC'), getMechanicDashboard);
 
 export default router;
+

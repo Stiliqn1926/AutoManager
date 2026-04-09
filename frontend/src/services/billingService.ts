@@ -1,4 +1,4 @@
-import api from './api';
+﻿import api from './api';
 
 export interface CheckoutSessionResponse {
   checkoutUrl: string;
@@ -32,3 +32,4 @@ export const getAdminRegistrationStatus = async (
   });
   return response.data;
 };
+

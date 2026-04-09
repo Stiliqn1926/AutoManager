@@ -1,4 +1,4 @@
-import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
+﻿import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { X } from 'lucide-react';
 import api from '../../services/api';
 import axios from 'axios';
@@ -86,7 +86,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
         setWorkers(workersRes.data.workers || []);
         setOrders(ordersRes.data.orders || []);
       } catch {
-        toast.error('Грешка при зареждане на задача');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°');
         onClose();
       } finally {
         setIsLoading(false);
@@ -100,18 +100,18 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
     e.preventDefault();
 
     if (!formData.title) {
-      toast.error('Моля попълнете заглавие на задачата');
+      toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿ÑŠÐ»Ð½ÐµÑ‚Ðµ Ð·Ð°Ð³Ð»Ð°Ð²Ð¸Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°');
       return;
     }
 
-    // Проверка за минали дати
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const taskDate = new Date(formData.date);
     taskDate.setHours(0, 0, 0, 0);
 
     if (taskDate < today) {
-      toast.error('Не можете да редактирате задачи с минали дати');
+      toast.error('ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ñ‚Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ñ Ð¼Ð¸Ð½Ð°Ð»Ð¸ Ð´Ð°Ñ‚Ð¸');
       return;
     }
 
@@ -135,7 +135,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
         notes: formData.notes,
       });
 
-      toast.success('Задачата е обновена');
+      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½Ð°');
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -171,12 +171,12 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
       <div className="bg-cardBg rounded-2xl shadow-card max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-textPrimary">Редактиране на задача</h2>
+          <h2 className="text-xl font-bold text-textPrimary">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Затвори"
-            title="Затвори"
+            aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
+            title="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
           >
             <X className="w-5 h-5 text-textSecondary" />
           </button>
@@ -185,7 +185,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <Input
-            label="Заглавие *"
+            label="Ð—Ð°Ð³Ð»Ð°Ð²Ð¸Ðµ *"
             value={formData.title}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormData({ ...formData, title: e.target.value })
@@ -198,9 +198,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
             <label
               htmlFor="schedule-description"
               className="block text-sm font-medium text-textPrimary mb-2"
-              title="Описание"
+              title="ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ"
             >
-              Описание
+              ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
             </label>
             <textarea
               id="schedule-description"
@@ -208,8 +208,8 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Въведи описание"
-              title="Описание"
+              placeholder="Ð’ÑŠÐ²ÐµÐ´Ð¸ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ"
+              title="ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ"
               className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
             />
@@ -217,7 +217,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
 
           {/* Date */}
           <Input
-            label="Дата *"
+            label="Ð”Ð°Ñ‚Ð° *"
             type="date"
             value={formData.date}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -229,7 +229,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
           {/* Time */}
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Начало *"
+              label="ÐÐ°Ñ‡Ð°Ð»Ð¾ *"
               type="time"
               value={formData.startTime}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -238,7 +238,7 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               required
             />
             <Input
-              label="Край *"
+              label="ÐšÑ€Ð°Ð¹ *"
               type="time"
               value={formData.endTime}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -254,9 +254,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               <label
                 htmlFor="schedule-worker"
                 className="block text-sm font-medium text-textPrimary mb-2"
-                title="Механик"
+                title="ÐœÐµÑ…Ð°Ð½Ð¸Ðº"
               >
-                Механик
+                ÐœÐµÑ…Ð°Ð½Ð¸Ðº
               </label>
               <select
                 id="schedule-worker"
@@ -264,11 +264,11 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, workerId: e.target.value })
                 }
-                title="Избери механик"
-                aria-label="Избери механик"
+                title="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº"
+                aria-label="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="">Избери механик</option>
+                <option value="">Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº</option>
                 {workers.map((worker) => (
                   <option key={worker.id} value={worker.id}>
                     {worker.firstName} {worker.lastName}
@@ -281,9 +281,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               <label
                 htmlFor="schedule-order"
                 className="block text-sm font-medium text-textPrimary mb-2"
-                title="Свързана поръчка"
+                title="Ð¡Ð²ÑŠÑ€Ð·Ð°Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°"
               >
-                Свързана поръчка
+                Ð¡Ð²ÑŠÑ€Ð·Ð°Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
               </label>
               <select
                 id="schedule-order"
@@ -291,11 +291,11 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, orderId: e.target.value })
                 }
-                title="Избери поръчка"
-                aria-label="Избери поръчка"
+                title="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°"
+                aria-label="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="">Избери поръчка</option>
+                <option value="">Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°</option>
                 {orders.map((order) => (
                   <option key={order.id} value={order.id}>
                     {order.displayOrderNumber || order.orderNumber}
@@ -311,9 +311,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               <label
                 htmlFor="schedule-status"
                 className="block text-sm font-medium text-textPrimary mb-2"
-                title="Статус"
+                title="Ð¡Ñ‚Ð°Ñ‚ÑƒÑ"
               >
-                Статус *
+                Ð¡Ñ‚Ð°Ñ‚ÑƒÑ *
               </label>
               <select
                 id="schedule-status"
@@ -321,17 +321,17 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
-                title="Избери статус"
-                aria-label="Избери статус"
+                title="Ð˜Ð·Ð±ÐµÑ€Ð¸ ÑÑ‚Ð°Ñ‚ÑƒÑ"
+                aria-label="Ð˜Ð·Ð±ÐµÑ€Ð¸ ÑÑ‚Ð°Ñ‚ÑƒÑ"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
-                <option value="SCHEDULED">Планирана</option>
-                <option value="IN_PROGRESS">В процес</option>
-                <option value="READY">Готова за плащане</option>
-                <option value="COMPLETED">Платена</option>
-                <option value="CANCELLED">Отменена</option>
-                <option value="DELAYED">Забавена</option>
+                <option value="SCHEDULED">ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°</option>
+                <option value="IN_PROGRESS">Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ</option>
+                <option value="READY">Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ</option>
+                <option value="COMPLETED">ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°</option>
+                <option value="CANCELLED">ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½Ð°</option>
+                <option value="DELAYED">Ð—Ð°Ð±Ð°Ð²ÐµÐ½Ð°</option>
               </select>
             </div>
 
@@ -339,9 +339,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               <label
                 htmlFor="schedule-priority"
                 className="block text-sm font-medium text-textPrimary mb-2"
-                title="Приоритет"
+                title="ÐŸÑ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚"
               >
-                Приоритет *
+                ÐŸÑ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ *
               </label>
               <select
                 id="schedule-priority"
@@ -349,22 +349,22 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                   setFormData({ ...formData, priority: e.target.value })
                 }
-                title="Избери приоритет"
-                aria-label="Избери приоритет"
+                title="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚"
+                aria-label="Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚"
                 className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
-                <option value="LOW">Нисък</option>
-                <option value="NORMAL">Нормален</option>
-                <option value="HIGH">Висок</option>
-                <option value="URGENT">Спешен</option>
+                <option value="LOW">ÐÐ¸ÑÑŠÐº</option>
+                <option value="NORMAL">ÐÐ¾Ñ€Ð¼Ð°Ð»ÐµÐ½</option>
+                <option value="HIGH">Ð’Ð¸ÑÐ¾Ðº</option>
+                <option value="URGENT">Ð¡Ð¿ÐµÑˆÐµÐ½</option>
               </select>
             </div>
           </div>
 
           {/* Estimated Duration */}
           <Input
-            label="Очаквана продължителност (минути)"
+            label="ÐžÑ‡Ð°ÐºÐ²Ð°Ð½Ð° Ð¿Ñ€Ð¾Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾ÑÑ‚ (Ð¼Ð¸Ð½ÑƒÑ‚Ð¸)"
             type="number"
             value={formData.estimatedDuration}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -379,9 +379,9 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
             <label
               htmlFor="schedule-notes"
               className="block text-sm font-medium text-textPrimary mb-2"
-              title="Бележки"
+              title="Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸"
             >
-              Бележки
+              Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸
             </label>
             <textarea
               id="schedule-notes"
@@ -389,8 +389,8 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
-              placeholder="Въведи бележки"
-              title="Бележки"
+              placeholder="Ð’ÑŠÐ²ÐµÐ´Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸"
+              title="Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸"
               className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
             />
@@ -399,10 +399,10 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
           {/* Actions */}
           <div className="flex gap-3 mt-6">
             <Button type="button" onClick={onClose} fullWidth variant="secondary">
-              Отказ
+              ÐžÑ‚ÐºÐ°Ð·
             </Button>
             <Button type="submit" fullWidth isLoading={isSaving}>
-              Запази
+              Ð—Ð°Ð¿Ð°Ð·Ð¸
             </Button>
           </div>
         </form>
@@ -412,3 +412,4 @@ const EditTaskModal = ({ scheduleId, onClose, onSuccess }: EditTaskModalProps) =
 };
 
 export default EditTaskModal;
+

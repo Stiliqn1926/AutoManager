@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import authRoutes from './auth.routes';
 import serviceCompanyRoutes from './serviceCompany.routes';
 import workerRoutes from './worker.routes';
@@ -75,4 +75,5 @@ router.get('/health', (req, res) => {
 });
 
 export default router;
+
 

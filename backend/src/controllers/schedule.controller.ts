@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 
@@ -22,7 +22,7 @@ const checkScheduleConflicts = async (
   const conflicts = await prisma.schedule.findMany({
     where: {
       workerId,
-      status: { in: ['SCHEDULED', 'IN_PROGRESS'] }, // ✅ САМО активни графици
+      status: { in: ['SCHEDULED', 'IN_PROGRESS'] },
       OR: [
         {
           AND: [
@@ -88,7 +88,7 @@ export const createSchedule = async (
       return;
     }
 
-    // Проверка за минали дати
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const taskDate = new Date(scheduleDate);
@@ -101,7 +101,7 @@ export const createSchedule = async (
 
     if (end.getTime() <= start.getTime()) {
   res.status(400).json({
-    message: 'Крайният час трябва да е след началния час',
+    message: 'ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ Ñ‡Ð°Ñ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¸Ñ Ñ‡Ð°Ñ',
   });
   return;
 }
@@ -133,7 +133,7 @@ export const createSchedule = async (
       const hasConflict = await checkScheduleConflicts(workerId, start, end);
       if (hasConflict) {
         res.status(409).json({
-          message: 'Конфликт в графика: механикът вече има задача за този час.',
+          message: 'ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð² Ð³Ñ€Ð°Ñ„Ð¸ÐºÐ°: Ð¼ÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð²ÐµÑ‡Ðµ Ð¸Ð¼Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ Ñ‡Ð°Ñ.',
         });
         return;
       }
@@ -172,7 +172,7 @@ export const createSchedule = async (
       },
     });
 
-    // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок на поръчката
+
     if (orderId) {
       await prisma.order.update({
         where: { id: orderId },
@@ -222,7 +222,7 @@ export const getAllSchedules = async (
         return;
       }
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 400
+
         res.status(200).json({ schedules: [] });
         return;
       }
@@ -291,7 +291,7 @@ export const getWeeklySchedule = async (
       date: { gte: start, lt: end },
     };
 
-    // ✅ ЛОГИКА ЗА РОЛЯ
+
     if (role === 'ADMIN') {
       const company = await prisma.serviceCompany.findUnique({
         where: { userId },
@@ -310,7 +310,7 @@ export const getWeeklySchedule = async (
         return;
       }
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 400
+
         res.status(200).json({ schedules: [] });
         return;
       }
@@ -385,7 +385,7 @@ export const getDailySchedule = async (
       date: { gte: start, lt: end },
     };
 
-    // ✅ ЛОГИКА ЗА РОЛЯ
+
     if (role === 'ADMIN') {
       const company = await prisma.serviceCompany.findUnique({
         where: { userId },
@@ -404,7 +404,7 @@ export const getDailySchedule = async (
         return;
       }
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 400
+
         res.status(200).json({ schedules: [] });
         return;
       }
@@ -479,7 +479,7 @@ export const getMonthlySchedule = async (
       date: { gte: start, lt: end },
     };
 
-    // ✅ ЛОГИКА ЗА РОЛЯ
+
     if (role === 'ADMIN') {
       const company = await prisma.serviceCompany.findUnique({
         where: { userId },
@@ -498,7 +498,7 @@ export const getMonthlySchedule = async (
         return;
       }
       if (!worker.serviceCompanyId) {
-        // Няма активен сервиз - върни празни данни вместо 400
+
         res.status(200).json({ schedules: [] });
         return;
       }
@@ -692,13 +692,13 @@ export const updateSchedule = async (
     const newEnd = endTime ? new Date(endTime) : null;
     const scheduleDate = date ? new Date(date) : null;
 
-    // Валидация на дати
+
     if ((newStart && isNaN(newStart.getTime())) || (newEnd && isNaN(newEnd.getTime()))) {
       res.status(400).json({ message: 'Invalid date format' });
       return;
     }
 
-    // Проверка за минали дати
+
     const finalScheduleDate = scheduleDate ?? existingSchedule.date;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -710,14 +710,14 @@ export const updateSchedule = async (
       return;
     }
 
-    // Определи финалните стойности (нови или стари)
+
     const finalStart = newStart ?? existingSchedule.startTime;
     const finalEnd = newEnd ?? existingSchedule.endTime;
 
-    // Провери дали крайният час е след началния
+
    if (finalEnd <= finalStart) {
       res.status(400).json({
-        message: 'Крайният час трябва да е след началния час',
+        message: 'ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ Ñ‡Ð°Ñ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¸Ñ Ñ‡Ð°Ñ',
       });
       return;
     }
@@ -743,7 +743,7 @@ export const updateSchedule = async (
         id
       );
       if (hasConflict) {
-        res.status(409).json({ message: 'Конфликт в графика: механикът има друга задача за този период.' });
+        res.status(409).json({ message: 'ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð² Ð³Ñ€Ð°Ñ„Ð¸ÐºÐ°: Ð¼ÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð¸Ð¼Ð° Ð´Ñ€ÑƒÐ³Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ Ð¿ÐµÑ€Ð¸Ð¾Ð´.' });
         return;
       }
     }
@@ -786,20 +786,20 @@ export const updateSchedule = async (
       },
     });
 
-    // ✅ СИНХРОНИЗАЦИЯ: Обнови краен срок и статус на поръчката
+
     const finalOrderId = orderId !== undefined ? (orderId || null) : existingSchedule.orderId;
 
     if (finalOrderId) {
       const orderUpdateData: any = {};
 
-      // Синхронизирай дата
+
       if (scheduleDate) {
         orderUpdateData.endDate = scheduleDate;
       } else if (newStart) {
         orderUpdateData.endDate = newStart;
       }
 
-      // Синхронизирай статус
+
       if (status !== undefined) {
         const statusMap: any = {
           'SCHEDULED': 'WAITING',
@@ -1009,3 +1009,4 @@ export const checkConflicts = async (
     res.status(500).json({ message: 'Server error' });
   }
 };
+

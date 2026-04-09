@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+﻿import type { LucideIcon } from 'lucide-react';
 
 type Props = {
   icon: LucideIcon;
@@ -37,3 +37,4 @@ const StatsCard = ({
 };
 
 export default StatsCard;
+

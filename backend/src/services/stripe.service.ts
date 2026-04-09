@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+﻿import Stripe from 'stripe';
 
 const createStripeClient = (secretKey: string) => new Stripe(secretKey);
 
@@ -34,3 +34,4 @@ export const getStripeCancelUrl = (): string =>
   getRequiredEnv('STRIPE_CANCEL_URL');
 
 export const getFrontendUrl = (): string => getRequiredEnv('FRONTEND_URL');
+

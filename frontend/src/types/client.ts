@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // CLIENT DASHBOARD TYPES
 // ============================================
 
@@ -110,3 +110,4 @@ export interface ClientPendingRequest {
 export interface ClientPendingRequestsResponse {
   pendingRequests: ClientPendingRequest[];
 }
+

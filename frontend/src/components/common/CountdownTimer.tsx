@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 interface CountdownTimerProps {
   initialSeconds: number;
@@ -39,8 +39,9 @@ export const CountdownTimer = ({ initialSeconds, onExpire }: CountdownTimerProps
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span className={`text-sm font-medium ${getColorClass()}`}>
-        Кодът изтича след: {formatTime(seconds)}
+        ÐšÐ¾Ð´ÑŠÑ‚ Ð¸Ð·Ñ‚Ð¸Ñ‡Ð° ÑÐ»ÐµÐ´: {formatTime(seconds)}
       </span>
     </div>
   );
 };
+

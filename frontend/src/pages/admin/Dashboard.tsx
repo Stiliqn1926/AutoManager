@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import MainLayout from '../../components/layout/MainLayout';
 import SetupWizard from '../../components/admin/SetupWizard';
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
       }
 
       if (!silent) {
-        toast.error('Възникна грешка при зареждане на таблото');
+        toast.error('Ð’ÑŠÐ·Ð½Ð¸ÐºÐ½Ð° Ð³Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ‚Ð°Ð±Ð»Ð¾Ñ‚Ð¾');
       }
     } finally {
       if (requestSeq !== requestSeqRef.current) {
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
     }
   }, []);
 
-  // ✅ САМО ЕДНА заявка, САМО веднъж
+
   useEffect(() => {
     void fetchDashboard();
 
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
       window.removeEventListener('focus', refreshSilently);
       document.removeEventListener('visibilitychange', refreshSilently);
     };
-  }, [fetchDashboard]); // НИКОГА без [] - това предотвратява infinite loop
+  }, [fetchDashboard]);
 
   if (isLoading) {
     return (
@@ -150,12 +150,12 @@ const AdminDashboard = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
+          <p className="text-textSecondary mb-4">Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸</p>
           <button
             onClick={() => void fetchDashboard()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
           >
-            Опитай отново
+            ÐžÐ¿Ð¸Ñ‚Ð°Ð¹ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾
           </button>
         </div>
       </MainLayout>
@@ -168,17 +168,17 @@ const AdminDashboard = () => {
         {/* Onboarding / Setup */}
         <SetupWizard />
 
-        {/* KPI Statistics - подаваме данни като prop */}
+        
         <StatsDashboard stats={dashboardData.stats} />
 
         {/* Main work area */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
-          {/* Calendar – primary focus */}
+          
           <div className="xl:col-span-2 h-full">
             <OrdersCalendar />
           </div>
 
-          {/* Recent Orders – secondary focus */}
+          
           <div className="h-full">
             <RecentOrders
               orders={dashboardData.recentOrders.map((order) => ({
@@ -204,3 +204,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

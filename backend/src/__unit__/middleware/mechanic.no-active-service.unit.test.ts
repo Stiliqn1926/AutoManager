@@ -1,4 +1,4 @@
-const mockWorkerFindUnique = jest.fn();
+﻿const mockWorkerFindUnique = jest.fn();
 const mockMembershipFindFirst = jest.fn();
 
 jest.mock('../../config/database', () => ({
@@ -54,4 +54,5 @@ describe('requireActiveService - no active service', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+
 

@@ -1,4 +1,4 @@
-import { useAuth } from '../../hooks/useAuth';
+﻿import { useAuth } from '../../hooks/useAuth';
 import { useServiceCompany } from '../../hooks/useServiceCompany';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Settings, ChevronDown, Bell, Menu, Moon, Sun } from 'lucide-react';
@@ -56,7 +56,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
 
     if (user?.role === UserRole.ADMIN) {
       fetchPendingCount(controller.signal);
-      // Refresh на 2 минути
+
       const interval = setInterval(() => fetchPendingCount(controller.signal), 120000);
       return () => {
         clearInterval(interval);
@@ -115,19 +115,19 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
       case UserRole.ADMIN:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-primary text-primary bg-primary/10">
-            Администратор
+            ÐÐ´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€
           </span>
         );
       case UserRole.MECHANIC:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-success text-success bg-success/10">
-            Механик
+            ÐœÐµÑ…Ð°Ð½Ð¸Ðº
           </span>
         );
       case UserRole.CLIENT:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-400 text-gray-600 bg-gray-100">
-            Клиент
+            ÐšÐ»Ð¸ÐµÐ½Ñ‚
           </span>
         );
       default:
@@ -138,13 +138,13 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex items-center justify-between p-4 sm:p-6">
-        {/* Лява част – Service Company Dropdown (само за CLIENT) */}
+        
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onOpenSidebar}
             className="md:hidden p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            aria-label="Отвори меню"
+            aria-label="ÐžÑ‚Ð²Ð¾Ñ€Ð¸ Ð¼ÐµÐ½ÑŽ"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -156,7 +156,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingCompanies ? (
-                  <span className="text-sm text-gray-600">Зареждане...</span>
+                  <span className="text-sm text-gray-600">Ð—Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ...</span>
                 ) : selectedServiceCompany ? (
                   <>
                     <span className="text-sm font-medium text-gray-900">
@@ -165,7 +165,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                     <ChevronDown className="w-4 h-4 text-gray-500" />
                   </>
                 ) : (
-                  <span className="text-sm text-gray-600">Няма сервизи</span>
+                  <span className="text-sm text-gray-600">ÐÑÐ¼Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð¸</span>
                 )}
               </button>
 
@@ -174,7 +174,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                 <div className="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   <div className="p-2">
                     <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                      Изберете сервиз
+                      Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·
                     </div>
                     {serviceCompanies.map(({ serviceCompany }) => (
                       <button
@@ -190,7 +190,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                           {serviceCompany.name}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                          {serviceCompany.address || 'Няма адрес'}
+                          {serviceCompany.address || 'ÐÑÐ¼Ð° Ð°Ð´Ñ€ÐµÑ'}
                         </div>
                         <div className="text-xs text-gray-500">
                           {serviceCompany.phone}
@@ -204,7 +204,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
           )}
         </div>
 
-        {/* Дясна част – User info + Settings + Logout */}
+        
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="hidden sm:flex items-center gap-3">
             <div className="text-right">
@@ -217,7 +217,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             <button
               onClick={() => navigate('/client/notifications')}
               className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-              title="Известия"
+              title="Ð˜Ð·Ð²ÐµÑÑ‚Ð¸Ñ"
             >
               <Bell className="w-5 h-5" />
               {unreadNotifications > 0 && (
@@ -228,12 +228,12 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             </button>
           )}
 
-          {/* Settings Button (само за ADMIN) */}
+          
           {user?.role === UserRole.ADMIN && (
             <button
               onClick={() => navigate('/admin/settings')}
               className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-              title="Настройки"
+              title="ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸"
             >
               <Settings className="w-5 h-5" />
               {pendingCount > 0 && (
@@ -247,8 +247,8 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            title={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
-            aria-label={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
+            title={theme === 'dark' ? 'Ð¡Ð²ÐµÑ‚Ð»Ð° Ñ‚ÐµÐ¼Ð°' : 'Ð¢ÑŠÐ¼Ð½Ð° Ñ‚ÐµÐ¼Ð°'}
+            aria-label={theme === 'dark' ? 'Ð¡Ð²ÐµÑ‚Ð»Ð° Ñ‚ÐµÐ¼Ð°' : 'Ð¢ÑŠÐ¼Ð½Ð° Ñ‚ÐµÐ¼Ð°'}
           >
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -256,7 +256,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
           <button
             onClick={handleLogout}
             className="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            title="Изход"
+            title="Ð˜Ð·Ñ…Ð¾Ð´"
           >
             <LogOut className="w-5 h-5" />
           </button>
@@ -267,3 +267,4 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
 };
 
 export default Header;
+

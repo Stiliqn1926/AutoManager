@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useServiceCompany } from '../../hooks/useServiceCompany';
 import { Building2, Plus, LogOut, CheckCircle, Clock, XCircle } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -70,7 +70,7 @@ const ServiceCompanies = () => {
         pendingRequests.map((req) => [req.serviceCompany.id, req])
       );
 
-      // Вземи ACTIVE/LEFT компаниите + override към PENDING при нова заявка
+
       const activeCompanies = serviceCompanies.map((sc) => {
         const pending = pendingByServiceId.get(sc.serviceCompany.id);
         if (pending) {
@@ -94,18 +94,18 @@ const ServiceCompanies = () => {
         activeCompanies.map((company) => company.serviceCompany.id)
       );
 
-      // Преобразувай pending requests в същия формат
+
       const pendingCompanies: ServiceCompanyWithStatus[] = pendingRequests
         .filter((req) => !activeServiceIds.has(req.serviceCompany.id))
         .map((req) => ({
-          clientId: req.id, // Използваме request ID като временен clientId
+          clientId: req.id,
           serviceCompany: req.serviceCompany,
           status: 'PENDING' as const,
           joinedAt: req.createdAt,
           requestId: req.id,
         }));
 
-      // Комбинирай и сортирай (ACTIVE -> PENDING -> LEFT)
+
       const statusOrder = { ACTIVE: 0, PENDING: 1, LEFT: 2 } as const;
       const allCompanies = [...activeCompanies, ...pendingCompanies].sort((a, b) => {
         const aOrder = statusOrder[a.status || 'ACTIVE'] ?? 0;
@@ -116,7 +116,7 @@ const ServiceCompanies = () => {
       setAllCompanies(allCompanies);
     } catch (error) {
       console.error('Error fetching all companies:', error);
-      // Fallback на serviceCompanies от context
+
       setAllCompanies(
         serviceCompanies.map((sc) => ({
           ...sc,
@@ -130,18 +130,18 @@ const ServiceCompanies = () => {
     }
   }, [serviceCompanies]);
 
-  // Зареди всички компании (ACTIVE + PENDING) само когато serviceCompanies се изменят
+
   useEffect(() => {
     fetchAllCompanies();
   }, [fetchAllCompanies]);
 
-  // Премахнато автоматичното отваряне на модала - има бутон "Добави сервиз"
+
 
   const handleAddServiceCompany = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!uniqueCode.trim()) {
-      toast.error('Моля въведете уникален код');
+      toast.error('ÐœÐ¾Ð»Ñ Ð²ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ ÑƒÐ½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´');
       return;
     }
 
@@ -151,11 +151,11 @@ const ServiceCompanies = () => {
         uniqueCode: uniqueCode.toUpperCase(),
       });
 
-      // Проверка за PENDING статус
+
       if (response.data.status === 'PENDING') {
-        toast.success('Заявката е изпратена! Очаква одобрение от администратора.');
+        toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð°! ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.');
       } else {
-        toast.success('Успешно се добавихте към сервиз!');
+        toast.success('Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ ÑÐµ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ…Ñ‚Ðµ ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·!');
       }
 
       setUniqueCode('');
@@ -164,7 +164,7 @@ const ServiceCompanies = () => {
       await fetchAllCompanies();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Грешка при добавяне';
+      const message = err.response?.data?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð´Ð¾Ð±Ð°Ð²ÑÐ½Ðµ';
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -174,20 +174,20 @@ const ServiceCompanies = () => {
   const handleCancelPendingRequest = async (requestId: string, serviceName: string) => {
     if (
       !window.confirm(
-        `Сигурни ли сте, че искате да откажете заявката към "${serviceName}"?`
+        `Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ Ð·Ð°ÑÐ²ÐºÐ°Ñ‚Ð° ÐºÑŠÐ¼ "${serviceName}"?`
       )
     ) {
       return;
     }
 
     try {
-      // Изтриваме pending request директно
+
       await api.delete(`/client/service-companies/pending/${requestId}`);
-      toast.success('Заявката е отказана');
+      toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð°');
       await refreshServiceCompanies();
       await fetchAllCompanies();
     } catch (error: unknown) {
-      const message = getErrorMessage(error, 'Грешка при отказ на заявка');
+      const message = getErrorMessage(error, 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ñ‚ÐºÐ°Ð· Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°');
       toast.error(message);
     }
   };
@@ -195,7 +195,7 @@ const ServiceCompanies = () => {
   const handleLeaveServiceCompany = async (clientId: string, serviceName: string) => {
     if (
       !window.confirm(
-        `Сигурни ли сте, че искате да напуснете "${serviceName}"?\n\nЩе загубите достъп до всички данни в този сервиз.`
+        `Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ "${serviceName}"?\n\nÐ©Ðµ Ð·Ð°Ð³ÑƒÐ±Ð¸Ñ‚Ðµ Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Ð´Ð°Ð½Ð½Ð¸ Ð² Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·.`
       )
     ) {
       return;
@@ -203,18 +203,18 @@ const ServiceCompanies = () => {
 
     try {
       await api.delete(`/client/service-companies/${clientId}/leave`);
-      toast.success('Успешно напуснахте сервиза');
+      toast.success('Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ Ð½Ð°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð°');
       await refreshServiceCompanies();
       await fetchAllCompanies();
     } catch (error: unknown) {
-      const message = getErrorMessage(error, 'Грешка при напускане');
+      const message = getErrorMessage(error, 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð½Ð°Ð¿ÑƒÑÐºÐ°Ð½Ðµ');
       toast.error(message);
     }
   };
 
   const handleSelectServiceCompany = (companyId: string) => {
     setSelectedServiceCompany(companyId);
-    toast.success('Сервизът е избран');
+    toast.success('Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ðµ Ð¸Ð·Ð±Ñ€Ð°Ð½');
   };
 
   const formatDate = (dateString: string): string => {
@@ -232,21 +232,21 @@ const ServiceCompanies = () => {
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
             <CheckCircle className="w-4 h-4" />
-            Активен
+            ÐÐºÑ‚Ð¸Ð²ÐµÐ½
           </span>
         );
       case 'PENDING':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
             <Clock className="w-4 h-4" />
-            Чака одобрение
+            Ð§Ð°ÐºÐ° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ
           </span>
         );
       case 'LEFT':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200">
             <LogOut className="w-4 h-4" />
-            Напуснат
+            ÐÐ°Ð¿ÑƒÑÐ½Ð°Ñ‚
           </span>
         );
       default:
@@ -268,13 +268,13 @@ const ServiceCompanies = () => {
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Моите сервизи</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐœÐ¾Ð¸Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð¸</h1>
           <button
             onClick={() => setIsModalOpen(true)}
             className="w-full sm:w-auto sm:ml-auto flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Добави сервиз
+            Ð”Ð¾Ð±Ð°Ð²Ð¸ ÑÐµÑ€Ð²Ð¸Ð·
           </button>
         </div>
 
@@ -282,16 +282,16 @@ const ServiceCompanies = () => {
           <div className="bg-cardBg rounded-2xl shadow-card p-6 sm:p-12 text-center">
             <Building2 className="w-16 h-16 mx-auto text-textSecondary mb-4" />
             <h2 className="text-xl font-semibold text-textPrimary mb-2">
-              Няма добавени сервизи
+              ÐÑÐ¼Ð° Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÑÐµÑ€Ð²Ð¸Ð·Ð¸
             </h2>
             <p className="text-textSecondary mb-6">
-              За да започнете, добавете първия си сервиз с уникален код
+              Ð—Ð° Ð´Ð° Ð·Ð°Ð¿Ð¾Ñ‡Ð½ÐµÑ‚Ðµ, Ð´Ð¾Ð±Ð°Ð²ÐµÑ‚Ðµ Ð¿ÑŠÑ€Ð²Ð¸Ñ ÑÐ¸ ÑÐµÑ€Ð²Ð¸Ð· Ñ ÑƒÐ½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
               className="w-full sm:w-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
-              Добави първи сервиз
+              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð¿ÑŠÑ€Ð²Ð¸ ÑÐµÑ€Ð²Ð¸Ð·
             </button>
           </div>
         ) : (
@@ -313,7 +313,7 @@ const ServiceCompanies = () => {
                     {getStatusBadge(company.status || 'ACTIVE')}
                   </div>
 
-                  {/* Икона */}
+                  
                   <div className="flex items-center gap-3 mb-4">
                     <div className={`p-3 rounded-lg ${isPending ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-primary/10'}`}>
                       <Building2 className={`w-6 h-6 ${isPending ? 'text-yellow-600 dark:text-yellow-200' : 'text-primary'}`} />
@@ -323,19 +323,19 @@ const ServiceCompanies = () => {
                         {company.serviceCompany.name}
                       </h3>
                       {isSelected && isActive && (
-                        <span className="text-xs text-primary font-medium">Активен</span>
+                        <span className="text-xs text-primary font-medium">ÐÐºÑ‚Ð¸Ð²ÐµÐ½</span>
                       )}
                     </div>
                   </div>
 
-                  {/* Детайли */}
+                  
                   <div className="space-y-2 mb-4 sm:mb-6">
                     <div className="flex items-start gap-2 text-sm text-textSecondary">
-                      <span className="font-medium min-w-[70px]">Адрес:</span>
-                      <span>{company.serviceCompany.address || 'Няма данни'}</span>
+                      <span className="font-medium min-w-[70px]">ÐÐ´Ñ€ÐµÑ:</span>
+                      <span>{company.serviceCompany.address || 'ÐÑÐ¼Ð° Ð´Ð°Ð½Ð½Ð¸'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-textSecondary">
-                      <span className="font-medium min-w-[70px]">Телефон:</span>
+                      <span className="font-medium min-w-[70px]">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½:</span>
                       <span>{company.serviceCompany.phone}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-textSecondary">
@@ -343,20 +343,20 @@ const ServiceCompanies = () => {
                       <span>{company.serviceCompany.email}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-textSecondary">
-                      <span className="font-medium min-w-[70px]">Код:</span>
+                      <span className="font-medium min-w-[70px]">ÐšÐ¾Ð´:</span>
                       <span className="font-mono font-semibold text-primary">
                         {company.serviceCompany.uniqueCode}
                       </span>
                     </div>
                     {company.joinedAt && (
                       <div className="flex items-center gap-2 text-sm text-textSecondary">
-                        <span className="font-medium min-w-[70px]">{isPending ? 'Заявено на:' : 'Присъединен:'}</span>
+                        <span className="font-medium min-w-[70px]">{isPending ? 'Ð—Ð°ÑÐ²ÐµÐ½Ð¾ Ð½Ð°:' : 'ÐŸÑ€Ð¸ÑÑŠÐµÐ´Ð¸Ð½ÐµÐ½:'}</span>
                         <span>{formatDate(company.joinedAt)}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Действия */}
+                  
                   {isPending ? (
                     <div className="flex">
                       <button
@@ -369,7 +369,7 @@ const ServiceCompanies = () => {
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
                       >
                         <XCircle className="w-4 h-4" />
-                        Откажи заявката
+                        ÐžÑ‚ÐºÐ°Ð¶Ð¸ Ð·Ð°ÑÐ²ÐºÐ°Ñ‚Ð°
                       </button>
                     </div>
                   ) : (
@@ -381,7 +381,7 @@ const ServiceCompanies = () => {
                             onClick={() => handleSelectServiceCompany(company.serviceCompany.id)}
                             className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
                           >
-                            Избери
+                            Ð˜Ð·Ð±ÐµÑ€Ð¸
                           </button>
                         )}
                       </div>
@@ -390,10 +390,10 @@ const ServiceCompanies = () => {
                           <button
                             onClick={() => handleLeaveServiceCompany(company.clientId, company.serviceCompany.name)}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-sm font-medium"
-                            title="Напусни сервиз"
+                            title="ÐÐ°Ð¿ÑƒÑÐ½Ð¸ ÑÐµÑ€Ð²Ð¸Ð·"
                           >
                             <LogOut className="w-4 h-4" />
-                            {isSelected ? 'Напусни' : ''}
+                            {isSelected ? 'ÐÐ°Ð¿ÑƒÑÐ½Ð¸' : ''}
                           </button>
                         )}
                       </div>
@@ -405,33 +405,33 @@ const ServiceCompanies = () => {
           </div>
         )}
 
-        {/* Modal за добавяне на сервиз */}
+        
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-cardBg rounded-2xl shadow-xl max-w-md w-full p-4 sm:p-6">
               <h2 className="text-xl sm:text-2xl font-bold text-textPrimary mb-4">
-                Добави сервиз
+                Ð”Ð¾Ð±Ð°Ð²Ð¸ ÑÐµÑ€Ð²Ð¸Ð·
               </h2>
               <p className="text-textSecondary mb-6">
-                Въведете уникалния код на сервиза, към който искате да се добавите
+                Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ ÑƒÐ½Ð¸ÐºÐ°Ð»Ð½Ð¸Ñ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð°, ÐºÑŠÐ¼ ÐºÐ¾Ð¹Ñ‚Ð¾ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° ÑÐµ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚Ðµ
               </p>
 
               <form onSubmit={handleAddServiceCompany}>
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-textPrimary mb-2">
-                    Уникален код
+                    Ð£Ð½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´
                   </label>
                   <input
                     type="text"
                     value={uniqueCode}
                     onChange={(e) => setUniqueCode(e.target.value.toUpperCase())}
-                    placeholder="напр. NK8UR4MM"
+                    placeholder="Ð½Ð°Ð¿Ñ€. NK8UR4MM"
                     maxLength={8}
                     className="w-full px-4 py-3 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-base sm:text-lg uppercase"
                     autoFocus
                   />
                   <p className="text-xs text-textMuted mt-2">
-                    Кодът се състои от 8 символа (букви и цифри)
+                    ÐšÐ¾Ð´ÑŠÑ‚ ÑÐµ ÑÑŠÑÑ‚Ð¾Ð¸ Ð¾Ñ‚ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð° (Ð±ÑƒÐºÐ²Ð¸ Ð¸ Ñ†Ð¸Ñ„Ñ€Ð¸)
                   </p>
                 </div>
 
@@ -445,14 +445,14 @@ const ServiceCompanies = () => {
                     disabled={isSubmitting}
                     className="flex-1 px-4 py-3 border border-borderSubtle text-textSecondary rounded-lg hover:bg-mainBg transition-colors disabled:opacity-50"
                   >
-                    Отказ
+                    ÐžÑ‚ÐºÐ°Ð·
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || !uniqueCode.trim()}
                     className="flex-1 px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? 'Добавяне...' : 'Добави'}
+                    {isSubmitting ? 'Ð”Ð¾Ð±Ð°Ð²ÑÐ½Ðµ...' : 'Ð”Ð¾Ð±Ð°Ð²Ð¸'}
                   </button>
                 </div>
               </form>
@@ -465,5 +465,6 @@ const ServiceCompanies = () => {
 };
 
 export default ServiceCompanies;
+
 
 

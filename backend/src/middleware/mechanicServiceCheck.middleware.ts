@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
 
 interface AuthRequest extends Request {
@@ -14,9 +14,8 @@ interface AuthRequest extends Request {
  * MECHANIC SERVICE CHECK MIDDLEWARE
  * ============================================
  *
- * Проверява дали механикът има активен сервиз
- * Използва се за защита на operational endpoints
- * ВАЖНО: Пропуска ADMIN потребители (те не са механици)
+ * Ensures mechanics operate under an active service membership.
+ * Admin users bypass this middleware by design.
  */
 export const requireActiveService = async (
   req: AuthRequest,
@@ -27,15 +26,15 @@ export const requireActiveService = async (
     const userId = req.user!.userId;
     const userRole = req.user!.role;
 
-    // Ако е ADMIN, пропусни проверката
+
     if (userRole === 'ADMIN') {
       next();
       return;
     }
 
-    // Само за MECHANIC - провери активен сервиз
+
     if (userRole === 'MECHANIC') {
-      // Вземи worker профила
+
       const worker = await prisma.worker.findUnique({
         where: { userId },
         select: {
@@ -60,7 +59,7 @@ export const requireActiveService = async (
         return;
       }
 
-      // Провери дали има ACTIVE membership
+
       const activeMembership = await prisma.mechanicServiceCompany.findFirst({
         where: {
           workerId: worker.id,
@@ -78,10 +77,11 @@ export const requireActiveService = async (
       }
     }
 
-    // Всичко е OK, продължи
+
     next();
   } catch (error) {
     console.error('Mechanic service check error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+

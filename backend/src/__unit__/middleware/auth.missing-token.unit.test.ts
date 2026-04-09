@@ -1,4 +1,4 @@
-jest.mock('../../utils/generateToken', () => ({
+﻿jest.mock('../../utils/generateToken', () => ({
   verifyToken: jest.fn(),
 }));
 
@@ -48,3 +48,4 @@ describe('authenticate - missing token', () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+

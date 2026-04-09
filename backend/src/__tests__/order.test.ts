@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Order Endpoints', () => {
@@ -7,13 +7,13 @@ describe('Order Endpoints', () => {
   let clientId: string;
   let vehicleId: string;
 
-  // ✅ Setup - създай ADMIN, клиент и автомобил преди тестовете (С AGENT!)
+
   beforeAll(async () => {
     await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
-    agent = createTestAgent();  // ✅ Agent пази cookies!
+    agent = createTestAgent();
     const timestamp = Date.now();
 
-    // 1. Регистрирай ADMIN (cookies saved automatically)
+
     const adminEmail = `admin-order-${timestamp}@test.com`;
     await agent
       .post('/api/auth/register')
@@ -56,8 +56,8 @@ describe('Order Endpoints', () => {
     const clientResponse = await agent
       .post('/api/clients')
       .send({
-        firstName: 'Иван',
-        lastName: 'Иванов',
+        firstName: 'Ð˜Ð²Ð°Ð½',
+        lastName: 'Ð˜Ð²Ð°Ð½Ð¾Ð²',
         phone: '0888111222',
         email: `ivan-${timestamp}@test.com`,
       });
@@ -84,12 +84,12 @@ describe('Order Endpoints', () => {
         .send({
           vehicleId,
           clientId,
-          description: 'Смяна на масло и филтри',
+          description: 'Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¼Ð°ÑÐ»Ð¾ Ð¸ Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸',
         });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('order');
-      expect(response.body.order.description).toBe('Смяна на масло и филтри');
+      expect(response.body.order.description).toBe('Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¼Ð°ÑÐ»Ð¾ Ð¸ Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸');
       expect(response.body.order.status).toBe('WAITING');
     });
 
@@ -206,3 +206,4 @@ describe('Order Endpoints', () => {
     });
   });
 });
+

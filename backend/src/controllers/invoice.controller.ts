@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { sendEmail, emailTemplates } from '../services/email.service';
 // Environment constants
@@ -32,7 +32,7 @@ const generateInvoiceNumber = async (
   return `INV-${year}-${invoiceNum}`;
 };
 
-// Create Invoice (ADMIN генерира фактура за поръчка) - С ТРАНЗАКЦИЯ
+
 export const createInvoice = async (
   req: AuthRequest,
   res: Response
@@ -42,7 +42,7 @@ export const createInvoice = async (
     const { notes } = req.body;
     const userId = req.user!.userId;
 
-    // Вземи serviceCompanyId
+
     const serviceCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -52,7 +52,7 @@ export const createInvoice = async (
       return;
     }
 
-    // Провери дали поръчката съществува
+
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -70,7 +70,7 @@ export const createInvoice = async (
       return;
     }
 
-    // Провери дали вече има фактура
+
     if (order.invoices && order.invoices.length > 0) {
       res
         .status(400)
@@ -78,7 +78,7 @@ export const createInvoice = async (
       return;
     }
 
-    // Провери дали има OrderItems
+
     if (!order.orderItems || order.orderItems.length === 0) {
       res
         .status(400)
@@ -86,7 +86,7 @@ export const createInvoice = async (
       return;
     }
 
-    // Изчисли subtotal от OrderItems
+
     const subtotal = order.orderItems.reduce((sum: number, item: any) => {
       return sum + Number(item.totalPrice);
     }, 0);
@@ -95,12 +95,12 @@ export const createInvoice = async (
     const taxAmount = DEFAULT_TAX_RATE;
     const total = subtotal;
 
-    // Генерирай invoice number
+
     const invoiceNumber = await generateInvoiceNumber(serviceCompany.id);
 
-    // ТРАНЗАКЦИЯ - всичко или нищо!
+
     const result = await prisma.$transaction(async (tx) => {
-      // Създай фактура
+
       const invoice = await tx.invoice.create({
         data: {
           invoiceNumber,
@@ -113,13 +113,13 @@ export const createInvoice = async (
         },
       });
 
-      // Изпрати известие до клиента
+
       await tx.notification.create({
         data: {
-          title: 'Нова фактура',
-          message: `Фактура ${invoiceNumber} е готова. Сума: ${total.toFixed(
+          title: 'ÐÐ¾Ð²Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°',
+          message: `Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð° ${invoiceNumber} Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°. Ð¡ÑƒÐ¼Ð°: ${total.toFixed(
             2
-          )} €`,
+          )} â‚¬`,
           clientId: order.clientId,
         },
       });
@@ -127,7 +127,7 @@ export const createInvoice = async (
       return invoice;
     });
 
-    // Изпрати EMAIL до клиента (извън транзакцията)
+
     const client = await prisma.client.findUnique({
       where: { id: order.clientId },
       include: { user: true },
@@ -136,7 +136,7 @@ export const createInvoice = async (
     if (client?.user?.email) {
       void sendEmail(
           client.user.email,
-          'Нова фактура',
+          'ÐÐ¾Ð²Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°',
           emailTemplates.invoiceReady(
             invoiceNumber,
             total,
@@ -291,7 +291,7 @@ export const updateInvoice = async (
       }
     }
 
-    // Изчисли отново subtotal
+
     const subtotal = invoice.order.orderItems.reduce((sum, item) => {
       return sum + Number(item.totalPrice);
     }, 0);
@@ -320,7 +320,7 @@ export const updateInvoice = async (
   }
 };
 
-// Mark Invoice as Paid (ADMIN маркира фактура като платена)
+
 export const markInvoiceAsPaid = async (
   req: AuthRequest,
   res: Response
@@ -374,7 +374,7 @@ export const markInvoiceAsPaid = async (
   }
 };
 
-// Delete Invoice (само ADMIN)
+
 export const deleteInvoice = async (
   req: AuthRequest,
   res: Response
@@ -411,3 +411,4 @@ export const deleteInvoice = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

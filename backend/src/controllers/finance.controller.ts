@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { getPagination, getPaginationMeta } from '../utils/pagination';
 import logger from '../services/logger.service';
@@ -29,7 +29,7 @@ export const createFinance = async (
     const serviceCompanyId = req.user?.serviceCompanyId;
 
     if (!serviceCompanyId) {
-      res.status(403).json({ message: 'Нямате достъп до този ресурс' });
+      res.status(403).json({ message: 'ÐÑÐ¼Ð°Ñ‚Ðµ Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ñ‚Ð¾Ð·Ð¸ Ñ€ÐµÑÑƒÑ€Ñ' });
       return;
     }
 
@@ -47,12 +47,12 @@ export const createFinance = async (
     logger.info(`Finance transaction created: ${finance.id} (${type})`);
 
     res.status(201).json({
-      message: 'Транзакцията е добавена успешно',
+      message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
       finance,
     });
   } catch (error: unknown) {
     logger.error('Error creating finance:', error);
-    res.status(500).json({ message: 'Грешка при създаване на транзакция' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð½Ðµ Ð½Ð° Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ñ' });
   }
 };
 
@@ -70,7 +70,7 @@ export const getAllFinances = async (
       validatedQuery;
 
     if (!serviceCompanyId) {
-      res.status(403).json({ message: 'Нямате достъп до този ресурс' });
+      res.status(403).json({ message: 'ÐÑÐ¼Ð°Ñ‚Ðµ Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ñ‚Ð¾Ð·Ð¸ Ñ€ÐµÑÑƒÑ€Ñ' });
       return;
     }
 
@@ -105,7 +105,7 @@ export const getAllFinances = async (
     });
   } catch (error: unknown) {
     logger.error('Error fetching finances:', error);
-    res.status(500).json({ message: 'Грешка при зареждане на транзакциите' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸Ñ‚Ðµ' });
   }
 };
 
@@ -121,7 +121,7 @@ export const getFinanceSummary = async (
     const { startDate, endDate } = req.query;
 
     if (!serviceCompanyId) {
-      res.status(403).json({ message: 'Нямате достъп до този ресурс' });
+      res.status(403).json({ message: 'ÐÑÐ¼Ð°Ñ‚Ðµ Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ñ‚Ð¾Ð·Ð¸ Ñ€ÐµÑÑƒÑ€Ñ' });
       return;
     }
 
@@ -131,7 +131,7 @@ export const getFinanceSummary = async (
       if (endDate) dateFilter.lte = new Date(endDate as string);
     }
 
-    // 1. ПРИХОДИ ОТ ПЛАТЕНИ ПОРЪЧКИ (базирано на Invoice.isPaid)
+
     const paidInvoices = await prisma.invoice.findMany({
       where: {
         serviceCompanyId,
@@ -150,7 +150,7 @@ export const getFinanceSummary = async (
       0
     );
 
-    // 2. ДРУГИ ПРИХОДИ И РАЗХОДИ (FINANCE)
+
     const finances = await prisma.finance.findMany({
       where: {
         serviceCompanyId,
@@ -177,7 +177,7 @@ export const getFinanceSummary = async (
     const totalIncome = orderRevenue + otherIncome;
     const profit = totalIncome - totalExpense;
 
-    // Брой платени поръчки (поръчки с платени фактури)
+
     const paidOrdersCount = await prisma.invoice.count({
       where: {
         serviceCompanyId,
@@ -185,7 +185,7 @@ export const getFinanceSummary = async (
       },
     });
 
-    // Брой неплатени поръчки (поръчки без платена фактура или фактура изобщо)
+
     const unpaidOrdersCount = await prisma.order.count({
       where: {
         serviceCompanyId,
@@ -210,7 +210,7 @@ export const getFinanceSummary = async (
     });
   } catch (error: unknown) {
     logger.error('Error fetching finance summary:', error);
-    res.status(500).json({ message: 'Грешка при изчисляване на обобщението' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‡Ð¸ÑÐ»ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð¾Ð±Ð¾Ð±Ñ‰ÐµÐ½Ð¸ÐµÑ‚Ð¾' });
   }
 };
 
@@ -230,14 +230,14 @@ export const getFinanceById = async (
     });
 
     if (!finance) {
-      res.status(404).json({ message: 'Транзакцията не е намерена' });
+      res.status(404).json({ message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°' });
       return;
     }
 
     res.status(200).json({ finance });
   } catch (error: unknown) {
     logger.error('Error fetching finance by ID:', error);
-    res.status(500).json({ message: 'Грешка при зареждане на транзакцията' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð°' });
   }
 };
 
@@ -258,7 +258,7 @@ export const updateFinance = async (
     });
 
     if (!finance) {
-      res.status(404).json({ message: 'Транзакцията не е намерена' });
+      res.status(404).json({ message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°' });
       return;
     }
 
@@ -276,12 +276,12 @@ export const updateFinance = async (
     logger.info(`Finance updated: ${id}`);
 
     res.status(200).json({
-      message: 'Транзакцията е актуализирана успешно',
+      message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ðµ Ð°ÐºÑ‚ÑƒÐ°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
       finance: updatedFinance,
     });
   } catch (error: unknown) {
     logger.error('Error updating finance:', error);
-    res.status(500).json({ message: 'Грешка при актуализиране на транзакцията' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð°ÐºÑ‚ÑƒÐ°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð°' });
   }
 };
 
@@ -301,7 +301,7 @@ export const deleteFinance = async (
     });
 
     if (!finance) {
-      res.status(404).json({ message: 'Транзакцията не е намерена' });
+      res.status(404).json({ message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°' });
       return;
     }
 
@@ -309,10 +309,11 @@ export const deleteFinance = async (
 
     logger.info(`Finance deleted: ${id}`);
 
-    res.status(200).json({ message: 'Транзакцията е изтрита успешно' });
+    res.status(200).json({ message: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð° Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾' });
   } catch (error: unknown) {
     logger.error('Error deleting finance:', error);
-    res.status(500).json({ message: 'Грешка при изтриване на транзакцията' });
+    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ Ð½Ð° Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑÑ‚Ð°' });
   }
 };
+
 

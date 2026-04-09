@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { generateUniqueCode } from '../utils/generateUniqueCode';
 
@@ -10,7 +10,7 @@ interface AuthRequest extends Request {
   };
 }
 
-// Create Service Company (само за ADMIN)
+
 export const createServiceCompany = async (
   req: AuthRequest,
   res: Response
@@ -19,7 +19,7 @@ export const createServiceCompany = async (
     const { name, address, phone, email, bulstat, vatNumber, description } = req.body;
     const userId = req.user!.userId;
 
-    // Провери дали вече има автосервиз за този потребител
+
     const existingCompany = await prisma.serviceCompany.findUnique({
       where: { userId },
     });
@@ -29,10 +29,10 @@ export const createServiceCompany = async (
       return;
     }
 
-    // Генерирай уникален код
+
     const uniqueCode = generateUniqueCode();
 
-    // Създай автосервиз
+
     const serviceCompany = await prisma.serviceCompany.create({
       data: {
         name,
@@ -56,7 +56,7 @@ export const createServiceCompany = async (
   }
 };
 
-// Get Service Company (текущия автосервиз на логнатия ADMIN)
+
 export const getMyServiceCompany = async (
   req: AuthRequest,
   res: Response
@@ -115,3 +115,4 @@ export const updateServiceCompany = async (
     res.status(500).json({ message: 'Server error', error });
   }
 };
+

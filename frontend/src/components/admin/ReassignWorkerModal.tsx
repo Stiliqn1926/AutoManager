@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+﻿import { useCallback, useState, useEffect } from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -55,7 +55,7 @@ const ReassignWorkerModal = ({
     setIsLoading(true);
     try {
       const response = await api.get('/workers');
-      // Филтрирай само ACTIVE и различни от текущия механик
+
       const workers = response.data.workers.filter(
         (w: Worker & { membershipStatus: string }) =>
           w.membershipStatus === 'ACTIVE' &&
@@ -64,7 +64,7 @@ const ReassignWorkerModal = ({
       );
       setAvailableWorkers(workers);
     } catch {
-      toast.error('Грешка при зареждане на механици');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +78,7 @@ const ReassignWorkerModal = ({
 
   const handleReassign = async () => {
     if (!selectedWorkerId) {
-      toast.error('Моля изберете механик');
+      toast.error('ÐœÐ¾Ð»Ñ Ð¸Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº');
       return;
     }
 
@@ -87,11 +87,11 @@ const ReassignWorkerModal = ({
       await api.put(`/workers/${workerId}/reassign`, {
         newWorkerId: selectedWorkerId,
       });
-      toast.success('Задачите са преназначени успешно');
+      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð¸Ñ‚Ðµ ÑÐ° Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       onSuccess();
       onClose();
     } catch {
-      toast.error('Грешка при преназначаване на задачи');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡Ð°Ð²Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð¸');
     } finally {
       setIsSubmitting(false);
     }
@@ -105,13 +105,13 @@ const ReassignWorkerModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-borderSubtle">
           <h2 className="text-2xl font-bold text-textPrimary">
-            Преназначаване на задачи
+            ÐŸÑ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡Ð°Ð²Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð¸
           </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Затвори"
-            title="Затвори"
+            aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
+            title="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
           >
             <X className="w-5 h-5" />
           </button>
@@ -122,21 +122,21 @@ const ReassignWorkerModal = ({
           {/* Warning */}
           <div className="bg-gray-50 border border-borderSubtle rounded-lg p-4">
             <p className="text-sm text-textSecondary">
-              <strong className="text-textPrimary">{workerName}</strong> има активни задачи, които трябва да
-              бъдат преназначени преди изтриване.
+              <strong className="text-textPrimary">{workerName}</strong> Ð¸Ð¼Ð° Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸, ÐºÐ¾Ð¸Ñ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð°
+              Ð±ÑŠÐ´Ð°Ñ‚ Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ Ð¿Ñ€ÐµÐ´Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ.
             </p>
           </div>
 
           {/* Tasks Summary */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white border border-borderSubtle rounded-lg p-4">
-              <div className="text-sm text-textSecondary mb-1">Активни поръчки</div>
+              <div className="text-sm text-textSecondary mb-1">ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</div>
               <div className="text-3xl font-bold text-textPrimary">
                 {tasksData.activeOrdersCount}
               </div>
             </div>
             <div className="bg-white border border-borderSubtle rounded-lg p-4">
-              <div className="text-sm text-textSecondary mb-1">Активни задачи</div>
+              <div className="text-sm text-textSecondary mb-1">ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸</div>
               <div className="text-3xl font-bold text-textPrimary">
                 {tasksData.activeSchedulesCount}
               </div>
@@ -146,28 +146,28 @@ const ReassignWorkerModal = ({
           {/* Select New Worker */}
           <div>
             <label className="block text-sm font-medium text-textSecondary mb-2">
-              Изберете механик за преназначаване
+              Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº Ð·Ð° Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡Ð°Ð²Ð°Ð½Ðµ
             </label>
             {isLoading ? (
               <div className="text-center py-4 text-textSecondary">
-                Зареждане...
+                Ð—Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ...
               </div>
             ) : availableWorkers.length === 0 ? (
               <div className="bg-gray-50 border border-borderSubtle rounded-lg p-4">
                 <p className="text-sm text-textSecondary">
-                  Няма налични механици за преназначаване. Моля добавете активен
-                  механик преди да изтриете този.
+                  ÐÑÐ¼Ð° Ð½Ð°Ð»Ð¸Ñ‡Ð½Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸ Ð·Ð° Ð¿Ñ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡Ð°Ð²Ð°Ð½Ðµ. ÐœÐ¾Ð»Ñ Ð´Ð¾Ð±Ð°Ð²ÐµÑ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½
+                  Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº Ð¿Ñ€ÐµÐ´Ð¸ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ñ‚Ð¾Ð·Ð¸.
                 </p>
               </div>
             ) : (
               <select
                 value={selectedWorkerId}
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
-                aria-label="Изберете механик"
-                title="Изберете механик"
+                aria-label="Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº"
+                title="Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº"
                 className="w-full px-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                <option value="">-- Изберете механик --</option>
+                <option value="">-- Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº --</option>
                 {availableWorkers.map((worker) => (
                   <option key={worker.id} value={worker.id}>
                     {worker.firstName} {worker.lastName}
@@ -192,8 +192,8 @@ const ReassignWorkerModal = ({
                 </span>
               </div>
               <p className="text-xs text-textSecondary mt-2">
-                Всички активни поръчки и задачи ще бъдат прехвърлени към новия
-                механик
+                Ð’ÑÐ¸Ñ‡ÐºÐ¸ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ñ‰Ðµ Ð±ÑŠÐ´Ð°Ñ‚ Ð¿Ñ€ÐµÑ…Ð²ÑŠÑ€Ð»ÐµÐ½Ð¸ ÐºÑŠÐ¼ Ð½Ð¾Ð²Ð¸Ñ
+                Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº
               </p>
             </div>
           )}
@@ -205,14 +205,14 @@ const ReassignWorkerModal = ({
             onClick={onClose}
             className="px-6 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 transition-colors"
           >
-            Отказ
+            ÐžÑ‚ÐºÐ°Ð·
           </button>
           <button
             onClick={handleReassign}
             disabled={!selectedWorkerId || isSubmitting || availableWorkers.length === 0}
             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isSubmitting ? 'Преназначаване...' : 'Прехвърли и изтрий'}
+            {isSubmitting ? 'ÐŸÑ€ÐµÐ½Ð°Ð·Ð½Ð°Ñ‡Ð°Ð²Ð°Ð½Ðµ...' : 'ÐŸÑ€ÐµÑ…Ð²ÑŠÑ€Ð»Ð¸ Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð¹'}
           </button>
         </div>
       </div>
@@ -221,3 +221,4 @@ const ReassignWorkerModal = ({
 };
 
 export default ReassignWorkerModal;
+

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
@@ -25,24 +25,24 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [codeExpired, setCodeExpired] = useState(false);
-  const [timerKey, setTimerKey] = useState(0); // За reset на timer
+  const [timerKey, setTimerKey] = useState(0);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     if (codeExpired) {
-      toast.error('Кодът е изтекъл. Моля изпратете нов код.');
+      toast.error('ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ». ÐœÐ¾Ð»Ñ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð½Ð¾Ð² ÐºÐ¾Ð´.');
       return;
     }
 
-    // Валидации
+
     const newErrors: Record<string, string> = {};
 
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
 
-    const codeError = validateRequired(code, 'Кодът');
+    const codeError = validateRequired(code, 'ÐšÐ¾Ð´ÑŠÑ‚');
     if (codeError) newErrors.code = codeError;
 
     const passwordError = validatePassword(newPassword);
@@ -61,10 +61,10 @@ const ResetPassword = () => {
     
     try {
       await resetPassword(email, code, newPassword);
-      toast.success('Паролата е сменена успешно!');
+      toast.success('ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ ÑÐ¼ÐµÐ½ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾!');
       navigate(roleParam ? `/login?role=${encodeURIComponent(roleParam)}` : '/login');
     } catch {
-      toast.error('Невалиден или изтекъл код');
+      toast.error('ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð»Ð¸ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ» ÐºÐ¾Ð´');
     } finally {
       setIsLoading(false);
     }
@@ -75,11 +75,11 @@ const ResetPassword = () => {
     
     try {
       await api.post('/auth/resend-reset-code', { email });
-      toast.success('Нов код е изпратен на имейла ви!');
+      toast.success('ÐÐ¾Ð² ÐºÐ¾Ð´ Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð»Ð° Ð²Ð¸!');
       setCodeExpired(false);
       setTimerKey((prev) => prev + 1); // Reset timer
     } catch {
-      toast.error('Грешка при изпращане на код');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° ÐºÐ¾Ð´');
     } finally {
       setIsResending(false);
     }
@@ -87,32 +87,32 @@ const ResetPassword = () => {
 
   const handleExpire = () => {
     setCodeExpired(true);
-    toast.error('Кодът изтече! Моля изпратете нов код.');
+    toast.error('ÐšÐ¾Ð´ÑŠÑ‚ Ð¸Ð·Ñ‚ÐµÑ‡Ðµ! ÐœÐ¾Ð»Ñ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð½Ð¾Ð² ÐºÐ¾Ð´.');
   };
 
   return (
     <div className="min-h-screen bg-mainBg flex">
-      {/* Лява страна - Информация */}
+      
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar text-white p-12 flex-col justify-center shadow-sidebar">
         <h1 className="text-5xl font-bold mb-6">
           Auto<span className="text-primary">Manager</span>
         </h1>
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Нова парола</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-4">ÐÐ¾Ð²Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°</h2>
         <p className="text-xl text-gray-300 leading-relaxed mb-4">
-          Въведете 6-цифрения код, който получихте на имейл, и изберете нова парола.
+          Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ 6-Ñ†Ð¸Ñ„Ñ€ÐµÐ½Ð¸Ñ ÐºÐ¾Ð´, ÐºÐ¾Ð¹Ñ‚Ð¾ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ñ…Ñ‚Ðµ Ð½Ð° Ð¸Ð¼ÐµÐ¹Ð», Ð¸ Ð¸Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð½Ð¾Ð²Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°.
         </p>
-        <p className="text-gray-300">Кодът е валиден за 15 минути.</p>
+        <p className="text-gray-300">ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð·Ð° 15 Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.</p>
       </div>
 
-      {/* Дясна страна - Форма */}
+      
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8">
         <div className="max-w-md w-full bg-cardBg rounded-2xl shadow-card p-6 sm:p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-textPrimary mb-2">
-              Смяна на парола
+              Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°
             </h2>
             <p className="text-textSecondary">
-              Въведете кода и новата си парола
+              Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ ÐºÐ¾Ð´Ð° Ð¸ Ð½Ð¾Ð²Ð°Ñ‚Ð° ÑÐ¸ Ð¿Ð°Ñ€Ð¾Ð»Ð°
             </p>
           </div>
 
@@ -131,7 +131,7 @@ const ResetPassword = () => {
           {codeExpired && (
             <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
               <p className="text-sm text-red-600 text-center mb-3">
-                Кодът е изтекъл!
+                ÐšÐ¾Ð´ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚ÐµÐºÑŠÐ»!
               </p>
               <Button 
                 onClick={handleResendCode} 
@@ -139,14 +139,14 @@ const ResetPassword = () => {
                 fullWidth
                 variant="outline"
               >
-                Изпрати нов код
+                Ð˜Ð·Ð¿Ñ€Ð°Ñ‚Ð¸ Ð½Ð¾Ð² ÐºÐ¾Ð´
               </Button>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="6-цифрен код"
+              label="6-Ñ†Ð¸Ñ„Ñ€ÐµÐ½ ÐºÐ¾Ð´"
               type="text"
               placeholder="123456"
               value={code}
@@ -157,8 +157,8 @@ const ResetPassword = () => {
             />
 
             <PasswordInput
-              label="Нова парола"
-              placeholder="••••••••"
+              label="ÐÐ¾Ð²Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               showStrength={true}
@@ -167,8 +167,8 @@ const ResetPassword = () => {
             />
 
             <PasswordInput
-              label="Потвърди парола"
-              placeholder="••••••••"
+              label="ÐŸÐ¾Ñ‚Ð²ÑŠÑ€Ð´Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð°"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -176,7 +176,7 @@ const ResetPassword = () => {
             />
 
             <Button type="submit" fullWidth isLoading={isLoading} disabled={codeExpired}>
-              Смени паролата
+              Ð¡Ð¼ÐµÐ½Ð¸ Ð¿Ð°Ñ€Ð¾Ð»Ð°Ñ‚Ð°
             </Button>
           </form>
 
@@ -189,7 +189,7 @@ const ResetPassword = () => {
                 disabled={isResending}
                 className="text-sm text-primary-600 hover:underline disabled:opacity-50"
               >
-                Не сте получили код? Изпратете отново
+                ÐÐµ ÑÑ‚Ðµ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸ ÐºÐ¾Ð´? Ð˜Ð·Ð¿Ñ€Ð°Ñ‚ÐµÑ‚Ðµ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾
               </button>
             </div>
           )}
@@ -199,7 +199,7 @@ const ResetPassword = () => {
               href={roleParam ? `/login?role=${encodeURIComponent(roleParam)}` : '/login'}
               className="text-sm text-primary-600 hover:underline"
             >
-              Назад към вход
+              ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð²Ñ…Ð¾Ð´
             </a>
           </div>
         </div>
@@ -209,4 +209,5 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+
 

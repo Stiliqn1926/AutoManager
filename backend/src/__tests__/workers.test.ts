@@ -1,4 +1,4 @@
-import { createTestAgent } from './setup';
+﻿import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Workers Management', () => {
@@ -121,3 +121,4 @@ describe('Workers Management', () => {
     expect(response.body).toHaveProperty('worker');
   });
 });
+

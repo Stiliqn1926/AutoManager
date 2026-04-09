@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import {
   Building2,
   MapPin,
@@ -43,7 +43,7 @@ const ServiceSettings = () => {
       const companiesData = await getMechanicServiceCompanies();
       setServiceCompanies(companiesData.serviceCompanies);
 
-      // Опитай да вземеш активния сервиз (може да няма)
+
       try {
         const activeData = await getActiveServiceCompany();
         setActiveService(activeData.serviceCompany);
@@ -56,7 +56,7 @@ const ServiceSettings = () => {
         }
       }
     } catch {
-      toast.error('Грешка при зареждане на сервизи');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð¸');
     } finally {
       setIsLoading(false);
     }
@@ -69,22 +69,22 @@ const ServiceSettings = () => {
   const handleRequestService = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uniqueCode.trim()) {
-      toast.error('Моля, въведете код на сервиз');
+      toast.error('ÐœÐ¾Ð»Ñ, Ð²ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·');
       return;
     }
 
     setIsSubmitting(true);
     try {
       await requestServiceCompany(uniqueCode);
-      toast.success('Заявката е изпратена успешно');
+      toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       setUniqueCode('');
       setShowAddForm(false);
       await fetchData();
       await checkActiveService();
     } catch (error: unknown) {
       const message = axios.isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message ?? 'Грешка при изпращане на заявка'
-        : 'Грешка при изпращане на заявка';
+        ? error.response?.data?.message ?? 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°'
+        : 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°';
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -94,46 +94,46 @@ const ServiceSettings = () => {
   const handleSwitchService = async (serviceCompanyId: string) => {
     try {
       await switchServiceCompany(serviceCompanyId);
-      toast.success('Активният сервиз е сменен успешно');
+      toast.success('ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ÑÑ‚ ÑÐµÑ€Ð²Ð¸Ð· Ðµ ÑÐ¼ÐµÐ½ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       await fetchData();
       await checkActiveService();
     } catch {
-      toast.error('Грешка при смяна на сервиз');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÑÐ¼ÑÐ½Ð° Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·');
     }
   };
 
   const handleCancelRequest = async (membershipId: string) => {
-    if (!confirm('Сигурни ли сте, че искате да откажете тази заявка?')) {
+    if (!confirm('Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ Ñ‚Ð°Ð·Ð¸ Ð·Ð°ÑÐ²ÐºÐ°?')) {
       return;
     }
 
     try {
       await cancelPendingRequest(membershipId);
-      toast.success('Заявката е отказана успешно');
+      toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       await fetchData();
       await checkActiveService();
     } catch (error: unknown) {
       const message = axios.isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message ?? 'Грешка при отказ на заявка'
-        : 'Грешка при отказ на заявка';
+        ? error.response?.data?.message ?? 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ñ‚ÐºÐ°Ð· Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°'
+        : 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ñ‚ÐºÐ°Ð· Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°';
       toast.error(message);
     }
   };
 
   const handleLeaveService = async (membershipId: string) => {
-    if (!confirm('Сигурни ли сте, че искате да напуснете този сервиз?')) {
+    if (!confirm('Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·?')) {
       return;
     }
 
     try {
       await leaveServiceCompany(membershipId);
-      toast.success('Напуснахте сервиза успешно');
+      toast.success('ÐÐ°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       await fetchData();
       await checkActiveService();
     } catch (error: unknown) {
       const message = axios.isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message ?? 'Грешка при напускане на сервиз'
-        : 'Грешка при напускане на сервиз';
+        ? error.response?.data?.message ?? 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð½Ð°Ð¿ÑƒÑÐºÐ°Ð½Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·'
+        : 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð½Ð°Ð¿ÑƒÑÐºÐ°Ð½Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·';
       toast.error(message);
     }
   };
@@ -144,20 +144,20 @@ const ServiceSettings = () => {
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200">
             <Check className="w-4 h-4" />
-            Активен
+            ÐÐºÑ‚Ð¸Ð²ÐµÐ½
           </span>
         );
       case 'PENDING':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
             <Clock className="w-4 h-4" />
-            Чака одобрение
+            Ð§Ð°ÐºÐ° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ
           </span>
         );
       case 'INACTIVE':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-mainBg text-textPrimary">
-            Неактивен
+            ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½
           </span>
         );
       default:
@@ -188,9 +188,9 @@ const ServiceSettings = () => {
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Сервиз</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð¡ÐµÑ€Ð²Ð¸Ð·</h1>
           <p className="text-textSecondary mt-1">
-            Управление на принадлежността към сервизи
+            Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð½Ð° Ð¿Ñ€Ð¸Ð½Ð°Ð´Ð»ÐµÐ¶Ð½Ð¾ÑÑ‚Ñ‚Ð° ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·Ð¸
           </p>
         </div>
 
@@ -198,14 +198,14 @@ const ServiceSettings = () => {
           <div className="rounded-2xl shadow-card p-4 sm:p-6 text-white bg-gradient-to-r from-primary to-primary-700 dark:bg-cardBg dark:text-textPrimary dark:border dark:border-borderSubtle">
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="w-6 h-6 text-white/90 dark:text-textPrimary" />
-              <h2 className="text-xl sm:text-2xl font-bold">Активен сервиз</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">ÐÐºÑ‚Ð¸Ð²ÐµÐ½ ÑÐµÑ€Ð²Ð¸Ð·</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
                 <Building2 className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm text-white/80 dark:text-textSecondary">Име на сервиза</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Ð˜Ð¼Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð°</div>
                   <div className="text-lg font-semibold">{activeService.name}</div>
                 </div>
               </div>
@@ -214,7 +214,7 @@ const ServiceSettings = () => {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                   <div>
-                    <div className="text-sm text-white/80 dark:text-textSecondary">Адрес</div>
+                    <div className="text-sm text-white/80 dark:text-textSecondary">ÐÐ´Ñ€ÐµÑ</div>
                     <div className="text-lg font-semibold">{activeService.address}</div>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ const ServiceSettings = () => {
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm text-white/80 dark:text-textSecondary">Телефон</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</div>
                   <a
                     href={`tel:${activeService.phone}`}
                     className="text-base sm:text-lg font-semibold hover:underline"
@@ -236,7 +236,7 @@ const ServiceSettings = () => {
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 mt-1 text-white/80 dark:text-textMuted" />
                 <div>
-                  <div className="text-sm text-white/80 dark:text-textSecondary">Имейл</div>
+                  <div className="text-sm text-white/80 dark:text-textSecondary">Ð˜Ð¼ÐµÐ¹Ð»</div>
                   <a
                     href={`mailto:${activeService.email}`}
                     className="text-base sm:text-lg font-semibold hover:underline"
@@ -255,7 +255,7 @@ const ServiceSettings = () => {
             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
-            Добави нов сервиз
+            Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð½Ð¾Ð² ÑÐµÑ€Ð²Ð¸Ð·
           </button>
         </div>
 
@@ -264,7 +264,7 @@ const ServiceSettings = () => {
             <div className="flex items-center gap-2 mb-4">
               <Code className="w-5 h-5 text-primary" />
               <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
-                Заявка за нов сервиз
+                Ð—Ð°ÑÐ²ÐºÐ° Ð·Ð° Ð½Ð¾Ð² ÑÐµÑ€Ð²Ð¸Ð·
               </h2>
             </div>
 
@@ -272,8 +272,8 @@ const ServiceSettings = () => {
               <div className="flex items-start gap-2">
                 <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-300 mt-0.5" />
                 <div className="text-sm text-blue-800 dark:text-blue-200">
-                  Въведете уникалния код на сервиза, предоставен от администратора.
-                  След изпращане на заявката, тя ще бъде разгледана от администратора.
+                  Ð’ÑŠÐ²ÐµÐ´ÐµÑ‚Ðµ ÑƒÐ½Ð¸ÐºÐ°Ð»Ð½Ð¸Ñ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð°, Ð¿Ñ€ÐµÐ´Ð¾ÑÑ‚Ð°Ð²ÐµÐ½ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.
+                  Ð¡Ð»ÐµÐ´ Ð¸Ð·Ð¿Ñ€Ð°Ñ‰Ð°Ð½Ðµ Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°Ñ‚Ð°, Ñ‚Ñ Ñ‰Ðµ Ð±ÑŠÐ´Ðµ Ñ€Ð°Ð·Ð³Ð»ÐµÐ´Ð°Ð½Ð° Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.
                 </div>
               </div>
             </div>
@@ -281,13 +281,13 @@ const ServiceSettings = () => {
             <form onSubmit={handleRequestService} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-textSecondary mb-2">
-                  Уникален код на сервиз *
+                  Ð£Ð½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð· *
                 </label>
                 <input
                   type="text"
                   value={uniqueCode}
                   onChange={(e) => setUniqueCode(e.target.value)}
-                  placeholder="Напр. ABC-12345"
+                  placeholder="ÐÐ°Ð¿Ñ€. ABC-12345"
                   className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   required
                 />
@@ -299,7 +299,7 @@ const ServiceSettings = () => {
                   disabled={isSubmitting}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                 >
-                  {isSubmitting ? 'Изпраща се...' : 'Изпрати заявка'}
+                  {isSubmitting ? 'Ð˜Ð·Ð¿Ñ€Ð°Ñ‰Ð° ÑÐµ...' : 'Ð˜Ð·Ð¿Ñ€Ð°Ñ‚Ð¸ Ð·Ð°ÑÐ²ÐºÐ°'}
                 </button>
                 <button
                   type="button"
@@ -309,7 +309,7 @@ const ServiceSettings = () => {
                   }}
                   className="px-6 py-2 bg-mainBg text-textPrimary rounded-lg hover:bg-cardBg w-full sm:w-auto"
                 >
-                  Отказ
+                  ÐžÑ‚ÐºÐ°Ð·
                 </button>
               </div>
             </form>
@@ -320,19 +320,19 @@ const ServiceSettings = () => {
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary" />
             <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">
-              Моите сервизи ({serviceCompanies.length})
+              ÐœÐ¾Ð¸Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð¸ ({serviceCompanies.length})
             </h2>
           </div>
 
           {serviceCompanies.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <Building2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p>Все още не сте член на нито един сервиз</p>
+              <p>Ð’ÑÐµ Ð¾Ñ‰Ðµ Ð½Ðµ ÑÑ‚Ðµ Ñ‡Ð»ÐµÐ½ Ð½Ð° Ð½Ð¸Ñ‚Ð¾ ÐµÐ´Ð¸Ð½ ÑÐµÑ€Ð²Ð¸Ð·</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {serviceCompanies.map((membership) => {
-                // Активен сервиз е този който е ACTIVE status И съвпада с activeService?.id
+
                 const isActiveService = membership.status === 'ACTIVE' &&
                   activeService &&
                   membership.serviceCompany.id === activeService.id;
@@ -369,7 +369,7 @@ const ServiceSettings = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      Присъединен: {formatDate(membership.joinedAt)}
+                      ÐŸÑ€Ð¸ÑÑŠÐµÐ´Ð¸Ð½ÐµÐ½: {formatDate(membership.joinedAt)}
                     </div>
                   </div>
 
@@ -380,7 +380,7 @@ const ServiceSettings = () => {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/40 rounded-lg hover:bg-red-200"
                       >
                         <LogOut className="w-4 h-4" />
-                        Откажи заявката
+                        ÐžÑ‚ÐºÐ°Ð¶Ð¸ Ð·Ð°ÑÐ²ÐºÐ°Ñ‚Ð°
                       </button>
                     </div>
                   )}
@@ -393,7 +393,7 @@ const ServiceSettings = () => {
                           className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-700"
                         >
                           <ArrowRightLeft className="w-4 h-4" />
-                          Активирай
+                          ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹
                         </button>
                       )}
                       <button
@@ -401,7 +401,7 @@ const ServiceSettings = () => {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-900/40 rounded-lg hover:bg-red-200"
                       >
                         <LogOut className="w-4 h-4" />
-                        Напусни
+                        ÐÐ°Ð¿ÑƒÑÐ½Ð¸
                       </button>
                     </div>
                   )}
@@ -417,3 +417,4 @@ const ServiceSettings = () => {
 };
 
 export default ServiceSettings;
+

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   register,
   login,
@@ -53,3 +53,4 @@ router.post('/resend-email-verification-code', resendEmailVerificationCode);
 router.delete('/delete-account', authenticate, deleteAccount);
 
 export default router;
+

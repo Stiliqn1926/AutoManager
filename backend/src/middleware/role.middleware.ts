@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 
 interface AuthRequest extends Request {
   user?: {
@@ -23,3 +23,4 @@ export const authorize = (...allowedRoles: string[]) => {
     next();
   };
 };
+

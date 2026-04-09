@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+﻿import jwt from 'jsonwebtoken';
 
 export interface TokenPayload {
   userId: string;
@@ -33,3 +33,4 @@ export const verifyToken = (token: string): TokenPayload => {
 
   return jwt.verify(token, secret, { algorithms: ['HS256'] }) as TokenPayload;
 };
+

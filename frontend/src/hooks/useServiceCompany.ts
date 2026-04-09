@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+﻿import { useContext } from 'react';
 import { ServiceCompanyContext } from '../context/ServiceCompanyContext';
 
 export const useServiceCompany = () => {
@@ -10,3 +10,4 @@ export const useServiceCompany = () => {
 
   return context;
 };
+

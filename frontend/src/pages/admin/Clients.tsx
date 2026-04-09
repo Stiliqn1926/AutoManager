@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Search, UserX, UserCheck, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
@@ -12,18 +12,18 @@ interface Client {
   firstName: string;
   lastName: string;
   phone: string;
-  email?: string; // 🆕 За pending клиенти (когато user е null)
+  email?: string;
   address: string | null;
   isActive: boolean;
   createdAt: string;
   user?: {
     email: string;
-  } | null; // 🆕 Може да е null за pending клиенти
+  } | null;
   _count?: {
     vehicles: number;
     orders: number;
   };
-  isPending?: boolean; // 🆕 За pending клиенти от PendingRequest
+  isPending?: boolean;
 }
 
 interface PendingClientRequest {
@@ -77,7 +77,7 @@ const Clients = () => {
     }
 
     try {
-      // Вземи клиенти с бекенд пагинация + pending заявки одобрени
+
       const [response, pendingResponse] = await Promise.all([
         api.get('/clients', {
           signal: controller.signal,
@@ -104,7 +104,7 @@ const Clients = () => {
         ? pendingResponse.data.clientRequests
         : [];
 
-      // Конвертирай pending requests в Client формат
+
       const pendingClients: Client[] = pendingRequests.map((req) => ({
         id: req.id,
         firstName: req.firstName || req.email.split('@')[0],
@@ -149,7 +149,7 @@ const Clients = () => {
       }
 
       if (!silent) {
-        toast.error('Грешка при зареждане на клиенти');
+        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸');
       }
     } finally {
       if (requestSeq !== requestSeqRef.current) {
@@ -193,27 +193,27 @@ const Clients = () => {
   }, [fetchClients]);
 
   const handleDeactivate = async (id: string, name: string, isActive: boolean) => {
-    const action = isActive ? 'деактивирате' : 'активирате';
-    if (!window.confirm(`Сигурни ли сте, че искате да ${action} ${name}?`)) return;
+    const action = isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ';
+    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° ${action} ${name}?`)) return;
 
     try {
       await api.patch(`/clients/${id}/toggle-active`);
-      toast.success(`Клиентът е ${isActive ? 'деактивиран' : 'активиран'}`);
+      toast.success(`ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ðµ ${isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½'}`);
       void fetchClients({ silent: true });
     } catch {
-      toast.error('Грешка при промяна на статус');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð¼ÑÐ½Ð° Ð½Ð° ÑÑ‚Ð°Ñ‚ÑƒÑ');
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${name}? Това действие е необратимо.`)) return;
+    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ${name}? Ð¢Ð¾Ð²Ð° Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ Ðµ Ð½ÐµÐ¾Ð±Ñ€Ð°Ñ‚Ð¸Ð¼Ð¾.`)) return;
 
     try {
       await api.delete(`/clients/${id}`);
-      toast.success('Клиентът е изтрит успешно');
+      toast.success('ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
       void fetchClients({ silent: true });
     } catch {
-      toast.error('Грешка при изтриване на клиент');
+      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚');
     }
   };
 
@@ -226,7 +226,7 @@ const Clients = () => {
     }
   };
 
-  // Нормализира телефонен номер за търсене (+359 → 0)
+
   const normalizePhone = (phone: string): string => {
     const digits = phone.replace(/\D/g, '');
     if (digits.startsWith('359')) {
@@ -250,7 +250,7 @@ const Clients = () => {
         );
       }
 
-      // Търсене по име или имейл
+
       const fields = [
         client.firstName,
         client.lastName,
@@ -260,7 +260,7 @@ const Clients = () => {
         ? false
         : tokens.every((token) => fields.some((field) => field.startsWith(token)));
 
-      // Търсене по телефон (нормализирано)
+
       const clientPhoneNormalized = normalizePhone(client.phone || '');
       const matchesPhone = searchNormalized.length > 0 && clientPhoneNormalized.startsWith(searchNormalized);
 
@@ -354,7 +354,7 @@ const Clients = () => {
   return (
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Клиенти</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐšÐ»Ð¸ÐµÐ½Ñ‚Ð¸</h1>
 
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Filters */}
@@ -363,8 +363,8 @@ const Clients = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
                 type="text"
-                aria-label="Търсене на клиенти"
-                placeholder="Търси по име, телефон или имейл"
+                aria-label="Ð¢ÑŠÑ€ÑÐµÐ½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸"
+                placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ð¸Ð¼Ðµ, Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½ Ð¸Ð»Ð¸ Ð¸Ð¼ÐµÐ¹Ð»"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -372,17 +372,17 @@ const Clients = () => {
             </div>
 
             <select
-              aria-label="Филтър по статус на клиент"
+              aria-label="Ð¤Ð¸Ð»Ñ‚ÑŠÑ€ Ð¿Ð¾ ÑÑ‚Ð°Ñ‚ÑƒÑ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚"
               value={filterStatus}
               onChange={(e) =>
                 setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending')
               }
               className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="all">Всички статуси</option>
-              <option value="active">Активни</option>
-              <option value="inactive">Неактивни</option>
-              <option value="pending">Чака одобрение</option>
+              <option value="all">Ð’ÑÐ¸Ñ‡ÐºÐ¸ ÑÑ‚Ð°Ñ‚ÑƒÑÐ¸</option>
+              <option value="active">ÐÐºÑ‚Ð¸Ð²Ð½Ð¸</option>
+              <option value="inactive">ÐÐµÐ°ÐºÑ‚Ð¸Ð²Ð½Ð¸</option>
+              <option value="pending">Ð§Ð°ÐºÐ° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ</option>
             </select>
           </div>
 
@@ -392,13 +392,13 @@ const Clients = () => {
               <thead>
                 <tr className="border-b border-borderSubtle">
                   {[
-                    { key: 'name', label: 'Име' },
+                    { key: 'name', label: 'Ð˜Ð¼Ðµ' },
                     { key: 'email', label: 'Email' },
-                    { key: 'phone', label: 'Телефон', className: 'hidden md:table-cell' },
-                    { key: 'vehicles', label: 'Автомобили', className: 'hidden md:table-cell' },
-                    { key: 'orders', label: 'Поръчки', className: 'hidden md:table-cell' },
-                    { key: 'createdAt', label: 'Регистрация', className: 'hidden lg:table-cell' },
-                    { key: 'status', label: 'Статус' },
+                    { key: 'phone', label: 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½', className: 'hidden md:table-cell' },
+                    { key: 'vehicles', label: 'ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸', className: 'hidden md:table-cell' },
+                    { key: 'orders', label: 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸', className: 'hidden md:table-cell' },
+                    { key: 'createdAt', label: 'Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ', className: 'hidden lg:table-cell' },
+                    { key: 'status', label: 'Ð¡Ñ‚Ð°Ñ‚ÑƒÑ' },
                   ].map(({ key, label, className }) => (
                     <th
                       key={key}
@@ -412,7 +412,7 @@ const Clients = () => {
                     </th>
                   ))}
                   <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">
-                    Действия
+                    Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ
                   </th>
                 </tr>
               </thead>
@@ -420,12 +420,12 @@ const Clients = () => {
                 {filteredClients.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center py-12 text-textSecondary">
-                      Няма намерени клиенти
+                      ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸
                     </td>
                   </tr>
                 ) : (
                   filteredClients.map((client) => {
-                    const isClickable = !client.isPending; // Кликаем само ако НЕ е pending
+                    const isClickable = !client.isPending;
 
                     return (
                     <tr
@@ -452,7 +452,7 @@ const Clients = () => {
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          {client.isPending ? 'Чака одобрение' : client.isActive ? 'Активен' : 'Неактивен'}
+                          {client.isPending ? 'Ð§Ð°ÐºÐ° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ' : client.isActive ? 'ÐÐºÑ‚Ð¸Ð²ÐµÐ½' : 'ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½'}
                         </span>
                       </td>
                       <td className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base">
@@ -461,9 +461,9 @@ const Clients = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           {client.isPending ? (
-                            // Pending клиенти - без бутони (одобрението е в Настройки)
+
                             <span className="text-xs text-textSecondary italic">
-                              Одобрете в Настройки
+                              ÐžÐ´Ð¾Ð±Ñ€ÐµÑ‚Ðµ Ð² ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸
                             </span>
                           ) : (
                             <>
@@ -471,10 +471,10 @@ const Clients = () => {
                                 type="button"
                                 aria-label={
                                   client.isActive
-                                    ? 'Деактивирай клиент'
-                                    : 'Активирай клиент'
+                                    ? 'Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹ ÐºÐ»Ð¸ÐµÐ½Ñ‚'
+                                    : 'ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹ ÐºÐ»Ð¸ÐµÐ½Ñ‚'
                                 }
-                                title={client.isActive ? 'Деактивирай' : 'Активирай'}
+                                title={client.isActive ? 'Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹' : 'ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹'}
                                 onClick={() =>
                                   handleDeactivate(
                                     client.id,
@@ -493,8 +493,8 @@ const Clients = () => {
                               {(client._count?.vehicles === 0 && client._count?.orders === 0) && (
                                 <button
                                   type="button"
-                                  aria-label="Изтрий клиент"
-                                  title="Изтрий"
+                                  aria-label="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ ÐºÐ»Ð¸ÐµÐ½Ñ‚"
+                                  title="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹"
                                   onClick={() =>
                                     handleDelete(
                                       client.id,
@@ -521,7 +521,7 @@ const Clients = () => {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-2 sm:px-0 pt-4 border-t border-borderSubtle mt-4">
               <div className="text-sm text-textSecondary">
-                Страница {pagination.currentPage} от {pagination.totalPages}
+                Ð¡Ñ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° {pagination.currentPage} Ð¾Ñ‚ {pagination.totalPages}
               </div>
               <div className="flex gap-2">
                 <button
@@ -531,7 +531,7 @@ const Clients = () => {
                   disabled={pagination.currentPage === 1}
                   className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Предишна
+                  ÐŸÑ€ÐµÐ´Ð¸ÑˆÐ½Ð°
                 </button>
                 <button
                   onClick={() =>
@@ -540,7 +540,7 @@ const Clients = () => {
                   disabled={pagination.currentPage === pagination.totalPages}
                   className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Следваща
+                  Ð¡Ð»ÐµÐ´Ð²Ð°Ñ‰Ð°
                 </button>
               </div>
             </div>
@@ -552,5 +552,6 @@ const Clients = () => {
 };
 
 export default Clients;
+
 
 
