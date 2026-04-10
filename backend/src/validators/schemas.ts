@@ -6,70 +6,70 @@
 
 export const registerSchema = Joi.object({
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
   password: Joi.string()
     .min(8)
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
     .required()
     .messages({
-      'string.min': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+      'string.min': 'Паролата трябва да е поне 8 символа',
       'string.pattern.base':
-        'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÑŠÐ´ÑŠÑ€Ð¶Ð° Ð¿Ð¾Ð½Ðµ ÐµÐ´Ð½Ð° Ð³Ð»Ð°Ð²Ð½Ð° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ð¼Ð°Ð»ÐºÐ° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ñ†Ð¸Ñ„Ñ€Ð° Ð¸ ÐµÐ´Ð¸Ð½ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÐµÐ½ ÑÐ¸Ð¼Ð²Ð¾Ð» (@$!%*?&#)',
-      'any.required': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+        'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
+      'any.required': 'Паролата е задължителна',
     }),
   role: Joi.string().valid('ADMIN', 'CLIENT').required().messages({
-    'any.only': 'Ð Ð¾Ð»ÑÑ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ADMIN Ð¸Ð»Ð¸ CLIENT',
-    'any.required': 'Ð Ð¾Ð»ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'any.only': 'Ролята трябва да е ADMIN или CLIENT',
+    'any.required': 'Ролята е задължителна',
   }),
 });
 
 export const registerClientSchema = Joi.object({
   firstName: Joi.string().required().messages({
-    'any.required': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
-    'string.empty': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'any.required': 'Името е задължително',
+    'string.empty': 'Името е задължително',
   }),
   lastName: Joi.string().required().messages({
-    'any.required': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
-    'string.empty': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'any.required': 'Фамилията е задължителна',
+    'string.empty': 'Фамилията е задължителна',
   }),
   phone: Joi.string()
     .pattern(/^[0-9+\s()-]+$/)
     .required()
     .messages({
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
-      'string.empty': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
-      'string.pattern.base': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½ÐµÐ½ Ð½Ð¾Ð¼ÐµÑ€',
+      'any.required': 'Телефонният номер е задължителен',
+      'string.empty': 'Телефонният номер е задължителен',
+      'string.pattern.base': 'Невалиден телефонен номер',
     }),
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
   password: Joi.string()
     .min(8)
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
     .required()
     .messages({
-      'string.min': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+      'string.min': 'Паролата трябва да е поне 8 символа',
       'string.pattern.base':
-        'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÑŠÐ´ÑŠÑ€Ð¶Ð° Ð¿Ð¾Ð½Ðµ ÐµÐ´Ð½Ð° Ð³Ð»Ð°Ð²Ð½Ð° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ð¼Ð°Ð»ÐºÐ° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ñ†Ð¸Ñ„Ñ€Ð° Ð¸ ÐµÐ´Ð¸Ð½ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÐµÐ½ ÑÐ¸Ð¼Ð²Ð¾Ð» (@$!%*?&#)',
-      'any.required': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+        'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
+      'any.required': 'Паролата е задължителна',
     }),
   uniqueCode: Joi.string().required().messages({
-    'any.required': 'ÐšÐ¾Ð´ÑŠÑ‚ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
-    'string.empty': 'ÐšÐ¾Ð´ÑŠÑ‚ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.required': 'Кодът на сервиза е задължителен',
+    'string.empty': 'Кодът на сервиза е задължителен',
   }),
   role: Joi.string().valid('CLIENT').default('CLIENT').optional(),
 });
 
 export const loginSchema = Joi.object({
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
   password: Joi.string().required().messages({
-    'any.required': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'any.required': 'Паролата е задължителна',
   }),
   role: Joi.string().valid('ADMIN', 'MECHANIC', 'CLIENT').optional(),
   rememberMe: Joi.boolean().optional(),
@@ -86,33 +86,33 @@ export const registerMechanicSchema = Joi.object({
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
     .required()
     .messages({
-      'string.min': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+      'string.min': 'Паролата трябва да е поне 8 символа',
       'string.pattern.base':
-        'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÑŠÐ´ÑŠÑ€Ð¶Ð° Ð¿Ð¾Ð½Ðµ ÐµÐ´Ð½Ð° Ð³Ð»Ð°Ð²Ð½Ð° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ð¼Ð°Ð»ÐºÐ° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ñ†Ð¸Ñ„Ñ€Ð° Ð¸ ÐµÐ´Ð¸Ð½ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÐµÐ½ ÑÐ¸Ð¼Ð²Ð¾Ð» (@$!%*?&#)',
-      'any.required': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+        'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
+      'any.required': 'Паролата е задължителна',
     }),
   firstName: Joi.string().min(2).max(50).required().messages({
-    'string.min': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'string.max': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ð¾Ð²ÐµÑ‡Ðµ Ð¾Ñ‚ 50 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Името трябва да е поне 2 символа',
+    'string.max': 'Името не може да е повече от 50 символа',
+    'any.required': 'Името е задължително',
   }),
   lastName: Joi.string().min(2).max(50).required().messages({
-    'string.min': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'string.max': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ð¾Ð²ÐµÑ‡Ðµ Ð¾Ñ‚ 50 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'string.min': 'Фамилията трябва да е поне 2 символа',
+    'string.max': 'Фамилията не може да е повече от 50 символа',
+    'any.required': 'Фамилията е задължителна',
   }),
   phone: Joi.string()
     .pattern(/^(\+359|0)[0-9]{9}$/)
     .required()
     .messages({
       'string.pattern.base':
-        'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ 0888123456 Ð¸Ð»Ð¸ +359888123456',
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+        'Телефонът трябва да е във формат 0888123456 или +359888123456',
+      'any.required': 'Телефонът е задължителен',
     }),
   specialization: Joi.string().max(200).optional(),
   skills: Joi.string().max(500).optional(),
   uniqueCode: Joi.string().required().messages({
-    'any.required': 'Ð£Ð½Ð¸ÐºÐ°Ð»Ð½Ð¸ÑÑ‚ ÐºÐ¾Ð´ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.required': 'Уникалният код е задължителен',
   }),
 });
 
@@ -122,27 +122,27 @@ export const registerMechanicSchema = Joi.object({
 
 export const createServiceCompanySchema = Joi.object({
   name: Joi.string().min(3).max(100).required().messages({
-    'string.min': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 3 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Името на фирмата трябва да е поне 3 символа',
+    'any.required': 'Името на фирмата е задължително',
   }),
   address: Joi.string().min(5).max(200).required().messages({
-    'string.min': 'ÐÐ´Ñ€ÐµÑÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 5 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'ÐÐ´Ñ€ÐµÑÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.min': 'Адресът трябва да е поне 5 символа',
+    'any.required': 'Адресът е задължителен',
   }),
   phone: Joi.string()
     .pattern(/^(\+359|0)[0-9]{9}$/)
     .required()
     .messages({
       'string.pattern.base':
-        'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ 0888123456 Ð¸Ð»Ð¸ +359888123456',
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+        'Телефонът трябва да е във формат 0888123456 или +359888123456',
+      'any.required': 'Телефонът е задължителен',
     }),
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
   bulstat: Joi.string().pattern(/^[0-9]{9,13}$/).optional().messages({
-    'string.pattern.base': 'Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¼ÐµÐ¶Ð´Ñƒ 9 Ð¸ 13 Ñ†Ð¸Ñ„Ñ€Ð¸',
+    'string.pattern.base': 'Булстат трябва да е между 9 и 13 цифри',
   }),
   vatNumber: Joi.string().optional(),
   description: Joi.string().max(500).optional(),
@@ -154,20 +154,20 @@ export const createServiceCompanySchema = Joi.object({
 
 export const createClientSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required().messages({
-    'string.min': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Името трябва да е поне 2 символа',
+    'any.required': 'Името е задължително',
   }),
   lastName: Joi.string().min(2).max(50).required().messages({
-    'string.min': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'string.min': 'Фамилията трябва да е поне 2 символа',
+    'any.required': 'Фамилията е задължителна',
   }),
   phone: Joi.string()
     .pattern(/^(\+359|0)[0-9]{9}$/)
     .required()
     .messages({
       'string.pattern.base':
-        'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ 0888123456 Ð¸Ð»Ð¸ +359888123456',
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+        'Телефонът трябва да е във формат 0888123456 или +359888123456',
+      'any.required': 'Телефонът е задължителен',
     }),
   email: Joi.string().email().optional().allow(''),
   address: Joi.string().max(200).optional().allow(''),
@@ -175,20 +175,20 @@ export const createClientSchema = Joi.object({
 
 export const addServiceCompanyToClientSchema = Joi.object({
   uniqueCode: Joi.string().required().messages({
-    'any.required': 'ÐšÐ¾Ð´ÑŠÑ‚ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.required': 'Кодът на сервиза е задължителен',
   }),
   phone: Joi.string()
     .min(10)
     .required()
     .messages({
-      'string.min': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 10 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+      'string.min': 'Телефонният номер трябва да е поне 10 символа',
+      'any.required': 'Телефонният номер е задължителен',
     }),
   firstName: Joi.string().min(2).max(50).optional().allow('').messages({
-    'string.min': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+    'string.min': 'Името трябва да е поне 2 символа',
   }),
   lastName: Joi.string().min(2).max(50).optional().allow('').messages({
-    'string.min': 'Ð¤Ð°Ð¼Ð¸Ð»Ð¸ÑÑ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 2 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+    'string.min': 'Фамилията трябва да е поне 2 символа',
   }),
 });
 
@@ -199,7 +199,7 @@ export const addServiceCompanyToClientSchema = Joi.object({
 export const createVehicleSchema = Joi.object({
   clientId: Joi.string().uuid().required(),
   brand: Joi.string().min(2).max(50).required().messages({
-    'any.required': 'ÐœÐ°Ñ€ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'any.required': 'Марката е задължителна',
   }),
   model: Joi.string().min(1).max(50).required(),
   year: Joi.number()
@@ -208,28 +208,28 @@ export const createVehicleSchema = Joi.object({
     .max(new Date().getFullYear() + 1)
     .required()
     .messages({
-      'number.min': 'Ð“Ð¾Ð´Ð¸Ð½Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ñ€ÐµÐ´Ð¸ 1900',
-      'number.max': 'Ð“Ð¾Ð´Ð¸Ð½Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð² Ð±ÑŠÐ´ÐµÑ‰ÐµÑ‚Ð¾',
+      'number.min': 'Годината не може да е преди 1900',
+      'number.max': 'Годината не може да е в бъдещето',
     }),
   licensePlate: Joi.string().min(5).max(15).required().messages({
-    'any.required': 'Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.required': 'Регистрационният номер е задължителен',
   }),
   vin: Joi.string().length(17).optional().messages({
-    'string.length': 'VIN Ð½Ð¾Ð¼ÐµÑ€ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ñ‚Ð¾Ñ‡Ð½Ð¾ 17 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+    'string.length': 'VIN номерът трябва да е точно 17 символа',
   }),
   color: Joi.string().max(30).optional(),
   mileage: Joi.number().integer().min(0).max(999999).optional().messages({
-    'number.min': 'ÐšÐ¸Ð»Ð¾Ð¼ÐµÑ‚Ñ€Ð°Ð¶ÑŠÑ‚ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¾Ñ‚Ñ€Ð¸Ñ†Ð°Ñ‚ÐµÐ»ÐµÐ½',
+    'number.min': 'Километражът не може да е отрицателен',
   }),
   fuelType: Joi.string()
-    .valid('Ð‘ÐµÐ½Ð·Ð¸Ð½', 'Ð”Ð¸Ð·ÐµÐ»', 'Ð“Ð°Ð·', 'Ð¥Ð¸Ð±Ñ€Ð¸Ð´', 'Ð•Ð»ÐµÐºÑ‚Ñ€Ð¾')
+    .valid('Бензин', 'Дизел', 'Газ', 'Хибрид', 'Електро')
     .optional(),
   engineSize: Joi.string().max(20).optional(),
 });
 
 export const updateVehicleSchema = Joi.object({
   brand: Joi.string().min(2).max(50).required().messages({
-    'any.required': 'ÐœÐ°Ñ€ÐºÐ°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'any.required': 'Марката е задължителна',
   }),
   model: Joi.string().min(1).max(50).required(),
   year: Joi.number()
@@ -238,21 +238,21 @@ export const updateVehicleSchema = Joi.object({
     .max(new Date().getFullYear() + 1)
     .optional()
     .messages({
-      'number.min': 'Ð“Ð¾Ð´Ð¸Ð½Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ñ€ÐµÐ´Ð¸ 1900',
-      'number.max': 'Ð“Ð¾Ð´Ð¸Ð½Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð² Ð±ÑŠÐ´ÐµÑ‰ÐµÑ‚Ð¾',
+      'number.min': 'Годината не може да е преди 1900',
+      'number.max': 'Годината не може да е в бъдещето',
     }),
   licensePlate: Joi.string().min(5).max(15).required().messages({
-    'any.required': 'Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð¸ÑÑ‚ Ð½Ð¾Ð¼ÐµÑ€ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.required': 'Регистрационният номер е задължителен',
   }),
   vin: Joi.string().length(17).optional().allow('').messages({
-    'string.length': 'VIN Ð½Ð¾Ð¼ÐµÑ€ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ñ‚Ð¾Ñ‡Ð½Ð¾ 17 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+    'string.length': 'VIN номерът трябва да е точно 17 символа',
   }),
   color: Joi.string().max(30).optional().allow(''),
   mileage: Joi.number().integer().min(0).max(999999).optional().messages({
-    'number.min': 'ÐšÐ¸Ð»Ð¾Ð¼ÐµÑ‚Ñ€Ð°Ð¶ÑŠÑ‚ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¾Ñ‚Ñ€Ð¸Ñ†Ð°Ñ‚ÐµÐ»ÐµÐ½',
+    'number.min': 'Километражът не може да е отрицателен',
   }),
   fuelType: Joi.string()
-    .valid('Ð‘ÐµÐ½Ð·Ð¸Ð½', 'Ð”Ð¸Ð·ÐµÐ»', 'Ð“Ð°Ð·', 'Ð¥Ð¸Ð±Ñ€Ð¸Ð´', 'Ð•Ð»ÐµÐºÑ‚Ñ€Ð¾')
+    .valid('Бензин', 'Дизел', 'Газ', 'Хибрид', 'Електро')
     .optional(),
   engineSize: Joi.string().max(20).optional().allow(''),
 });
@@ -263,41 +263,41 @@ export const updateVehicleSchema = Joi.object({
 
 export const registerAdminWithCompanySchema = Joi.object({
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
   password: Joi.string()
     .min(8)
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
     .required()
     .messages({
-      'string.min': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
+      'string.min': 'Паролата трябва да е поне 8 символа',
       'string.pattern.base':
-        'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° ÑÑŠÐ´ÑŠÑ€Ð¶Ð° Ð¿Ð¾Ð½Ðµ ÐµÐ´Ð½Ð° Ð³Ð»Ð°Ð²Ð½Ð° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ð¼Ð°Ð»ÐºÐ° Ð±ÑƒÐºÐ²Ð°, ÐµÐ´Ð½Ð° Ñ†Ð¸Ñ„Ñ€Ð° Ð¸ ÐµÐ´Ð¸Ð½ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÐµÐ½ ÑÐ¸Ð¼Ð²Ð¾Ð» (@$!%*?&#)',
-      'any.required': 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+        'Паролата трябва да съдържа поне една главна буква, една малка буква, една цифра и един специален символ (@$!%*?&#)',
+      'any.required': 'Паролата е задължителна',
     }),
   companyName: Joi.string().min(3).max(100).required().messages({
-    'string.min': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 3 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'Ð˜Ð¼ÐµÑ‚Ð¾ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Името на фирмата трябва да е поне 3 символа',
+    'any.required': 'Името на фирмата е задължително',
   }),
   companyAddress: Joi.string().min(5).max(200).required().messages({
-    'string.min': 'ÐÐ´Ñ€ÐµÑÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 5 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'ÐÐ´Ñ€ÐµÑÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.min': 'Адресът трябва да е поне 5 символа',
+    'any.required': 'Адресът е задължителен',
   }),
   companyPhone: Joi.string()
     .pattern(/^(\+359|0)[0-9]{9}$/)
     .required()
     .messages({
       'string.pattern.base':
-        'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð²ÑŠÐ² Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ 0888123456 Ð¸Ð»Ð¸ +359888123456',
-      'any.required': 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+        'Телефонът трябва да е във формат 0888123456 или +359888123456',
+      'any.required': 'Телефонът е задължителен',
     }),
   companyEmail: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð°',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ð½Ð° Ñ„Ð¸Ñ€Ð¼Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес на фирмата',
+    'any.required': 'Имейлът на фирмата е задължителен',
   }),
   bulstat: Joi.string().pattern(/^[0-9]{9,13}$/).optional().messages({
-    'string.pattern.base': 'Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¼ÐµÐ¶Ð´Ñƒ 9 Ð¸ 13 Ñ†Ð¸Ñ„Ñ€Ð¸',
+    'string.pattern.base': 'Булстат трябва да е между 9 и 13 цифри',
   }),
   vatNumber: Joi.string().optional(),
   description: Joi.string().max(500).optional(),
@@ -305,8 +305,8 @@ export const registerAdminWithCompanySchema = Joi.object({
 
 export const adminRegistrationCheckoutSessionSchema = Joi.object({
   email: Joi.string().email().required().messages({
-    'string.email': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ð¸Ð¼ÐµÐ¹Ð» Ð°Ð´Ñ€ÐµÑ',
-    'any.required': 'Ð˜Ð¼ÐµÐ¹Ð»ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'string.email': 'Невалиден имейл адрес',
+    'any.required': 'Имейлът е задължителен',
   }),
 });
 
@@ -318,8 +318,8 @@ export const createOrderSchema = Joi.object({
   vehicleId: Joi.string().uuid().required(),
   clientId: Joi.string().uuid().required(),
   description: Joi.string().min(10).max(1000).required().messages({
-    'string.min': 'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸ÐµÑ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 10 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Описанието трябва да е поне 10 символа',
+    'any.required': 'Описанието е задължително',
   }),
   workerId: Joi.string().uuid().optional(),
   startDate: Joi.date().iso().optional().allow('', null),
@@ -328,8 +328,8 @@ export const createOrderSchema = Joi.object({
 
 export const updateOrderStatusSchema = Joi.object({
   status: Joi.string().valid('WAITING', 'IN_PROGRESS', 'READY', 'COMPLETED').required().messages({
-    'any.only': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÑÑ‚Ð°Ñ‚ÑƒÑ',
-    'any.required': 'Ð¡Ñ‚Ð°Ñ‚ÑƒÑÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.only': 'Невалиден статус',
+    'any.required': 'Статусът е задължителен',
   }),
 });
 
@@ -339,14 +339,14 @@ export const updateOrderStatusSchema = Joi.object({
 
 export const createOrderItemSchema = Joi.object({
   type: Joi.string().valid('PART', 'LABOR', 'CONSUMABLE').required().messages({
-    'any.only': 'Ð¢Ð¸Ð¿ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ PART, LABOR Ð¸Ð»Ð¸ CONSUMABLE',
+    'any.only': 'Типът трябва да е PART, LABOR или CONSUMABLE',
   }),
   name: Joi.string().min(3).max(100).required(),
   quantity: Joi.number().integer().min(1).max(999).required().messages({
-    'number.min': 'ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾Ñ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 1',
+    'number.min': 'Количеството трябва да е поне 1',
   }),
   unitPrice: Joi.number().min(0).max(999999).required().messages({
-    'number.min': 'Ð¦ÐµÐ½Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¾Ñ‚Ñ€Ð¸Ñ†Ð°Ñ‚ÐµÐ»Ð½Ð°',
+    'number.min': 'Цената не може да е отрицателна',
   }),
   description: Joi.string().max(500).optional(),
 });
@@ -369,10 +369,10 @@ export const createScheduleSchema = Joi.object({
   description: Joi.string().max(500).optional().allow('', null),
   date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).optional(),
   startTime: Joi.date().iso().required().messages({
-    'date.format': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð½Ð° Ð½Ð°Ñ‡Ð°Ð»ÐµÐ½ Ñ‡Ð°Ñ',
+    'date.format': 'Невалиден формат на начален час',
   }),
   endTime: Joi.date().iso().greater(Joi.ref('startTime')).required().messages({
-    'date.greater': 'ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ Ñ‡Ð°Ñ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¸Ñ',
+    'date.greater': 'Крайният час трябва да е след началния',
   }),
   workerId: Joi.string().uuid().optional().allow('', null),
   orderId: Joi.string().uuid().optional().allow('', null),
@@ -422,28 +422,28 @@ export const updateScheduleSchema = Joi.object({
 
 export const createFinanceSchema = Joi.object({
   type: Joi.string().valid('INCOME', 'EXPENSE').required().messages({
-    'any.only': 'Ð¢Ð¸Ð¿ÑŠÑ‚ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ INCOME Ð¸Ð»Ð¸ EXPENSE',
-    'any.required': 'Ð¢Ð¸Ð¿ÑŠÑ‚ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»ÐµÐ½',
+    'any.only': 'Типът трябва да е INCOME или EXPENSE',
+    'any.required': 'Типът е задължителен',
   }),
   category: Joi.string()
     .valid('PARTS', 'LABOR', 'CONSUMABLES', 'RENT', 'UTILITIES', 'SALARIES', 'TAXES', 'INSURANCE', 'MARKETING', 'MAINTENANCE', 'SUPPLIES', 'OTHER')
     .required()
     .messages({
-      'any.only': 'ÐšÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑÑ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ PARTS, LABOR, CONSUMABLES, RENT, UTILITIES, SALARIES, TAXES, INSURANCE, MARKETING, MAINTENANCE, SUPPLIES Ð¸Ð»Ð¸ OTHER',
-      'any.required': 'ÐšÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑÑ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+      'any.only': 'Категорията трябва да е PARTS, LABOR, CONSUMABLES, RENT, UTILITIES, SALARIES, TAXES, INSURANCE, MARKETING, MAINTENANCE, SUPPLIES или OTHER',
+      'any.required': 'Категорията е задължителна',
     }),
   amount: Joi.number().min(0.01).max(999999.99).required().messages({
-    'number.min': 'Ð¡ÑƒÐ¼Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 0.01 â‚¬.',
-    'number.max': 'Ð¡ÑƒÐ¼Ð°Ñ‚Ð° Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ð¾Ð²ÐµÑ‡Ðµ Ð¾Ñ‚ 999999.99 â‚¬.',
-    'any.required': 'Ð¡ÑƒÐ¼Ð°Ñ‚Ð° Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð°',
+    'number.min': 'Сумата трябва да е поне 0.01 €.',
+    'number.max': 'Сумата не може да е повече от 999999.99 €.',
+    'any.required': 'Сумата е задължителна',
   }),
   description: Joi.string().min(5).max(500).required().messages({
-    'string.min': 'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸ÐµÑ‚Ð¾ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ Ð¿Ð¾Ð½Ðµ 5 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'string.max': 'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸ÐµÑ‚Ð¾ Ð½Ðµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ðµ Ð¿Ð¾Ð²ÐµÑ‡Ðµ Ð¾Ñ‚ 500 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð°',
-    'any.required': 'ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸ÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾',
+    'string.min': 'Описанието трябва да е поне 5 символа',
+    'string.max': 'Описанието не може да е повече от 500 символа',
+    'any.required': 'Описанието е задължително',
   }),
   date: Joi.date().iso().optional().messages({
-    'date.format': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð½Ð° Ð´Ð°Ñ‚Ð° (Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ð¹ ISO: 2024-12-29)',
+    'date.format': 'Невалиден формат на дата (използвай ISO: 2024-12-29)',
   }),
   notes: Joi.string().max(1000).optional(),
 });
@@ -454,10 +454,10 @@ export const getFinanceFiltersSchema = Joi.object({
     .valid('PARTS', 'LABOR', 'CONSUMABLES', 'RENT', 'UTILITIES', 'SALARIES', 'TAXES', 'INSURANCE', 'MARKETING', 'MAINTENANCE', 'SUPPLIES', 'OTHER')
     .optional(),
   startDate: Joi.date().iso().optional().messages({
-    'date.format': 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð½Ð° Ð½Ð°Ñ‡Ð°Ð»Ð½Ð°Ñ‚Ð° Ð´Ð°Ñ‚Ð°',
+    'date.format': 'Невалиден формат на началната дата',
   }),
   endDate: Joi.date().iso().min(Joi.ref('startDate')).optional().messages({
-    'date.min': 'ÐšÑ€Ð°Ð¹Ð½Ð°Ñ‚Ð° Ð´Ð°Ñ‚Ð° Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð°Ñ‚Ð°',
+    'date.min': 'Крайната дата трябва да е след началната',
   }),
   page: Joi.number().integer().min(1).optional().default(1),
   limit: Joi.number().integer().min(1).max(100).optional().default(20),

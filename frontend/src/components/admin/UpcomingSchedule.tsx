@@ -27,7 +27,7 @@ const UpcomingSchedule = () => {
         const response = await api.get('/schedules?limit=5');
         setSchedules(response.data.schedules || []);
       } catch  {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð³Ñ€Ð°Ñ„Ð¸Ðº');
+        toast.error('Грешка при зареждане на график');
       } finally {
         setIsLoading(false);
       }
@@ -39,7 +39,7 @@ const UpcomingSchedule = () => {
   if (isLoading) {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-6">
-        <h2 className="text-lg font-semibold text-textPrimary mb-4">ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ð¸ Ð—Ð°Ð´Ð°Ñ‡Ð¸</h2>
+        <h2 className="text-lg font-semibold text-textPrimary mb-4">Предстоящи Задачи</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 bg-gray-200 rounded"></div>
@@ -52,17 +52,17 @@ const UpcomingSchedule = () => {
   return (
     <div className="bg-cardBg rounded-2xl shadow-card p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-textPrimary">ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ð¸ Ð—Ð°Ð´Ð°Ñ‡Ð¸</h2>
+        <h2 className="text-lg font-semibold text-textPrimary">Предстоящи Задачи</h2>
         <button
           onClick={() => navigate('/admin/schedule')}
           className="text-sm text-primary hover:text-primary-700 font-medium"
         >
-          Ð’Ð¸Ð¶ ÐºÐ°Ð»ÐµÐ½Ð´Ð°Ñ€ â†’
+          Виж календар →
         </button>
       </div>
 
       {schedules.length === 0 ? (
-        <p className="text-textSecondary text-center py-8">ÐÑÐ¼Ð° Ð¿Ñ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸</p>
+        <p className="text-textSecondary text-center py-8">Няма предстоящи задачи</p>
       ) : (
         <div className="space-y-3">
           {schedules.map((schedule) => (

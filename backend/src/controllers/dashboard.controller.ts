@@ -233,8 +233,8 @@ export const getFinanceChartData = async (
 
     const formatMonth = (date: Date): string => {
       const months = [
-        'Ð¯Ð½Ñƒ', 'Ð¤ÐµÐ²', 'ÐœÐ°Ñ€', 'ÐÐ¿Ñ€', 'ÐœÐ°Ð¹', 'Ð®Ð½Ð¸',
-        'Ð®Ð»Ð¸', 'ÐÐ²Ð³', 'Ð¡ÐµÐ¿', 'ÐžÐºÑ‚', 'ÐÐ¾Ðµ', 'Ð”ÐµÐº',
+        'Яну', 'Фев', 'Мар', 'Апр', 'Май', 'Юни',
+        'Юли', 'Авг', 'Сеп', 'Окт', 'Ное', 'Дек',
       ];
       return `${months[date.getMonth()]} ${date.getFullYear()}`;
     };

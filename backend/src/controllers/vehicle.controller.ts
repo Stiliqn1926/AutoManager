@@ -315,7 +315,7 @@ export const deleteVehicle = async (
 
     if (ordersCount > 0) {
       res.status(400).json({
-        message: `ÐÐµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ñ‚Ð¾Ð·Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð», Ð·Ð°Ñ‰Ð¾Ñ‚Ð¾ Ð¸Ð¼Ð° ${ordersCount} ÑÐ²ÑŠÑ€Ð·Ð°Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸`,
+        message: `Не може да изтриете този автомобил, защото има ${ordersCount} свързани поръчки`,
         hasOrders: true,
         ordersCount,
       });
@@ -328,7 +328,7 @@ export const deleteVehicle = async (
     });
 
     res.status(200).json({
-      message: 'ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Автомобилът е изтрит успешно',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });

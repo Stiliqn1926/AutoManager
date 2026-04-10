@@ -1,40 +1,49 @@
 import { PrismaClient } from '@prisma/client';
+import { serviceSeeds } from './demoSeedData';
 
 const prisma = new PrismaClient();
 
-const DEMO_EMAIL_DOMAIN = '@automanager.bg';
-const DEMO_UNIQUE_CODES = ['SRV001', 'SRV002', 'SRV003', 'SRV004', 'SRV005'];
+const DEMO_DOMAIN = '@automanager.bg';
+
+const buildDemoEmails = (): string[] => [
+  ...serviceSeeds.map((s) => `admin${s.index}${DEMO_DOMAIN}`),
+  ...Array.from({ length: 8 }, (_, i) => `mechanic${i + 1}${DEMO_DOMAIN}`),
+  ...Array.from({ length: 30 }, (_, i) => `client${i + 1}${DEMO_DOMAIN}`),
+  ...Array.from({ length: 3 }, (_, i) => `pending.mechanic${i + 1}${DEMO_DOMAIN}`),
+  ...Array.from({ length: 3 }, (_, i) => `pending.client${i + 1}${DEMO_DOMAIN}`),
+];
 
 async function main() {
-  console.log('Започвам изтриване на demo данни...');
+  console.log('Започва изтриване на demo данни...');
 
-  const demoServices = await prisma.serviceCompany.findMany({
-    where: {
-      OR: [
-        { uniqueCode: { in: DEMO_UNIQUE_CODES } },
-        { email: { endsWith: DEMO_EMAIL_DOMAIN } },
-        { name: { in: ['AutoPoint Център', 'МоторЛаб Младост', 'Prime Garage Люлин', 'Трак Кар Сървис', 'Авто Хъб Кършияка'] } },
-      ],
-    },
-    select: { id: true },
-  });
+  const demoEmails = buildDemoEmails();
+  const serviceIds = (
+    await prisma.serviceCompany.findMany({
+      where: { uniqueCode: { in: serviceSeeds.map((s) => s.uniqueCode) } },
+      select: { id: true },
+    })
+  ).map((s) => s.id);
 
-  const demoServiceIds = demoServices.map((service) => service.id);
-
-  const demoUsers = await prisma.user.findMany({
-    where: {
-      email: { endsWith: DEMO_EMAIL_DOMAIN },
-    },
-    select: { id: true },
-  });
-
-  const demoUserIds = demoUsers.map((user) => user.id);
+  const userIds = (
+    await prisma.user.findMany({
+      where: {
+        OR: [
+          { email: { in: demoEmails } },
+          { email: { startsWith: 'admin', endsWith: DEMO_DOMAIN } },
+          { email: { startsWith: 'mechanic', endsWith: DEMO_DOMAIN } },
+          { email: { startsWith: 'client', endsWith: DEMO_DOMAIN } },
+          { email: { startsWith: 'pending.', endsWith: DEMO_DOMAIN } },
+        ],
+      },
+      select: { id: true },
+    })
+  ).map((u) => u.id);
 
   const deletedNotifications = await prisma.notification.deleteMany({
     where: {
       OR: [
-        { order: { serviceCompanyId: { in: demoServiceIds } } },
-        { client: { serviceCompanyId: { in: demoServiceIds } } },
+        { order: { serviceCompanyId: { in: serviceIds } } },
+        { client: { serviceCompanyId: { in: serviceIds } } },
       ],
     },
   });
@@ -42,7 +51,7 @@ async function main() {
   const deletedSchedules = await prisma.schedule.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { title: { startsWith: 'Демо задача' } },
       ],
     },
@@ -51,7 +60,7 @@ async function main() {
   const deletedInvoices = await prisma.invoice.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { invoiceNumber: { startsWith: 'INV-DEMO-' } },
       ],
     },
@@ -60,7 +69,7 @@ async function main() {
   const deletedOrderItems = await prisma.orderItem.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { order: { orderNumber: { startsWith: 'DEMO-' } } },
       ],
     },
@@ -69,7 +78,7 @@ async function main() {
   const deletedOrders = await prisma.order.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { orderNumber: { startsWith: 'DEMO-' } },
       ],
     },
@@ -78,7 +87,7 @@ async function main() {
   const deletedFinances = await prisma.finance.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { description: { contains: '[DEMO]' } },
       ],
     },
@@ -87,7 +96,7 @@ async function main() {
   const deletedSuppliers = await prisma.supplier.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
+        { serviceCompanyId: { in: serviceIds } },
         { notes: { contains: '[DEMO]' } },
       ],
     },
@@ -96,8 +105,8 @@ async function main() {
   const deletedVehicles = await prisma.vehicle.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
-        { licensePlate: { startsWith: 'DE' } },
+        { serviceCompanyId: { in: serviceIds } },
+        { licensePlate: { startsWith: 'PB' } },
       ],
     },
   });
@@ -105,8 +114,8 @@ async function main() {
   const deletedPendingRequests = await prisma.pendingRequest.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
-        { email: { endsWith: DEMO_EMAIL_DOMAIN } },
+        { serviceCompanyId: { in: serviceIds } },
+        { email: { in: demoEmails } },
       ],
     },
   });
@@ -114,8 +123,8 @@ async function main() {
   const deletedMechanicMemberships = await prisma.mechanicServiceCompany.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
-        { worker: { email: { endsWith: DEMO_EMAIL_DOMAIN } } },
+        { serviceCompanyId: { in: serviceIds } },
+        { worker: { userId: { in: userIds } } },
       ],
     },
   });
@@ -123,9 +132,8 @@ async function main() {
   const deletedClients = await prisma.client.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
-        { userId: { in: demoUserIds } },
-        { email: { endsWith: DEMO_EMAIL_DOMAIN } },
+        { serviceCompanyId: { in: serviceIds } },
+        { userId: { in: userIds } },
       ],
     },
   });
@@ -133,29 +141,24 @@ async function main() {
   const deletedWorkers = await prisma.worker.deleteMany({
     where: {
       OR: [
-        { serviceCompanyId: { in: demoServiceIds } },
-        { userId: { in: demoUserIds } },
-        { email: { endsWith: DEMO_EMAIL_DOMAIN } },
+        { serviceCompanyId: { in: serviceIds } },
+        { userId: { in: userIds } },
       ],
     },
   });
 
   const deletedPendingRegistrations = await prisma.pendingAdminRegistration.deleteMany({
     where: {
-      email: { endsWith: DEMO_EMAIL_DOMAIN },
+      email: { in: demoEmails },
     },
   });
 
   const deletedServices = await prisma.serviceCompany.deleteMany({
-    where: {
-      id: { in: demoServiceIds },
-    },
+    where: { id: { in: serviceIds } },
   });
 
   const deletedUsers = await prisma.user.deleteMany({
-    where: {
-      id: { in: demoUserIds },
-    },
+    where: { id: { in: userIds } },
   });
 
   console.log('Demo cleanup е завършен.');
@@ -186,3 +189,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

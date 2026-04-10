@@ -94,7 +94,7 @@ const ScheduleEdit = () => {
         setWorkers(activeWorkers);
         setOrders(ordersRes.data.orders || []);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°');
+        toast.error('Грешка при зареждане на задача');
         navigate('/admin/schedules');
       } finally {
         setIsLoading(false);
@@ -124,7 +124,7 @@ const ScheduleEdit = () => {
 
         setHasConflict(response.data.hasConflict);
         if (response.data.hasConflict) {
-          toast.error('ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚: Ð¼ÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð¸Ð¼Ð° Ð´Ñ€ÑƒÐ³Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð² Ñ‚Ð¾Ð·Ð¸ Ð¿ÐµÑ€Ð¸Ð¾Ð´!');
+          toast.error('Конфликт: механикът има друга задача в този период!');
         }
       } catch {
 
@@ -142,7 +142,7 @@ const ScheduleEdit = () => {
     e.preventDefault();
 
     if (hasConflict) {
-      toast.error('ÐÐµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð¾Ð±Ð½Ð¾Ð²Ð¸Ñ‚Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð° Ñ ÐºÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚Ð½Ð¾ Ð²Ñ€ÐµÐ¼Ðµ!');
+      toast.error('Не може да обновите задача с конфликтно време!');
       return;
     }
 
@@ -166,10 +166,10 @@ const ScheduleEdit = () => {
         notes: formData.notes,
       });
 
-      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½Ð°');
+      toast.success('Задачата е обновена');
       navigate(`/admin/schedules/${id}`);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°');
+      toast.error('Грешка при обновяване на задача');
     } finally {
       setIsSaving(false);
     }
@@ -192,21 +192,21 @@ const ScheduleEdit = () => {
           <button
             onClick={() => navigate(`/admin/schedules/${id}`)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°"
+            aria-label="Назад към задачата"
+            title="Назад към задачата"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°</h1>
-            <p className="text-textSecondary mt-1">ÐžÐ±Ð½Ð¾Ð²ÐµÑ‚Ðµ Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸ÑÑ‚Ð° Ð·Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Редактиране на задача</h1>
+            <p className="text-textSecondary mt-1">Обновете информацията за задачата</p>
           </div>
         </div>
 
         {hasConflict && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-800 font-medium">
-              âš ï¸ ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚: ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð¸Ð¼Ð° Ð´Ñ€ÑƒÐ³Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð² Ð¸Ð·Ð±Ñ€Ð°Ð½Ð¸Ñ Ð¿ÐµÑ€Ð¸Ð¾Ð´!
+              ⚠️ Конфликт: Механикът има друга задача в избрания период!
             </p>
           </div>
         )}
@@ -214,7 +214,7 @@ const ScheduleEdit = () => {
         <form onSubmit={handleSubmit} className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 max-w-4xl">
           <div className="space-y-4 sm:space-y-6">
             <Input
-              label="Ð—Ð°Ð³Ð»Ð°Ð²Ð¸Ðµ *"
+              label="Заглавие *"
               type="text"
               value={formData.title}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -225,7 +225,7 @@ const ScheduleEdit = () => {
 
             <div>
               <label className="block text-sm font-medium text-textPrimary mb-2">
-                ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+                Описание
               </label>
               <textarea
                 value={formData.description}
@@ -234,15 +234,15 @@ const ScheduleEdit = () => {
                 }
                 className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
-                placeholder="Ð”Ð¾Ð±Ð°Ð²ÐµÑ‚Ðµ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ..."
-                aria-label="ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°"
+                placeholder="Добавете описание..."
+                aria-label="Описание на задачата"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Input
-                  label="Ð”Ð°Ñ‚Ð° *"
+                  label="Дата *"
                   type="date"
                   value={formData.date}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -251,13 +251,13 @@ const ScheduleEdit = () => {
                   required
                 />
                 <p className="text-xs text-textMuted mt-1">
-                  Ð¡Ð¸Ð½Ñ…Ñ€Ð¾Ð½Ð¸Ð·Ð¸Ñ€Ð° ÑÐµ Ñ ÐºÑ€Ð°ÐµÐ½ ÑÑ€Ð¾Ðº Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°
+                  Синхронизира се с краен срок на поръчката
                 </p>
               </div>
 
               <div>
                 <label htmlFor="status" className="block text-sm font-medium text-textPrimary mb-2">
-                  Ð¡Ñ‚Ð°Ñ‚ÑƒÑ *
+                  Статус *
                 </label>
                 <select
                   id="status"
@@ -268,19 +268,19 @@ const ScheduleEdit = () => {
                   className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 >
-                  <option value="SCHEDULED">ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°</option>
-                  <option value="IN_PROGRESS">Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ</option>
-                  <option value="READY">Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ</option>
-                  <option value="COMPLETED">ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°</option>
-                  <option value="CANCELLED">ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½Ð°</option>
-                  <option value="DELAYED">Ð—Ð°Ð±Ð°Ð²ÐµÐ½Ð°</option>
+                  <option value="SCHEDULED">Планирана</option>
+                  <option value="IN_PROGRESS">В процес</option>
+                  <option value="READY">Готова за плащане</option>
+                  <option value="COMPLETED">Платена</option>
+                  <option value="CANCELLED">Отменена</option>
+                  <option value="DELAYED">Забавена</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="ÐÐ°Ñ‡Ð°Ð»ÐµÐ½ Ñ‡Ð°Ñ *"
+                label="Начален час *"
                 type="time"
                 value={formData.startTime}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -290,7 +290,7 @@ const ScheduleEdit = () => {
               />
 
               <Input
-                label="ÐšÑ€Ð°ÐµÐ½ Ñ‡Ð°Ñ *"
+                label="Краен час *"
                 type="time"
                 value={formData.endTime}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -302,7 +302,7 @@ const ScheduleEdit = () => {
 
             <div>
               <label htmlFor="priority" className="block text-sm font-medium text-textPrimary mb-2">
-                ÐŸÑ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ *
+                Приоритет *
               </label>
               <select
                 id="priority"
@@ -313,17 +313,17 @@ const ScheduleEdit = () => {
                 className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               >
-                <option value="LOW">ÐÐ¸ÑÑŠÐº</option>
-                <option value="NORMAL">ÐÐ¾Ñ€Ð¼Ð°Ð»ÐµÐ½</option>
-                <option value="HIGH">Ð’Ð¸ÑÐ¾Ðº</option>
-                <option value="URGENT">Ð¡Ð¿ÐµÑˆÐµÐ½</option>
+                <option value="LOW">Нисък</option>
+                <option value="NORMAL">Нормален</option>
+                <option value="HIGH">Висок</option>
+                <option value="URGENT">Спешен</option>
               </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="worker" className="block text-sm font-medium text-textPrimary mb-2">
-                  ÐœÐµÑ…Ð°Ð½Ð¸Ðº
+                  Механик
                 </label>
                 <select
                   id="worker"
@@ -333,7 +333,7 @@ const ScheduleEdit = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="">Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº</option>
+                  <option value="">Изберете механик</option>
                   {workers.map((worker) => (
                     <option key={worker.id} value={worker.id}>
                       {worker.firstName} {worker.lastName}
@@ -344,7 +344,7 @@ const ScheduleEdit = () => {
 
               <div>
                 <label htmlFor="order" className="block text-sm font-medium text-textPrimary mb-2">
-                  Ð¡Ð²ÑŠÑ€Ð·Ð°Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
+                  Свързана поръчка
                 </label>
                 <select
                   id="order"
@@ -354,7 +354,7 @@ const ScheduleEdit = () => {
                   }
                   className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="">Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°</option>
+                  <option value="">Изберете поръчка</option>
                   {orders.map((order) => (
                     <option key={order.id} value={order.id}>
                       {order.displayOrderNumber || order.orderNumber}
@@ -365,7 +365,7 @@ const ScheduleEdit = () => {
             </div>
 
             <Input
-              label="ÐžÑ‡Ð°ÐºÐ²Ð°Ð½Ð° Ð¿Ñ€Ð¾Ð´ÑŠÐ»Ð¶Ð¸Ñ‚ÐµÐ»Ð½Ð¾ÑÑ‚ (Ð¼Ð¸Ð½ÑƒÑ‚Ð¸)"
+              label="Очаквана продължителност (минути)"
               type="number"
               value={formData.estimatedDuration}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -377,7 +377,7 @@ const ScheduleEdit = () => {
 
             <div>
               <label className="block text-sm font-medium text-textPrimary mb-2">
-                Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸
+                Бележки
               </label>
               <textarea
                 value={formData.notes}
@@ -386,18 +386,18 @@ const ScheduleEdit = () => {
                 }
                 className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
-                placeholder="Ð”Ð¾Ð¿ÑŠÐ»Ð½Ð¸Ñ‚ÐµÐ»Ð½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸..."
-                aria-label="Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸ ÐºÑŠÐ¼ Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°"
+                placeholder="Допълнителни бележки..."
+                aria-label="Бележки към задачата"
               />
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <Button type="button" variant="secondary" onClick={() => navigate(`/admin/schedules/${id}`)} className="w-full sm:w-auto">
-              ÐžÑ‚ÐºÐ°Ð·
+              Отказ
             </Button>
             <Button type="submit" isLoading={isSaving} disabled={hasConflict} className="w-full sm:w-auto">
-              Ð—Ð°Ð¿Ð°Ð·Ð¸ Ð¿Ñ€Ð¾Ð¼ÐµÐ½Ð¸
+              Запази промени
             </Button>
           </div>
         </form>

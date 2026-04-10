@@ -260,14 +260,14 @@ export const createCheckoutSession = async (
     const serviceCompany = await getServiceCompanyForAdmin(userId);
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½' });
+      res.status(404).json({ message: 'Сервизът не е намерен' });
       return;
     }
 
     const customerResult = await ensureStripeCustomer(serviceCompany.id);
 
     if (!customerResult) {
-      res.status(404).json({ message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½' });
+      res.status(404).json({ message: 'Сервизът не е намерен' });
       return;
     }
 
@@ -298,7 +298,7 @@ export const createCheckoutSession = async (
     });
 
     if (!checkoutSession.url) {
-      res.status(500).json({ message: 'ÐÐµÑƒÑÐ¿ÐµÑˆÐ½Ð¾ ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð½Ðµ Ð½Ð° Checkout ÑÐµÑÐ¸Ñ' });
+      res.status(500).json({ message: 'Неуспешно създаване на Checkout сесия' });
       return;
     }
 
@@ -308,7 +308,7 @@ export const createCheckoutSession = async (
     });
   } catch (error) {
     logger.error('Create checkout session error:', error);
-    res.status(500).json({ message: 'Ð¡ÑŠÑ€Ð²ÑŠÑ€Ð½Ð° Ð³Ñ€ÐµÑˆÐºÐ°' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -321,14 +321,14 @@ export const createBillingPortalSession = async (
     const serviceCompany = await getServiceCompanyForAdmin(userId);
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½' });
+      res.status(404).json({ message: 'Сервизът не е намерен' });
       return;
     }
 
     const customerResult = await ensureStripeCustomer(serviceCompany.id);
 
     if (!customerResult) {
-      res.status(404).json({ message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½' });
+      res.status(404).json({ message: 'Сервизът не е намерен' });
       return;
     }
 
@@ -343,7 +343,7 @@ export const createBillingPortalSession = async (
     });
   } catch (error) {
     logger.error('Create billing portal session error:', error);
-    res.status(500).json({ message: 'Ð¡ÑŠÑ€Ð²ÑŠÑ€Ð½Ð° Ð³Ñ€ÐµÑˆÐºÐ°' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -356,7 +356,7 @@ export const getSubscriptionStatus = async (
     const serviceCompany = await getServiceCompanyForAdmin(userId);
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½' });
+      res.status(404).json({ message: 'Сервизът не е намерен' });
       return;
     }
 
@@ -391,7 +391,7 @@ export const getSubscriptionStatus = async (
     });
   } catch (error) {
     logger.error('Get subscription status error:', error);
-    res.status(500).json({ message: 'Ð¡ÑŠÑ€Ð²ÑŠÑ€Ð½Ð° Ð³Ñ€ÐµÑˆÐºÐ°' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 
@@ -614,7 +614,7 @@ export const handleStripeWebhook = async (
     res.status(200).json({ received: true });
   } catch (error) {
     logger.error('Stripe webhook handling error:', error);
-    res.status(500).json({ message: 'Ð¡ÑŠÑ€Ð²ÑŠÑ€Ð½Ð° Ð³Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð½Ð° webhook' });
+    res.status(500).json({ message: 'Сървърна грешка при обработка на webhook' });
   }
 };
 

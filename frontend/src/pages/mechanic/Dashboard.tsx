@@ -82,7 +82,7 @@ const MechanicDashboard = () => {
       }
 
       if (!silent) {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸');
+        toast.error('Грешка при зареждане на данни');
       }
     } finally {
       if (requestSeq !== requestSeqRef.current) {
@@ -129,14 +129,14 @@ const MechanicDashboard = () => {
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
       // Order statuses
-      WAITING: { label: 'Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ', className: 'bg-yellow-100 text-yellow-800' },
-      IN_PROGRESS: { label: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°', className: 'bg-gray-100 text-gray-800' },
-      CANCELLED: { label: 'ÐžÑ‚ÐºÐ°Ð·Ð°Ð½Ð°', className: 'bg-red-100 text-red-800' },
+      WAITING: { label: 'Изчакване', className: 'bg-yellow-100 text-yellow-800' },
+      IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
+      READY: { label: 'Готова за плащане', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Платена', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отказана', className: 'bg-red-100 text-red-800' },
       // Schedule statuses
-      SCHEDULED: { label: 'ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°', className: 'bg-blue-100 text-blue-800' },
-      DELAYED: { label: 'Ð—Ð°Ð±Ð°Ð²ÐµÐ½Ð°', className: 'bg-orange-100 text-orange-800' },
+      SCHEDULED: { label: 'Планирана', className: 'bg-blue-100 text-blue-800' },
+      DELAYED: { label: 'Забавена', className: 'bg-orange-100 text-orange-800' },
     };
 
     const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
@@ -150,11 +150,11 @@ const MechanicDashboard = () => {
   // Priority badge helper
   const getPriorityBadge = (priority: string) => {
     const priorityConfig: Record<string, { label: string; className: string }> = {
-      LOW: { label: 'ÐÐ¸ÑÑŠÐº', className: 'bg-gray-100 text-gray-600' },
-      NORMAL: { label: 'ÐÐ¾Ñ€Ð¼Ð°Ð»ÐµÐ½', className: 'bg-blue-100 text-blue-700' },
-      MEDIUM: { label: 'Ð¡Ñ€ÐµÐ´ÐµÐ½', className: 'bg-blue-100 text-blue-700' },
-      HIGH: { label: 'Ð’Ð¸ÑÐ¾Ðº', className: 'bg-orange-100 text-orange-700' },
-      URGENT: { label: 'Ð¡Ð¿ÐµÑˆÐµÐ½', className: 'bg-red-100 text-red-700' },
+      LOW: { label: 'Нисък', className: 'bg-gray-100 text-gray-600' },
+      NORMAL: { label: 'Нормален', className: 'bg-blue-100 text-blue-700' },
+      MEDIUM: { label: 'Среден', className: 'bg-blue-100 text-blue-700' },
+      HIGH: { label: 'Висок', className: 'bg-orange-100 text-orange-700' },
+      URGENT: { label: 'Спешен', className: 'bg-red-100 text-red-700' },
     };
 
     const config = priorityConfig[priority] || { label: priority, className: 'bg-gray-100 text-gray-600' };
@@ -190,12 +190,12 @@ const MechanicDashboard = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary mb-4">Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸</p>
+          <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
           <button
             onClick={() => void fetchDashboard()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
           >
-            ÐžÐ¿Ð¸Ñ‚Ð°Ð¹ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾
+            Опитай отново
           </button>
         </div>
       </MainLayout>
@@ -210,17 +210,17 @@ const MechanicDashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐÐ°Ñ‡Ð°Ð»Ð¾</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Начало</h1>
             <p className="text-textSecondary mt-1">
-              Ð”Ð¾Ð±Ñ€Ðµ Ð´Ð¾ÑˆÑŠÐ», {worker.name}
-              {worker.specialization && ` â€¢ ${worker.specialization}`}
+              Добре дошъл, {worker.name}
+              {worker.specialization && ` • ${worker.specialization}`}
             </p>
           </div>
           <button
             onClick={() => void fetchDashboard()}
             className="w-full sm:w-auto sm:ml-auto px-4 py-2 bg-cardBg border border-borderSubtle rounded-lg hover:bg-mainBg text-sm font-medium text-textSecondary"
           >
-            ÐžÐ±Ð½Ð¾Ð²Ð¸
+            Обнови
           </button>
         </div>
 
@@ -231,9 +231,9 @@ const MechanicDashboard = () => {
           >
             <StatsCard
               icon={ClipboardList}
-              label="ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+              label="Активни поръчки"
               value={statistics.activeOrders}
-              subtitle="ÐšÐ»Ð¸ÐºÐ½Ð¸ Ð·Ð° Ð¿Ñ€ÐµÐ³Ð»ÐµÐ´"
+              subtitle="Кликни за преглед"
             />
           </div>
 
@@ -243,29 +243,29 @@ const MechanicDashboard = () => {
           >
             <StatsCard
               icon={Calendar}
-              label="Ð”Ð½ÐµÑˆÐ½Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸"
+              label="Днешни задачи"
               value={statistics.todayTasks}
-              subtitle="ÐžÑ‚ Ð³Ñ€Ð°Ñ„Ð¸ÐºÐ°"
+              subtitle="От графика"
             />
           </div>
 
           <StatsCard
             icon={CheckCircle2}
-            label="Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+            label="Завършени поръчки"
             value={statistics.completedOrders}
-            subtitle={`ÐžÐ±Ñ‰Ð¾ ${statistics.totalOrders}`}
+            subtitle={`Общо ${statistics.totalOrders}`}
           />
         </div>
 
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Активни поръчки</h2>
               <button
                 onClick={() => navigate('/mechanic/orders')}
                 className="text-primary hover:text-primary-700 text-sm font-medium flex items-center gap-1 sm:ml-auto"
               >
-                Ð’Ð¸Ð¶ Ð²ÑÐ¸Ñ‡ÐºÐ¸
+                Виж всички
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -275,29 +275,29 @@ const MechanicDashboard = () => {
             {activeOrders.length === 0 ? (
               <div className="text-center py-12 text-textSecondary">
                 <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>ÐÑÐ¼Ð° Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</p>
+                <p>Няма активни поръчки</p>
               </div>
             ) : (
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐšÐ»Ð¸ÐµÐ½Ñ‚
+                      Клиент
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»
+                      Автомобил
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+                      Описание
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð¡Ñ‚Ð°Ñ‚ÑƒÑ
+                      Статус
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐŸÑ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚
+                      Приоритет
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ
+                      Действие
                     </th>
                   </tr>
                 </thead>
@@ -337,7 +337,7 @@ const MechanicDashboard = () => {
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
-                          {order.description || 'ÐÑÐ¼Ð° Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ'}
+                          {order.description || 'Няма описание'}
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">{getStatusBadge(order.status)}</td>
@@ -350,7 +350,7 @@ const MechanicDashboard = () => {
                           }}
                           className="text-primary hover:text-primary-700 text-sm font-medium"
                         >
-                          ÐžÑ‚Ð²Ð¾Ñ€Ð¸
+                          Отвори
                         </button>
                       </td>
                     </tr>
@@ -365,13 +365,13 @@ const MechanicDashboard = () => {
 
           <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
             <div className="p-4 sm:p-6 border-b border-borderSubtle">
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð”Ð½ÐµÑˆÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Днешен график</h2>
             </div>
             <div className="p-4 sm:p-6">
               {todaySchedule.length === 0 ? (
                 <div className="text-center py-8 text-textSecondary">
                   <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p>ÐÑÐ¼Ð° Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ð·Ð° Ð´Ð½ÐµÑ</p>
+                  <p>Няма задачи за днес</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
@@ -396,7 +396,7 @@ const MechanicDashboard = () => {
                       )}
                       {task.order && (
                         <div className="text-xs text-primary font-medium">
-                          ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°: {task.order.displayOrderNumber || task.order.orderNumber}
+                          Поръчка: {task.order.displayOrderNumber || task.order.orderNumber}
                         </div>
                       )}
                     </div>
@@ -408,13 +408,13 @@ const MechanicDashboard = () => {
 
           <div className="bg-white rounded-2xl border border-borderSubtle shadow-card">
             <div className="p-4 sm:p-6 border-b border-borderSubtle">
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Предстоящи задачи</h2>
             </div>
             <div className="p-4 sm:p-6">
               {upcomingSchedule.length === 0 ? (
                 <div className="text-center py-8 text-textSecondary">
                   <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p>ÐÑÐ¼Ð° Ð¿Ñ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸</p>
+                  <p>Няма предстоящи задачи</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
@@ -437,7 +437,7 @@ const MechanicDashboard = () => {
                       <h3 className="text-sm font-semibold text-textPrimary mb-1">{task.title}</h3>
                       {task.order && (
                         <div className="text-xs text-primary font-medium">
-                          ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°: {task.order.displayOrderNumber || task.order.orderNumber}
+                          Поръчка: {task.order.displayOrderNumber || task.order.orderNumber}
                         </div>
                       )}
                     </div>

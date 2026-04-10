@@ -172,14 +172,14 @@ const OrderDetails = () => {
 
   const handleDelete = async () => {
     if (!order) return;
-    if (!confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ° ${order.displayOrderNumber || order.orderNumber}?`)) return;
+    if (!confirm(`Сигурни ли сте, че искате да изтриете поръчка ${order.displayOrderNumber || order.orderNumber}?`)) return;
 
     try {
       await api.delete(`/orders/${id}`);
-      toast.success('ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚Ð°');
+      toast.success('Поръчката е изтрита');
       navigate('/admin/orders');
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ');
+      toast.error('Грешка при изтриване');
     }
   };
 
@@ -203,11 +203,11 @@ const OrderDetails = () => {
       CANCELLED: 'bg-red-100 text-red-800',
     };
     const labels = {
-      WAITING: 'Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ',
-      IN_PROGRESS: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ',
-      READY: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
-      COMPLETED: 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°',
-      CANCELLED: 'ÐžÑ‚ÐºÐ°Ð·Ð°Ð½Ð°',
+      WAITING: 'Изчакване',
+      IN_PROGRESS: 'В процес',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
+      CANCELLED: 'Отказана',
     };
     return (
       <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${styles[status as keyof typeof styles]}`}>
@@ -224,13 +224,13 @@ const OrderDetails = () => {
       OTHER: 'bg-slate-100 text-slate-700',
     };
     const labels: Record<string, string> = {
-      LABOR: 'Ð£ÑÐ»ÑƒÐ³Ð°',
-      PART: 'Ð§Ð°ÑÑ‚',
-      CONSUMABLE: 'ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²',
-      OTHER: 'Ð”Ñ€ÑƒÐ³Ð¾',
+      LABOR: 'Услуга',
+      PART: 'Част',
+      CONSUMABLE: 'Консуматив',
+      OTHER: 'Друго',
     };
     const displayType = type || 'OTHER';
-    const label = labels[displayType] || displayType || 'ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ð¾';
+    const label = labels[displayType] || displayType || 'Неизвестно';
     const style = styles[displayType] || 'bg-slate-100 text-slate-700';
     return (
       <span className={`px-2 py-1 rounded text-xs font-medium ${style}`}>
@@ -253,7 +253,7 @@ const OrderDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°</p>
+          <p className="text-textSecondary">Поръчката не е намерена</p>
         </div>
       </MainLayout>
     );
@@ -266,15 +266,15 @@ const OrderDetails = () => {
           <button
             onClick={() => navigate('/admin/orders')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+            aria-label="Назад към поръчки"
+            title="Назад към поръчки"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary" title={`Ð¡Ð¸ÑÑ‚ÐµÐ¼ÐµÐ½ ID: ${order.orderNumber}`}>
-              ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ° {order.displayOrderNumber || order.orderNumber}
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary" title={`Системен ID: ${order.orderNumber}`}>
+              Поръчка {order.displayOrderNumber || order.orderNumber}
             </h1>
             <p className="text-textSecondary mt-1">{getStatusBadge(order.status)}</p>
           </div>
@@ -283,25 +283,25 @@ const OrderDetails = () => {
             {order.invoices && order.invoices.length > 0 ? (
               <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg w-full sm:w-auto">
                 <Check className="w-4 h-4" />
-                <span className="text-sm font-medium">Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð°</span>
+                <span className="text-sm font-medium">Фактурата е изпратена</span>
               </div>
             ) : (
               (order.status === 'IN_PROGRESS' || order.status === 'READY' || order.status === 'COMPLETED') && (
                 <Button onClick={() => setShowFinalizeModal(true)} className="w-full sm:w-auto">
                   <FileText className="w-4 h-4" />
-                  {order.status === 'COMPLETED' ? 'Ð˜Ð·Ð´Ð°Ð¹ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°' : 'Ð¤Ð¸Ð½Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð°Ð¹ Ð¸ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚Ð¸ Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°'}
+                  {order.status === 'COMPLETED' ? 'Издай фактура' : 'Финализирай и изпрати фактура'}
                 </Button>
               )
             )}
             {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
               <Button onClick={() => navigate(`/admin/orders/${id}/edit`)} className="w-full sm:w-auto">
                 <Edit className="w-4 h-4" />
-                Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹
+                Редактирай
               </Button>
             )}
             <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
-              Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹
+              Изтрий
             </Button>
           </div>
         </div>
@@ -312,7 +312,7 @@ const OrderDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <User className="w-5 h-5" />
-                ÐšÐ»Ð¸ÐµÐ½Ñ‚
+                Клиент
               </h2>
               <div
                 onClick={() => navigate(`/admin/clients/${order.client.id}`)}
@@ -330,7 +330,7 @@ const OrderDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Car className="w-5 h-5" />
-                ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»
+                Автомобил
               </h2>
               <div
                 onClick={() => navigate(`/admin/vehicles/${order.vehicle.id}`)}
@@ -351,7 +351,7 @@ const OrderDetails = () => {
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                   <Wrench className="w-5 h-5" />
-                  ÐœÐµÑ…Ð°Ð½Ð¸Ðº
+                  Механик
                 </h2>
                 <div
                   onClick={() => navigate(`/admin/workers/${order.worker!.id}`)}
@@ -368,12 +368,12 @@ const OrderDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¸ Ð´Ð¸Ð°Ð³Ð½Ð¾Ð·Ð°
+                Описание и диагноза
               </h2>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-textSecondary mb-2">
-                    ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¾Ñ‚ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°:
+                    Описание от клиента:
                   </p>
                   <p className="text-textPrimary bg-mainBg p-3 rounded-lg">
                     {order.clientDescription}
@@ -382,7 +382,7 @@ const OrderDetails = () => {
                 {order.diagnosis && (
                   <div>
                     <p className="text-sm font-medium text-textSecondary mb-2">
-                      Ð”Ð¸Ð°Ð³Ð½Ð¾Ð·Ð°:
+                      Диагноза:
                     </p>
                     <p className="text-textPrimary bg-mainBg p-3 rounded-lg">
                       {order.diagnosis}
@@ -392,7 +392,7 @@ const OrderDetails = () => {
                 {order.notes && (
                   <div>
                     <p className="text-sm font-medium text-textSecondary mb-2">
-                      Ð‘ÐµÐ»ÐµÐ¶ÐºÐ¸:
+                      Бележки:
                     </p>
                     <p className="text-textPrimary bg-mainBg p-3 rounded-lg">
                       {order.notes}
@@ -405,18 +405,18 @@ const OrderDetails = () => {
             {/* Order Items */}
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4">
-                Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°
+                Детайли на поръчката
               </h2>
               {order.orderItems.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-borderSubtle">
-                        <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Ð¢Ð¸Ð¿</th>
-                        <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ</th>
-                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">ÐšÐ¾Ð».</th>
-                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Ð•Ð´. Ñ†ÐµÐ½Ð°</th>
-                        <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">ÐžÐ±Ñ‰Ð¾</th>
+                        <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Тип</th>
+                        <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Описание</th>
+                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Кол.</th>
+                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Ед. цена</th>
+                        <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">Общо</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -425,19 +425,19 @@ const OrderDetails = () => {
                           <td className="py-3 px-3">{getItemTypeBadge(item.type)}</td>
                           <td className="py-3 px-3 text-textPrimary">{item.description}</td>
                           <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{item.quantity}</td>
-                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} â‚¬
+                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} €
                           </td>
                           <td className="py-3 px-3 text-right font-medium text-textPrimary">
-                            {Number(item.totalPrice || 0).toFixed(2)} â‚¬
+                            {Number(item.totalPrice || 0).toFixed(2)} €
                           </td>
                         </tr>
                       ))}
                       <tr>
                         <td colSpan={4} className="py-3 px-3 text-right font-semibold text-textPrimary">
-                          ÐžÐ±Ñ‰Ð° ÑÑƒÐ¼Ð°:
+                          Обща сума:
                         </td>
                         <td className="py-3 px-3 text-right font-bold text-primary text-lg">
-                          {Number(order.totalPrice || 0).toFixed(2)} â‚¬
+                          {Number(order.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
                     </tbody>
@@ -445,7 +445,7 @@ const OrderDetails = () => {
                 </div>
               ) : (
                 <p className="text-textSecondary">
-                  Ð’ÑÐµ Ð¾Ñ‰Ðµ Ð½ÑÐ¼Ð° Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÑƒÑÐ»ÑƒÐ³Ð¸ Ð¸Ð»Ð¸ Ñ‡Ð°ÑÑ‚Ð¸
+                  Все още няма добавени услуги или части
                 </p>
               )}
             </div>
@@ -456,18 +456,18 @@ const OrderDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                Ð”Ð°Ñ‚Ð¸
+                Дати
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-textSecondary">Ð¡ÑŠÐ·Ð´Ð°Ð´ÐµÐ½Ð° Ð½Ð°</p>
+                  <p className="text-sm text-textSecondary">Създадена на</p>
                   <p className="font-medium text-textPrimary">
                     {new Date(order.createdAt).toLocaleString('bg-BG')}
                   </p>
                 </div>
                 {order.startDate && (
                   <div>
-                    <p className="text-sm text-textSecondary">ÐÐ°Ñ‡Ð°Ð»Ð½Ð° Ð´Ð°Ñ‚Ð°</p>
+                    <p className="text-sm text-textSecondary">Начална дата</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(order.startDate).toLocaleDateString('bg-BG')}
                     </p>
@@ -475,7 +475,7 @@ const OrderDetails = () => {
                 )}
                 {order.endDate && (
                   <div>
-                    <p className="text-sm text-textSecondary">ÐšÑ€Ð°ÐµÐ½ ÑÑ€Ð¾Ðº</p>
+                    <p className="text-sm text-textSecondary">Краен срок</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(order.endDate).toLocaleDateString('bg-BG')}
                     </p>
@@ -483,7 +483,7 @@ const OrderDetails = () => {
                 )}
                 {order.completedAt && (
                   <div>
-                    <p className="text-sm text-textSecondary">Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð° Ð½Ð°</p>
+                    <p className="text-sm text-textSecondary">Завършена на</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(order.completedAt).toLocaleString('bg-BG')}
                     </p>
@@ -496,37 +496,37 @@ const OrderDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5" />
-                ÐŸÐ»Ð°Ñ‰Ð°Ð½Ðµ
+                Плащане
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-textSecondary">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</p>
+                  <p className="text-sm text-textSecondary">Статус</p>
                   <span
                     className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${
                       order.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}
                   >
-                    {order.isPaid ? 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°' : 'ÐÐµÐ¿Ð»Ð°Ñ‚ÐµÐ½Ð°'}
+                    {order.isPaid ? 'Платена' : 'Неплатена'}
                   </span>
                 </div>
                 {order.paymentMethod && (
                   <div>
-                    <p className="text-sm text-textSecondary">ÐœÐµÑ‚Ð¾Ð´</p>
+                    <p className="text-sm text-textSecondary">Метод</p>
                     <p className="font-medium text-textPrimary">{order.paymentMethod}</p>
                   </div>
                 )}
                 {order.paidAt && (
                   <div>
-                    <p className="text-sm text-textSecondary">ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð° Ð½Ð°</p>
+                    <p className="text-sm text-textSecondary">Платена на</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(order.paidAt).toLocaleDateString('bg-BG')}
                     </p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm text-textSecondary">ÐžÐ±Ñ‰Ð° ÑÑƒÐ¼Ð°</p>
+                  <p className="text-sm text-textSecondary">Обща сума</p>
                   <div className="text-2xl font-bold text-primary">
-                  <div>{Number(order.totalPrice || 0).toFixed(2)} â‚¬</div>
+                  <div>{Number(order.totalPrice || 0).toFixed(2)} €</div>
                   </div>
                 </div>
               </div>

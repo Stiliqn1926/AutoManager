@@ -55,8 +55,8 @@ describe('Permission Tests', () => {
     await mechanicAgent.post('/api/auth/register-mechanic').send({
       email: mechanicEmail,
       password: 'Password123!',
-      firstName: 'Ð“ÐµÐ¾Ñ€Ð³Ð¸',
-      lastName: 'ÐœÐµÑ…Ð°Ð½Ð¸Ðº',
+      firstName: 'Георги',
+      lastName: 'Механик',
       phone: '0888222333',
       uniqueCode,
     });

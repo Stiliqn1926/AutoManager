@@ -48,7 +48,7 @@ const SupplierDetails = () => {
         const response = await api.get(`/suppliers/${id}`);
         setSupplier(response.data.supplier);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº');
+        toast.error('Грешка при зареждане на доставчик');
         navigate('/admin/suppliers');
       } finally {
         setIsLoading(false);
@@ -60,14 +60,14 @@ const SupplierDetails = () => {
 
   const handleDelete = async () => {
     if (!supplier) return;
-    if (!confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ "${supplier.name}"?`)) return;
+    if (!confirm(`Сигурни ли сте, че искате да изтриете "${supplier.name}"?`)) return;
 
     try {
       await api.delete(`/suppliers/${id}`);
-      toast.success('Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸ÐºÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚');
+      toast.success('Доставчикът е изтрит');
       navigate('/admin/suppliers');
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ');
+      toast.error('Грешка при изтриване');
     }
   };
 
@@ -76,11 +76,11 @@ const SupplierDetails = () => {
 
     try {
       await api.patch(`/suppliers/${id}/toggle-status`);
-      toast.success(`Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸ÐºÑŠÑ‚ Ðµ ${!supplier.isActive ? 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½' : 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½'}`);
+      toast.success(`Доставчикът е ${!supplier.isActive ? 'активиран' : 'деактивиран'}`);
       const response = await api.get(`/suppliers/${id}`);
       setSupplier(response.data.supplier);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° ÑÑ‚Ð°Ñ‚ÑƒÑ');
+      toast.error('Грешка при обновяване на статус');
     }
   };
 
@@ -90,12 +90,12 @@ const SupplierDetails = () => {
     try {
       await api.patch(`/suppliers/${id}/toggle-preferred`);
       toast.success(
-        `Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸ÐºÑŠÑ‚ ${!supplier.isPreferred ? 'Ðµ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð½' : 'Ð½Ðµ Ðµ Ð¼Ð°Ñ€ÐºÐ¸Ñ€Ð°Ð½'} ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½`
+        `Доставчикът ${!supplier.isPreferred ? 'е маркиран' : 'не е маркиран'} като предпочитан`
       );
       const response = await api.get(`/suppliers/${id}`);
       setSupplier(response.data.supplier);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ');
+      toast.error('Грешка при обновяване');
     }
   };
 
@@ -108,11 +108,11 @@ const SupplierDetails = () => {
       OTHER: 'bg-yellow-100 text-yellow-800',
     };
     const labels = {
-      PARTS: 'Ð§Ð°ÑÑ‚Ð¸',
-      CONSUMABLES: 'ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸',
-      SERVICES: 'Ð£ÑÐ»ÑƒÐ³Ð¸',
-      TIRES: 'Ð“ÑƒÐ¼Ð¸',
-      OTHER: 'Ð”Ñ€ÑƒÐ³Ð¾',
+      PARTS: 'Части',
+      CONSUMABLES: 'Консумативи',
+      SERVICES: 'Услуги',
+      TIRES: 'Гуми',
+      OTHER: 'Друго',
     };
     return (
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[type as keyof typeof styles]}`}>
@@ -135,7 +135,7 @@ const SupplierDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸ÐºÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½</p>
+          <p className="text-textSecondary">Доставчикът не е намерен</p>
         </div>
       </MainLayout>
     );
@@ -148,8 +148,8 @@ const SupplierDetails = () => {
           <button
             onClick={() => navigate('/admin/suppliers')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸"
+            aria-label="Назад към доставчици"
+            title="Назад към доставчици"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -158,7 +158,7 @@ const SupplierDetails = () => {
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">{supplier.name}</h1>
               {supplier.isPreferred && (
-                <div title="ÐŸÑ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½ Ð´Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ðº">
+                <div title="Предпочитан доставчик">
                   <Star className="w-6 h-6 text-primary fill-primary" />
                 </div>
               )}
@@ -167,11 +167,11 @@ const SupplierDetails = () => {
               {getTypeBadge(supplier.type)}
               {supplier.isActive ? (
                 <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                  ÐÐºÑ‚Ð¸Ð²ÐµÐ½
+                  Активен
                 </span>
               ) : (
                 <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
-                  ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½
+                  Неактивен
                 </span>
               )}
             </div>
@@ -180,19 +180,19 @@ const SupplierDetails = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button variant="secondary" onClick={handleTogglePreferred} className="w-full sm:w-auto">
               <Star className="w-4 h-4" />
-              {supplier.isPreferred ? 'ÐŸÑ€ÐµÐ¼Ð°Ñ…Ð½Ð¸ Ð¾Ñ‚ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð¸' : 'ÐœÐ°Ñ€ÐºÐ¸Ñ€Ð°Ð¹ ÐºÐ°Ñ‚Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½'}
+              {supplier.isPreferred ? 'Премахни от предпочитани' : 'Маркирай като предпочитан'}
             </Button>
             <Button variant="secondary" onClick={handleToggleActive} className="w-full sm:w-auto">
               <Power className="w-4 h-4" />
-              {supplier.isActive ? 'Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹' : 'ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹'}
+              {supplier.isActive ? 'Деактивирай' : 'Активирай'}
             </Button>
             <Button onClick={() => navigate(`/admin/suppliers/${id}/edit`)} className="w-full sm:w-auto">
               <Edit className="w-4 h-4" />
-              Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹
+              Редактирай
             </Button>
             <Button variant="danger" onClick={handleDelete} className="w-full sm:w-auto">
               <Trash2 className="w-4 h-4" />
-              Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹
+              Изтрий
             </Button>
           </div>
         </div>
@@ -201,7 +201,7 @@ const SupplierDetails = () => {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚Ð¸</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Контакти</h2>
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <Phone className="w-5 h-5 text-textSecondary" />
@@ -240,7 +240,7 @@ const SupplierDetails = () => {
                 )}
                 {supplier.contactPerson && (
                   <div className="mt-3 pt-3 border-t border-borderSubtle">
-                    <p className="text-sm text-textSecondary">Ð›Ð¸Ñ†Ðµ Ð·Ð° ÐºÐ¾Ð½Ñ‚Ð°ÐºÑ‚</p>
+                    <p className="text-sm text-textSecondary">Лице за контакт</p>
                     <p className="font-medium text-textPrimary">{supplier.contactPerson}</p>
                   </div>
                 )}
@@ -249,7 +249,7 @@ const SupplierDetails = () => {
 
             
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐÐ´Ñ€ÐµÑ Ð¸ Ñ„Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Адрес и фирмени данни</h2>
               <div className="space-y-3">
                 {(supplier.addressLine || supplier.city) && (
                   <div className="flex items-start gap-3">
@@ -264,13 +264,13 @@ const SupplierDetails = () => {
                 )}
                 {supplier.eik && (
                   <div className="mt-3 pt-3 border-t border-borderSubtle">
-                    <p className="text-sm text-textSecondary">Ð•Ð˜Ðš / Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚</p>
+                    <p className="text-sm text-textSecondary">ЕИК / Булстат</p>
                     <p className="font-medium text-textPrimary">{supplier.eik}</p>
                   </div>
                 )}
                 {supplier.vatNumber && (
                   <div>
-                    <p className="text-sm text-textSecondary">Ð”Ð”Ð¡ Ð½Ð¾Ð¼ÐµÑ€</p>
+                    <p className="text-sm text-textSecondary">ДДС номер</p>
                     <p className="font-medium text-textPrimary">{supplier.vatNumber}</p>
                   </div>
                 )}
@@ -280,12 +280,12 @@ const SupplierDetails = () => {
             
             {(supplier.deliveryNotes || supplier.notes) && (
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Ð£ÑÐ»Ð¾Ð²Ð¸Ñ Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Условия и бележки</h2>
                 <div className="space-y-3 sm:space-y-4">
                   {supplier.deliveryNotes && (
                     <div>
                       <p className="text-sm font-medium text-textSecondary mb-2">
-                        Ð£ÑÐ»Ð¾Ð²Ð¸Ñ Ð·Ð° Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ°:
+                        Условия за доставка:
                       </p>
                       <p className="text-textPrimary bg-mainBg p-3 rounded-lg">
                         {supplier.deliveryNotes}
@@ -294,7 +294,7 @@ const SupplierDetails = () => {
                   )}
                   {supplier.notes && (
                     <div>
-                      <p className="text-sm font-medium text-textSecondary mb-2">Ð’ÑŠÑ‚Ñ€ÐµÑˆÐ½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸:</p>
+                      <p className="text-sm font-medium text-textSecondary mb-2">Вътрешни бележки:</p>
                       <p className="text-textPrimary bg-mainBg p-3 rounded-lg">{supplier.notes}</p>
                     </div>
                   )}
@@ -306,17 +306,17 @@ const SupplierDetails = () => {
           <div className="space-y-4 sm:space-y-6">
             
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Ð˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Информация</h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-textSecondary">Ð¡ÑŠÐ·Ð´Ð°Ð´ÐµÐ½ Ð½Ð°</p>
+                  <p className="text-sm text-textSecondary">Създаден на</p>
                   <p className="font-medium text-textPrimary">
                     {new Date(supplier.createdAt).toLocaleString('bg-BG')}
                   </p>
                 </div>
                 {supplier.lastOrderDate && (
                   <div>
-                    <p className="text-sm text-textSecondary">ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°</p>
+                    <p className="text-sm text-textSecondary">Последна поръчка</p>
                     <p className="font-medium text-textPrimary">
                       {new Date(supplier.lastOrderDate).toLocaleDateString('bg-BG')}
                     </p>
@@ -329,7 +329,7 @@ const SupplierDetails = () => {
             {supplier.orders && supplier.orders.length > 0 && (
               <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-                  ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ ({supplier.orders.length})
+                  Последни поръчки ({supplier.orders.length})
                 </h2>
                 <div className="space-y-2">
                   {supplier.orders.map((order) => (
@@ -344,7 +344,7 @@ const SupplierDetails = () => {
                       </p>
                       {order.totalPrice && (
                         <p className="text-sm font-medium text-primary">
-                          {Number(order.totalPrice).toFixed(2)} â‚¬
+                          {Number(order.totalPrice).toFixed(2)} €
                         </p>
                       )}
                     </div>

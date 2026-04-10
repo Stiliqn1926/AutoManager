@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Ð—Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ...</div>
+        <div className="text-xl">Зареждане...</div>
       </div>
     );
   }

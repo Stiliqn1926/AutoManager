@@ -4,6 +4,8 @@ import {
   MembershipStatus,
   OrderStatus,
   PrismaClient,
+  RequestStatus,
+  RequestType,
   SchedulePriority,
   ScheduleStatus,
   SubscriptionStatus,
@@ -11,278 +13,30 @@ import {
   UserRole,
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import {
+  clientFirstNames,
+  clientLastNames,
+  mechanicSeeds,
+  pendingClients,
+  pendingMechanics,
+  repairTemplates,
+  serviceSeeds,
+  vehicleBrands,
+  vehicleModels,
+} from './demoSeedData';
 
 const prisma = new PrismaClient();
-
 const DEMO_PASSWORD = 'Demo12345!';
-const ORDERS_PER_SERVICE = 12;
+const SEED_YEAR = 2026;
 
-type ServiceSeed = {
-  index: number;
-  name: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-  bulstat: string;
-  vatNumber: string;
-  description: string;
-};
+const toDate = (month: number, day: number, hour = 9): Date =>
+  new Date(Date.UTC(SEED_YEAR, month - 1, day, hour, 0, 0));
+const addDays = (date: Date, days: number): Date =>
+  new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+const cents = (value: number): number => Math.round(value * 100);
+const fromCents = (value: number): number => Number((value / 100).toFixed(2));
 
-type MechanicSeed = {
-  index: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  specialization: string;
-  skills: string;
-  memberships: number[];
-};
-
-const serviceSeeds: ServiceSeed[] = [
-  {
-    index: 1,
-    name: 'AutoPoint Център',
-    address: 'бул. България 101',
-    city: 'София',
-    phone: '+359 2 910 1001',
-    email: 'autopoint.center@automanager.bg',
-    bulstat: '206000001',
-    vatNumber: 'BG206000001',
-    description: 'Сервиз за диагностика, годишно обслужване и комплексни ремонти.',
-  },
-  {
-    index: 2,
-    name: 'МоторЛаб Младост',
-    address: 'бул. Александър Малинов 68',
-    city: 'София',
-    phone: '+359 32 910 1002',
-    email: 'motorlab.mladost@automanager.bg',
-    bulstat: '206000002',
-    vatNumber: 'BG206000002',
-    description: 'Специализиран сервиз за електроника, окачване и автопаркове.',
-  },
-  {
-    index: 3,
-    name: 'Prime Garage Люлин',
-    address: 'бул. Панчо Владигеров 21',
-    city: 'София',
-    phone: '+359 52 910 1003',
-    email: 'primegarage.lyulin@automanager.bg',
-    bulstat: '206000003',
-    vatNumber: 'BG206000003',
-    description: 'Сервиз с фокус върху климатични системи, спирачки и гуми.',
-  },
-  {
-    index: 4,
-    name: 'Трак Кар Сървис',
-    address: 'бул. Освобождение 97',
-    city: 'Пловдив',
-    phone: '+359 56 910 1004',
-    email: 'trackcar.plovdiv@automanager.bg',
-    bulstat: '206000004',
-    vatNumber: 'BG206000004',
-    description: 'Комплексно обслужване, бързи ремонти и партньорство с корпоративни клиенти.',
-  },
-  {
-    index: 5,
-    name: 'Авто Хъб Кършияка',
-    address: 'бул. Дунав 5',
-    city: 'Пловдив',
-    phone: '+359 82 910 1005',
-    email: 'autohub.karshiyaka@automanager.bg',
-    bulstat: '206000005',
-    vatNumber: 'BG206000005',
-    description: 'Сервиз за поддръжка, дизелови системи и сезонни кампании.',
-  },
-];
-
-const mechanicSeeds: MechanicSeed[] = [
-  {
-    index: 1,
-    firstName: 'Иван',
-    lastName: 'Петров',
-    email: 'mechanic1@automanager.bg',
-    phone: '+359 88 100 0001',
-    specialization: 'Двигатели',
-    skills: 'Диагностика, смяна ангренаж, турбини',
-    memberships: [1, 2, 3],
-  },
-  {
-    index: 2,
-    firstName: 'Георги',
-    lastName: 'Илиев',
-    email: 'mechanic2@automanager.bg',
-    phone: '+359 88 100 0002',
-    specialization: 'Окачване',
-    skills: 'Ходова част, амортисьори, реглаж',
-    memberships: [1, 2],
-  },
-  {
-    index: 3,
-    firstName: 'Димитър',
-    lastName: 'Стоянов',
-    email: 'mechanic3@automanager.bg',
-    phone: '+359 88 100 0003',
-    specialization: 'Електроника',
-    skills: 'Диагностика, инсталации, акумулатори',
-    memberships: [2, 3],
-  },
-  {
-    index: 4,
-    firstName: 'Пламен',
-    lastName: 'Григоров',
-    email: 'mechanic4@automanager.bg',
-    phone: '+359 88 100 0004',
-    specialization: 'Скоростни кутии',
-    skills: 'Автоматични кутии, съединители',
-    memberships: [3, 1],
-  },
-  {
-    index: 5,
-    firstName: 'Николай',
-    lastName: 'Тодоров',
-    email: 'mechanic5@automanager.bg',
-    phone: '+359 88 100 0005',
-    specialization: 'Климатични системи',
-    skills: 'Зареждане, компресори, течове',
-    memberships: [1, 3],
-  },
-  {
-    index: 6,
-    firstName: 'Станислав',
-    lastName: 'Маринов',
-    email: 'mechanic6@automanager.bg',
-    phone: '+359 88 100 0006',
-    specialization: 'Спирачни системи',
-    skills: 'ABS, накладки, дискове',
-    memberships: [2],
-  },
-  {
-    index: 7,
-    firstName: 'Теодор',
-    lastName: 'Василев',
-    email: 'mechanic7@automanager.bg',
-    phone: '+359 88 100 0007',
-    specialization: 'Диагностика',
-    skills: 'OBD, живи данни, софтуерни адаптации',
-    memberships: [4, 5],
-  },
-  {
-    index: 8,
-    firstName: 'Алекс',
-    lastName: 'Попов',
-    email: 'mechanic8@automanager.bg',
-    phone: '+359 88 100 0008',
-    specialization: 'Гуми и джанти',
-    skills: 'Баланс, монтаж, TPMS',
-    memberships: [4, 5],
-  },
-  {
-    index: 9,
-    firstName: 'Борис',
-    lastName: 'Колев',
-    email: 'mechanic9@automanager.bg',
-    phone: '+359 88 100 0009',
-    specialization: 'Общо обслужване',
-    skills: 'Масла, филтри, ремъци',
-    memberships: [5, 4],
-  },
-  {
-    index: 10,
-    firstName: 'Мартин',
-    lastName: 'Димов',
-    email: 'mechanic10@automanager.bg',
-    phone: '+359 88 100 0010',
-    specialization: 'Дизелови системи',
-    skills: 'Дюзи, EGR, DPF',
-    memberships: [4],
-  },
-];
-
-const clientFirstNames = [
-  'Антон',
-  'Виктория',
-  'Мария',
-  'Петър',
-  'Елица',
-  'Христо',
-  'Ралица',
-  'Йордан',
-  'Надежда',
-  'Калин',
-  'Силвия',
-  'Тодор',
-  'Габриела',
-  'Илия',
-  'Кристина',
-  'Радослав',
-  'Михаела',
-  'Даниел',
-  'Вероника',
-  'Симеон',
-];
-
-const clientLastNames = [
-  'Ангелов',
-  'Борисова',
-  'Георгиева',
-  'Димитров',
-  'Евтимова',
-  'Желязков',
-  'Захариева',
-  'Иванов',
-  'Караиванова',
-  'Лазаров',
-  'Милева',
-  'Николов',
-  'Орлинска',
-  'Павлов',
-  'Радева',
-  'Стефанов',
-  'Тонева',
-  'Узунов',
-  'Филипова',
-  'Хаджиев',
-];
-
-const carBrands = ['VW', 'BMW', 'Audi', 'Toyota', 'Skoda', 'Ford', 'Mercedes', 'Opel'];
-const carModels = ['Golf', 'Passat', 'A4', 'Corolla', 'Octavia', 'Focus', 'C-Class', 'Astra'];
-
-const expenseCategories: FinanceCategory[] = [
-  FinanceCategory.PARTS,
-  FinanceCategory.CONSUMABLES,
-  FinanceCategory.RENT,
-  FinanceCategory.UTILITIES,
-  FinanceCategory.SALARIES,
-  FinanceCategory.MAINTENANCE,
-  FinanceCategory.SUPPLIES,
-];
-
-const incomeCategories: FinanceCategory[] = [
-  FinanceCategory.LABOR,
-  FinanceCategory.PARTS,
-  FinanceCategory.OTHER,
-];
-
-const orderStatusCycle: OrderStatus[] = [
-  OrderStatus.WAITING,
-  OrderStatus.IN_PROGRESS,
-  OrderStatus.READY,
-  OrderStatus.COMPLETED,
-  OrderStatus.CANCELLED,
-];
-
-const orderPriorityCycle: SchedulePriority[] = [
-  SchedulePriority.NORMAL,
-  SchedulePriority.HIGH,
-  SchedulePriority.NORMAL,
-  SchedulePriority.URGENT,
-  SchedulePriority.LOW,
-];
-
-const scheduleStatusMap: Record<OrderStatus, ScheduleStatus> = {
+const scheduleStatusByOrder: Record<OrderStatus, ScheduleStatus> = {
   WAITING: ScheduleStatus.SCHEDULED,
   IN_PROGRESS: ScheduleStatus.IN_PROGRESS,
   READY: ScheduleStatus.READY,
@@ -290,635 +44,419 @@ const scheduleStatusMap: Record<OrderStatus, ScheduleStatus> = {
   CANCELLED: ScheduleStatus.CANCELLED,
 };
 
-const toServiceCode = (index: number): string => `SRV${String(index).padStart(3, '0')}`;
-const daysAgo = (days: number): Date => {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
-  return d;
+const priorities: SchedulePriority[] = [
+  SchedulePriority.NORMAL,
+  SchedulePriority.HIGH,
+  SchedulePriority.LOW,
+  SchedulePriority.URGENT,
+];
+
+const allDemoEmails = (): string[] => [
+  ...serviceSeeds.map((s) => `admin${s.index}@automanager.bg`),
+  ...mechanicSeeds.map((s) => s.email),
+  ...Array.from({ length: 30 }, (_, i) => `client${i + 1}@automanager.bg`),
+  ...pendingMechanics.map((s) => s.email),
+  ...pendingClients.map((s) => s.email),
+];
+
+const membershipsForClient = (clientIndex: number): number[] => {
+  if (clientIndex <= 12) return [((clientIndex - 1) % 3) + 1];
+  if (clientIndex <= 22) return [((clientIndex + 1) % 3) + 1, ((clientIndex + 2) % 3) + 1];
+  return [1, 2, 3];
 };
 
-const addHours = (date: Date, hours: number): Date => {
-  const d = new Date(date);
-  d.setHours(d.getHours() + hours);
-  return d;
+const vehicleCountForClient = (clientIndex: number): number => {
+  if (clientIndex % 10 === 0 || clientIndex % 7 === 0) return 3;
+  if (clientIndex % 2 === 0) return 2;
+  return 1;
 };
 
-const addDays = (date: Date, days: number): Date => {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
+const orderStatusForMonth = (month: number, seed: number): OrderStatus => {
+  if (month < 4) return seed % 8 === 0 ? OrderStatus.CANCELLED : OrderStatus.COMPLETED;
+  return [OrderStatus.WAITING, OrderStatus.IN_PROGRESS, OrderStatus.READY, OrderStatus.COMPLETED][
+    seed % 4
+  ];
 };
 
-const getClientMemberships = (clientIndex: number): number[] => {
-  const serviceCount = serviceSeeds.length;
-  const membershipCount = clientIndex <= 6 ? 4 : clientIndex <= 14 ? 3 : 2;
-  const start = (clientIndex - 1) % serviceCount;
-  const result: number[] = [];
-  for (let i = 0; i < membershipCount; i += 1) {
-    result.push(((start + i) % serviceCount) + 1);
-  }
-  return result;
-};
+async function cleanupDemoData() {
+  const demoEmails = allDemoEmails();
+  const serviceIds = (
+    await prisma.serviceCompany.findMany({
+      where: { uniqueCode: { in: serviceSeeds.map((s) => s.uniqueCode) } },
+      select: { id: true },
+    })
+  ).map((s) => s.id);
 
-async function main() {
-  console.log('Започвам зареждане на demo данни...');
-
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
-  const now = new Date();
-  const nextYear = addDays(now, 365);
-
-  const serviceByIndex = new Map<number, { id: string; name: string }>();
-
-  for (const serviceSeed of serviceSeeds) {
-    const adminEmail = `admin${serviceSeed.index}@automanager.bg`;
-
-    const adminUser = await prisma.user.upsert({
-      where: { email: adminEmail },
-      update: {
-        password: passwordHash,
-        role: UserRole.ADMIN,
-        isActive: true,
-        emailVerified: true,
-      },
-      create: {
-        email: adminEmail,
-        password: passwordHash,
-        role: UserRole.ADMIN,
-        isActive: true,
-        emailVerified: true,
-      },
-    });
-
-    const serviceCompany = await prisma.serviceCompany.upsert({
-      where: { userId: adminUser.id },
-      update: {
-        name: serviceSeed.name,
-        address: `${serviceSeed.address}, ${serviceSeed.city}`,
-        phone: serviceSeed.phone,
-        email: serviceSeed.email,
-        uniqueCode: toServiceCode(serviceSeed.index),
-        bulstat: serviceSeed.bulstat,
-        vatNumber: serviceSeed.vatNumber,
-        description: serviceSeed.description,
-        subscriptionStatus: SubscriptionStatus.ACTIVE,
-        subscriptionCurrentPeriodEnd: nextYear,
-        subscriptionCancelAtPeriodEnd: false,
-        isActive: true,
-      },
-      create: {
-        userId: adminUser.id,
-        name: serviceSeed.name,
-        address: `${serviceSeed.address}, ${serviceSeed.city}`,
-        phone: serviceSeed.phone,
-        email: serviceSeed.email,
-        uniqueCode: toServiceCode(serviceSeed.index),
-        bulstat: serviceSeed.bulstat,
-        vatNumber: serviceSeed.vatNumber,
-        description: serviceSeed.description,
-        subscriptionStatus: SubscriptionStatus.ACTIVE,
-        subscriptionCurrentPeriodEnd: nextYear,
-        subscriptionCancelAtPeriodEnd: false,
-        isActive: true,
-      },
-    });
-
-    serviceByIndex.set(serviceSeed.index, {
-      id: serviceCompany.id,
-      name: serviceCompany.name,
-    });
-  }
-
-  const workersByService = new Map<number, string[]>();
-
-  for (const mechanicSeed of mechanicSeeds) {
-    const mechanicUser = await prisma.user.upsert({
-      where: { email: mechanicSeed.email },
-      update: {
-        password: passwordHash,
-        role: UserRole.MECHANIC,
-        isActive: true,
-        emailVerified: true,
-      },
-      create: {
-        email: mechanicSeed.email,
-        password: passwordHash,
-        role: UserRole.MECHANIC,
-        isActive: true,
-        emailVerified: true,
-      },
-    });
-
-    const primaryService = serviceByIndex.get(mechanicSeed.memberships[0]);
-    if (!primaryService) {
-      throw new Error(`Missing primary service for mechanic ${mechanicSeed.email}`);
-    }
-
-    const worker = await prisma.worker.upsert({
-      where: { userId: mechanicUser.id },
-      update: {
-        firstName: mechanicSeed.firstName,
-        lastName: mechanicSeed.lastName,
-        email: mechanicSeed.email,
-        phone: mechanicSeed.phone,
-        specialization: mechanicSeed.specialization,
-        skills: mechanicSeed.skills,
-        isActive: true,
-        serviceCompanyId: primaryService.id,
-        deletedAt: null,
-      },
-      create: {
-        userId: mechanicUser.id,
-        firstName: mechanicSeed.firstName,
-        lastName: mechanicSeed.lastName,
-        email: mechanicSeed.email,
-        phone: mechanicSeed.phone,
-        specialization: mechanicSeed.specialization,
-        skills: mechanicSeed.skills,
-        isActive: true,
-        serviceCompanyId: primaryService.id,
-      },
-    });
-
-    for (const serviceIndex of mechanicSeed.memberships) {
-      const service = serviceByIndex.get(serviceIndex);
-      if (!service) continue;
-
-      await prisma.mechanicServiceCompany.upsert({
-        where: {
-          workerId_serviceCompanyId: {
-            workerId: worker.id,
-            serviceCompanyId: service.id,
-          },
-        },
-        update: {
-          status: MembershipStatus.ACTIVE,
-          leftAt: null,
-        },
-        create: {
-          workerId: worker.id,
-          serviceCompanyId: service.id,
-          status: MembershipStatus.ACTIVE,
-          joinedAt: daysAgo(90 - mechanicSeed.index * 3),
-        },
-      });
-
-      const workerList = workersByService.get(serviceIndex) || [];
-      if (!workerList.includes(worker.id)) {
-        workerList.push(worker.id);
-      }
-      workersByService.set(serviceIndex, workerList);
-    }
-  }
-
-  const clientsByService = new Map<
-    number,
-    Array<{ id: string; firstName: string; lastName: string }>
-  >();
-  const vehiclesByClient = new Map<string, string[]>();
-
-  for (let i = 1; i <= 20; i += 1) {
-    const firstName = clientFirstNames[i - 1];
-    const lastName = clientLastNames[i - 1];
-    const email = `client${i}@automanager.bg`;
-    const phone = `+359 88 200 ${String(i).padStart(4, '0')}`;
-
-    const clientUser = await prisma.user.upsert({
-      where: { email },
-      update: {
-        password: passwordHash,
-        role: UserRole.CLIENT,
-        isActive: true,
-        emailVerified: true,
-      },
-      create: {
-        email,
-        password: passwordHash,
-        role: UserRole.CLIENT,
-        isActive: true,
-        emailVerified: true,
-      },
-    });
-
-    const memberships = getClientMemberships(i);
-
-    for (let membershipPosition = 0; membershipPosition < memberships.length; membershipPosition += 1) {
-      const serviceIndex = memberships[membershipPosition];
-      const service = serviceByIndex.get(serviceIndex);
-      if (!service) continue;
-
-      const client = await prisma.client.upsert({
-        where: {
-          userId_serviceCompanyId: {
-            userId: clientUser.id,
-            serviceCompanyId: service.id,
-          },
-        },
-        update: {
-          firstName,
-          lastName,
-          phone,
-          email,
-          address: `ул. Клиент ${i}, №${membershipPosition + 1}, ${serviceSeedByIndex(serviceIndex).city}`,
-          isActive: true,
-          deletedAt: null,
-        },
-        create: {
-          userId: clientUser.id,
-          serviceCompanyId: service.id,
-          firstName,
-          lastName,
-          phone,
-          email,
-          address: `ул. Клиент ${i}, №${membershipPosition + 1}, ${serviceSeedByIndex(serviceIndex).city}`,
-          isActive: true,
-        },
-      });
-
-      const clientList = clientsByService.get(serviceIndex) || [];
-      if (!clientList.find((c) => c.id === client.id)) {
-        clientList.push({
-          id: client.id,
-          firstName: client.firstName,
-          lastName: client.lastName,
-        });
-      }
-      clientsByService.set(serviceIndex, clientList);
-
-      const vehiclePlate = `DE${serviceIndex}${String(i).padStart(3, '0')}${membershipPosition + 1}`;
-      const vehicle = await prisma.vehicle.upsert({
-        where: {
-          licensePlate_serviceCompanyId: {
-            licensePlate: vehiclePlate,
-            serviceCompanyId: service.id,
-          },
-        },
-        update: {
-          clientId: client.id,
-          brand: carBrands[(i + membershipPosition) % carBrands.length],
-          model: carModels[(i + membershipPosition) % carModels.length],
-          year: 2011 + ((i + membershipPosition) % 12),
-          color: ['Черен', 'Сив', 'Бял', 'Син', 'Червен'][(i + membershipPosition) % 5],
-          mileage: 65000 + i * 3700 + membershipPosition * 900,
-          vin: `WDEMOS${serviceIndex}${String(i).padStart(6, '0')}${membershipPosition + 1}`,
-        },
-        create: {
-          clientId: client.id,
-          serviceCompanyId: service.id,
-          licensePlate: vehiclePlate,
-          brand: carBrands[(i + membershipPosition) % carBrands.length],
-          model: carModels[(i + membershipPosition) % carModels.length],
-          year: 2011 + ((i + membershipPosition) % 12),
-          color: ['Черен', 'Сив', 'Бял', 'Син', 'Червен'][(i + membershipPosition) % 5],
-          mileage: 65000 + i * 3700 + membershipPosition * 900,
-          vin: `WDEMOS${serviceIndex}${String(i).padStart(6, '0')}${membershipPosition + 1}`,
-        },
-      });
-
-      const clientVehicles = vehiclesByClient.get(client.id) || [];
-      if (!clientVehicles.includes(vehicle.id)) {
-        clientVehicles.push(vehicle.id);
-      }
-      vehiclesByClient.set(client.id, clientVehicles);
-    }
-  }
-
-  for (const serviceSeed of serviceSeeds) {
-    const service = serviceByIndex.get(serviceSeed.index);
-    if (!service) continue;
-
-    await prisma.supplier.deleteMany({
+  const userIds = (
+    await prisma.user.findMany({
       where: {
-        serviceCompanyId: service.id,
-        notes: { contains: '[DEMO]' },
+        OR: [
+          { email: { in: demoEmails } },
+          { email: { startsWith: 'admin', endsWith: '@automanager.bg' } },
+          { email: { startsWith: 'mechanic', endsWith: '@automanager.bg' } },
+          { email: { startsWith: 'client', endsWith: '@automanager.bg' } },
+          { email: { startsWith: 'pending.', endsWith: '@automanager.bg' } },
+        ],
       },
-    });
+      select: { id: true },
+    })
+  ).map((u) => u.id);
 
-    const cityPrefix = serviceSeed.city === 'София' ? 'София' : 'Пловдив';
-
-    await prisma.supplier.createMany({
-      data: [
-        {
-          serviceCompanyId: service.id,
-          name: `${cityPrefix} Партс Логистик ${serviceSeed.index}`,
-          type: SupplierType.PARTS,
-          contactPerson: 'Иван Партсов',
-          phonePrimary: `+359 88 500 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.parts.${serviceSeed.index}@automanager.bg`,
-          city: serviceSeed.city,
-          addressLine: `Индустриална зона, ${serviceSeed.city}`,
-          eik: `2071${String(serviceSeed.index).padStart(5, '0')}`,
-          isActive: true,
-          isPreferred: true,
-          notes: '[DEMO] Основен доставчик на резервни части.',
-        },
-        {
-          serviceCompanyId: service.id,
-          name: `${cityPrefix} Тайър Маркет ${serviceSeed.index}`,
-          type: SupplierType.TIRES,
-          contactPerson: 'Мария Николова',
-          phonePrimary: `+359 88 510 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.tires.${serviceSeed.index}@automanager.bg`,
-          city: serviceSeed.city,
-          addressLine: `Логистичен парк, ${serviceSeed.city}`,
-          eik: `2072${String(serviceSeed.index).padStart(5, '0')}`,
-          isActive: true,
-          isPreferred: false,
-          notes: '[DEMO] Доставчик на гуми и джанти.',
-        },
-        {
-          serviceCompanyId: service.id,
-          name: `${cityPrefix} Тех Консуматив ${serviceSeed.index}`,
-          type: SupplierType.CONSUMABLES,
-          contactPerson: 'Петър Стойчев',
-          phonePrimary: `+359 88 520 ${String(serviceSeed.index).padStart(4, '0')}`,
-          email: `supplier.consumables.${serviceSeed.index}@automanager.bg`,
-          city: serviceSeed.city,
-          addressLine: `ул. Складова 5, ${serviceSeed.city}`,
-          eik: `2073${String(serviceSeed.index).padStart(5, '0')}`,
-          isActive: true,
-          isPreferred: false,
-          notes: '[DEMO] Масла, филтри, препарати.',
-        },
-      ],
-    });
-
-    await prisma.finance.deleteMany({
-      where: {
-        serviceCompanyId: service.id,
-        description: { contains: '[DEMO]' },
-      },
-    });
-
-    const financeRows: Array<{
-      serviceCompanyId: string;
-      type: FinanceType;
-      category: FinanceCategory;
-      amount: number;
-      description: string;
-      date: Date;
-    }> = [];
-
-    for (let idx = 0; idx < 14; idx += 1) {
-      financeRows.push({
-        serviceCompanyId: service.id,
-        type: FinanceType.INCOME,
-        category: incomeCategories[idx % incomeCategories.length],
-        amount: 180 + idx * 22 + serviceSeed.index * 15,
-        description: `[DEMO] Приход от поръчка #${serviceSeed.index}${String(idx + 1).padStart(2, '0')}`,
-        date: daysAgo(30 - idx),
-      });
-
-      financeRows.push({
-        serviceCompanyId: service.id,
-        type: FinanceType.EXPENSE,
-        category: expenseCategories[idx % expenseCategories.length],
-        amount: 70 + idx * 13 + serviceSeed.index * 9,
-        description: `[DEMO] Разход за дейност ${idx + 1}`,
-        date: daysAgo(30 - idx),
-      });
-    }
-
-    await prisma.finance.createMany({ data: financeRows });
-
-    const clientsInService = clientsByService.get(serviceSeed.index) || [];
-    const workersInService = workersByService.get(serviceSeed.index) || [];
-
-    if (clientsInService.length === 0) continue;
-
-    for (let orderIdx = 1; orderIdx <= ORDERS_PER_SERVICE; orderIdx += 1) {
-      const client = clientsInService[(orderIdx - 1) % clientsInService.length];
-      const clientVehicleIds = vehiclesByClient.get(client.id) || [];
-      if (clientVehicleIds.length === 0) continue;
-
-      const orderStatus = orderStatusCycle[(orderIdx - 1) % orderStatusCycle.length];
-      const priority = orderPriorityCycle[(orderIdx - 1) % orderPriorityCycle.length];
-      const workerId =
-        workersInService.length > 0 ? workersInService[(orderIdx - 1) % workersInService.length] : null;
-
-      const startDate = daysAgo(35 - orderIdx);
-      const endDate = addDays(startDate, 1 + (orderIdx % 3));
-      const completedDate = orderStatus === OrderStatus.COMPLETED ? addHours(endDate, 2) : null;
-      const vehicleId = clientVehicleIds[(orderIdx - 1) % clientVehicleIds.length];
-
-      const orderNumber = `DEMO-${serviceSeed.index}-${String(orderIdx).padStart(3, '0')}`;
-
-      const order = await prisma.order.upsert({
-        where: { orderNumber },
-        update: {
-          serviceCompanyId: service.id,
-          clientId: client.id,
-          vehicleId,
-          workerId,
-          description: `Проверка и ремонт по сигнал от клиент ${client.firstName} ${client.lastName}.`,
-          diagnosis: orderIdx % 2 === 0 ? 'Установено износване на консумативи.' : null,
-          notes: `Демо задача [${serviceSeed.name}]`,
-          status: orderStatus,
-          priority,
-          startDate,
-          endDate,
-          completedDate,
-          displayOrderNumber: `#${serviceSeed.index}${String(100 + orderIdx)}`,
-        },
-        create: {
-          serviceCompanyId: service.id,
-          clientId: client.id,
-          vehicleId,
-          workerId,
-          orderNumber,
-          displayOrderNumber: `#${serviceSeed.index}${String(100 + orderIdx)}`,
-          description: `Проверка и ремонт по сигнал от клиент ${client.firstName} ${client.lastName}.`,
-          diagnosis: orderIdx % 2 === 0 ? 'Установено износване на консумативи.' : null,
-          notes: `Демо задача [${serviceSeed.name}]`,
-          status: orderStatus,
-          priority,
-          startDate,
-          endDate,
-          completedDate,
-        },
-      });
-
-      const orderItems = [
-        {
-          type: 'LABOR' as const,
-          name: 'Диагностика и труд',
-          description: 'Пълна диагностика и сервизна дейност',
-          quantity: 1,
-          unitPrice: 65 + orderIdx * 3,
-        },
-        {
-          type: 'PART' as const,
-          name: 'Резервна част',
-          description: 'Смяна на основна част',
-          quantity: 1 + (orderIdx % 2),
-          unitPrice: 48 + serviceSeed.index * 6 + orderIdx,
-        },
-        {
-          type: 'CONSUMABLE' as const,
-          name: 'Консумативи',
-          description: 'Масла, филтри и препарати',
-          quantity: 1,
-          unitPrice: 22 + (orderIdx % 5) * 4,
-        },
-      ];
-
-      await prisma.orderItem.deleteMany({
-        where: { orderId: order.id },
-      });
-
-      await prisma.orderItem.createMany({
-        data: orderItems.map((item) => ({
-          orderId: order.id,
-          serviceCompanyId: service.id,
-          type: item.type,
-          name: item.name,
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          totalPrice: item.quantity * item.unitPrice,
-        })),
-      });
-
-      const totalPrice = orderItems.reduce(
-        (sum, item) => sum + item.quantity * item.unitPrice,
-        0
-      );
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { totalPrice },
-      });
-
-      const scheduleStart = new Date(startDate);
-      scheduleStart.setHours(8 + (orderIdx % 7), 0, 0, 0);
-      const scheduleEnd = addHours(scheduleStart, 2 + (orderIdx % 2));
-
-      const existingSchedule = await prisma.schedule.findFirst({
-        where: { orderId: order.id },
-        select: { id: true },
-      });
-
-      if (existingSchedule) {
-        await prisma.schedule.update({
-          where: { id: existingSchedule.id },
-          data: {
-            title: `Демо задача ${order.displayOrderNumber || order.orderNumber}`,
-            description: `График за поръчка ${order.displayOrderNumber || order.orderNumber}`,
-            date: startDate,
-            startTime: scheduleStart,
-            endTime: scheduleEnd,
-            status: scheduleStatusMap[orderStatus],
-            priority,
-            workerId,
-            serviceCompanyId: service.id,
-            isCompleted: orderStatus === OrderStatus.COMPLETED,
-          },
-        });
-      } else {
-        await prisma.schedule.create({
-          data: {
-            title: `Демо задача ${order.displayOrderNumber || order.orderNumber}`,
-            description: `График за поръчка ${order.displayOrderNumber || order.orderNumber}`,
-            date: startDate,
-            startTime: scheduleStart,
-            endTime: scheduleEnd,
-            status: scheduleStatusMap[orderStatus],
-            priority,
-            workerId,
-            orderId: order.id,
-            serviceCompanyId: service.id,
-            isCompleted: orderStatus === OrderStatus.COMPLETED,
-          },
-        });
-      }
-
-      if (orderStatus === OrderStatus.READY || orderStatus === OrderStatus.COMPLETED) {
-        const invoiceNumber = `INV-DEMO-${serviceSeed.index}-${String(orderIdx).padStart(3, '0')}`;
-        await prisma.invoice.upsert({
-          where: { invoiceNumber },
-          update: {
-            orderId: order.id,
-            serviceCompanyId: service.id,
-            subtotal: totalPrice,
-            tax: 0,
-            total: totalPrice,
-            issueDate: endDate,
-            dueDate: addDays(endDate, 7),
-            isPaid: orderStatus === OrderStatus.COMPLETED,
-            paidDate: orderStatus === OrderStatus.COMPLETED ? addDays(endDate, 1) : null,
-            paymentMethod: orderStatus === OrderStatus.COMPLETED ? 'Карта' : null,
-            notes: '[DEMO] Автоматично създадена фактура',
-          },
-          create: {
-            invoiceNumber,
-            orderId: order.id,
-            serviceCompanyId: service.id,
-            subtotal: totalPrice,
-            tax: 0,
-            total: totalPrice,
-            issueDate: endDate,
-            dueDate: addDays(endDate, 7),
-            isPaid: orderStatus === OrderStatus.COMPLETED,
-            paidDate: orderStatus === OrderStatus.COMPLETED ? addDays(endDate, 1) : null,
-            paymentMethod: orderStatus === OrderStatus.COMPLETED ? 'Карта' : null,
-            notes: '[DEMO] Автоматично създадена фактура',
-          },
-        });
-      } else {
-        await prisma.invoice.deleteMany({
-          where: { orderId: order.id },
-        });
-      }
-    }
-  }
-
-  const [servicesCount, workersCount, clientsCount, vehiclesCount, ordersCount, schedulesCount, financesCount, suppliersCount] =
-    await Promise.all([
-      prisma.serviceCompany.count({
-        where: { uniqueCode: { in: serviceSeeds.map((s) => toServiceCode(s.index)) } },
-      }),
-      prisma.worker.count({
-        where: { email: { endsWith: '@automanager.bg' } },
-      }),
-      prisma.client.count({
-        where: { email: { endsWith: '@automanager.bg' } },
-      }),
-      prisma.vehicle.count({
-        where: { licensePlate: { startsWith: 'DE' } },
-      }),
-      prisma.order.count({
-        where: { orderNumber: { startsWith: 'DEMO-' } },
-      }),
-      prisma.schedule.count({
-        where: { title: { startsWith: 'Демо задача' } },
-      }),
-      prisma.finance.count({
-        where: { description: { contains: '[DEMO]' } },
-      }),
-      prisma.supplier.count({
-        where: { notes: { contains: '[DEMO]' } },
-      }),
-    ]);
-
-  console.log('Demo seed е завършен успешно.');
-  console.log({
-    loginPassword: DEMO_PASSWORD,
-    services: servicesCount,
-    workers: workersCount,
-    clientProfiles: clientsCount,
-    vehicles: vehiclesCount,
-    orders: ordersCount,
-    schedules: schedulesCount,
-    finances: financesCount,
-    suppliers: suppliersCount,
-  });
+  await prisma.notification.deleteMany({ where: { OR: [{ order: { serviceCompanyId: { in: serviceIds } } }, { client: { serviceCompanyId: { in: serviceIds } } }] } });
+  await prisma.schedule.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { title: { startsWith: 'Демо задача' } }] } });
+  await prisma.invoice.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { invoiceNumber: { startsWith: 'INV-DEMO-' } }] } });
+  await prisma.orderItem.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { order: { orderNumber: { startsWith: 'DEMO-' } } }] } });
+  await prisma.order.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { orderNumber: { startsWith: 'DEMO-' } }] } });
+  await prisma.finance.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { description: { contains: '[DEMO]' } }] } });
+  await prisma.supplier.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { notes: { contains: '[DEMO]' } }] } });
+  await prisma.vehicle.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { licensePlate: { startsWith: 'PB' } }] } });
+  await prisma.pendingRequest.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { email: { in: demoEmails } }] } });
+  await prisma.mechanicServiceCompany.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { worker: { userId: { in: userIds } } }] } });
+  await prisma.client.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { userId: { in: userIds } }] } });
+  await prisma.worker.deleteMany({ where: { OR: [{ serviceCompanyId: { in: serviceIds } }, { userId: { in: userIds } }] } });
+  await prisma.pendingAdminRegistration.deleteMany({ where: { email: { in: demoEmails } } });
+  await prisma.serviceCompany.deleteMany({ where: { id: { in: serviceIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
 }
 
-function serviceSeedByIndex(index: number): ServiceSeed {
-  const seed = serviceSeeds.find((s) => s.index === index);
-  if (!seed) {
-    throw new Error(`Missing service seed for index ${index}`);
+async function main() {
+  console.log('Започва зареждане на демо данни...');
+  await cleanupDemoData();
+
+  const hash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const serviceMap = new Map<number, string>();
+  const workersByService = new Map<number, string[]>();
+  const suppliersByService = new Map<number, Array<{ id: string; type: SupplierType }>>();
+  const clientsByService = new Map<number, Array<{ clientId: string; vehicles: string[]; seed: number }>>();
+  const monthly = new Map<string, { income: number; parts: number; cons: number }>();
+
+  for (const s of serviceSeeds) {
+    const admin = await prisma.user.create({
+      data: { email: `admin${s.index}@automanager.bg`, password: hash, role: UserRole.ADMIN, isActive: true, emailVerified: true },
+    });
+    const company = await prisma.serviceCompany.create({
+      data: {
+        userId: admin.id,
+        name: s.name,
+        address: `${s.address}, ${s.city}`,
+        phone: s.phone,
+        email: s.email,
+        uniqueCode: s.uniqueCode,
+        bulstat: s.bulstat,
+        vatNumber: s.vatNumber,
+        description: s.description,
+        subscriptionStatus: SubscriptionStatus.ACTIVE,
+        subscriptionCurrentPeriodEnd: addDays(new Date(), 365),
+      },
+    });
+    serviceMap.set(s.index, company.id);
+    const supplierRows = [
+      { type: SupplierType.PARTS, name: `${s.district} Партс Логистик` },
+      { type: SupplierType.CONSUMABLES, name: `${s.district} Флуид Център` },
+      { type: SupplierType.TIRES, name: `${s.district} Тайър Маркет` },
+      { type: SupplierType.SERVICES, name: `${s.district} Диагно Лаб` },
+    ];
+    const refs: Array<{ id: string; type: SupplierType }> = [];
+    for (let i = 0; i < supplierRows.length; i += 1) {
+      const sr = supplierRows[i];
+      const created = await prisma.supplier.create({
+        data: {
+          serviceCompanyId: company.id,
+          name: sr.name,
+          type: sr.type,
+          phonePrimary: `+359 88 5${s.index}${i} 100`,
+          city: 'Пловдив',
+          notes: '[DEMO] Реален тип доставчик за демонстрационни данни',
+        },
+      });
+      refs.push({ id: created.id, type: created.type });
+    }
+    suppliersByService.set(s.index, refs);
   }
-  return seed;
+
+  for (const m of mechanicSeeds) {
+    const user = await prisma.user.create({
+      data: { email: m.email, password: hash, role: UserRole.MECHANIC, isActive: true, emailVerified: true },
+    });
+    const worker = await prisma.worker.create({
+      data: {
+        userId: user.id,
+        firstName: m.firstName,
+        lastName: m.lastName,
+        email: m.email,
+        phone: m.phone,
+        specialization: m.specialization,
+        skills: m.skills,
+        serviceCompanyId: serviceMap.get(m.primaryService),
+      },
+    });
+    for (const serviceIndex of m.memberships) {
+      const serviceId = serviceMap.get(serviceIndex);
+      if (!serviceId) continue;
+      await prisma.mechanicServiceCompany.create({
+        data: {
+          workerId: worker.id,
+          serviceCompanyId: serviceId,
+          status: MembershipStatus.ACTIVE,
+          joinedAt: toDate(2, 1 + ((m.index + serviceIndex) % 20), 9),
+        },
+      });
+      const rows = workersByService.get(serviceIndex) ?? [];
+      rows.push(worker.id);
+      workersByService.set(serviceIndex, rows);
+    }
+  }
+
+  for (const p of pendingMechanics) {
+    const user = await prisma.user.create({ data: { email: p.email, password: hash, role: UserRole.MECHANIC, isActive: true, emailVerified: true } });
+    const worker = await prisma.worker.create({
+      data: {
+        userId: user.id,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        email: p.email,
+        phone: p.phone,
+        specialization: 'Обща механика',
+        skills: 'Чака одобрение',
+        serviceCompanyId: null,
+      },
+    });
+    const serviceId = serviceMap.get(p.targetService)!;
+    await prisma.mechanicServiceCompany.create({ data: { workerId: worker.id, serviceCompanyId: serviceId, status: MembershipStatus.PENDING } });
+    await prisma.pendingRequest.create({
+      data: { requestType: RequestType.MECHANIC, email: p.email, firstName: p.firstName, lastName: p.lastName, phone: p.phone, status: RequestStatus.PENDING, serviceCompanyId: serviceId },
+    });
+  }
+
+  for (let i = 1; i <= 30; i += 1) {
+    const user = await prisma.user.create({
+      data: {
+        email: `client${i}@automanager.bg`,
+        password: hash,
+        role: UserRole.CLIENT,
+        isActive: true,
+        emailVerified: true,
+      },
+    });
+    const memberships = membershipsForClient(i);
+    const vehicleCount = vehicleCountForClient(i);
+    const baseVehicles = Array.from({ length: vehicleCount }, (_, v) => {
+      const seed = i * 100 + v * 7;
+      return {
+        brand: vehicleBrands[(i + v) % vehicleBrands.length],
+        model: vehicleModels[(i + v) % vehicleModels.length],
+        plate: `PB${String(1200 + (seed % 7600)).padStart(4, '0')}AB`,
+        vin: `VINPLD${String(90000000000 + seed).slice(-11)}`,
+        year: 2009 + (seed % 16),
+        mileage: 78000 + (seed % 90000),
+      };
+    });
+    for (let m = 0; m < memberships.length; m += 1) {
+      const serviceIndex = memberships[m];
+      const serviceId = serviceMap.get(serviceIndex);
+      if (!serviceId) continue;
+      const client = await prisma.client.create({
+        data: {
+          userId: user.id,
+          serviceCompanyId: serviceId,
+          firstName: clientFirstNames[i - 1],
+          lastName: clientLastNames[i - 1],
+          phone: `+359 88 2${String(i).padStart(6, '0')}`,
+          email: `client${i}@automanager.bg`,
+          address: `ул. Клиентска ${i + 10}, Пловдив`,
+          isActive: true,
+        },
+      });
+      const selected = baseVehicles.filter((_, idx) => m === 0 || (i + idx + serviceIndex) % 3 !== 0);
+      const actual = selected.length > 0 ? selected : [baseVehicles[0]];
+      const vehicleIds: string[] = [];
+      for (const row of actual) {
+        const vehicle = await prisma.vehicle.create({
+          data: {
+            clientId: client.id,
+            serviceCompanyId: serviceId,
+            brand: row.brand,
+            model: row.model,
+            year: row.year,
+            licensePlate: row.plate,
+            vin: row.vin,
+            mileage: row.mileage,
+          },
+        });
+        vehicleIds.push(vehicle.id);
+      }
+      const rows = clientsByService.get(serviceIndex) ?? [];
+      rows.push({ clientId: client.id, vehicles: vehicleIds, seed: i * 10 + m });
+      clientsByService.set(serviceIndex, rows);
+    }
+  }
+
+  for (const p of pendingClients) {
+    await prisma.user.create({ data: { email: p.email, password: hash, role: UserRole.CLIENT, isActive: true, emailVerified: true } });
+    await prisma.pendingRequest.create({
+      data: { requestType: RequestType.CLIENT, email: p.email, firstName: p.firstName, lastName: p.lastName, phone: p.phone, status: RequestStatus.PENDING, serviceCompanyId: serviceMap.get(p.targetService)! },
+    });
+  }
+
+  let orderCounter = 0;
+  let invoiceCounter = 0;
+
+  for (const s of serviceSeeds) {
+    const serviceId = serviceMap.get(s.index)!;
+    const workers = workersByService.get(s.index) ?? [];
+    const suppliers = suppliersByService.get(s.index) ?? [];
+    const clients = clientsByService.get(s.index) ?? [];
+    let serviceOrderCounter = 0;
+    for (const profile of clients) {
+      for (let v = 0; v < profile.vehicles.length; v += 1) {
+        const repairs = (profile.seed + v) % 11 === 0 ? 5 : (profile.seed + v) % 7 === 0 ? 4 : 1 + ((profile.seed + v) % 3);
+        for (let r = 0; r < repairs; r += 1) {
+          orderCounter += 1;
+          serviceOrderCounter += 1;
+          const tpl = repairTemplates[(orderCounter + r + s.index) % repairTemplates.length];
+          const month = ((orderCounter + profile.seed + r) % 4) + 1;
+          const day = 1 + ((orderCounter * 3 + profile.seed + v) % 26);
+          const startDate = toDate(month, day, 8 + ((orderCounter + v) % 7));
+          const status = orderStatusForMonth(month, orderCounter + s.index + r);
+          const priority = priorities[(orderCounter + r) % priorities.length];
+          const endDate = status === OrderStatus.WAITING ? null : addDays(startDate, 1);
+          const completedDate = status === OrderStatus.COMPLETED ? addDays(startDate, 2) : null;
+          const workerId = workers.length ? workers[(orderCounter + v) % workers.length] : null;
+          const supplierOptions = suppliers.filter((x) => x.type === tpl.supplierType);
+          const supplierId = supplierOptions.length ? supplierOptions[(orderCounter + r) % supplierOptions.length].id : null;
+
+          const order = await prisma.order.create({
+            data: {
+              orderNumber: `DEMO-${s.index}-${String(serviceOrderCounter).padStart(4, '0')}`,
+              displayOrderNumber: `#${s.index}${String(1000 + serviceOrderCounter)}`,
+              description: tpl.description,
+              diagnosis: tpl.diagnosis,
+              notes: `[DEMO] ${tpl.title}`,
+              status,
+              priority,
+              startDate,
+              endDate,
+              completedDate,
+              clientId: profile.clientId,
+              vehicleId: profile.vehicles[v],
+              workerId,
+              serviceCompanyId: serviceId,
+              supplierId,
+            },
+          });
+
+          const items = [
+            { type: 'LABOR' as const, name: tpl.labor.name, quantity: tpl.labor.quantity, unitPrice: tpl.labor.unitPrice },
+            ...tpl.parts.map((p) => ({ type: 'PART' as const, name: p.name, quantity: p.quantity, unitPrice: p.unitPrice })),
+            ...tpl.consumables.map((c) => ({ type: 'CONSUMABLE' as const, name: c.name, quantity: c.quantity, unitPrice: c.unitPrice })),
+          ];
+          await prisma.orderItem.createMany({
+            data: items.map((i) => ({
+              orderId: order.id,
+              serviceCompanyId: serviceId,
+              type: i.type,
+              name: i.name,
+              quantity: i.quantity,
+              unitPrice: i.unitPrice,
+              totalPrice: i.quantity * i.unitPrice,
+              description: tpl.title,
+            })),
+          });
+          const total = Number(items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0).toFixed(2));
+          await prisma.order.update({ where: { id: order.id }, data: { totalPrice: total } });
+
+          const key = `${s.index}-${month}`;
+          const bucket = monthly.get(key) ?? { income: 0, parts: 0, cons: 0 };
+          const partsCost = items.filter((i) => i.type === 'PART').reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
+          const consCost = items.filter((i) => i.type === 'CONSUMABLE').reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
+          if (status !== OrderStatus.CANCELLED) {
+            bucket.income += cents(total);
+            bucket.parts += Math.round(cents(partsCost) * 0.58);
+            bucket.cons += Math.round(cents(consCost) * 0.67);
+          }
+          monthly.set(key, bucket);
+
+          if (month === 4) {
+            await prisma.schedule.create({
+              data: {
+                title: `Демо задача #${s.index}${String(1000 + serviceOrderCounter)}`,
+                description: `Планирана дейност: ${tpl.title}`,
+                date: toDate(4, day, 8),
+                startTime: startDate,
+                endTime: addDays(startDate, 0),
+                status: scheduleStatusByOrder[status],
+                priority,
+                workerId,
+                orderId: order.id,
+                serviceCompanyId: serviceId,
+                isCompleted: status === OrderStatus.COMPLETED,
+              },
+            });
+          }
+
+          const shouldInvoice = status === OrderStatus.COMPLETED || (status === OrderStatus.READY && orderCounter % 2 === 0);
+          if (shouldInvoice) {
+            invoiceCounter += 1;
+            const issue = endDate ?? addDays(startDate, 1);
+            const paid = status === OrderStatus.COMPLETED && (month <= 3 || orderCounter % 3 === 0);
+            await prisma.invoice.create({
+              data: {
+                invoiceNumber: `INV-DEMO-${s.index}-${String(invoiceCounter).padStart(4, '0')}`,
+                subtotal: total,
+                tax: 0,
+                total,
+                issueDate: issue,
+                dueDate: addDays(issue, 7),
+                isPaid: paid,
+                paidDate: paid ? addDays(issue, 1) : null,
+                paymentMethod: paid ? (orderCounter % 2 === 0 ? 'Карта' : 'Банков превод') : null,
+                notes: '[DEMO] Автоматично генерирана фактура',
+                orderId: order.id,
+                serviceCompanyId: serviceId,
+              },
+            });
+          }
+
+          await prisma.notification.create({
+            data: {
+              clientId: profile.clientId,
+              orderId: order.id,
+              title: 'Статус на поръчка',
+              message: `${tpl.title} — ${order.displayOrderNumber ?? order.orderNumber}`,
+              isRead: orderCounter % 3 === 0,
+            },
+          });
+        }
+      }
+    }
+  }
+
+  for (const s of serviceSeeds) {
+    const serviceId = serviceMap.get(s.index)!;
+    for (let month = 1; month <= 4; month += 1) {
+      const key = `${s.index}-${month}`;
+      const bucket = monthly.get(key) ?? { income: cents(2600), parts: cents(820), cons: cents(280) };
+      const date = toDate(month, 25, 11);
+      const laborIncome = fromCents(Math.round(bucket.income * 0.45));
+      const partsIncome = fromCents(Math.round(bucket.income * 0.4));
+      const otherIncome = fromCents(bucket.income - cents(laborIncome + partsIncome));
+      await prisma.finance.createMany({
+        data: [
+          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.LABOR, amount: laborIncome, description: `[DEMO] Приход от труд за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.PARTS, amount: partsIncome, description: `[DEMO] Приход от части за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.OTHER, amount: otherIncome, description: `[DEMO] Допълнителен приход за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.PARTS, amount: fromCents(bucket.parts), description: `[DEMO] Разход за части за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.CONSUMABLES, amount: fromCents(bucket.cons), description: `[DEMO] Разход за консумативи за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.SALARIES, amount: 1850 + s.index * 220, description: `[DEMO] Разход за възнаграждения за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.UTILITIES, amount: 280 + month * 18 + s.index * 12, description: `[DEMO] Разход за комунални услуги за ${month}.${SEED_YEAR}`, date },
+          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.RENT, amount: 920 + s.index * 95, description: `[DEMO] Разход за наем за ${month}.${SEED_YEAR}`, date },
+        ],
+      });
+    }
+  }
+
+  console.log('Demo seed завърши успешно.');
+  console.log({ loginPassword: DEMO_PASSWORD });
 }
 
 main()
@@ -929,3 +467,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

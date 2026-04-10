@@ -5,7 +5,7 @@ import { startTokenCleanupJob } from './jobs/tokenCleanup.job';
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
-  console.log(`Backend ÑÑŠÑ€Ð²ÑŠÑ€ ÑÑ‚Ð°Ñ€Ñ‚Ð¸Ñ€Ð° Ð½Ð° http://localhost:${PORT}`);
+  console.log(`Backend сървър стартира на http://localhost:${PORT}`);
   console.log(`API Health check: http://localhost:${PORT}/api/health`);
 
 
@@ -14,7 +14,7 @@ const server = app.listen(PORT, () => {
 });
 
 server.on('error', (error: any) => {
-  console.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÑÑ‚Ð°Ñ€Ñ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° ÑÑŠÑ€Ð²ÑŠÑ€Ð°:', error);
+  console.error('Грешка при стартиране на сървъра:', error);
   process.exit(1);
 });
 

@@ -28,7 +28,7 @@ const MechanicClients = () => {
       });
       setClients(data.clients);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸');
+      toast.error('Грешка при зареждане на клиенти');
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +135,7 @@ const MechanicClients = () => {
   }, [clients, searchTerm, activeOnly, sortField, sortOrder]);
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'ÐÑÐ¼Ð°';
+    if (!dateString) return 'Няма';
     const date = new Date(dateString);
     return date.toLocaleDateString('bg-BG', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
@@ -165,11 +165,11 @@ const MechanicClients = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐšÐ»Ð¸ÐµÐ½Ñ‚Ð¸</h1>
-            <p className="text-textSecondary mt-1">ÐšÐ»Ð¸ÐµÐ½Ñ‚Ð¸ Ñ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ Ð¿Ñ€Ð¸ Ñ‚ÐµÐ±</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Клиенти</h1>
+            <p className="text-textSecondary mt-1">Клиенти с поръчки при теб</p>
           </div>
           <div className="text-sm text-textSecondary sm:ml-auto sm:text-right">
-            ÐŸÐ¾ÐºÐ°Ð·Ð°Ð½Ð¸: <span className="font-semibold text-textPrimary">{filteredClients.length}</span> Ð¾Ñ‚ {clients.length} ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+            Показани: <span className="font-semibold text-textPrimary">{filteredClients.length}</span> от {clients.length} клиента
           </div>
         </div>
 
@@ -181,7 +181,7 @@ const MechanicClients = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-textSecondary w-5 h-5" />
               <input
                 type="text"
-                placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ð¸Ð¼Ðµ, Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½ Ð¸Ð»Ð¸ Ð¸Ð¼ÐµÐ¹Ð»..."
+                placeholder="Търси по име, телефон или имейл..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -197,7 +197,7 @@ const MechanicClients = () => {
                   onChange={(e) => setActiveOnly(e.target.checked)}
                   className="w-4 h-4 text-primary rounded focus:ring-primary"
                 />
-                <span className="text-sm text-textSecondary">Ð¡Ð°Ð¼Ð¾ Ñ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</span>
+                <span className="text-sm text-textSecondary">Само с активни поръчки</span>
               </label>
             </div>
           </div>
@@ -208,7 +208,7 @@ const MechanicClients = () => {
           {filteredClients.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸</p>
+              <p>Няма намерени клиенти</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -220,7 +220,7 @@ const MechanicClients = () => {
                       className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        ÐšÐ»Ð¸ÐµÐ½Ñ‚
+                        Клиент
                         <SortIcon field="name" />
                       </div>
                     </th>
@@ -229,7 +229,7 @@ const MechanicClients = () => {
                       className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        ÐšÐ¾Ð½Ñ‚Ð°ÐºÑ‚
+                        Контакт
                         <SortIcon field="phone" />
                       </div>
                     </th>
@@ -238,7 +238,7 @@ const MechanicClients = () => {
                       className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center justify-center gap-2">
-                        ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸
+                        Автомобили
                         <SortIcon field="vehicles" />
                       </div>
                     </th>
@@ -247,7 +247,7 @@ const MechanicClients = () => {
                       className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center justify-center gap-2">
-                        ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸
+                        Активни поръчки
                         <SortIcon field="activeOrders" />
                       </div>
                     </th>
@@ -256,12 +256,12 @@ const MechanicClients = () => {
                       className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°
+                        Последна поръчка
                         <SortIcon field="lastOrder" />
                       </div>
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ
+                      Действие
                     </th>
                   </tr>
                 </thead>
@@ -328,7 +328,7 @@ const MechanicClients = () => {
                           }}
                           className="text-primary hover:text-primary-700 text-sm font-medium"
                         >
-                          Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸
+                          Детайли
                         </button>
                       </td>
                     </tr>

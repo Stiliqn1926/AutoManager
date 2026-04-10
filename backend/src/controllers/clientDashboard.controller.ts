@@ -86,7 +86,7 @@ export const updateClientProfile = async (
     });
 
     res.status(200).json({
-      message: 'ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŠÑ‚ Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Профилът е обновен успешно',
       client: updated,
     });
   } catch (error) {
@@ -122,7 +122,7 @@ export const changePassword = async (
     const isValid = await bcrypt.compare(currentPassword, user.password);
 
     if (!isValid) {
-      res.status(400).json({ message: 'Ð“Ñ€ÐµÑˆÐ½Ð° Ñ‚ÐµÐºÑƒÑ‰Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°' });
+      res.status(400).json({ message: 'Грешна текуща парола' });
       return;
     }
 
@@ -136,7 +136,7 @@ export const changePassword = async (
       },
     });
 
-    res.status(200).json({ message: 'ÐŸÐ°Ñ€Ð¾Ð»Ð°Ñ‚Ð° Ðµ ÑÐ¼ÐµÐ½ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾' });
+    res.status(200).json({ message: 'Паролата е сменена успешно' });
   } catch (error) {
     console.error('[changePassword] error:', error);
     res.status(500).json({ message: 'Server error', error });
@@ -227,17 +227,17 @@ export const cancelClientPendingRequest = async (
     });
 
     if (!pendingRequest) {
-      res.status(404).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°' });
+      res.status(404).json({ message: 'Заявката не е намерена' });
       return;
     }
 
     if (pendingRequest.email !== user.email) {
-      res.status(403).json({ message: 'ÐÑÐ¼Ð°Ñ‚Ðµ Ð¿Ñ€Ð°Ð²Ð¾ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ Ñ‚Ð°Ð·Ð¸ Ð·Ð°ÑÐ²ÐºÐ°' });
+      res.status(403).json({ message: 'Нямате право да откажете тази заявка' });
       return;
     }
 
     if (pendingRequest.status !== 'PENDING') {
-      res.status(400).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ð²ÐµÑ‡Ðµ Ðµ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐµÐ½Ð°' });
+      res.status(400).json({ message: 'Заявката вече е обработена' });
       return;
     }
 
@@ -245,7 +245,7 @@ export const cancelClientPendingRequest = async (
       where: { id: requestId },
     });
 
-    res.status(200).json({ message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾' });
+    res.status(200).json({ message: 'Заявката е отказана успешно' });
   } catch (error) {
     console.error('[cancelClientPendingRequest] error:', error);
     res.status(500).json({ message: 'Server error', error });
@@ -262,7 +262,7 @@ export const getClientServiceCompanies = async (
   try {
     const userId = req.user?.userId;
 
-    console.log('ðŸ” [getClientServiceCompanies] userId:', userId);
+    console.log('[getClientServiceCompanies] userId:', userId);
 
     if (!userId) {
       res.status(401).json({ message: 'User ID not found' });
@@ -1097,12 +1097,12 @@ export const addServiceCompany = async (
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(404).json({ message: 'Невалиден код на сервиз' });
       return;
     }
 
     if (!serviceCompany.isActive) {
-      res.status(400).json({ message: 'Ð¢Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð· Ðµ Ð½ÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½' });
+      res.status(400).json({ message: 'Този сервиз е неактивен' });
       return;
     }
 
@@ -1127,7 +1127,7 @@ export const addServiceCompany = async (
     });
 
     if (existingClient) {
-      res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÐºÑŠÐ¼ Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(400).json({ message: 'Вече сте добавени към този сервиз' });
       return;
     }
 
@@ -1143,7 +1143,7 @@ export const addServiceCompany = async (
 
     if (existingRequest) {
       res.status(400).json({ 
-        message: 'Ð’ÐµÑ‡Ðµ Ð¸Ð¼Ð°Ñ‚Ðµ Ð¸Ð·Ñ‡Ð°ÐºÐ²Ð°Ñ‰Ð° Ð·Ð°ÑÐ²ÐºÐ° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·',
+        message: 'Вече имате изчакваща заявка за този сервиз',
         status: 'PENDING'
       });
       return;
@@ -1191,7 +1191,7 @@ export const addServiceCompany = async (
     });
 
     res.status(201).json({
-      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð°. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.',
+      message: 'Заявката е изпратена. Очаква одобрение от администратора.',
       status: 'PENDING',
       request: {
         id: pendingRequest.id,
@@ -1243,7 +1243,7 @@ export const leaveServiceCompany = async (
 
     if (activeOrdersCount > 0) {
       res.status(400).json({
-        message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð· Ñ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸',
+        message: 'Не можете да напуснете сервиз с активни поръчки',
       });
       return;
     }
@@ -1257,7 +1257,7 @@ export const leaveServiceCompany = async (
       },
     });
 
-    res.status(200).json({ message: 'Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ Ð½Ð°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð°' });
+    res.status(200).json({ message: 'Успешно напуснахте сервиза' });
   } catch (error) {
     console.error('[leaveServiceCompany] error:', error);
     res.status(500).json({ message: 'Server error', error });

@@ -1263,7 +1263,7 @@ export const requestServiceCompany = async (
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(404).json({ message: 'Невалиден код на сервиз' });
       return;
     }
 
@@ -1279,11 +1279,11 @@ export const requestServiceCompany = async (
 
     if (existingMembership) {
       if (existingMembership.status === 'ACTIVE') {
-        res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ñ‡Ð»ÐµÐ½ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
+        res.status(400).json({ message: 'Вече сте член на този сервиз' });
         return;
       }
       if (existingMembership.status === 'PENDING') {
-        res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ Ð¸Ð¼Ð°Ñ‚Ðµ Ñ‡Ð°ÐºÐ°Ñ‰Ð° Ð·Ð°ÑÐ²ÐºÐ° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
+        res.status(400).json({ message: 'Вече имате чакаща заявка за този сервиз' });
         return;
       }
 
@@ -1329,7 +1329,7 @@ export const requestServiceCompany = async (
         });
 
         res.status(201).json({
-          message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€.',
+          message: 'Заявката е изпратена успешно. Очаква одобрение от администратор.',
           membership: {
             id: updatedMembership.id,
             status: updatedMembership.status,
@@ -1379,7 +1379,7 @@ export const requestServiceCompany = async (
     });
 
     res.status(201).json({
-      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¸Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾. ÐžÑ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€.',
+      message: 'Заявката е изпратена успешно. Очаква одобрение от администратор.',
       membership: {
         id: membership.id,
         status: membership.status,
@@ -1423,7 +1423,7 @@ export const switchServiceCompany = async (
 
     if (!membership) {
       res.status(404).json({ 
-        message: 'ÐÐµ ÑÑ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ Ñ‡Ð»ÐµÐ½ Ð½Ð° Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' 
+        message: 'Не сте активен член на този сервиз' 
       });
       return;
     }
@@ -1437,7 +1437,7 @@ export const switchServiceCompany = async (
     });
 
     res.status(200).json({
-      message: 'ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ÑÑ‚ ÑÐµÑ€Ð²Ð¸Ð· Ðµ ÑÐ¼ÐµÐ½ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Активният сервиз е сменен успешно',
       serviceCompanyId,
     });
   } catch (error) {
@@ -1479,7 +1479,7 @@ export const cancelPendingRequest = async (
 
     if (membership.status !== 'PENDING') {
       res.status(400).json({
-        message: 'ÐœÐ¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð¾Ñ‚ÐºÐ°Ð¶ÐµÑ‚Ðµ ÑÐ°Ð¼Ð¾ Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸'
+        message: 'Можете да откажете само чакащи заявки'
       });
       return;
     }
@@ -1504,7 +1504,7 @@ export const cancelPendingRequest = async (
     });
 
     res.status(200).json({
-      message: 'Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚ÐºÐ°Ð·Ð°Ð½Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Заявката е отказана успешно',
     });
   } catch (error) {
     console.error('Cancel pending request error:', error);
@@ -1562,7 +1562,7 @@ export const leaveServiceCompany = async (
 
     if (activeOrders > 0 || activeSchedules > 0) {
       res.status(400).json({
-        message: 'ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° Ð½Ð°Ð¿ÑƒÑÐ½ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð° Ð´Ð¾ÐºÐ°Ñ‚Ð¾ Ð¸Ð¼Ð°Ñ‚Ðµ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð¸',
+        message: 'Не можете да напуснете сервиза докато имате активни задачи',
         activeOrdersCount: activeOrders,
         activeSchedulesCount: activeSchedules,
       });
@@ -1610,7 +1610,7 @@ export const leaveServiceCompany = async (
     });
 
     res.status(200).json({
-      message: 'ÐÐ°Ð¿ÑƒÑÐ½Ð°Ñ…Ñ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·Ð° ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Напуснахте сервиза успешно',
     });
   } catch (error) {
     console.error('Leave service company error:', error);

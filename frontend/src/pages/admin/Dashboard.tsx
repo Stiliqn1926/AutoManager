@@ -92,7 +92,7 @@ const AdminDashboard = () => {
       }
 
       if (!silent) {
-        toast.error('Ð’ÑŠÐ·Ð½Ð¸ÐºÐ½Ð° Ð³Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ‚Ð°Ð±Ð»Ð¾Ñ‚Ð¾');
+        toast.error('Възникна грешка при зареждане на таблото');
       }
     } finally {
       if (requestSeq !== requestSeqRef.current) {
@@ -150,12 +150,12 @@ const AdminDashboard = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary mb-4">Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸</p>
+          <p className="text-textSecondary mb-4">Грешка при зареждане на данни</p>
           <button
             onClick={() => void fetchDashboard()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700"
           >
-            ÐžÐ¿Ð¸Ñ‚Ð°Ð¹ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾
+            Опитай отново
           </button>
         </div>
       </MainLayout>

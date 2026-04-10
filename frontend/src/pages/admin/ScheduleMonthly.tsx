@@ -38,7 +38,7 @@ const ScheduleMonthly = () => {
         });
         setSchedules(response.data.schedules || []);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑÐµÑ‡ÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº');
+        toast.error('Грешка при зареждане на месечен график');
       } finally {
         setIsLoading(false);
       }
@@ -123,7 +123,7 @@ const ScheduleMonthly = () => {
   };
 
   const calendarDays = generateCalendarDays();
-  const weekDays = ['ÐŸÐ¾Ð½', 'Ð’Ñ‚Ð¾', 'Ð¡Ñ€Ñ', 'Ð§ÐµÑ‚', 'ÐŸÐµÑ‚', 'Ð¡ÑŠÐ±', 'ÐÐµÐ´'];
+  const weekDays = ['Пон', 'Вто', 'Сря', 'Чет', 'Пет', 'Съб', 'Нед'];
 
   if (isLoading) {
     return (
@@ -142,14 +142,14 @@ const ScheduleMonthly = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            aria-label="Назад към график"
+            title="Назад към график"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐœÐµÑÐµÑ‡ÐµÐ½ Ð“Ñ€Ð°Ñ„Ð¸Ðº</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Месечен График</h1>
             <p className="text-textSecondary mt-1">
               {currentDate.toLocaleDateString('bg-BG', {
                 month: 'long',
@@ -163,14 +163,14 @@ const ScheduleMonthly = () => {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
-              Ð”Ð½ÐµÑ
+              Днес
             </Button>
             <Button variant="secondary" onClick={goToNextMonth}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð°
+              Добави задача
             </Button>
           </div>
         </div>

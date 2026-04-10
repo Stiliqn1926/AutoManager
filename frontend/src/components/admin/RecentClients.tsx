@@ -22,7 +22,7 @@ const RecentClients = () => {
         const response = await api.get('/clients?limit=5');
         setClients(response.data.clients || []);
       } catch  {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸');
+        toast.error('Грешка при зареждане на клиенти');
       } finally {
         setIsLoading(false);
       }
@@ -34,7 +34,7 @@ const RecentClients = () => {
   if (isLoading) {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-        <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">Последно добавени клиенти</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-gray-200 rounded"></div>
@@ -47,17 +47,17 @@ const RecentClients = () => {
   return (
     <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">ÐŸÐ¾ÑÐ»ÐµÐ´Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-textPrimary">Последно добавени клиенти</h2>
         <button
           onClick={() => navigate('/admin/clients')}
           className="text-sm text-primary hover:text-primary-700 font-medium"
         >
-          Ð’Ð¸Ð¶ Ð²ÑÐ¸Ñ‡ÐºÐ¸ â†’
+          Виж всички →
         </button>
       </div>
 
       {clients.length === 0 ? (
-        <p className="text-textSecondary text-center py-8">ÐÑÐ¼Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸</p>
+        <p className="text-textSecondary text-center py-8">Няма клиенти</p>
       ) : (
         <div className="space-y-2">
           {clients.map((client) => (

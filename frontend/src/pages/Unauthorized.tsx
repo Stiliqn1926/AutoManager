@@ -15,19 +15,19 @@ const Unauthorized = () => {
         </div>
 
         <h1 className="text-3xl font-bold text-textPrimary mb-4">
-          ÐÑÐ¼Ð°Ñ‚Ðµ Ð´Ð¾ÑÑ‚ÑŠÐ¿
+          Нямате достъп
         </h1>
 
         <p className="text-textSecondary mb-6">
-          ÐÑÐ¼Ð°Ñ‚Ðµ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¸Ñ‚Ðµ Ð¿Ñ€Ð°Ð²Ð° Ð·Ð° Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ñ‚Ð°Ð·Ð¸ ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð°. ÐœÐ¾Ð»Ñ ÑÐ²ÑŠÑ€Ð¶ÐµÑ‚Ðµ ÑÐµ Ñ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.
+          Нямате необходимите права за достъп до тази страница. Моля свържете се с администратора.
         </p>
 
         <div className="space-y-3">
           <Button onClick={() => navigate(-1)} fullWidth variant="secondary">
-            ÐÐ°Ð·Ð°Ð´
+            Назад
           </Button>
           <Button onClick={() => navigate('/')} fullWidth>
-            ÐšÑŠÐ¼ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð°Ñ‚Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð°
+            Към началната страница
           </Button>
         </div>
       </div>

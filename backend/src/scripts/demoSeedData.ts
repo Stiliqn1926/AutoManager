@@ -1,0 +1,666 @@
+﻿import { SupplierType } from '@prisma/client';
+
+export type ServiceSeed = {
+  index: number;
+  name: string;
+  district: string;
+  address: string;
+  city: string;
+  phone: string;
+  email: string;
+  uniqueCode: string;
+  bulstat: string;
+  vatNumber: string;
+  description: string;
+};
+
+export type MechanicSeed = {
+  index: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  skills: string;
+  primaryService: number;
+  memberships: number[];
+};
+
+export type PendingPersonSeed = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  targetService: number;
+};
+
+export type RepairTemplate = {
+  title: string;
+  description: string;
+  diagnosis: string;
+  supplierType: SupplierType;
+  labor: { name: string; quantity: number; unitPrice: number };
+  parts: Array<{ name: string; quantity: number; unitPrice: number }>;
+  consumables: Array<{ name: string; quantity: number; unitPrice: number }>;
+};
+
+export const serviceSeeds: ServiceSeed[] = [
+  {
+    index: 1,
+    name: 'Ð¢Ñ€Ð°Ðº ÐšÐ°Ñ€ Ð¡ÑŠÑ€Ð²Ð¸Ð· Ð¦ÐµÐ½Ñ‚ÑŠÑ€',
+    district: 'Ð¦ÐµÐ½Ñ‚ÑŠÑ€',
+    address: 'Ð±ÑƒÐ». ÐžÑÐ²Ð¾Ð±Ð¾Ð¶Ð´ÐµÐ½Ð¸Ðµ 97',
+    city: 'ÐŸÐ»Ð¾Ð²Ð´Ð¸Ð²',
+    phone: '+359 32 910 1001',
+    email: 'trackcar.center@automanager.bg',
+    uniqueCode: 'PLD101',
+    bulstat: '208100101',
+    vatNumber: 'BG208100101',
+    description: 'ÐœÐ½Ð¾Ð³Ð¾Ð¿Ñ€Ð¾Ñ„Ð¸Ð»ÐµÐ½ ÑÐµÑ€Ð²Ð¸Ð· Ð·Ð° Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸ÐºÐ°, Ð´Ð²Ð¸Ð³Ð°Ñ‚ÐµÐ»Ð¸ Ð¸ ÑÐ¿Ð¸Ñ€Ð°Ñ‡Ð½Ð¸ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¸.',
+  },
+  {
+    index: 2,
+    name: 'ÐÐ²Ñ‚Ð¾ Ð¥ÑŠÐ± ÐšÑŠÑ€ÑˆÐ¸ÑÐºÐ°',
+    district: 'ÐšÑŠÑ€ÑˆÐ¸ÑÐºÐ°',
+    address: 'Ð±ÑƒÐ». Ð”ÑƒÐ½Ð°Ð² 5',
+    city: 'ÐŸÐ»Ð¾Ð²Ð´Ð¸Ð²',
+    phone: '+359 32 910 1002',
+    email: 'autohub.karshiyaka@automanager.bg',
+    uniqueCode: 'PLD202',
+    bulstat: '208100202',
+    vatNumber: 'BG208100202',
+    description: 'Ð¡ÐµÑ€Ð²Ð¸Ð· Ñ Ñ„Ð¾ÐºÑƒÑ Ð²ÑŠÑ€Ñ…Ñƒ Ð´Ð¸Ð·ÐµÐ»Ð¾Ð²Ð¸ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¸, Ñ‚Ñ€Ð°Ð½ÑÐ¼Ð¸ÑÐ¸Ð¸ Ð¸ Ð¾Ð±ÑÐ»ÑƒÐ¶Ð²Ð°Ð½Ðµ.',
+  },
+  {
+    index: 3,
+    name: 'ÐœÐ°Ñ€Ð¸Ñ†Ð° Ð”Ñ€Ð°Ð¹Ð² Ð¡ÐµÑ€Ð²Ð¸Ð·',
+    district: 'Ð¢Ñ€Ð°ÐºÐ¸Ñ',
+    address: 'Ð±ÑƒÐ». Ð¨ÐµÑÑ‚Ð¸ ÑÐµÐ¿Ñ‚ÐµÐ¼Ð²Ñ€Ð¸ 221',
+    city: 'ÐŸÐ»Ð¾Ð²Ð´Ð¸Ð²',
+    phone: '+359 32 910 1003',
+    email: 'maritsa.drive@automanager.bg',
+    uniqueCode: 'PLD303',
+    bulstat: '208100303',
+    vatNumber: 'BG208100303',
+    description: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÐµÐ½ Ñ†ÐµÐ½Ñ‚ÑŠÑ€ Ð·Ð° Ð¾ÐºÐ°Ñ‡Ð²Ð°Ð½Ðµ, Ð³ÑƒÐ¼Ð¸, ÐºÐ»Ð¸Ð¼Ð°Ñ‚Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¸ Ð°Ð²Ñ‚Ð¾ÐµÐ»ÐµÐºÑ‚Ñ€Ð¾Ð½Ð¸ÐºÐ°.',
+  },
+];
+
+export const mechanicSeeds: MechanicSeed[] = [
+  {
+    index: 1,
+    firstName: 'ÐœÐ¸Ñ…Ð°Ð¸Ð»',
+    lastName: 'ÐšÐ¾ÑÑ‚Ð¾Ð²',
+    email: 'mechanic1@automanager.bg',
+    phone: '+359 88 100 0001',
+    specialization: 'Ð”Ð²Ð¸Ð³Ð°Ñ‚ÐµÐ»Ð¸',
+    skills: 'ÐÐ½Ð³Ñ€ÐµÐ½Ð°Ð¶Ð½Ð¸ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¸, ÐºÐ¾Ð¼Ð¿Ñ€ÐµÑÐ¸Ñ, Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸ÐºÐ°',
+    primaryService: 1,
+    memberships: [1],
+  },
+  {
+    index: 2,
+    firstName: 'Ð“ÐµÐ¾Ñ€Ð³Ð¸',
+    lastName: 'Ð¡Ñ‚Ð¾ÐµÐ²',
+    email: 'mechanic2@automanager.bg',
+    phone: '+359 88 100 0002',
+    specialization: 'Ð¡Ð¿Ð¸Ñ€Ð°Ñ‡ÐºÐ¸ Ð¸ Ñ…Ð¾Ð´Ð¾Ð²Ð° Ñ‡Ð°ÑÑ‚',
+    skills: 'Ð”Ð¸ÑÐºÐ¾Ð²Ðµ Ð¸ Ð½Ð°ÐºÐ»Ð°Ð´ÐºÐ¸, Ð»Ð°Ð³ÐµÑ€Ð¸, Ñ€ÐµÐ³Ð»Ð°Ð¶',
+    primaryService: 1,
+    memberships: [1, 2],
+  },
+  {
+    index: 3,
+    firstName: 'ÐŸÐ»Ð°Ð¼ÐµÐ½',
+    lastName: 'Ð™Ð¾Ñ€Ð´Ð°Ð½Ð¾Ð²',
+    email: 'mechanic3@automanager.bg',
+    phone: '+359 88 100 0003',
+    specialization: 'ÐÐ²Ñ‚Ð¾ÐµÐ»ÐµÐºÑ‚Ñ€Ð¾Ð½Ð¸ÐºÐ°',
+    skills: 'Ð¡Ñ‚Ð°Ñ€Ñ‚ÐµÑ€Ð¸, Ð°Ð»Ñ‚ÐµÑ€Ð½Ð°Ñ‚Ð¾Ñ€Ð¸, CAN Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸ÐºÐ°',
+    primaryService: 1,
+    memberships: [1],
+  },
+  {
+    index: 4,
+    firstName: 'Ð¥Ñ€Ð¸ÑÑ‚Ð¾',
+    lastName: 'Ð’ÐµÐ»ÐµÐ²',
+    email: 'mechanic4@automanager.bg',
+    phone: '+359 88 100 0004',
+    specialization: 'Ð¢Ñ€Ð°Ð½ÑÐ¼Ð¸ÑÐ¸Ð¸',
+    skills: 'Ð¡ÑŠÐµÐ´Ð¸Ð½Ð¸Ñ‚ÐµÐ»Ð¸, Ð¼Ð°Ñ…Ð¾Ð²Ð¸Ñ†Ð¸, Ð¾Ð±ÑÐ»ÑƒÐ¶Ð²Ð°Ð½Ðµ Ð½Ð° ÐºÑƒÑ‚Ð¸Ð¸',
+    primaryService: 2,
+    memberships: [2],
+  },
+  {
+    index: 5,
+    firstName: 'ÐÐ¸ÐºÐ¾Ð»Ð°Ð¹',
+    lastName: 'Ð¢Ð¾Ð´Ð¾Ñ€Ð¾Ð²',
+    email: 'mechanic5@automanager.bg',
+    phone: '+359 88 100 0005',
+    specialization: 'Ð”Ð¸Ð·ÐµÐ»Ð¾Ð²Ð¸ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¸',
+    skills: 'DPF, EGR, Ð´ÑŽÐ·Ð¸ Ð¸ Ð³Ð¾Ñ€Ð¸Ð²Ð½Ð° ÑÐ¸ÑÑ‚ÐµÐ¼Ð°',
+    primaryService: 2,
+    memberships: [2, 3],
+  },
+  {
+    index: 6,
+    firstName: 'Ð’Ð°ÑÐ¸Ð»',
+    lastName: 'ÐŸÐµÑ‚Ñ€Ð¾Ð²',
+    email: 'mechanic6@automanager.bg',
+    phone: '+359 88 100 0006',
+    specialization: 'ÐšÐ»Ð¸Ð¼Ð°Ñ‚Ð¸Ñ‡Ð½Ð¸ ÑÐ¸ÑÑ‚ÐµÐ¼Ð¸',
+    skills: 'ÐšÐ¾Ð¼Ð¿Ñ€ÐµÑÐ¾Ñ€Ð¸, ÐºÐ¾Ð½Ð´ÐµÐ½Ð·Ð°Ñ‚Ð¾Ñ€Ð¸, Ð²Ð°ÐºÑƒÑƒÐ¼Ð¸Ñ€Ð°Ð½Ðµ',
+    primaryService: 3,
+    memberships: [3],
+  },
+  {
+    index: 7,
+    firstName: 'Ð”Ð°Ð½Ð¸ÐµÐ»',
+    lastName: 'Ð Ð°Ð´ÐµÐ²',
+    email: 'mechanic7@automanager.bg',
+    phone: '+359 88 100 0007',
+    specialization: 'Ð”Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸ÐºÐ°',
+    skills: 'Ð›Ð°Ð¼Ð±Ð´Ð° ÑÐ¾Ð½Ð´Ð¸, Ð°Ð´Ð°Ð¿Ñ‚Ð°Ñ†Ð¸Ð¸, Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸ÐºÐ° Ð² Ñ€ÐµÐ°Ð»Ð½Ð¾ Ð²Ñ€ÐµÐ¼Ðµ',
+    primaryService: 3,
+    memberships: [3, 1],
+  },
+  {
+    index: 8,
+    firstName: 'Ð˜Ð²Ð°Ð½',
+    lastName: 'Ð“Ñ€Ð¸Ð³Ð¾Ñ€Ð¾Ð²',
+    email: 'mechanic8@automanager.bg',
+    phone: '+359 88 100 0008',
+    specialization: 'ÐžÐºÐ°Ñ‡Ð²Ð°Ð½Ðµ Ð¸ Ð³ÑƒÐ¼Ð¸',
+    skills: 'ÐÐ¼Ð¾Ñ€Ñ‚Ð¸ÑÑŒÐ¾Ñ€Ð¸, Ð½Ð¾ÑÐ°Ñ‡Ð¸, Ð¼Ð¾Ð½Ñ‚Ð°Ð¶ Ð¸ Ð±Ð°Ð»Ð°Ð½Ñ',
+    primaryService: 3,
+    memberships: [3],
+  },
+];
+
+export const pendingMechanics: PendingPersonSeed[] = [
+  {
+    firstName: 'Ð¡Ñ‚ÐµÑ„Ð°Ð½',
+    lastName: 'Ð˜Ð»Ð¸ÐµÐ²',
+    email: 'pending.mechanic1@automanager.bg',
+    phone: '+359 88 700 0001',
+    targetService: 1,
+  },
+  {
+    firstName: 'ÐÐ»ÐµÐºÑÐ°Ð½Ð´ÑŠÑ€',
+    lastName: 'ÐšÐ¾Ð»ÐµÐ²',
+    email: 'pending.mechanic2@automanager.bg',
+    phone: '+359 88 700 0002',
+    targetService: 2,
+  },
+  {
+    firstName: 'Ð‘Ð¾Ñ€Ð¸Ñ',
+    lastName: 'Ð›Ð°Ð·Ð°Ñ€Ð¾Ð²',
+    email: 'pending.mechanic3@automanager.bg',
+    phone: '+359 88 700 0003',
+    targetService: 3,
+  },
+];
+
+export const pendingClients: PendingPersonSeed[] = [
+  {
+    firstName: 'Ð•Ð»Ð¸Ñ†Ð°',
+    lastName: 'Ð¡Ñ‚Ð¾ÑÐ½Ð¾Ð²Ð°',
+    email: 'pending.client1@automanager.bg',
+    phone: '+359 88 800 0001',
+    targetService: 1,
+  },
+  {
+    firstName: 'ÐœÐ°Ñ€Ð¸Ð½',
+    lastName: 'Ð“ÐµÐ¾Ñ€Ð³Ð¸ÐµÐ²',
+    email: 'pending.client2@automanager.bg',
+    phone: '+359 88 800 0002',
+    targetService: 2,
+  },
+  {
+    firstName: 'ÐÐ°Ð´ÐµÐ¶Ð´Ð°',
+    lastName: 'ÐŸÐ°Ð²Ð»Ð¾Ð²Ð°',
+    email: 'pending.client3@automanager.bg',
+    phone: '+359 88 800 0003',
+    targetService: 3,
+  },
+];
+
+export const clientFirstNames = [
+  'ÐÐ½Ñ‚Ð¾Ð½',
+  'ÐœÐ°Ñ€Ð¸Ñ',
+  'ÐŸÐµÑ‚ÑŠÑ€',
+  'Ð Ð°Ð»Ð¸Ñ†Ð°',
+  'Ð¥Ñ€Ð¸ÑÑ‚Ð¾',
+  'Ð’ÐµÑ€Ð¾Ð½Ð¸ÐºÐ°',
+  'Ð™Ð¾Ñ€Ð´Ð°Ð½',
+  'ÐšÑ€Ð¸ÑÑ‚Ð¸Ð½Ð°',
+  'ÐšÐ°Ð»Ð¸Ð½',
+  'Ð¡Ð¸Ð»Ð²Ð¸Ñ',
+  'Ð˜Ð»Ð¸Ñ',
+  'Ð¢ÐµÐ¾Ð´Ð¾Ñ€Ð°',
+  'Ð Ð°Ð´Ð¾ÑÐ»Ð°Ð²',
+  'Ð“Ð°Ð±Ñ€Ð¸ÐµÐ»Ð°',
+  'Ð¢Ð¾Ð´Ð¾Ñ€',
+  'ÐœÐ¸Ñ…Ð°ÐµÐ»Ð°',
+  'Ð¡Ð¸Ð¼ÐµÐ¾Ð½',
+  'Ð’Ð¸ÐºÑ‚Ð¾Ñ€Ð¸Ñ',
+  'Ð”Ð°Ð½Ð¸ÐµÐ»',
+  'Ð•Ð»ÐµÐ½Ð°',
+  'Ð¡Ñ‚Ð°Ð½Ð¸ÑÐ»Ð°Ð²',
+  'ÐÐ¸ÐºÐ¾Ð»Ð°',
+  'Ð¯Ð½Ð°',
+  'Ð‘Ð¾Ñ€ÑÐ½Ð°',
+  'Ð”ÐµÑÐ½',
+  'Ð›ÑŽÐ±Ð¾Ð¼Ð¸Ñ€',
+  'Ð¦Ð²ÐµÑ‚ÐµÐ»Ð¸Ð½Ð°',
+  'ÐÑ‚Ð°Ð½Ð°Ñ',
+  'ÐœÐ°Ñ€Ñ‚Ð¸Ð½',
+  'ÐÐ¸ÐºÐ¾Ð»ÐµÑ‚Ð°',
+];
+
+export const clientLastNames = [
+  'ÐÐ½Ð³ÐµÐ»Ð¾Ð²',
+  'Ð“ÐµÐ¾Ñ€Ð³Ð¸ÐµÐ²Ð°',
+  'Ð”Ð¸Ð¼Ð¸Ñ‚Ñ€Ð¾Ð²',
+  'Ð—Ð°Ñ…Ð°Ñ€Ð¸ÐµÐ²Ð°',
+  'Ð–ÐµÐ»ÑÐ·ÐºÐ¾Ð²',
+  'Ð¢Ð¾Ð½ÐµÐ²Ð°',
+  'ÐÐ¸ÐºÐ¾Ð»Ð¾Ð²',
+  'ÐœÐ¸Ð»ÐµÐ²Ð°',
+  'Ð›Ð°Ð·Ð°Ñ€Ð¾Ð²',
+  'Ð Ð°Ð´ÐµÐ²Ð°',
+  'ÐŸÐ°Ð²Ð»Ð¾Ð²',
+  'Ð£Ð·ÑƒÐ½Ð¾Ð²Ð°',
+  'Ð¡Ñ‚ÐµÑ„Ð°Ð½Ð¾Ð²',
+  'Ð¤Ð¸Ð»Ð¸Ð¿Ð¾Ð²Ð°',
+  'ÐšÐ°Ñ€Ð°Ð¸Ð²Ð°Ð½Ð¾Ð²',
+  'Ð‘Ð¾Ñ€Ð¸ÑÐ¾Ð²Ð°',
+  'ÐžÑ€Ð»Ð¸Ð½ÑÐºÐ¸',
+  'Ð•Ð²Ñ‚Ð¸Ð¼Ð¾Ð²Ð°',
+  'Ð˜Ð²Ð°Ð½Ð¾Ð²',
+  'ÐŸÐµÐ½ÐµÐ²Ð°',
+  'ÐœÐ°Ñ€Ð¸Ð½Ð¾Ð²',
+  'Ð¥Ð°Ð´Ð¶Ð¸ÐµÐ²',
+  'ÐšÐ¸Ñ€Ð¾Ð²Ð°',
+  'Ð’ÑŠÐ»Ñ‡ÐµÐ²Ð°',
+  'ÐšÑŠÐ½Ñ‡ÐµÐ²',
+  'Ð¢Ñ€Ð¸Ñ„Ð¾Ð½Ð¾Ð²',
+  'ÐœÐ¸Ñ‚ÐµÐ²Ð°',
+  'ÐŸÐ¾Ð¿Ð¾Ð²',
+  'ÐšÐ¾ÑÑ‚Ð°Ð´Ð¸Ð½Ð¾Ð²',
+  'Ð¡Ð»Ð°Ð²Ð¾Ð²Ð°',
+];
+
+export const vehicleBrands = [
+  'VW',
+  'Audi',
+  'BMW',
+  'Mercedes',
+  'Skoda',
+  'Toyota',
+  'Ford',
+  'Opel',
+  'Renault',
+  'Peugeot',
+  'Nissan',
+  'Honda',
+  'Mazda',
+  'Hyundai',
+  'Kia',
+];
+
+export const vehicleModels = [
+  'Golf 7',
+  'Passat B8',
+  'Tiguan II',
+  'Touran II',
+  'A3 8V',
+  'A4 B9',
+  'A6 C7',
+  'Q5 FY',
+  '320d G20',
+  'X3 G01',
+  '520d G30',
+  'X5 G05',
+  'C 220 W205',
+  'GLC 220d',
+  'E 220 W213',
+  'GLA 200',
+  'Octavia III',
+  'Superb III',
+  'Kodiaq',
+  'Fabia III',
+  'Corolla',
+  'RAV4',
+  'Yaris',
+  'Avensis',
+  'Focus',
+  'Mondeo',
+  'Kuga',
+  'Fiesta',
+  'Astra K',
+  'Insignia B',
+  'Mokka',
+  'Corsa E',
+  'Megane IV',
+  'Kadjar',
+  'Clio IV',
+  'Captur',
+  '308',
+  '3008',
+  '208',
+  '508',
+  'Qashqai',
+  'X-Trail',
+  'Micra',
+  'Juke',
+  'Civic',
+  'CR-V',
+  'Jazz',
+  'Accord',
+  'Mazda 3',
+  'CX-5',
+  'Mazda 6',
+  'Mazda 2',
+  'i30',
+  'Tucson',
+  'i20',
+  'Elantra',
+  'Ceed',
+  'Sportage',
+  'Rio',
+  'Optima',
+  'Duster',
+  'Logan',
+  'S60',
+  'XC60',
+];
+
+export const repairTemplates: RepairTemplate[] = [
+  {
+    title: 'Годишно обслужване',
+    description: 'Смяна на масло, филтри и базов преглед на ходова част.',
+    diagnosis: 'Маслото е с изчерпан ресурс, филтрите са замърсени над допустимото.',
+    supplierType: SupplierType.CONSUMABLES,
+    labor: { name: 'Труд: годишно обслужване', quantity: 1, unitPrice: 45 },
+    parts: [
+      { name: 'Маслен филтър', quantity: 1, unitPrice: 18 },
+      { name: 'Въздушен филтър', quantity: 1, unitPrice: 24 },
+      { name: 'Горивен филтър', quantity: 1, unitPrice: 34 },
+      { name: 'Филтър купе', quantity: 1, unitPrice: 22 },
+    ],
+    consumables: [{ name: 'Двигателно масло 5W-30 (5L)', quantity: 1, unitPrice: 62 }],
+  },
+  {
+    title: 'Смяна предни дискове и накладки',
+    description: 'Подмяна на предни спирачни дискове и комплект накладки.',
+    diagnosis: 'Установен е ръб по дисковете и неравномерно износване на накладките.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: предна спирачна система', quantity: 2, unitPrice: 40 },
+    parts: [
+      { name: 'Предни дискове', quantity: 2, unitPrice: 92 },
+      { name: 'Предни накладки', quantity: 1, unitPrice: 86 },
+    ],
+    consumables: [{ name: 'Спирачна течност DOT4 (1L)', quantity: 1, unitPrice: 14 }],
+  },
+  {
+    title: 'Смяна задни накладки и обслужване апарати',
+    description: 'Смяна на задни накладки и ревизия на водачи и бутала.',
+    diagnosis: 'Задните апарати са със затруднено движение, накладките са под сервизен минимум.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: задна спирачна система', quantity: 2, unitPrice: 39 },
+    parts: [
+      { name: 'Задни накладки', quantity: 1, unitPrice: 74 },
+      { name: 'Ремонтен комплект водачи заден апарат', quantity: 1, unitPrice: 29 },
+    ],
+    consumables: [
+      { name: 'Спирачна грес за водачи', quantity: 1, unitPrice: 8 },
+      { name: 'Спрей за спирачки', quantity: 1, unitPrice: 6 },
+    ],
+  },
+  {
+    title: 'Смяна ангренажен комплект',
+    description: 'Смяна на ангренажен комплект, водна помпа и пистов ремък.',
+    diagnosis: 'Налице са микропукнатини по ремъка и луфт в лагера на водната помпа.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: ангренажен комплект', quantity: 5, unitPrice: 46 },
+    parts: [
+      { name: 'Ангренажен комплект', quantity: 1, unitPrice: 265 },
+      { name: 'Водна помпа', quantity: 1, unitPrice: 126 },
+      { name: 'Пистов ремък', quantity: 1, unitPrice: 39 },
+    ],
+    consumables: [{ name: 'Антифриз G12+ (1.5L)', quantity: 3, unitPrice: 13 }],
+  },
+  {
+    title: 'Смяна ангренажна верига',
+    description: 'Подмяна на комплект верига, обтегач и водачи.',
+    diagnosis: 'При студен старт се чува метален шум, установено е удължаване на веригата.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: ангренажна верига', quantity: 7, unitPrice: 52 },
+    parts: [
+      { name: 'Комплект ангренажна верига', quantity: 1, unitPrice: 420 },
+      { name: 'Маслена помпа верига', quantity: 1, unitPrice: 74 },
+      { name: 'Семеринг колянов вал', quantity: 1, unitPrice: 18 },
+    ],
+    consumables: [{ name: 'Двигателно масло 5W-30 (5L)', quantity: 1, unitPrice: 62 }],
+  },
+  {
+    title: 'Смяна съединител и маховик',
+    description: 'Ремонт на съединител с комплект и двумасов маховик.',
+    diagnosis: 'Налице е приплъзване при натоварване и вибрации от маховика.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: съединител и маховик', quantity: 6, unitPrice: 48 },
+    parts: [
+      { name: 'Комплект съединител', quantity: 1, unitPrice: 348 },
+      { name: 'Двумасов маховик', quantity: 1, unitPrice: 512 },
+    ],
+    consumables: [{ name: 'Трансмисионно масло 75W-80 (1L)', quantity: 2, unitPrice: 16 }],
+  },
+  {
+    title: 'Обслужване автоматична кутия',
+    description: 'Смяна масло и филтър на автоматична трансмисия.',
+    diagnosis: 'Има забавяне при превключване и потъмняло трансмисионно масло.',
+    supplierType: SupplierType.CONSUMABLES,
+    labor: { name: 'Труд: обслужване автоматична кутия', quantity: 2, unitPrice: 58 },
+    parts: [{ name: 'Филтър автоматична скоростна кутия', quantity: 1, unitPrice: 78 }],
+    consumables: [{ name: 'ATF масло (1L)', quantity: 7, unitPrice: 19 }],
+  },
+  {
+    title: 'Ремонт климатична система',
+    description: 'Смяна на компресор и дехидратор, вакуумиране и зареждане.',
+    diagnosis: 'Компресорът не създава работно налягане, в системата има влага.',
+    supplierType: SupplierType.CONSUMABLES,
+    labor: { name: 'Труд: климатична система', quantity: 3, unitPrice: 45 },
+    parts: [
+      { name: 'Компресор климатик', quantity: 1, unitPrice: 448 },
+      { name: 'Филтър-дехидратор', quantity: 1, unitPrice: 74 },
+    ],
+    consumables: [{ name: 'Фреон R134a (грам)', quantity: 650, unitPrice: 0.12 }],
+  },
+  {
+    title: 'Сервиз на климатик и откриване теч',
+    description: 'Тест с UV добавка, вакуумиране и дозареждане.',
+    diagnosis: 'Ниско налягане в ниската линия и следи от теч по кондензатора.',
+    supplierType: SupplierType.SERVICES,
+    labor: { name: 'Труд: диагностика и сервиз климатик', quantity: 2, unitPrice: 41 },
+    parts: [{ name: 'О-пръстени климатична система (комплект)', quantity: 1, unitPrice: 18 }],
+    consumables: [
+      { name: 'UV добавка за климатик', quantity: 1, unitPrice: 12 },
+      { name: 'Фреон R134a (грам)', quantity: 420, unitPrice: 0.12 },
+    ],
+  },
+  {
+    title: 'Смяна термостат и промивка охлаждане',
+    description: 'Подмяна на термостат, промивка и пълнене с нов антифриз.',
+    diagnosis: 'Двигателят загрява бавно и поддържа нестабилна работна температура.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: охладителна система', quantity: 2, unitPrice: 39 },
+    parts: [{ name: 'Термостат комплект', quantity: 1, unitPrice: 96 }],
+    consumables: [
+      { name: 'Антифриз G12+ (1.5L)', quantity: 4, unitPrice: 13 },
+      { name: 'Препарат за промивка охладителна система', quantity: 1, unitPrice: 14 },
+    ],
+  },
+  {
+    title: 'Смяна радиатор и маркучи',
+    description: 'Подмяна на основен радиатор и комплект горни/долни маркучи.',
+    diagnosis: 'Има теч по радиатора и омекнали маркучи с микропукнатини.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: радиатор и маркучи', quantity: 3, unitPrice: 42 },
+    parts: [
+      { name: 'Радиатор охлаждане', quantity: 1, unitPrice: 188 },
+      { name: 'Горен маркуч радиатор', quantity: 1, unitPrice: 28 },
+      { name: 'Долен маркуч радиатор', quantity: 1, unitPrice: 26 },
+    ],
+    consumables: [{ name: 'Антифриз G12+ (1.5L)', quantity: 4, unitPrice: 13 }],
+  },
+  {
+    title: 'Смяна амортисьори и тампони отпред',
+    description: 'Комплектна подмяна на предни амортисьори, тампони и лагери.',
+    diagnosis: 'При тест се отчита слабо демпфиране и шум от горни тампони.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: предно окачване', quantity: 3, unitPrice: 40 },
+    parts: [
+      { name: 'Предни амортисьори', quantity: 2, unitPrice: 128 },
+      { name: 'Горни тампони амортисьори', quantity: 2, unitPrice: 32 },
+      { name: 'Лагери макферсон', quantity: 2, unitPrice: 24 },
+    ],
+    consumables: [{ name: 'Спрей проникващ (400 ml)', quantity: 1, unitPrice: 9 }],
+  },
+  {
+    title: 'Смяна носачи и биалети',
+    description: 'Подмяна на долни предни носачи и комплект биалети.',
+    diagnosis: 'Има луфт в шарнирите и тракане при преминаване през неравности.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: носачи и биалети', quantity: 3, unitPrice: 41 },
+    parts: [
+      { name: 'Предни долни носачи', quantity: 2, unitPrice: 145 },
+      { name: 'Биалети комплект', quantity: 1, unitPrice: 48 },
+    ],
+    consumables: [{ name: 'Болтове за окачване (комплект)', quantity: 1, unitPrice: 18 }],
+  },
+  {
+    title: 'Смяна лагер главина',
+    description: 'Подмяна на лагер главина и проверка на геометрията.',
+    diagnosis: 'Налице е шум тип бучене, който се засилва при завой.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: лагер главина', quantity: 2, unitPrice: 39 },
+    parts: [{ name: 'Лагер главина преден', quantity: 1, unitPrice: 92 }],
+    consumables: [{ name: 'Грес за лагерни възли', quantity: 1, unitPrice: 11 }],
+  },
+  {
+    title: 'Смяна накрайници и реглаж преден мост',
+    description: 'Подмяна на външни накрайници и реглаж на преден мост.',
+    diagnosis: 'Установени са луфтове в кормилните накрайници и отклонение в сходимостта.',
+    supplierType: SupplierType.SERVICES,
+    labor: { name: 'Труд: кормилна система и реглаж', quantity: 2, unitPrice: 42 },
+    parts: [
+      { name: 'Външен кормилен накрайник', quantity: 2, unitPrice: 34 },
+      { name: 'Контрагайки накрайник', quantity: 2, unitPrice: 5 },
+    ],
+    consumables: [{ name: 'Услуга: 3D реглаж преден мост', quantity: 1, unitPrice: 38 }],
+  },
+  {
+    title: 'Смяна алтернатор',
+    description: 'Подмяна на алтернатор и проверка на зарядна система.',
+    diagnosis: 'Зарядното напрежение е под норма, установено е износване на диоден блок.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: алтернатор', quantity: 2, unitPrice: 40 },
+    parts: [{ name: 'Алтернатор 140A', quantity: 1, unitPrice: 285 }],
+    consumables: [{ name: 'Пистов ремък', quantity: 1, unitPrice: 39 }],
+  },
+  {
+    title: 'Ремонт стартер',
+    description: 'Рециклиране на стартер с нов бендикс и втулки.',
+    diagnosis: 'Стартерът превърта и има забавено завъртане при топъл двигател.',
+    supplierType: SupplierType.SERVICES,
+    labor: { name: 'Труд: демонтаж/монтаж и рециклиране стартер', quantity: 2, unitPrice: 44 },
+    parts: [
+      { name: 'Бендикс стартер', quantity: 1, unitPrice: 58 },
+      { name: 'Втулки стартер (комплект)', quantity: 1, unitPrice: 12 },
+    ],
+    consumables: [{ name: 'Смазка за механизъм стартер', quantity: 1, unitPrice: 7 }],
+  },
+  {
+    title: 'Смяна акумулатор и адаптация',
+    description: 'Подмяна на акумулатор и обучение на енергиен мениджмънт.',
+    diagnosis: 'Пусковият ток е под минималните стойности, отчетен е висок вътрешен пад.',
+    supplierType: SupplierType.CONSUMABLES,
+    labor: { name: 'Труд: акумулатор и адаптация', quantity: 1, unitPrice: 28 },
+    parts: [{ name: 'Акумулатор AGM 70Ah', quantity: 1, unitPrice: 218 }],
+    consumables: [{ name: 'Антикорозионен спрей за клеми', quantity: 1, unitPrice: 6 }],
+  },
+  {
+    title: 'Ремонт горивна система',
+    description: 'Смяна горивен филтър и уплътнения на дюзи.',
+    diagnosis: 'Има трудно палене и корекции на дюзите извън референтния диапазон.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: горивна система', quantity: 3, unitPrice: 46 },
+    parts: [
+      { name: 'Горивен филтър', quantity: 1, unitPrice: 34 },
+      { name: 'Уплътнения дюзи (комплект)', quantity: 1, unitPrice: 22 },
+      { name: 'Обратни маркучи дюзи', quantity: 1, unitPrice: 17 },
+    ],
+    consumables: [{ name: 'Почистваща добавка за дизел', quantity: 1, unitPrice: 14 }],
+  },
+  {
+    title: 'Смяна EGR клапан',
+    description: 'Подмяна на EGR клапан и адаптация след монтаж.',
+    diagnosis: 'Клапанът блокира в отворено положение и предизвиква нестабилен празен ход.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: EGR система', quantity: 2, unitPrice: 43 },
+    parts: [{ name: 'EGR клапан', quantity: 1, unitPrice: 246 }],
+    consumables: [{ name: 'Гарнитура EGR клапан', quantity: 1, unitPrice: 12 }],
+  },
+  {
+    title: 'Почистване DPF и принудителна регенерация',
+    description: 'Почистване на DPF, диагностика и принудителна регенерация.',
+    diagnosis: 'Саждите в DPF са над критичния праг и автомобилът преминава в авариен режим.',
+    supplierType: SupplierType.SERVICES,
+    labor: { name: 'Труд: DPF диагностика и регенерация', quantity: 3, unitPrice: 45 },
+    parts: [{ name: 'Датчик диференциално налягане DPF', quantity: 1, unitPrice: 89 }],
+    consumables: [{ name: 'Препарат за DPF почистване', quantity: 1, unitPrice: 36 }],
+  },
+  {
+    title: 'Смяна запалителни бобини и свещи',
+    description: 'Подмяна на комплект бобини и свещи при прекъсване на цилиндър.',
+    diagnosis: 'Диагностиката отчита пропуски в запалването и високо съпротивление на бобина.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: запалителна система', quantity: 1, unitPrice: 32 },
+    parts: [
+      { name: 'Запалителни бобини', quantity: 4, unitPrice: 42 },
+      { name: 'Запалителни свещи', quantity: 4, unitPrice: 14 },
+    ],
+    consumables: [{ name: 'Диелектрична грес за бобини', quantity: 1, unitPrice: 6 }],
+  },
+  {
+    title: 'Смяна комплект гуми и баланс',
+    description: 'Смяна на комплект гуми с баланс и нови вентили.',
+    diagnosis: 'Старите гуми са с неравномерно износване и ниска остатъчна дълбочина на грайфера.',
+    supplierType: SupplierType.TIRES,
+    labor: { name: 'Труд: монтаж и баланс', quantity: 1, unitPrice: 39 },
+    parts: [{ name: 'Гуми 205/55R16', quantity: 4, unitPrice: 108 }],
+    consumables: [{ name: 'Вентили комплект', quantity: 1, unitPrice: 12 }],
+  },
+  {
+    title: 'Смяна турбо маркуч и интеркулер скоби',
+    description: 'Отстраняване на теч по пътя на нагнетения въздух.',
+    diagnosis: 'При натоварване има пад на налягане и омасляване около турбо маркуча.',
+    supplierType: SupplierType.PARTS,
+    labor: { name: 'Труд: турбо пътища', quantity: 2, unitPrice: 40 },
+    parts: [
+      { name: 'Маркуч турбо - интеркулер', quantity: 1, unitPrice: 84 },
+      { name: 'Скоби интеркулер (комплект)', quantity: 1, unitPrice: 16 },
+    ],
+    consumables: [{ name: 'Почистващ препарат за всмукателен тракт', quantity: 1, unitPrice: 11 }],
+  },
+  {
+    title: 'Смяна масло и филтър Haldex',
+    description: 'Обслужване на Haldex съединител с нов филтър и масло.',
+    diagnosis: 'При потегляне има забавено включване на задния мост.',
+    supplierType: SupplierType.CONSUMABLES,
+    labor: { name: 'Труд: обслужване Haldex', quantity: 2, unitPrice: 44 },
+    parts: [{ name: 'Филтър Haldex', quantity: 1, unitPrice: 48 }],
+    consumables: [{ name: 'Масло Haldex (1L)', quantity: 1, unitPrice: 36 }],
+  },
+];

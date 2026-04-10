@@ -121,7 +121,7 @@ const Workers = () => {
       }
 
       if (!silent) {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸');
+        toast.error('Грешка при зареждане на механици');
       }
     } finally {
       if (requestSeq !== requestSeqRef.current) {
@@ -166,25 +166,25 @@ const Workers = () => {
 
 
   const handleToggleActive = async (id: string, name: string, isActive: boolean) => {
-    const action = isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ';
-    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° ${action} ${name}?`)) return;
+    const action = isActive ? 'деактивирате' : 'активирате';
+    if (!window.confirm(`Сигурни ли сте, че искате да ${action} ${name}?`)) return;
 
     try {
       await api.put(`/workers/${id}/toggle-active`);
-      toast.success(`Ð Ð°Ð±Ð¾Ñ‚Ð½Ð¸ÐºÑŠÑ‚ Ðµ ${isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½'}`);
+      toast.success(`Работникът е ${isActive ? 'деактивиран' : 'активиран'}`);
       void fetchWorkers({ silent: true });
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð¼ÑÐ½Ð° Ð½Ð° ÑÑ‚Ð°Ñ‚ÑƒÑ');
+      toast.error('Грешка при промяна на статус');
     }
   };
 
 
   const handleDeleteFromService = async (id: string, name: string) => {
-    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ${name} Ð¾Ñ‚ ÑÐ¿Ð¸ÑÑŠÐºÐ°?\n\nÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ñ‰Ðµ Ð±ÑŠÐ´Ðµ Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð½Ð°Ñ‚ Ð¾Ñ‚ ÑÐ¿Ð¸ÑÑŠÐºÐ° Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ñ†Ð¸, Ð½Ð¾ Ð¿Ñ€Ð¾Ñ„Ð¸Ð»ÑŠÑ‚ Ð¼Ñƒ Ñ‰Ðµ Ð¾ÑÑ‚Ð°Ð½Ðµ Ð² ÑÐ¸ÑÑ‚ÐµÐ¼Ð°Ñ‚Ð°.`)) return;
+    if (!window.confirm(`Сигурни ли сте, че искате да изтриете ${name} от списъка?\n\nМеханикът ще бъде премахнат от списъка с работници, но профилът му ще остане в системата.`)) return;
 
     try {
       await api.delete(`/workers/${id}`);
-      toast.success('Ð Ð°Ð±Ð¾Ñ‚Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ Ð¾Ñ‚ ÑÐ¿Ð¸ÑÑŠÐºÐ°');
+      toast.success('Работникът е изтрит от списъка');
       void fetchWorkers({ silent: true });
     } catch (error) {
       const apiData = (error as { response?: { data?: ActiveTasksData } }).response?.data;
@@ -198,21 +198,21 @@ const Workers = () => {
         });
         setShowReassignModal(true);
       } else {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ');
+        toast.error('Грешка при изтриване');
       }
     }
   };
 
 
   const handlePermanentDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ÐÐÐŸÐªÐ›ÐÐž ${name} Ð¾Ñ‚ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð°Ñ‚Ð°?\n\nÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ñ‰Ðµ Ð±ÑŠÐ´Ðµ Ð¿Ñ€ÐµÐ¼Ð°Ñ…Ð½Ð°Ñ‚ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾ Ð¾Ñ‚ ÑÐ¿Ð¸ÑÑŠÐºÐ° Ð¸ Ð½ÑÐ¼Ð° Ð´Ð° ÑÐµ Ð¿Ð¾ÐºÐ°Ð·Ð²Ð° Ð´Ð¾Ñ€Ð¸ ÐºÐ°Ñ‚Ð¾ "ÐÐ°Ð¿ÑƒÑÐ½Ð°Ð»".`)) return;
+    if (!window.confirm(`Сигурни ли сте, че искате да изтриете НАПЪЛНО ${name} от таблицата?\n\nМеханикът ще бъде премахнат напълно от списъка и няма да се показва дори като "Напуснал".`)) return;
 
     try {
       await api.delete(`/workers/${id}/permanent`);
-      toast.success('ÐœÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾ Ð¾Ñ‚ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð°Ñ‚Ð°');
+      toast.success('Механикът е изтрит напълно от таблицата');
       void fetchWorkers({ silent: true });
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ');
+      toast.error('Грешка при изтриване');
     }
   };
 
@@ -330,7 +330,7 @@ const Workers = () => {
   return (
     <MainLayout>
       <div className="space-y-4 sm:space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Ð Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ñ†Ð¸</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Работници</h1>
 
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           {/* Filters */}
@@ -339,7 +339,7 @@ const Workers = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textMuted" />
               <input
                 type="text"
-                placeholder="Ð¢ÑŠÑ€ÑÐ¸ Ð¿Ð¾ Ð¸Ð¼Ðµ Ð¸Ð»Ð¸ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½"
+                placeholder="Търси по име или телефон"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -348,25 +348,25 @@ const Workers = () => {
 
             <input
               type="text"
-              placeholder="Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ"
+              placeholder="Специализация"
               value={filterSpecialization}
               onChange={(e) => setFilterSpecialization(e.target.value)}
               className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
             <select
-              aria-label="Ð¤Ð¸Ð»Ñ‚Ñ€Ð¸Ñ€Ð°Ñ˜ Ð¿Ð¾ ÑÑ‚Ð°Ñ‚ÑƒÑ"
+              aria-label="Филтрирај по статус"
               value={filterStatus}
               onChange={(e) =>
                 setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'pending' | 'left')
               }
               className="w-full sm:w-auto px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="all">Ð’ÑÐ¸Ñ‡ÐºÐ¸ ÑÑ‚Ð°Ñ‚ÑƒÑÐ¸</option>
-              <option value="active">ÐÐºÑ‚Ð¸Ð²Ð½Ð¸</option>
-              <option value="inactive">ÐÐµÐ°ÐºÑ‚Ð¸Ð²Ð½Ð¸</option>
-              <option value="pending">Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ñ‰Ð¸ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ</option>
-              <option value="left">ÐÐ°Ð¿ÑƒÑÐ½Ð°Ð»Ð¸</option>
+              <option value="all">Всички статуси</option>
+              <option value="active">Активни</option>
+              <option value="inactive">Неактивни</option>
+              <option value="pending">Изчакващи одобрение</option>
+              <option value="left">Напуснали</option>
             </select>
           </div>
 
@@ -376,11 +376,11 @@ const Workers = () => {
               <thead>
                 <tr className="border-b border-borderSubtle">
                   {[
-                    { key: 'name', label: 'Ð˜Ð¼Ðµ' },
-                    { key: 'phone', label: 'Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½' },
+                    { key: 'name', label: 'Име' },
+                    { key: 'phone', label: 'Телефон' },
                     { key: 'email', label: 'Email' },
-                    { key: 'specialization', label: 'Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ' },
-                    { key: 'status', label: 'Ð¡Ñ‚Ð°Ñ‚ÑƒÑ' },
+                    { key: 'specialization', label: 'Специализация' },
+                    { key: 'status', label: 'Статус' },
                   ].map(({ key, label }) => (
                     <th
                       key={key}
@@ -394,7 +394,7 @@ const Workers = () => {
                     </th>
                   ))}
                   <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">
-                    Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ
+                    Действия
                   </th>
                 </tr>
               </thead>
@@ -403,7 +403,7 @@ const Workers = () => {
                 {filteredWorkers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="text-center py-12 text-textSecondary">
-                      ÐÑÐ¼Ð° Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð¸ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ñ†Ð¸
+                      Няма намерени работници
                     </td>
                   </tr>
                 ) : (
@@ -442,19 +442,19 @@ const Workers = () => {
                       <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
                         {worker.membershipStatus === 'PENDING' ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð° Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ
+                            Изчаква одобрение
                           </span>
                         ) : worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            ÐÐ°Ð¿ÑƒÑÐ½Ð°Ð»
+                            Напуснал
                           </span>
                         ) : worker.isActive ? (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            ÐÐºÑ‚Ð¸Ð²ÐµÐ½
+                            Активен
                           </span>
                         ) : (
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½
+                            Неактивен
                           </span>
                         )}
                       </td>
@@ -468,7 +468,7 @@ const Workers = () => {
                           {worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
                             <button
                               type="button"
-                              aria-label="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾"
+                              aria-label="Изтрий напълно"
                               onClick={() =>
                                 handlePermanentDelete(
                                   worker.id,
@@ -483,7 +483,7 @@ const Workers = () => {
 
                             <button
                               type="button"
-                              aria-label="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº"
+                              aria-label="Изтрий работник"
                               onClick={() =>
                                 handleDeleteFromService(
                                   worker.id,
@@ -500,7 +500,7 @@ const Workers = () => {
                               
                               <button
                                 type="button"
-                                aria-label={worker.isActive ? "Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº" : "ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº"}
+                                aria-label={worker.isActive ? "Деактивирай работник" : "Активирай работник"}
                                 onClick={() =>
                                   handleToggleActive(
                                     worker.id,
@@ -520,7 +520,7 @@ const Workers = () => {
                               
                               <button
                                 type="button"
-                                aria-label="Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ñ€Ð°Ð±Ð¾Ñ‚Ð½Ð¸Ðº"
+                                aria-label="Изтрий работник"
                                 onClick={() =>
                                   handleDeleteFromService(
                                     worker.id,
@@ -546,7 +546,7 @@ const Workers = () => {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-2 sm:px-0 pt-4 border-t border-borderSubtle mt-4">
               <div className="text-sm text-textSecondary">
-                Ð¡Ñ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° {pagination.currentPage} Ð¾Ñ‚ {pagination.totalPages}
+                Страница {pagination.currentPage} от {pagination.totalPages}
               </div>
               <div className="flex gap-2">
                 <button
@@ -556,7 +556,7 @@ const Workers = () => {
                   disabled={pagination.currentPage === 1}
                   className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ÐŸÑ€ÐµÐ´Ð¸ÑˆÐ½Ð°
+                  Предишна
                 </button>
                 <button
                   onClick={() =>
@@ -565,7 +565,7 @@ const Workers = () => {
                   disabled={pagination.currentPage === pagination.totalPages}
                   className="px-3 py-2 text-sm border border-borderSubtle rounded-lg hover:bg-mainBg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Ð¡Ð»ÐµÐ´Ð²Ð°Ñ‰Ð°
+                  Следваща
                 </button>
               </div>
             </div>

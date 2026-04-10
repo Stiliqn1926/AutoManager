@@ -59,7 +59,7 @@ const formatAxisValue = (value: number): string => {
   if (Math.abs(value) < 1000) {
     return `${value}`;
   }
-  return `${bgCurrencyCompact.format(value)} â‚¬`;
+  return `${bgCurrencyCompact.format(value)} €`;
 };
 
 const formatCurrency = (value: number): string => bgCurrencyStandard.format(value);
@@ -72,12 +72,12 @@ const PeriodButtons = ({
   onChange: (value: Period) => void;
 }) => {
   const periods: Array<{ value: Period; label: string }> = [
-    { value: 'week', label: 'Ð¡ÐµÐ´Ð¼Ð¸Ñ†Ð°' },
-    { value: 'month', label: 'ÐœÐµÑÐµÑ†' },
-    { value: 'quarter', label: 'Ð¢Ñ€Ð¸Ð¼ÐµÑÐµÑ‡Ð¸Ðµ' },
-    { value: 'semester', label: 'ÐŸÐ¾Ð»ÑƒÐ³Ð¾Ð´Ð¸Ðµ' },
-    { value: 'year', label: 'Ð“Ð¾Ð´Ð¸Ð½Ð°' },
-    { value: 'all', label: 'Ð’ÑÐ¸Ñ‡ÐºÐ¸' },
+    { value: 'week', label: 'Седмица' },
+    { value: 'month', label: 'Месец' },
+    { value: 'quarter', label: 'Тримесечие' },
+    { value: 'semester', label: 'Полугодие' },
+    { value: 'year', label: 'Година' },
+    { value: 'all', label: 'Всички' },
   ];
 
   return (
@@ -117,15 +117,15 @@ const ChartTooltip = ({ active, label, payload }: ChartTooltipProps) => {
       <p className="text-xs text-textMuted mb-2">{label}</p>
       <div className="space-y-1.5 text-sm">
         <div className="flex items-center justify-between gap-6">
-          <span className="text-textSecondary">ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð¸</span>
+          <span className="text-textSecondary">Приходи</span>
           <span className="font-semibold text-success">{formatCurrency(income)}</span>
         </div>
         <div className="flex items-center justify-between gap-6">
-          <span className="text-textSecondary">Ð Ð°Ð·Ñ…Ð¾Ð´Ð¸</span>
+          <span className="text-textSecondary">Разходи</span>
           <span className="font-semibold text-error">{formatCurrency(expense)}</span>
         </div>
         <div className="flex items-center justify-between gap-6 border-t border-borderSubtle pt-1.5">
-          <span className="text-textSecondary">ÐÐµÑ‚ÐµÐ½ Ñ€ÐµÐ·ÑƒÐ»Ñ‚Ð°Ñ‚</span>
+          <span className="text-textSecondary">Нетен резултат</span>
           <span className={`font-semibold ${profitColor}`}>{formatCurrency(profit)}</span>
         </div>
       </div>
@@ -145,7 +145,7 @@ const FinanceChart = () => {
       const monthlyData = (response.data.monthlyData ?? []) as MonthlyData[];
       setData(monthlyData);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ„Ð¸Ð½Ð°Ð½ÑÐ¾Ð²Ð¸Ñ‚Ðµ Ð´Ð°Ð½Ð½Ð¸');
+      toast.error('Грешка при зареждане на финансовите данни');
       setData([]);
     } finally {
       setIsLoading(false);
@@ -184,7 +184,7 @@ const FinanceChart = () => {
     return (
       <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
         <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-          Ð¤Ð¸Ð½Ð°Ð½ÑÐ¾Ð² Ð¿Ñ€ÐµÐ³Ð»ÐµÐ´
+          Финансов преглед
         </h2>
         <div className="animate-pulse h-[280px] sm:h-[340px] bg-mainBg rounded-xl" />
       </div>
@@ -195,25 +195,25 @@ const FinanceChart = () => {
     <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
       <div className="flex flex-col gap-4 mb-5">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-          <h2 className="text-base sm:text-lg font-semibold text-textPrimary">Ð¤Ð¸Ð½Ð°Ð½ÑÐ¾Ð² Ð¿Ñ€ÐµÐ³Ð»ÐµÐ´</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-textPrimary">Финансов преглед</h2>
           <PeriodButtons period={period} onChange={setPeriod} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-xl border border-borderSubtle bg-mainBg p-3 sm:p-4">
-            <p className="text-xs text-textMuted mb-1">ÐžÐ±Ñ‰Ð¾ Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð¸</p>
+            <p className="text-xs text-textMuted mb-1">Общо приходи</p>
             <p className="text-sm sm:text-base font-semibold text-success">
               {bgCurrencyInteger.format(totals.totalIncome)}
             </p>
           </div>
           <div className="rounded-xl border border-borderSubtle bg-mainBg p-3 sm:p-4">
-            <p className="text-xs text-textMuted mb-1">ÐžÐ±Ñ‰Ð¾ Ñ€Ð°Ð·Ñ…Ð¾Ð´Ð¸</p>
+            <p className="text-xs text-textMuted mb-1">Общо разходи</p>
             <p className="text-sm sm:text-base font-semibold text-error">
               {bgCurrencyInteger.format(totals.totalExpense)}
             </p>
           </div>
           <div className="rounded-xl border border-borderSubtle bg-mainBg p-3 sm:p-4">
-            <p className="text-xs text-textMuted mb-1">ÐÐµÑ‚ÐµÐ½ Ñ€ÐµÐ·ÑƒÐ»Ñ‚Ð°Ñ‚</p>
+            <p className="text-xs text-textMuted mb-1">Нетен резултат</p>
             <p
               className={`text-sm sm:text-base font-semibold ${
                 totals.totalProfit >= 0 ? 'text-success' : 'text-error'
@@ -228,7 +228,7 @@ const FinanceChart = () => {
       {chartData.length === 0 ? (
         <div className="flex items-center justify-center h-[280px] sm:h-[340px] bg-mainBg rounded-xl border border-borderSubtle">
           <p className="text-sm sm:text-base text-textSecondary">
-            ÐÑÐ¼Ð° Ñ„Ð¸Ð½Ð°Ð½ÑÐ¾Ð²Ð¸ Ð´Ð°Ð½Ð½Ð¸ Ð·Ð° Ð¸Ð·Ð±Ñ€Ð°Ð½Ð¸Ñ Ð¿ÐµÑ€Ð¸Ð¾Ð´
+            Няма финансови данни за избрания период
           </p>
         </div>
       ) : (
@@ -286,7 +286,7 @@ const FinanceChart = () => {
                 <Area
                   type="monotone"
                   dataKey="income"
-                  name="ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð¸ (Ñ‚ÐµÐ½Ð´ÐµÐ½Ñ†Ð¸Ñ)"
+                  name="Приходи (тенденция)"
                   stroke="#22C55E"
                   fill="url(#incomeGradient)"
                   strokeWidth={2}
@@ -296,7 +296,7 @@ const FinanceChart = () => {
 
                 <Bar
                   dataKey="expense"
-                  name="Ð Ð°Ð·Ñ…Ð¾Ð´Ð¸"
+                  name="Разходи"
                   fill="#EF4444"
                   radius={[8, 8, 0, 0]}
                   barSize={22}
@@ -305,7 +305,7 @@ const FinanceChart = () => {
                 <Line
                   type="monotone"
                   dataKey="profit"
-                  name="ÐÐµÑ‚ÐµÐ½ Ñ€ÐµÐ·ÑƒÐ»Ñ‚Ð°Ñ‚"
+                  name="Нетен резултат"
                   stroke="#F97316"
                   strokeWidth={2}
                   dot={{ r: 2.5 }}

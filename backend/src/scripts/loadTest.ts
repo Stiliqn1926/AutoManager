@@ -336,11 +336,11 @@ const runAdminWriteFlow = async (cookieHeader: string, iteration: number): Promi
       method: 'POST',
       cookieHeader,
       body: {
-        firstName: 'Ð¢ÐµÑÑ‚',
-        lastName: `ÐšÐ»Ð¸ÐµÐ½Ñ‚${seq}`,
+        firstName: 'Тест',
+        lastName: `Клиент${seq}`,
         phone: nextPhone(seq),
         email: `loadtest.client.${seq}@automanager.bg`,
-        address: `Ð¢ÐµÑÑ‚ Ð°Ð´Ñ€ÐµÑ ${seq}`,
+        address: `Тест адрес ${seq}`,
       },
     });
     clientId = clientCreate.json?.client?.id || null;
@@ -356,7 +356,7 @@ const runAdminWriteFlow = async (cookieHeader: string, iteration: number): Promi
         model: 'Golf',
         year: 2018,
         licensePlate: nextLicensePlate(seq),
-        color: 'Ð§ÐµÑ€ÐµÐ½',
+        color: 'Черен',
         mileage: 120000,
       },
     });
@@ -372,7 +372,7 @@ const runAdminWriteFlow = async (cookieHeader: string, iteration: number): Promi
         model: 'Golf',
         year: 2018,
         licensePlate: nextLicensePlate(seq),
-        color: 'Ð§ÐµÑ€ÐµÐ½',
+        color: 'Черен',
         mileage: 120100,
       },
     });

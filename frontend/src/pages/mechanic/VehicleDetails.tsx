@@ -34,7 +34,7 @@ const MechanicVehicleDetails = () => {
       const data = await getMechanicVehicleById(id);
       setVehicle(data.vehicle);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸');
+      toast.error('Грешка при зареждане на данни');
       navigate('/mechanic/vehicles');
     } finally {
       setIsLoading(false);
@@ -47,11 +47,11 @@ const MechanicVehicleDetails = () => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      WAITING: { label: 'Ð§Ð°ÐºÐ°Ñ‰', className: 'bg-yellow-100 text-yellow-800' },
-      IN_PROGRESS: { label: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Ð“Ð¾Ñ‚Ð¾Ð²', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½', className: 'bg-gray-100 text-gray-800' },
-      CANCELLED: { label: 'ÐžÑ‚Ð¼ÐµÐ½ÐµÐ½', className: 'bg-red-100 text-red-800' },
+      WAITING: { label: 'Чакащ', className: 'bg-yellow-100 text-yellow-800' },
+      IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
+      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Завършен', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { label: 'Отменен', className: 'bg-red-100 text-red-800' },
     };
 
     const config =
@@ -69,11 +69,11 @@ const MechanicVehicleDetails = () => {
 
   const getPriorityBadge = (priority: string) => {
     const priorityConfig: Record<string, { label: string; className: string }> = {
-      LOW: { label: 'ÐÐ¸ÑÑŠÐº', className: 'bg-gray-100 text-gray-600' },
-      NORMAL: { label: 'ÐÐ¾Ñ€Ð¼Ð°Ð»ÐµÐ½', className: 'bg-blue-100 text-blue-700' },
-      MEDIUM: { label: 'Ð¡Ñ€ÐµÐ´ÐµÐ½', className: 'bg-blue-100 text-blue-700' },
-      HIGH: { label: 'Ð’Ð¸ÑÐ¾Ðº', className: 'bg-orange-100 text-orange-700' },
-      URGENT: { label: 'Ð¡Ð¿ÐµÑˆÐµÐ½', className: 'bg-red-100 text-red-700' },
+      LOW: { label: 'Нисък', className: 'bg-gray-100 text-gray-600' },
+      NORMAL: { label: 'Нормален', className: 'bg-blue-100 text-blue-700' },
+      MEDIUM: { label: 'Среден', className: 'bg-blue-100 text-blue-700' },
+      HIGH: { label: 'Висок', className: 'bg-orange-100 text-orange-700' },
+      URGENT: { label: 'Спешен', className: 'bg-red-100 text-red-700' },
     };
 
     const config =
@@ -112,7 +112,7 @@ const MechanicVehicleDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½</p>
+          <p className="text-textSecondary">Автомобилът не е намерен</p>
         </div>
       </MainLayout>
     );
@@ -126,7 +126,7 @@ const MechanicVehicleDetails = () => {
           <button
             onClick={() => navigate('/mechanic/vehicles')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ ÑÐ¿Ð¸ÑÑŠÐº Ñ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸"
+            aria-label="Назад към списък с автомобили"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
@@ -141,14 +141,14 @@ const MechanicVehicleDetails = () => {
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Car className="w-5 h-5 text-primary" />
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐžÑÐ½Ð¾Ð²Ð½Ð¸ Ð´Ð°Ð½Ð½Ð¸</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Основни данни</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Car className="w-4 h-4" />
-                <span>ÐœÐ°Ñ€ÐºÐ° Ð¸ Ð¼Ð¾Ð´ÐµÐ»</span>
+                <span>Марка и модел</span>
               </div>
               <p className="text-base font-medium text-textPrimary">
                 {vehicle.brand} {vehicle.model}
@@ -158,7 +158,7 @@ const MechanicVehicleDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Calendar className="w-4 h-4" />
-                <span>Ð“Ð¾Ð´Ð¸Ð½Ð°</span>
+                <span>Година</span>
               </div>
               <p className="text-base text-textPrimary">{vehicle.year}</p>
             </div>
@@ -166,7 +166,7 @@ const MechanicVehicleDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Hash className="w-4 h-4" />
-                <span>Ð ÐµÐ³. Ð½Ð¾Ð¼ÐµÑ€</span>
+                <span>Рег. номер</span>
               </div>
               <p className="text-base font-medium text-textPrimary">
                 {vehicle.licensePlate}
@@ -187,7 +187,7 @@ const MechanicVehicleDetails = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Droplet className="w-4 h-4" />
-                  <span>Ð“Ð¾Ñ€Ð¸Ð²Ð¾</span>
+                  <span>Гориво</span>
                 </div>
                 <p className="text-base text-textPrimary">{vehicle.fuelType}</p>
               </div>
@@ -197,7 +197,7 @@ const MechanicVehicleDetails = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Wrench className="w-4 h-4" />
-                  <span>Ð”Ð²Ð¸Ð³Ð°Ñ‚ÐµÐ»</span>
+                  <span>Двигател</span>
                 </div>
                 <p className="text-base text-textPrimary">{vehicle.engineType}</p>
               </div>
@@ -207,10 +207,10 @@ const MechanicVehicleDetails = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Gauge className="w-4 h-4" />
-                  <span>ÐšÐ¸Ð»Ð¾Ð¼ÐµÑ‚Ñ€Ð°Ð¶</span>
+                  <span>Километраж</span>
                 </div>
                 <p className="text-base text-textPrimary">
-                  {vehicle.mileage.toLocaleString()} ÐºÐ¼
+                  {vehicle.mileage.toLocaleString()} км
                 </p>
               </div>
             )}
@@ -219,7 +219,7 @@ const MechanicVehicleDetails = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Palette className="w-4 h-4" />
-                  <span>Ð¦Ð²ÑÑ‚</span>
+                  <span>Цвят</span>
                 </div>
                 <p className="text-base text-textPrimary">{vehicle.color}</p>
               </div>
@@ -230,14 +230,14 @@ const MechanicVehicleDetails = () => {
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐšÐ»Ð¸ÐµÐ½Ñ‚</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Клиент</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <User className="w-4 h-4" />
-                <span>Ð˜Ð¼Ðµ Ð¸ Ñ„Ð°Ð¼Ð¸Ð»Ð¸Ñ</span>
+                <span>Име и фамилия</span>
               </div>
               <p className="text-base font-medium text-textPrimary">
                 {vehicle.client.firstName} {vehicle.client.lastName}
@@ -247,7 +247,7 @@ const MechanicVehicleDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Phone className="w-4 h-4" />
-                <span>Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</span>
+                <span>Телефон</span>
               </div>
               <a
                 href={`tel:${vehicle.client.phone}`}
@@ -279,7 +279,7 @@ const MechanicVehicleDetails = () => {
                 }
                 className="px-4 py-2 bg-gray-100 text-textPrimary rounded-lg hover:bg-gray-200 text-sm font-medium w-full sm:w-auto"
               >
-                Ð’Ð¸Ð¶ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð°
+                Виж клиента
               </button>
             </div>
           </div>
@@ -290,10 +290,10 @@ const MechanicVehicleDetails = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-primary" />
-                <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Поръчки</h2>
               </div>
               <span className="text-sm text-textSecondary">
-                ÐžÐ±Ñ‰Ð¾:{' '}
+                Общо:{' '}
                 <span className="font-semibold text-textPrimary">
                   {vehicle.orders.length}
                 </span>
@@ -304,7 +304,7 @@ const MechanicVehicleDetails = () => {
           {vehicle.orders.length === 0 ? (
             <div className="text-center py-12 text-textSecondary">
               <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>ÐÑÐ¼Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</p>
+              <p>Няма поръчки</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -312,22 +312,22 @@ const MechanicVehicleDetails = () => {
                 <thead className="bg-gray-50 border-b border-borderSubtle">
                   <tr>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐÐ¾Ð¼ÐµÑ€ / Ð”Ð°Ñ‚Ð°
+                      Номер / Дата
                     </th>
                     <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+                      Описание
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð¡Ñ‚Ð°Ñ‚ÑƒÑ
+                      Статус
                     </th>
                     <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      ÐŸÑ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚
+                      Приоритет
                     </th>
                     <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸
+                      Детайли
                     </th>
                     <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-textSecondary uppercase tracking-wider">
-                      Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ
+                      Действие
                     </th>
                   </tr>
                 </thead>
@@ -353,7 +353,7 @@ const MechanicVehicleDetails = () => {
                       </td>
                       <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-textPrimary max-w-xs truncate">
-                          {order.description || 'ÐÑÐ¼Ð° Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ'}
+                          {order.description || 'Няма описание'}
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -365,7 +365,7 @@ const MechanicVehicleDetails = () => {
                       <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
                           <Package className="w-3 h-3" />
-                          {order.orderItems.length} Ð´ÐµÐ¹Ð½Ð¾ÑÑ‚Ð¸
+                          {order.orderItems.length} дейности
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
@@ -376,7 +376,7 @@ const MechanicVehicleDetails = () => {
                           }}
                           className="text-primary hover:text-primary-700 text-sm font-medium"
                         >
-                          ÐžÑ‚Ð²Ð¾Ñ€Ð¸
+                          Отвори
                         </button>
                       </td>
                     </tr>

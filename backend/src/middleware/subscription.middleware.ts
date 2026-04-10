@@ -43,7 +43,7 @@ export const requireActiveAdminSubscription = async (
 
     if (!serviceCompany) {
       res.status(404).json({
-        message: 'Ð¡ÐµÑ€Ð²Ð¸Ð·ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½.',
+        message: 'Сервизът не е намерен.',
         code: 'SERVICE_COMPANY_NOT_FOUND',
       });
       return;
@@ -51,7 +51,7 @@ export const requireActiveAdminSubscription = async (
 
     if (!serviceCompany.subscriptionStatus) {
       res.status(403).json({
-        message: 'ÐÑƒÐ¶ÐµÐ½ Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½ Ð°Ð±Ð¾Ð½Ð°Ð¼ÐµÐ½Ñ‚, Ð·Ð° Ð´Ð° Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ñ‚Ðµ ÑÐ¸ÑÑ‚ÐµÐ¼Ð°Ñ‚Ð°.',
+        message: 'Нужен е активен абонамент, за да използвате системата.',
         code: 'NO_ACTIVE_SUBSCRIPTION',
       });
       return;
@@ -59,7 +59,7 @@ export const requireActiveAdminSubscription = async (
 
     if (!ALLOWED_SUBSCRIPTION_STATUSES.has(serviceCompany.subscriptionStatus)) {
       res.status(403).json({
-        message: 'ÐÐ±Ð¾Ð½Ð°Ð¼ÐµÐ½Ñ‚ÑŠÑ‚ Ð½Ðµ Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½. Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÑ‚Ðµ Ð¿Ð»Ð°Ñ‰Ð°Ð½ÐµÑ‚Ð¾, Ð·Ð° Ð´Ð° Ð¿Ñ€Ð¾Ð´ÑŠÐ»Ð¶Ð¸Ñ‚Ðµ.',
+        message: 'Абонаментът не е активен. Завършете плащането, за да продължите.',
         code: 'NO_ACTIVE_SUBSCRIPTION',
       });
       return;
@@ -68,7 +68,7 @@ export const requireActiveAdminSubscription = async (
     next();
   } catch (error) {
     logger.error('Subscription middleware error:', error);
-    res.status(500).json({ message: 'Ð¡ÑŠÑ€Ð²ÑŠÑ€Ð½Ð° Ð³Ñ€ÐµÑˆÐºÐ°' });
+    res.status(500).json({ message: 'Сървърна грешка' });
   }
 };
 

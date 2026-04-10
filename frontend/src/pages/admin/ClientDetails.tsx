@@ -54,7 +54,7 @@ const ClientDetails = () => {
         const response = await api.get(`/clients/${id}`);
         setClient(response.data.client);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚');
+        toast.error('Грешка при зареждане на клиент');
         navigate('/admin/clients');
       } finally {
         setIsLoading(false);
@@ -67,10 +67,10 @@ const ClientDetails = () => {
   const handleToggleStatus = async () => {
     if (!client) return;
 
-    const action = client.isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ñ‚Ðµ';
+    const action = client.isActive ? 'деактивирате' : 'активирате';
     if (
       !window.confirm(
-        `Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° ${action} ${client.firstName} ${client.lastName}?`
+        `Сигурни ли сте, че искате да ${action} ${client.firstName} ${client.lastName}?`
       )
     )
       return;
@@ -78,11 +78,11 @@ const ClientDetails = () => {
     try {
       await api.patch(`/clients/${id}/toggle-active`);
       toast.success(
-        `ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ðµ ${client.isActive ? 'Ð´ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½' : 'Ð°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð½'}`
+        `Клиентът е ${client.isActive ? 'деактивиран' : 'активиран'}`
       );
       setClient({ ...client, isActive: !client.isActive });
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð¼ÑÐ½Ð° Ð½Ð° ÑÑ‚Ð°Ñ‚ÑƒÑ');
+      toast.error('Грешка при промяна на статус');
     }
   };
 
@@ -100,7 +100,7 @@ const ClientDetails = () => {
     return (
       <MainLayout>
         <p className="text-center text-textSecondary py-12">
-          ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½
+          Клиентът не е намерен
         </p>
       </MainLayout>
     );
@@ -108,10 +108,10 @@ const ClientDetails = () => {
 
   const getStatusBadge = (status: string) => {
     const map = {
-      WAITING: 'Ð˜Ð·Ñ‡Ð°ÐºÐ²Ð°Ð½Ðµ',
-      IN_PROGRESS: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ',
-      READY: 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° Ð¿Ð»Ð°Ñ‰Ð°Ð½Ðµ',
-      COMPLETED: 'ÐŸÐ»Ð°Ñ‚ÐµÐ½Ð°',
+      WAITING: 'Изчакване',
+      IN_PROGRESS: 'В процес',
+      READY: 'Готова за плащане',
+      COMPLETED: 'Платена',
     };
 
     const colors = {
@@ -139,8 +139,8 @@ const ClientDetails = () => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             type="button"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸"
-            title="ÐÐ°Ð·Ð°Ð´"
+            aria-label="Назад към клиенти"
+            title="Назад"
             onClick={() => navigate('/admin/clients')}
             className="p-2 rounded-lg hover:bg-gray-100 w-fit"
           >
@@ -151,7 +151,7 @@ const ClientDetails = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
               {client.firstName} {client.lastName}
             </h1>
-            <p className="text-textSecondary">Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð·Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚</p>
+            <p className="text-textSecondary">Детайли за клиент</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -163,12 +163,12 @@ const ClientDetails = () => {
               {client.isActive ? (
                 <>
                   <UserX className="w-4 h-4" />
-                  Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹
+                  Деактивирай
                 </>
               ) : (
                 <>
                   <UserCheck className="w-4 h-4" />
-                  ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹
+                  Активирай
                 </>
               )}
             </Button>
@@ -181,7 +181,7 @@ const ClientDetails = () => {
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Info */}
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-              <h2 className="text-lg font-semibold mb-4">ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ</h2>
+              <h2 className="text-lg font-semibold mb-4">Основна информация</h2>
 
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -189,7 +189,7 @@ const ClientDetails = () => {
                   <div>
                     <p className="text-sm text-textSecondary">Email</p>
                     <p className="font-medium">
-                      {client.user?.email || client.email || 'ÐÑÐ¼Ð° email'}
+                      {client.user?.email || client.email || 'Няма email'}
                     </p>
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const ClientDetails = () => {
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <Phone className="w-5 h-5 text-textMuted" />
                   <div>
-                    <p className="text-sm text-textSecondary">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</p>
+                    <p className="text-sm text-textSecondary">Телефон</p>
                     <p className="font-medium">{client.phone}</p>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ const ClientDetails = () => {
                   <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <MapPin className="w-5 h-5 text-textMuted" />
                     <div>
-                      <p className="text-sm text-textSecondary">ÐÐ´Ñ€ÐµÑ</p>
+                      <p className="text-sm text-textSecondary">Адрес</p>
                       <p className="font-medium">{client.address}</p>
                     </div>
                   </div>
@@ -218,7 +218,7 @@ const ClientDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="flex items-center gap-2 font-semibold mb-4">
                 <Car className="w-5 h-5" />
-                ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸
+                Автомобили
               </h2>
 
               {client.vehicles?.length ? (
@@ -240,7 +240,7 @@ const ClientDetails = () => {
                 </div>
               ) : (
                 <p className="text-textSecondary">
-                  ÐÑÐ¼Ð° Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¸Ñ€Ð°Ð½Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸
+                  Няма регистрирани автомобили
                 </p>
               )}
             </div>
@@ -249,7 +249,7 @@ const ClientDetails = () => {
             <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
               <h2 className="flex items-center gap-2 font-semibold mb-4">
                 <ClipboardList className="w-5 h-5" />
-                ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸
+                Поръчки
               </h2>
 
               {client.orders?.length ? (
@@ -273,25 +273,25 @@ const ClientDetails = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-textSecondary">ÐÑÐ¼Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸</p>
+                <p className="text-textSecondary">Няма поръчки</p>
               )}
             </div>
           </div>
 
           {/* Right */}
           <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-            <h2 className="font-semibold mb-4">Ð¡Ñ‚Ð°Ñ‚Ð¸ÑÑ‚Ð¸ÐºÐ°</h2>
+            <h2 className="font-semibold mb-4">Статистика</h2>
 
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-textSecondary">Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ</p>
+                <p className="text-sm text-textSecondary">Регистрация</p>
                 <p className="font-medium">
                   {new Date(client.createdAt).toLocaleDateString('bg-BG')}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-textSecondary">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</p>
+                <p className="text-sm text-textSecondary">Статус</p>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     client.isActive
@@ -299,17 +299,17 @@ const ClientDetails = () => {
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  {client.isActive ? 'ÐÐºÑ‚Ð¸Ð²ÐµÐ½' : 'ÐÐµÐ°ÐºÑ‚Ð¸Ð²ÐµÐ½'}
+                  {client.isActive ? 'Активен' : 'Неактивен'}
                 </span>
               </div>
 
               <div>
-                <p className="text-sm text-textSecondary">ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸</p>
+                <p className="text-sm text-textSecondary">Автомобили</p>
                 <p className="font-medium">{client.vehicles?.length || 0}</p>
               </div>
 
               <div>
-                <p className="text-sm text-textSecondary">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸</p>
+                <p className="text-sm text-textSecondary">Поръчки</p>
                 <p className="font-medium">{client.orders?.length || 0}</p>
               </div>
             </div>

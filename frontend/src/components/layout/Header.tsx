@@ -115,19 +115,19 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
       case UserRole.ADMIN:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-primary text-primary bg-primary/10">
-            ÐÐ´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€
+            Администратор
           </span>
         );
       case UserRole.MECHANIC:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-success text-success bg-success/10">
-            ÐœÐµÑ…Ð°Ð½Ð¸Ðº
+            Механик
           </span>
         );
       case UserRole.CLIENT:
         return (
           <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-400 text-gray-600 bg-gray-100">
-            ÐšÐ»Ð¸ÐµÐ½Ñ‚
+            Клиент
           </span>
         );
       default:
@@ -144,7 +144,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             type="button"
             onClick={onOpenSidebar}
             className="md:hidden p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            aria-label="ÐžÑ‚Ð²Ð¾Ñ€Ð¸ Ð¼ÐµÐ½ÑŽ"
+            aria-label="Отвори меню"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -156,7 +156,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingCompanies ? (
-                  <span className="text-sm text-gray-600">Ð—Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ...</span>
+                  <span className="text-sm text-gray-600">Зареждане...</span>
                 ) : selectedServiceCompany ? (
                   <>
                     <span className="text-sm font-medium text-gray-900">
@@ -165,7 +165,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                     <ChevronDown className="w-4 h-4 text-gray-500" />
                   </>
                 ) : (
-                  <span className="text-sm text-gray-600">ÐÑÐ¼Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð¸</span>
+                  <span className="text-sm text-gray-600">Няма сервизи</span>
                 )}
               </button>
 
@@ -174,7 +174,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                 <div className="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   <div className="p-2">
                     <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                      Ð˜Ð·Ð±ÐµÑ€ÐµÑ‚Ðµ ÑÐµÑ€Ð²Ð¸Ð·
+                      Изберете сервиз
                     </div>
                     {serviceCompanies.map(({ serviceCompany }) => (
                       <button
@@ -190,7 +190,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
                           {serviceCompany.name}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                          {serviceCompany.address || 'ÐÑÐ¼Ð° Ð°Ð´Ñ€ÐµÑ'}
+                          {serviceCompany.address || 'Няма адрес'}
                         </div>
                         <div className="text-xs text-gray-500">
                           {serviceCompany.phone}
@@ -217,7 +217,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             <button
               onClick={() => navigate('/client/notifications')}
               className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-              title="Ð˜Ð·Ð²ÐµÑÑ‚Ð¸Ñ"
+              title="Известия"
             >
               <Bell className="w-5 h-5" />
               {unreadNotifications > 0 && (
@@ -233,7 +233,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
             <button
               onClick={() => navigate('/admin/settings')}
               className="relative p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-              title="ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸"
+              title="Настройки"
             >
               <Settings className="w-5 h-5" />
               {pendingCount > 0 && (
@@ -247,8 +247,8 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            title={theme === 'dark' ? 'Ð¡Ð²ÐµÑ‚Ð»Ð° Ñ‚ÐµÐ¼Ð°' : 'Ð¢ÑŠÐ¼Ð½Ð° Ñ‚ÐµÐ¼Ð°'}
-            aria-label={theme === 'dark' ? 'Ð¡Ð²ÐµÑ‚Ð»Ð° Ñ‚ÐµÐ¼Ð°' : 'Ð¢ÑŠÐ¼Ð½Ð° Ñ‚ÐµÐ¼Ð°'}
+            title={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
+            aria-label={theme === 'dark' ? 'Светла тема' : 'Тъмна тема'}
           >
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -256,7 +256,7 @@ const Header = ({ onOpenSidebar }: HeaderProps) => {
           <button
             onClick={handleLogout}
             className="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
-            title="Ð˜Ð·Ñ…Ð¾Ð´"
+            title="Изход"
           >
             <LogOut className="w-5 h-5" />
           </button>

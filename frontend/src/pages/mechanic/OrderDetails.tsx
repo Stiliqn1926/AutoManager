@@ -125,10 +125,10 @@ const MechanicOrderDetails = () => {
 
     try {
       await updateMechanicOrderStatus(id, newStatus);
-      toast.success('Ð¡Ñ‚Ð°Ñ‚ÑƒÑÑŠÑ‚ Ðµ Ð¾Ð±Ð½Ð¾Ð²ÐµÐ½ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
+      toast.success('Статусът е обновен успешно');
       void fetchOrderDetails({ silent: true, redirectOnError: false });
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð±Ð½Ð¾Ð²ÑÐ²Ð°Ð½Ðµ Ð½Ð° ÑÑ‚Ð°Ñ‚ÑƒÑÐ°');
+      toast.error('Грешка при обновяване на статуса');
     }
   };
 
@@ -137,20 +137,20 @@ const MechanicOrderDetails = () => {
 
     try {
       await updateMechanicOrder(id, { diagnosis });
-      toast.success('Ð”Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸Ñ‡Ð½Ð¸Ñ‚Ðµ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸ ÑÐ° Ð·Ð°Ð¿Ð°Ð·ÐµÐ½Ð¸');
+      toast.success('Диагностичните бележки са запазени');
       setIsEditingNotes(false);
       void fetchOrderDetails({ silent: true, redirectOnError: false });
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ð¿Ð°Ð·Ð²Ð°Ð½Ðµ Ð½Ð° Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸Ñ‚Ðµ');
+      toast.error('Грешка при запазване на бележките');
     }
   };
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      WAITING: { label: 'Ð§Ð°ÐºÐ°Ñ‰', className: 'bg-yellow-100 text-yellow-800' },
-      IN_PROGRESS: { label: 'Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ', className: 'bg-blue-100 text-blue-800' },
-      READY: { label: 'Ð“Ð¾Ñ‚Ð¾Ð²', className: 'bg-green-100 text-green-800' },
-      COMPLETED: { label: 'Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½', className: 'bg-gray-100 text-gray-800' },
+      WAITING: { label: 'Чакащ', className: 'bg-yellow-100 text-yellow-800' },
+      IN_PROGRESS: { label: 'В процес', className: 'bg-blue-100 text-blue-800' },
+      READY: { label: 'Готов', className: 'bg-green-100 text-green-800' },
+      COMPLETED: { label: 'Завършен', className: 'bg-gray-100 text-gray-800' },
     };
 
     const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800' };
@@ -195,7 +195,7 @@ const MechanicOrderDetails = () => {
     return (
       <MainLayout>
         <div className="text-center py-12">
-          <p className="text-textSecondary">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð° Ð½Ðµ Ðµ Ð½Ð°Ð¼ÐµÑ€ÐµÐ½Ð°</p>
+          <p className="text-textSecondary">Поръчката не е намерена</p>
         </div>
       </MainLayout>
     );
@@ -212,15 +212,15 @@ const MechanicOrderDetails = () => {
           <button
             onClick={() => navigate('/mechanic/orders')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ ÑÐ¿Ð¸ÑÑŠÐº Ñ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+            aria-label="Назад към списък с поръчки"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
-              ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ° {order.displayOrderNumber || order.orderNumber}
+              Поръчка {order.displayOrderNumber || order.orderNumber}
             </h1>
-            <p className="text-textSecondary mt-1">Ð”ÐµÑ‚Ð°Ð¹Ð»Ð¸ Ð·Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°</p>
+            <p className="text-textSecondary mt-1">Детайли за поръчката</p>
           </div>
           {getStatusBadge(order.status)}
         </div>
@@ -229,7 +229,7 @@ const MechanicOrderDetails = () => {
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐžÑÐ½Ð¾Ð²Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Основна информация</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -237,7 +237,7 @@ const MechanicOrderDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Car className="w-4 h-4" />
-                <span>ÐÐ²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»</span>
+                <span>Автомобил</span>
               </div>
               <button
                 onClick={() => navigate(`/mechanic/vehicles/${order.vehicle.id}`)}
@@ -251,7 +251,7 @@ const MechanicOrderDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <User className="w-4 h-4" />
-                <span>ÐšÐ»Ð¸ÐµÐ½Ñ‚</span>
+                <span>Клиент</span>
               </div>
               <div>
                 <button
@@ -275,7 +275,7 @@ const MechanicOrderDetails = () => {
             <div>
               <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                 <Calendar className="w-4 h-4" />
-                <span>Ð”Ð°Ñ‚Ð° Ð½Ð° ÑÑŠÐ·Ð´Ð°Ð²Ð°Ð½Ðµ</span>
+                <span>Дата на създаване</span>
               </div>
               <p className="text-base text-textPrimary">{formatDate(order.createdAt)}</p>
             </div>
@@ -285,7 +285,7 @@ const MechanicOrderDetails = () => {
               <div>
                 <div className="flex items-center gap-2 text-sm text-textSecondary mb-1">
                   <Wrench className="w-4 h-4" />
-                  <span>ÐœÐµÑ…Ð°Ð½Ð¸Ðº</span>
+                  <span>Механик</span>
                 </div>
                 <p className="text-base text-textPrimary">
                   {order.worker.firstName} {order.worker.lastName}
@@ -299,17 +299,17 @@ const MechanicOrderDetails = () => {
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð½Ð° Ð¿Ñ€Ð¾Ð±Ð»ÐµÐ¼Ð°</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Описание на проблема</h2>
           </div>
 
           <div className="space-y-4">
             
             <div>
               <label className="block text-sm font-medium text-textSecondary mb-2">
-                ÐŸÑŠÑ€Ð²Ð¾Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¾ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+                Първоначално описание
               </label>
               <p className="text-base text-textPrimary bg-gray-50 p-3 sm:p-4 rounded-lg">
-                {order.description || 'ÐÑÐ¼Ð° Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ'}
+                {order.description || 'Няма описание'}
               </p>
             </div>
 
@@ -317,7 +317,7 @@ const MechanicOrderDetails = () => {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <label className="block text-sm font-medium text-textSecondary">
-                  Ð”Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸Ñ‡Ð½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸
+                  Диагностични бележки
                 </label>
                 {!isEditingNotes && order.status !== 'COMPLETED' && (
                   <button
@@ -325,7 +325,7 @@ const MechanicOrderDetails = () => {
                     className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit"
                   >
                     <Edit2 className="w-4 h-4" />
-                    Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹
+                    Редактирай
                   </button>
                 )}
               </div>
@@ -337,7 +337,7 @@ const MechanicOrderDetails = () => {
                     onChange={(e) => setDiagnosis(e.target.value)}
                     rows={5}
                     className="w-full px-4 py-2 text-sm border border-borderSubtle rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Ð’ÑŠÐ²ÐµÐ´Ð¸ Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸Ñ‡Ð½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸..."
+                    placeholder="Въведи диагностични бележки..."
                   />
                   <div className="flex flex-col sm:flex-row gap-2">
                     <button
@@ -345,7 +345,7 @@ const MechanicOrderDetails = () => {
                       className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4" />
-                      Ð—Ð°Ð¿Ð°Ð·Ð¸
+                      Запази
                     </button>
                     <button
                       onClick={() => {
@@ -355,13 +355,13 @@ const MechanicOrderDetails = () => {
                       className="px-4 py-2 bg-gray-200 text-textPrimary rounded-lg hover:bg-gray-300 flex items-center gap-2 w-full sm:w-auto"
                     >
                       <X className="w-4 h-4" />
-                      ÐžÑ‚ÐºÐ°Ð·
+                      Отказ
                     </button>
                   </div>
                 </div>
               ) : (
                 <p className="text-base text-textPrimary bg-gray-50 p-3 sm:p-4 rounded-lg">
-                  {diagnosis || 'ÐÑÐ¼Ð° Ð´Ð¸Ð°Ð³Ð½Ð¾ÑÑ‚Ð¸Ñ‡Ð½Ð¸ Ð±ÐµÐ»ÐµÐ¶ÐºÐ¸'}
+                  {diagnosis || 'Няма диагностични бележки'}
                 </p>
               )}
             </div>
@@ -373,7 +373,7 @@ const MechanicOrderDetails = () => {
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex items-center gap-2">
               <Wrench className="w-5 h-5 text-primary" />
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð”ÐµÐ¹Ð½Ð¾ÑÑ‚Ð¸ (Ð¢Ñ€ÑƒÐ´)</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Дейности (Труд)</h2>
             </div>
           </div>
 
@@ -381,7 +381,7 @@ const MechanicOrderDetails = () => {
             {laborItems.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Wrench className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>ÐÑÐ¼Ð° Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ Ð´ÐµÐ¹Ð½Ð¾ÑÑ‚Ð¸</p>
+                <p>Няма добавени дейности</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -397,10 +397,10 @@ const MechanicOrderDetails = () => {
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-textSecondary">
-                          <span>ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾: {item.quantity}</span>
-                          <span>Ð¦ÐµÐ½Ð°: {Number(item.unitPrice || 0).toFixed(2)} â‚¬</span>
+                          <span>Количество: {item.quantity}</span>
+                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
-                            ÐžÐ±Ñ‰Ð¾: {Number(item.totalPrice || 0).toFixed(2)} â‚¬
+                            Общо: {Number(item.totalPrice || 0).toFixed(2)} €
                           </span>
                         </div>
                       </div>
@@ -417,7 +417,7 @@ const MechanicOrderDetails = () => {
           <div className="p-4 sm:p-6 border-b border-borderSubtle">
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-primary" />
-              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð§Ð°ÑÑ‚Ð¸ Ð¸ ÐºÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²Ð¸</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Части и консумативи</h2>
             </div>
           </div>
 
@@ -425,7 +425,7 @@ const MechanicOrderDetails = () => {
             {partItems.length === 0 ? (
               <div className="text-center py-8 text-textSecondary">
                 <Package className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>ÐÑÐ¼Ð° Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ Ñ‡Ð°ÑÑ‚Ð¸</p>
+                <p>Няма добавени части</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -439,17 +439,17 @@ const MechanicOrderDetails = () => {
                         <div className="flex items-center gap-2">
                           <h3 className="text-base font-semibold text-textPrimary">{item.name}</h3>
                           <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-                            {item.type === 'PART' ? 'Ð§Ð°ÑÑ‚' : 'ÐšÐ¾Ð½ÑÑƒÐ¼Ð°Ñ‚Ð¸Ð²'}
+                            {item.type === 'PART' ? 'Част' : 'Консуматив'}
                           </span>
                         </div>
                         {item.description && item.description !== item.name && (
                           <p className="text-sm text-textSecondary mt-1">{item.description}</p>
                         )}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-textSecondary">
-                          <span>ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾: {item.quantity}</span>
-                          <span>Ð¦ÐµÐ½Ð°: {Number(item.unitPrice || 0).toFixed(2)} â‚¬</span>
+                          <span>Количество: {item.quantity}</span>
+                          <span>Цена: {Number(item.unitPrice || 0).toFixed(2)} €</span>
                           <span className="font-semibold text-textPrimary">
-                            ÐžÐ±Ñ‰Ð¾: {Number(item.totalPrice || 0).toFixed(2)} â‚¬
+                            Общо: {Number(item.totalPrice || 0).toFixed(2)} €
                           </span>
                         </div>
                       </div>
@@ -465,13 +465,13 @@ const MechanicOrderDetails = () => {
         <div className="bg-white rounded-2xl border border-borderSubtle shadow-card p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ð½Ð° Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ°Ñ‚Ð°</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Статус на поръчката</h2>
           </div>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-textSecondary mb-2">
-                Ð¢ÐµÐºÑƒÑ‰ ÑÑ‚Ð°Ñ‚ÑƒÑ
+                Текущ статус
               </label>
               {getStatusBadge(order.status)}
             </div>
@@ -479,7 +479,7 @@ const MechanicOrderDetails = () => {
             {order.status !== 'COMPLETED' && (
               <div>
                 <label className="block text-sm font-medium text-textSecondary mb-2">
-                  ÐŸÑ€Ð¾Ð¼ÐµÐ½Ð¸ ÑÑ‚Ð°Ñ‚ÑƒÑ
+                  Промени статус
                 </label>
                 <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {canChangeStatus(order.status, 'IN_PROGRESS') && (
@@ -487,7 +487,7 @@ const MechanicOrderDetails = () => {
                       onClick={() => handleStatusChange('IN_PROGRESS')}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
                     >
-                      Ð—Ð°Ð¿Ð¾Ñ‡Ð½Ð¸ Ñ€Ð°Ð±Ð¾Ñ‚Ð°
+                      Започни работа
                     </button>
                   )}
                   {canChangeStatus(order.status, 'READY') && (
@@ -495,7 +495,7 @@ const MechanicOrderDetails = () => {
                       onClick={() => handleStatusChange('READY')}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 w-full sm:w-auto"
                     >
-                      ÐœÐ°Ñ€ÐºÐ¸Ñ€Ð°Ð¹ ÐºÐ°Ñ‚Ð¾ Ð³Ð¾Ñ‚Ð¾Ð²Ð¾
+                      Маркирай като готово
                     </button>
                   )}
                   {canChangeStatus(order.status, 'WAITING') && (
@@ -503,7 +503,7 @@ const MechanicOrderDetails = () => {
                       onClick={() => handleStatusChange('WAITING')}
                       className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 w-full sm:w-auto"
                     >
-                      Ð’ÑŠÑ€Ð½Ð¸ Ð² Ñ‡Ð°ÐºÐ°Ñ‰Ð¸
+                      Върни в чакащи
                     </button>
                   )}
                 </div>
@@ -513,8 +513,8 @@ const MechanicOrderDetails = () => {
             {order.totalPrice !== null && (
               <div className="pt-4 border-t border-borderSubtle">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <span className="text-lg font-medium text-textSecondary">ÐžÐ±Ñ‰Ð° ÑÑ‚Ð¾Ð¹Ð½Ð¾ÑÑ‚:</span>
-                  <span className="text-2xl font-bold text-primary">{Number(order.totalPrice || 0).toFixed(2)} â‚¬</span>
+                  <span className="text-lg font-medium text-textSecondary">Обща стойност:</span>
+                  <span className="text-2xl font-bold text-primary">{Number(order.totalPrice || 0).toFixed(2)} €</span>
                 </div>
               </div>
             )}

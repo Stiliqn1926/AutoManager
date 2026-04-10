@@ -38,7 +38,7 @@ const ScheduleDaily = () => {
         });
         setSchedules(response.data.schedules || []);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð½ÐµÐ²ÐµÐ½ Ð³Ñ€Ð°Ñ„Ð¸Ðº');
+        toast.error('Грешка при зареждане на дневен график');
       } finally {
         setIsLoading(false);
       }
@@ -110,15 +110,15 @@ const ScheduleDaily = () => {
           <button
             onClick={() => navigate('/admin/schedules')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors w-fit"
-            aria-label="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
-            title="ÐÐ°Ð·Ð°Ð´ ÐºÑŠÐ¼ Ð³Ñ€Ð°Ñ„Ð¸Ðº"
+            aria-label="Назад към график"
+            title="Назад към график"
           >
             <ArrowLeft className="w-5 h-5 text-textSecondary" />
           </button>
 
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">
-              Ð”Ð½ÐµÐ²ÐµÐ½ Ð“Ñ€Ð°Ñ„Ð¸Ðº
+              Дневен График
             </h1>
             <p className="text-textSecondary mt-1">
               {currentDate.toLocaleDateString('bg-BG', {
@@ -135,14 +135,14 @@ const ScheduleDaily = () => {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="secondary" onClick={goToToday} className="w-full sm:w-auto">
-              Ð”Ð½ÐµÑ
+              Днес
             </Button>
             <Button variant="secondary" onClick={goToNextDay}>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Button onClick={() => navigate('/admin/schedules/create')} className="w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Ð”Ð¾Ð±Ð°Ð²Ð¸ Ð·Ð°Ð´Ð°Ñ‡Ð°
+              Добави задача
             </Button>
           </div>
         </div>
@@ -153,10 +153,10 @@ const ScheduleDaily = () => {
               <thead className="bg-mainBg">
                 <tr>
                   <th className="w-20 sm:w-24 py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold border-r">
-                    Ð§Ð°Ñ
+                    Час
                   </th>
                   <th className="py-2 px-3 sm:py-3 sm:px-4 text-left text-xs sm:text-sm font-semibold">
-                    Ð—Ð°Ð´Ð°Ñ‡Ð¸
+                    Задачи
                   </th>
                 </tr>
               </thead>

@@ -26,7 +26,7 @@ export const PasswordStrengthBar = ({ password }: PasswordStrengthBarProps) => {
   return (
     <div className="mt-2">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-textSecondary">Ð¡Ð¸Ð»Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»Ð°Ñ‚Ð°:</span>
+        <span className="text-xs text-textSecondary">Сила на паролата:</span>
         <span className="text-xs font-medium text-textPrimary">{label}</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">

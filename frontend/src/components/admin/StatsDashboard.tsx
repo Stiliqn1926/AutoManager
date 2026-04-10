@@ -19,31 +19,31 @@ const StatsDashboard = ({ stats }: StatsDashboardProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <StatsCard
         icon={ClipboardList}
-        label="ÐžÐ±Ñ‰Ð¾ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+        label="Общо поръчки"
         value={stats.totalOrders}
-        subtitle="Ð’ÑÐ¸Ñ‡ÐºÐ¸"
+        subtitle="Всички"
       />
 
       <StatsCard
         icon={ClipboardList}
-        label="ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸"
+        label="Активни поръчки"
         value={stats.activeOrders}
-        subtitle="Ð’ Ð¿Ñ€Ð¾Ñ†ÐµÑ"
+        subtitle="В процес"
       />
 
       <StatsCard
         icon={TrendingUp}
-        label="ÐŸÑ€Ð¸Ñ…Ð¾Ð´Ð¸"
-        value={`${stats.totalRevenue.toLocaleString()} â‚¬`}
-        subtitle="ÐžÐ±Ñ‰Ð¾"
+        label="Приходи"
+        value={`${stats.totalRevenue.toLocaleString()} €`}
+        subtitle="Общо"
         trend="up"
       />
 
       <StatsCard
         icon={TrendingDown}
-        label="Ð Ð°Ð·Ñ…Ð¾Ð´Ð¸"
-        value={`${stats.totalExpenses.toLocaleString()} â‚¬`}
-        subtitle="ÐžÐ±Ñ‰Ð¾"
+        label="Разходи"
+        value={`${stats.totalExpenses.toLocaleString()} €`}
+        subtitle="Общо"
         trend="down"
       />
     </div>

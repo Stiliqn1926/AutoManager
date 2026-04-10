@@ -101,7 +101,7 @@ export const createSchedule = async (
 
     if (end.getTime() <= start.getTime()) {
   res.status(400).json({
-    message: 'ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ Ñ‡Ð°Ñ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¸Ñ Ñ‡Ð°Ñ',
+    message: 'Крайният час трябва да е след началния час',
   });
   return;
 }
@@ -133,7 +133,7 @@ export const createSchedule = async (
       const hasConflict = await checkScheduleConflicts(workerId, start, end);
       if (hasConflict) {
         res.status(409).json({
-          message: 'ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð² Ð³Ñ€Ð°Ñ„Ð¸ÐºÐ°: Ð¼ÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð²ÐµÑ‡Ðµ Ð¸Ð¼Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ Ñ‡Ð°Ñ.',
+          message: 'Конфликт в графика: механикът вече има задача за този час.',
         });
         return;
       }
@@ -717,7 +717,7 @@ export const updateSchedule = async (
 
    if (finalEnd <= finalStart) {
       res.status(400).json({
-        message: 'ÐšÑ€Ð°Ð¹Ð½Ð¸ÑÑ‚ Ñ‡Ð°Ñ Ñ‚Ñ€ÑÐ±Ð²Ð° Ð´Ð° Ðµ ÑÐ»ÐµÐ´ Ð½Ð°Ñ‡Ð°Ð»Ð½Ð¸Ñ Ñ‡Ð°Ñ',
+        message: 'Крайният час трябва да е след началния час',
       });
       return;
     }
@@ -743,7 +743,7 @@ export const updateSchedule = async (
         id
       );
       if (hasConflict) {
-        res.status(409).json({ message: 'ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð² Ð³Ñ€Ð°Ñ„Ð¸ÐºÐ°: Ð¼ÐµÑ…Ð°Ð½Ð¸ÐºÑŠÑ‚ Ð¸Ð¼Ð° Ð´Ñ€ÑƒÐ³Ð° Ð·Ð°Ð´Ð°Ñ‡Ð° Ð·Ð° Ñ‚Ð¾Ð·Ð¸ Ð¿ÐµÑ€Ð¸Ð¾Ð´.' });
+        res.status(409).json({ message: 'Конфликт в графика: механикът има друга задача за този период.' });
         return;
       }
     }

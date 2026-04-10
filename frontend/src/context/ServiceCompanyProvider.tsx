@@ -74,7 +74,7 @@ if (savedCompanyId && companies.length > 0) {
     }
 }
 } catch (error) {
-  toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð¸');
+  toast.error('Грешка при зареждане на сервизи');
   console.error('Failed to fetch service companies:', error);
 } finally {
   setIsLoading(false);

@@ -116,10 +116,10 @@ export const createInvoice = async (
 
       await tx.notification.create({
         data: {
-          title: 'ÐÐ¾Ð²Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°',
-          message: `Ð¤Ð°ÐºÑ‚ÑƒÑ€Ð° ${invoiceNumber} Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð°. Ð¡ÑƒÐ¼Ð°: ${total.toFixed(
+          title: 'Нова фактура',
+          message: `Фактура ${invoiceNumber} е готова. Сума: ${total.toFixed(
             2
-          )} â‚¬`,
+          )} €`,
           clientId: order.clientId,
         },
       });
@@ -136,7 +136,7 @@ export const createInvoice = async (
     if (client?.user?.email) {
       void sendEmail(
           client.user.email,
-          'ÐÐ¾Ð²Ð° Ñ„Ð°ÐºÑ‚ÑƒÑ€Ð°',
+          'Нова фактура',
           emailTemplates.invoiceReady(
             invoiceNumber,
             total,

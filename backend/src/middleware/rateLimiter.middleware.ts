@@ -4,7 +4,7 @@
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
-  message: 'Ð¢Ð²ÑŠÑ€Ð´Ðµ Ð¼Ð½Ð¾Ð³Ð¾ Ð½ÐµÑƒÑÐ¿ÐµÑˆÐ½Ð¸ Ð¾Ð¿Ð¸Ñ‚Ð¸ Ð·Ð° Ð²Ñ…Ð¾Ð´. ÐœÐ¾Ð»Ñ Ð¾Ð¿Ð¸Ñ‚Ð°Ð¹Ñ‚Ðµ Ð¾Ñ‚Ð½Ð¾Ð²Ð¾ ÑÐ»ÐµÐ´ 15 Ð¼Ð¸Ð½ÑƒÑ‚Ð¸.',
+  message: 'Твърде много неуспешни опити за вход. Моля опитайте отново след 15 минути.',
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,

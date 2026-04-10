@@ -56,8 +56,8 @@ describe('Order Endpoints', () => {
     const clientResponse = await agent
       .post('/api/clients')
       .send({
-        firstName: 'Ð˜Ð²Ð°Ð½',
-        lastName: 'Ð˜Ð²Ð°Ð½Ð¾Ð²',
+        firstName: 'Иван',
+        lastName: 'Иванов',
         phone: '0888111222',
         email: `ivan-${timestamp}@test.com`,
       });
@@ -84,12 +84,12 @@ describe('Order Endpoints', () => {
         .send({
           vehicleId,
           clientId,
-          description: 'Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¼Ð°ÑÐ»Ð¾ Ð¸ Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸',
+          description: 'Смяна на масло и филтри',
         });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('order');
-      expect(response.body.order.description).toBe('Ð¡Ð¼ÑÐ½Ð° Ð½Ð° Ð¼Ð°ÑÐ»Ð¾ Ð¸ Ñ„Ð¸Ð»Ñ‚Ñ€Ð¸');
+      expect(response.body.order.description).toBe('Смяна на масло и филтри');
       expect(response.body.order.status).toBe('WAITING');
     });
 

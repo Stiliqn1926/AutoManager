@@ -67,7 +67,7 @@ const CreateTaskModal = ({
 
         setWorkers(response.data.workers || []);
       } catch {
-        toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸');
+        toast.error('Грешка при зареждане на механици');
       }
     };
 
@@ -78,7 +78,7 @@ const CreateTaskModal = ({
     e.preventDefault();
 
     if (!formData.title) {
-      toast.error('ÐœÐ¾Ð»Ñ Ð¿Ð¾Ð¿ÑŠÐ»Ð½ÐµÑ‚Ðµ Ð·Ð°Ð³Ð»Ð°Ð²Ð¸Ðµ Ð½Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð°');
+      toast.error('Моля попълнете заглавие на задачата');
       return;
     }
 
@@ -89,7 +89,7 @@ const CreateTaskModal = ({
     selected.setHours(0, 0, 0, 0);
 
     if (selected < today) {
-      toast.error('ÐÐµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ Ð´Ð° ÑÑŠÐ·Ð´Ð°Ð²Ð°Ñ‚Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ð·Ð° Ð¼Ð¸Ð½Ð°Ð»Ð¸ Ð´Ð½Ð¸');
+      toast.error('Не можете да създавате задачи за минали дни');
       return;
     }
 
@@ -107,7 +107,7 @@ const CreateTaskModal = ({
       };
 
       await api.post('/schedules', scheduleData);
-      toast.success('Ð—Ð°Ð´Ð°Ñ‡Ð°Ñ‚Ð° Ðµ ÑÑŠÐ·Ð´Ð°Ð´ÐµÐ½Ð°');
+      toast.success('Задачата е създадена');
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -128,13 +128,13 @@ const CreateTaskModal = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-textPrimary">
-            ÐÐ¾Ð²Ð° Ð·Ð°Ð´Ð°Ñ‡Ð°
+            Нова задача
           </h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
-            title="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
+            aria-label="Затвори"
+            title="Затвори"
           >
             <X className="w-5 h-5 text-textSecondary" />
           </button>
@@ -142,7 +142,7 @@ const CreateTaskModal = ({
 
         {/* Date */}
         <div className="mb-4 p-3 bg-mainBg rounded-lg">
-          <p className="text-sm text-textSecondary">Ð”Ð°Ñ‚Ð°</p>
+          <p className="text-sm text-textSecondary">Дата</p>
           <p className="font-medium text-textPrimary">
             {format(selectedDate, 'dd MMMM yyyy', { locale: bg })}
           </p>
@@ -155,7 +155,7 @@ const CreateTaskModal = ({
               htmlFor="worker-select"
               className="block text-sm font-medium text-textPrimary mb-2"
             >
-              ÐœÐµÑ…Ð°Ð½Ð¸Ðº *
+              Механик *
             </label>
             <select
               id="worker-select"
@@ -166,11 +166,11 @@ const CreateTaskModal = ({
               className="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               required
             >
-              <option value="">Ð˜Ð·Ð±ÐµÑ€Ð¸ Ð¼ÐµÑ…Ð°Ð½Ð¸Ðº</option>
+              <option value="">Избери механик</option>
               {workers.map((worker) => (
                 <option key={worker.id} value={worker.id}>
                   {worker.firstName} {worker.lastName}
-                  {worker.isAvailable ? ' â€¢ Ð¡Ð²Ð¾Ð±Ð¾Ð´ÐµÐ½' : ' â€¢ Ð—Ð°ÐµÑ‚'}
+                  {worker.isAvailable ? ' • Свободен' : ' • Зает'}
                 </option>
               ))}
             </select>
@@ -178,7 +178,7 @@ const CreateTaskModal = ({
 
           {/* Title */}
           <Input
-            label="Ð—Ð°Ð´Ð°Ñ‡Ð° *"
+            label="Задача *"
             value={formData.title}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setFormData({ ...formData, title: e.target.value })
@@ -192,7 +192,7 @@ const CreateTaskModal = ({
               htmlFor="task-description"
               className="block text-sm font-medium text-textPrimary mb-2"
             >
-              ÐžÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ
+              Описание
             </label>
             <textarea
               id="task-description"
@@ -208,7 +208,7 @@ const CreateTaskModal = ({
           {/* Time */}
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="ÐÐ°Ñ‡Ð°Ð»Ð¾"
+              label="Начало"
               type="time"
               value={formData.startTime.split('T')[1]}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -222,7 +222,7 @@ const CreateTaskModal = ({
               }
             />
             <Input
-              label="ÐšÑ€Ð°Ð¹"
+              label="Край"
               type="time"
               value={formData.endTime.split('T')[1]}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -245,10 +245,10 @@ const CreateTaskModal = ({
               fullWidth
               variant="secondary"
             >
-              ÐžÑ‚ÐºÐ°Ð·
+              Отказ
             </Button>
             <Button type="submit" fullWidth isLoading={isLoading}>
-              Ð¡ÑŠÐ·Ð´Ð°Ð¹
+              Създай
             </Button>
           </div>
         </form>

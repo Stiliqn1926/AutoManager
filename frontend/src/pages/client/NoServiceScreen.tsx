@@ -8,20 +8,20 @@ const NoServiceScreen = () => {
   const navigate = useNavigate();
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm('Ð’ÐÐ˜ÐœÐÐÐ˜Ð•!\n\nÐ¢Ð¾Ð²Ð° Ñ‰Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ðµ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° Ñ‚Ð¸ Ð½Ð°Ð¿ÑŠÐ»Ð½Ð¾.\n\nÐ¡Ð¸Ð³ÑƒÑ€ÐµÐ½ Ð»Ð¸ ÑÐ¸?')) {
+    if (!window.confirm('ВНИМАНИЕ!\n\nТова ще изтрие акаунта ти напълно.\n\nСигурен ли си?')) {
       return;
     }
 
     try {
       await api.delete('/auth/delete-account');
-      toast.success('ÐÐºÐ°ÑƒÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾');
+      toast.success('Акаунтът е изтрит успешно');
 
       localStorage.clear();
       navigate('/');
       window.location.reload();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ð½Ðµ Ð½Ð° Ð°ÐºÐ°ÑƒÐ½Ñ‚';
+      const message = err.response?.data?.message || 'Грешка при изтриване на акаунт';
       toast.error(message);
     }
   };
@@ -34,16 +34,16 @@ const NoServiceScreen = () => {
             <Building2 className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
           </div>
           <h1 className="text-2xl font-bold text-textPrimary mb-2">
-            Ð”Ð¾Ð±Ñ€Ðµ Ð´Ð¾ÑˆÑŠÐ»
+            Добре дошъл
           </h1>
           <p className="text-textSecondary">
-            ÐÑÐ¼Ð°Ñˆ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½Ð¸ ÑÐµÑ€Ð²Ð¸Ð·Ð¸ Ð² Ð¼Ð¾Ð¼ÐµÐ½Ñ‚Ð°
+            Нямаш добавени сервизи в момента
           </p>
         </div>
 
         <div className="bg-white rounded-xl border border-borderSubtle p-4 sm:p-6 mb-6">
           <h2 className="text-base sm:text-lg font-semibold text-textPrimary mb-4">
-            ÐšÐ°ÐºÐ²Ð¾ Ð¼Ð¾Ð¶ÐµÑˆ Ð´Ð° Ð½Ð°Ð¿Ñ€Ð°Ð²Ð¸Ñˆ?
+            Какво можеш да направиш?
           </h2>
 
           <div className="space-y-3">
@@ -52,7 +52,7 @@ const NoServiceScreen = () => {
               className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm sm:text-base"
             >
               <Plus className="w-5 h-5" />
-              Ð”Ð¾Ð±Ð°Ð²Ð¸ ÑÐµÑ€Ð²Ð¸Ð·
+              Добави сервиз
             </button>
 
             <button
@@ -60,7 +60,7 @@ const NoServiceScreen = () => {
               className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border border-borderSubtle rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
             >
               <User className="w-5 h-5" />
-              Ð’Ð¸Ð¶ Ð¿Ñ€Ð¾Ñ„Ð¸Ð»Ð° ÑÐ¸
+              Виж профила си
             </button>
 
             <button
@@ -68,14 +68,14 @@ const NoServiceScreen = () => {
               className="w-full flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm sm:text-base"
             >
               <Trash2 className="w-5 h-5" />
-              Ð˜Ð·Ñ‚Ñ€Ð¸Ð¹ Ð°ÐºÐ°ÑƒÐ½Ñ‚Ð° ÑÐ¸
+              Изтрий акаунта си
             </button>
           </div>
         </div>
 
         <div className="text-sm text-textSecondary">
-          <p>Ð—Ð° Ð´Ð° Ð·Ð°Ð¿Ð¾Ñ‡Ð½ÐµÑˆ Ð´Ð° Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð°Ñˆ ÑÐ¸ÑÑ‚ÐµÐ¼Ð°Ñ‚Ð°, Ð´Ð¾Ð±Ð°Ð²Ð¸ ÑÐµÑ€Ð²Ð¸Ð· Ñ ÑƒÐ½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´.</p>
-          <p className="mt-2">Ð¡Ð»ÐµÐ´ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð° Ñ‰Ðµ Ð¸Ð¼Ð°Ñˆ Ð´Ð¾ÑÑ‚ÑŠÐ¿ Ð´Ð¾ Ð²ÑÐ¸Ñ‡ÐºÐ¸ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸.</p>
+          <p>За да започнеш да използваш системата, добави сервиз с уникален код.</p>
+          <p className="mt-2">След одобрение от администратора ще имаш достъп до всички функции.</p>
         </div>
       </div>
     </MainLayout>

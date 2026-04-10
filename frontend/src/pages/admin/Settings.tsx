@@ -72,7 +72,7 @@ const Settings = () => {
       setClientRequests(requestsRes.data.clientRequests || []);     
     } catch (error) {
       console.error('Settings fetch error:', error);
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ð´Ð°Ð½Ð½Ð¸');
+      toast.error('Грешка при зареждане на данни');
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +84,12 @@ const Settings = () => {
 
     try {
       await api.put('/service-company', formData);
-      toast.success('Ð”Ð°Ð½Ð½Ð¸Ñ‚Ðµ ÑÐ° Ð·Ð°Ð¿Ð°Ð·ÐµÐ½Ð¸');
+      toast.success('Данните са запазени');
       setIsEditModalOpen(false);
       fetchData();
     } catch (error) {
       console.error('Settings update error:', error);
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ð¿Ð°Ð·Ð²Ð°Ð½Ðµ');
+      toast.error('Грешка при запазване');
     } finally {
       setIsSaving(false);
     }
@@ -101,36 +101,36 @@ const Settings = () => {
     try {
       await navigator.clipboard.writeText(company.uniqueCode);
       setIsCopied(true);
-      toast.success('ÐšÐ¾Ð´ÑŠÑ‚ Ðµ ÐºÐ¾Ð¿Ð¸Ñ€Ð°Ð½');
+      toast.success('Кодът е копиран');
       setTimeout(() => setIsCopied(false), 2000);
     } catch {
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ ÐºÐ¾Ð¿Ð¸Ñ€Ð°Ð½Ðµ');
+      toast.error('Грешка при копиране');
     }
   };
 
   const handleApprove = async (requestId: string) => {
     try {
       await api.patch(`/pending-requests/${requestId}/approve`);
-      toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð°');
+      toast.success('Заявката е одобрена');
       fetchData();
     } catch (error) {
       console.error('Approve error:', error);
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ð´Ð¾Ð±Ñ€ÐµÐ½Ð¸Ðµ');
+      toast.error('Грешка при одобрение');
     }
   };
 
   const handleReject = async (requestId: string) => {
-    if (!confirm('Ð¡Ð¸Ð³ÑƒÑ€Ð½Ð¸ Ð»Ð¸ ÑÑ‚Ðµ, Ñ‡Ðµ Ð¸ÑÐºÐ°Ñ‚Ðµ Ð´Ð° Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»Ð¸Ñ‚Ðµ Ñ‚Ð°Ð·Ð¸ Ð·Ð°ÑÐ²ÐºÐ°?')) return;
+    if (!confirm('Сигурни ли сте, че искате да отхвърлите тази заявка?')) return;
 
     try {
       await api.patch(`/pending-requests/${requestId}/reject`, {
         rejectionReason: null
       });
-      toast.success('Ð—Ð°ÑÐ²ÐºÐ°Ñ‚Ð° Ðµ Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»ÐµÐ½Ð°');
+      toast.success('Заявката е отхвърлена');
       fetchData();
     } catch (error) {
       console.error('Reject error:', error);
-      toast.error('Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð¾Ñ‚Ñ…Ð²ÑŠÑ€Ð»ÑÐ½Ðµ');
+      toast.error('Грешка при отхвърляне');
     }
   };
 
@@ -148,7 +148,7 @@ const Settings = () => {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-64">
-          <p className="text-textSecondary">Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ñ€ÐµÐ¶Ð´Ð°Ð½Ðµ Ð½Ð° Ñ„Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸</p>
+          <p className="text-textSecondary">Грешка при зареждане на фирмени данни</p>
         </div>
       </MainLayout>
     );
@@ -158,19 +158,19 @@ const Settings = () => {
     <MainLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸</h1>
-          <p className="text-textSecondary mt-1">Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð½Ð° Ñ„Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸ Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Настройки</h1>
+          <p className="text-textSecondary mt-1">Управление на фирмени данни и заявки</p>
         </div>
 
         
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Ð¤Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-textPrimary">Фирмени данни</h2>
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="text-sm text-primary hover:text-primary-700 flex items-center gap-1 w-fit sm:ml-auto"
-              aria-label="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹"
-              title="Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð¹"
+              aria-label="Редактирай"
+              title="Редактирай"
             >
               <Edit2 className="w-4 h-4" />
             </button>
@@ -178,12 +178,12 @@ const Settings = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <p className="text-sm text-textSecondary mb-1">Ð˜Ð¼Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð°</p>
+              <p className="text-sm text-textSecondary mb-1">Име на сервиза</p>
               <p className="text-base font-medium text-textPrimary">{company.name}</p>
             </div>
 
             <div>
-              <p className="text-sm text-textSecondary mb-1">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</p>
+              <p className="text-sm text-textSecondary mb-1">Телефон</p>
               <p className="text-base font-medium text-textPrimary">{company.phone}</p>
             </div>
 
@@ -193,20 +193,20 @@ const Settings = () => {
             </div>
 
             <div>
-              <p className="text-sm text-textSecondary mb-1">ÐÐ´Ñ€ÐµÑ</p>
+              <p className="text-sm text-textSecondary mb-1">Адрес</p>
               <p className="text-base font-medium text-textPrimary">{company.address}</p>
             </div>
 
             {company.bulstat && (
               <div>
-                <p className="text-sm text-textSecondary mb-1">Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚</p>
+                <p className="text-sm text-textSecondary mb-1">Булстат</p>
                 <p className="text-base font-medium text-textPrimary">{company.bulstat}</p>
               </div>
             )}
 
             {company.vatNumber && (
               <div>
-                <p className="text-sm text-textSecondary mb-1">Ð”Ð”Ð¡ Ð½Ð¾Ð¼ÐµÑ€</p>
+                <p className="text-sm text-textSecondary mb-1">ДДС номер</p>
                 <p className="text-base font-medium text-textPrimary">{company.vatNumber}</p>
               </div>
             )}
@@ -215,9 +215,9 @@ const Settings = () => {
 
         
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4">Ð£Ð½Ð¸ÐºÐ°Ð»ÐµÐ½ ÐºÐ¾Ð´ Ð·Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-4">Уникален код за механици</h2>
           <p className="text-textSecondary mb-4">
-            Ð¢Ð¾Ð·Ð¸ ÐºÐ¾Ð´ ÑÐµ Ð¸Ð·Ð¿Ð¾Ð»Ð·Ð²Ð° Ð¾Ñ‚ Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸Ñ‚Ðµ Ð¿Ñ€Ð¸ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð² ÑÐ¸ÑÑ‚ÐµÐ¼Ð°Ñ‚Ð°.
+            Този код се използва от механиците при регистрация в системата.
           </p>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -228,12 +228,12 @@ const Settings = () => {
               {isCopied ? (
                 <>
                   <Check className="w-4 h-4" />
-                  ÐšÐ¾Ð¿Ð¸Ñ€Ð°Ð½Ð¾
+                  Копирано
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  ÐšÐ¾Ð¿Ð¸Ñ€Ð°Ð¹
+                  Копирай
                 </>
               )}
             </Button>
@@ -243,7 +243,7 @@ const Settings = () => {
         {/* Pending Mechanic Requests */}
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-6">
-            Ð§Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸
+            Чакащи заявки за механици
             {pendingRequests.length > 0 && (
               <span className="ml-2 px-2 py-1 bg-primary text-white text-sm rounded-full">
                 {pendingRequests.length}
@@ -266,20 +266,20 @@ const Settings = () => {
                     <p className="text-sm text-textSecondary">{request.phone}</p>
                     {request.specialization && (
                       <p className="text-sm text-textSecondary mt-1">
-                        Ð¡Ð¿ÐµÑ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ: {request.specialization}
+                        Специализация: {request.specialization}
                       </p>
                     )}
                     <p className="text-xs text-textSecondary mt-2">
-                      Ð”Ð°Ñ‚Ð° Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
+                      Дата на заявка: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
                     </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Button onClick={() => handleApprove(request.id)} className="w-full sm:w-auto">
-                      ÐžÐ´Ð¾Ð±Ñ€Ð¸
+                      Одобри
                     </Button>
                     <Button variant="secondary" onClick={() => handleReject(request.id)} className="w-full sm:w-auto">
-                      ÐžÑ‚Ñ…Ð²ÑŠÑ€Ð»Ð¸
+                      Отхвърли
                     </Button>
                   </div>
                 </div>
@@ -287,7 +287,7 @@ const Settings = () => {
             </div>
           ) : (
             <p className="text-center text-textSecondary py-6 sm:py-8">
-              ÐÑÐ¼Ð° Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° Ð¼ÐµÑ…Ð°Ð½Ð¸Ñ†Ð¸
+              Няма чакащи заявки за механици
             </p>
           )}
         </div>
@@ -295,7 +295,7 @@ const Settings = () => {
         {/* Pending Client Requests */}
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-textPrimary mb-6">
-            Ð§Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸
+            Чакащи заявки за клиенти
             {clientRequests.length > 0 && (
               <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded-full">
                 {clientRequests.length}
@@ -317,16 +317,16 @@ const Settings = () => {
                     <p className="text-sm text-textSecondary">{request.email}</p>
                     <p className="text-sm text-textSecondary">{request.phone}</p>
                     <p className="text-xs text-textSecondary mt-2">
-                      Ð”Ð°Ñ‚Ð° Ð½Ð° Ð·Ð°ÑÐ²ÐºÐ°: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
+                      Дата на заявка: {new Date(request.createdAt).toLocaleDateString('bg-BG')}
                     </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Button onClick={() => handleApprove(request.id)} className="w-full sm:w-auto">
-                      ÐžÐ´Ð¾Ð±Ñ€Ð¸
+                      Одобри
                     </Button>
                     <Button variant="secondary" onClick={() => handleReject(request.id)} className="w-full sm:w-auto">
-                      ÐžÑ‚Ñ…Ð²ÑŠÑ€Ð»Ð¸
+                      Отхвърли
                     </Button>
                   </div>
                 </div>
@@ -334,7 +334,7 @@ const Settings = () => {
             </div>
           ) : (
             <p className="text-center text-textSecondary py-6 sm:py-8">
-              ÐÑÐ¼Ð° Ñ‡Ð°ÐºÐ°Ñ‰Ð¸ Ð·Ð°ÑÐ²ÐºÐ¸ Ð·Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸
+              Няма чакащи заявки за клиенти
             </p>
           )}
         </div>
@@ -345,12 +345,12 @@ const Settings = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-cardBg rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-cardBg border-b border-borderSubtle p-6 flex flex-col sm:flex-row sm:items-center gap-3">
-              <h2 className="text-xl font-bold text-textPrimary">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð°Ð½Ðµ Ð½Ð° Ñ„Ð¸Ñ€Ð¼ÐµÐ½Ð¸ Ð´Ð°Ð½Ð½Ð¸</h2>
+              <h2 className="text-xl font-bold text-textPrimary">Редактиране на фирмени данни</h2>
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
                 className="p-2 hover:bg-mainBg rounded-lg transition-colors"
-                aria-label="Ð—Ð°Ñ‚Ð²Ð¾Ñ€Ð¸"
+                aria-label="Затвори"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -360,7 +360,7 @@ const Settings = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
-                    label="Ð˜Ð¼Ðµ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·Ð° *"
+                    label="Име на сервиза *"
                     value={formData.name}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -369,7 +369,7 @@ const Settings = () => {
                   />
 
                   <Input
-                    label="Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½ *"
+                    label="Телефон *"
                     value={formData.phone}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, phone: e.target.value })
@@ -388,7 +388,7 @@ const Settings = () => {
                   />
 
                   <Input
-                    label="ÐÐ´Ñ€ÐµÑ *"
+                    label="Адрес *"
                     value={formData.address}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, address: e.target.value })
@@ -397,7 +397,7 @@ const Settings = () => {
                   />
 
                   <Input
-                    label="Ð‘ÑƒÐ»ÑÑ‚Ð°Ñ‚"
+                    label="Булстат"
                     value={formData.bulstat}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, bulstat: e.target.value })
@@ -405,7 +405,7 @@ const Settings = () => {
                   />
 
                   <Input
-                    label="Ð”Ð”Ð¡ Ð½Ð¾Ð¼ÐµÑ€"
+                    label="ДДС номер"
                     value={formData.vatNumber}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setFormData({ ...formData, vatNumber: e.target.value })
@@ -416,10 +416,10 @@ const Settings = () => {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <Button type="button" variant="secondary" onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto">
-                  ÐžÑ‚ÐºÐ°Ð·
+                  Отказ
                 </Button>
                 <Button type="submit" isLoading={isSaving} className="w-full sm:w-auto">
-                  Ð—Ð°Ð¿Ð°Ð·Ð¸ Ð¿Ñ€Ð¾Ð¼ÐµÐ½Ð¸
+                  Запази промени
                 </Button>
               </div>
             </form>

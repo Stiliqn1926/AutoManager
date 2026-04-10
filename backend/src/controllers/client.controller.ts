@@ -510,7 +510,7 @@ export const deleteClient = async (
 
 
     if (req.user!.role !== 'ADMIN') {
-      res.status(403).json({ message: 'Ð¡Ð°Ð¼Ð¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð¸ Ð¼Ð¾Ð³Ð°Ñ‚ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸Ð²Ð°Ñ‚ ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð¸' });
+      res.status(403).json({ message: 'Само администратори могат да изтриват клиенти' });
       return;
     }
 
@@ -548,7 +548,7 @@ export const deleteClient = async (
 
     if (client._count.vehicles > 0 || client._count.orders > 0) {
       res.status(400).json({
-        message: 'ÐÐµ Ð¼Ð¾Ð¶Ðµ Ð´Ð° Ð¸Ð·Ñ‚Ñ€Ð¸ÐµÑ‚Ðµ ÐºÐ»Ð¸ÐµÐ½Ñ‚ Ñ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸ Ð¸Ð»Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð¾Ð±Ð¸Ð»Ð¸. Ð”ÐµÐ°ÐºÑ‚Ð¸Ð²Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ð³Ð¾ Ð²Ð¼ÐµÑÑ‚Ð¾ Ñ‚Ð¾Ð²Ð°.'
+        message: 'Не може да изтриете клиент с поръчки или автомобили. Деактивирайте го вместо това.'
       });
       return;
     }
@@ -559,7 +559,7 @@ export const deleteClient = async (
     });
 
     res.status(200).json({
-      message: 'ÐšÐ»Ð¸ÐµÐ½Ñ‚ÑŠÑ‚ Ðµ Ð¸Ð·Ñ‚Ñ€Ð¸Ñ‚ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾',
+      message: 'Клиентът е изтрит успешно',
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -629,7 +629,7 @@ export const addToService = async (
     });
 
     if (!serviceCompany) {
-      res.status(404).json({ message: 'ÐÐµÐ²Ð°Ð»Ð¸Ð´ÐµÐ½ ÐºÐ¾Ð´ Ð½Ð° ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(404).json({ message: 'Невалиден код на сервиз' });
       return;
     }
 
@@ -642,7 +642,7 @@ export const addToService = async (
     });
 
     if (existingClient) {
-      res.status(400).json({ message: 'Ð’ÐµÑ‡Ðµ ÑÑ‚Ðµ Ð´Ð¾Ð±Ð°Ð²ÐµÐ½ ÐºÑŠÐ¼ Ñ‚Ð¾Ð·Ð¸ ÑÐµÑ€Ð²Ð¸Ð·' });
+      res.status(400).json({ message: 'Вече сте добавен към този сервиз' });
       return;
     }
 
@@ -668,11 +668,11 @@ export const addToService = async (
     });
 
     res.status(201).json({
-      message: 'Ð£ÑÐ¿ÐµÑˆÐ½Ð¾ ÑÐµ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ…Ñ‚Ðµ ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·Ð°',
+      message: 'Успешно се добавихте към сервиза',
       client: newClient,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Ð“Ñ€ÐµÑˆÐºÐ° Ð¿Ñ€Ð¸ Ð´Ð¾Ð±Ð°Ð²ÑÐ½Ðµ ÐºÑŠÐ¼ ÑÐµÑ€Ð²Ð¸Ð·', error });
+    res.status(500).json({ message: 'Грешка при добавяне към сервиз', error });
   }
 };
 
