@@ -11,9 +11,16 @@ interface Supplier {
   name: string;
   type: string;
   phonePrimary: string;
+  phoneSecondary: string | null;
   email: string | null;
+  website: string | null;
   contactPerson: string | null;
+  addressLine: string | null;
   city: string | null;
+  eik: string | null;
+  vatNumber: string | null;
+  deliveryNotes: string | null;
+  notes: string | null;
   isActive: boolean;
   isPreferred: boolean;
   lastOrderDate: string | null;
@@ -78,8 +85,14 @@ const Suppliers = () => {
         [
           supplier.name,
           supplier.phonePrimary,
+          supplier.phoneSecondary || '',
           supplier.email || '',
+          supplier.website || '',
           supplier.contactPerson || '',
+          supplier.addressLine || '',
+          supplier.city || '',
+          supplier.eik || '',
+          supplier.vatNumber || '',
         ].some((value) => value.toLowerCase().startsWith(token))
       );
 
@@ -186,22 +199,16 @@ const Suppliers = () => {
                 <tr>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle w-8"></th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Име
+                    Име и тип
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Тип
+                    Контакти
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Телефон
+                    Фирмени данни
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Email
-                  </th>
-                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Контакт
-                  </th>
-                  <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
-                    Град
+                    Доставка и активност
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-textPrimary border-b border-borderSubtle">
                     Статус
@@ -222,40 +229,93 @@ const Suppliers = () => {
                         )}
                       </td>
                       <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textPrimary font-medium">
-                        {supplier.name}
-                      </td>
-                      <td className="py-3 px-3 sm:px-4">{getTypeBadge(supplier.type)}</td>
-
-                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
-                        <a
-                          href={`tel:${supplier.phonePrimary}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 hover:text-primary"
-                        >
-                          <Phone className="w-3 h-3" />
-                          {supplier.phonePrimary}
-                        </a>
+                        <div className="space-y-1">
+                          <div className="font-semibold">{supplier.name}</div>
+                          <div>{getTypeBadge(supplier.type)}</div>
+                          {supplier.city && (
+                            <div className="text-xs text-textSecondary">{supplier.city}</div>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
-                        {supplier.email ? (
+                        <div className="space-y-1.5">
                           <a
-                            href={`mailto:${supplier.email}`}
+                            href={`tel:${supplier.phonePrimary}`}
                             onClick={(e) => e.stopPropagation()}
                             className="flex items-center gap-1 hover:text-primary"
                           >
-                            <Mail className="w-3 h-3" />
-                            {supplier.email}
+                            <Phone className="w-3 h-3" />
+                            {supplier.phonePrimary}
                           </a>
-                        ) : (
-                          '-'
-                        )}
+                          {supplier.phoneSecondary && (
+                            <a
+                              href={`tel:${supplier.phoneSecondary}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 hover:text-primary"
+                            >
+                              <Phone className="w-3 h-3" />
+                              {supplier.phoneSecondary}
+                            </a>
+                          )}
+                          {supplier.email ? (
+                            <a
+                              href={`mailto:${supplier.email}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1 hover:text-primary"
+                            >
+                              <Mail className="w-3 h-3" />
+                              {supplier.email}
+                            </a>
+                          ) : (
+                            <div className="text-xs">Няма имейл</div>
+                          )}
+                          {supplier.website && (
+                            <a
+                              href={supplier.website}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs hover:text-primary"
+                            >
+                              {supplier.website}
+                            </a>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
-                        {supplier.contactPerson || '-'}
+                        <div className="space-y-1.5">
+                          <div className="text-xs">
+                            <span className="font-medium text-textPrimary">Контакт:</span>{' '}
+                            {supplier.contactPerson || 'Няма'}
+                          </div>
+                          <div className="text-xs">
+                            <span className="font-medium text-textPrimary">ЕИК:</span>{' '}
+                            {supplier.eik || 'Няма'}
+                          </div>
+                          <div className="text-xs">
+                            <span className="font-medium text-textPrimary">ДДС:</span>{' '}
+                            {supplier.vatNumber || 'Няма'}
+                          </div>
+                          <div className="text-xs">{supplier.addressLine || 'Няма адрес'}</div>
+                        </div>
                       </td>
-                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">{supplier.city || '-'}</td>
+
+                      <td className="py-3 px-3 sm:px-4 text-sm sm:text-base text-textSecondary">
+                        <div className="space-y-1.5">
+                          <div className="text-xs">
+                            <span className="font-medium text-textPrimary">Условия:</span>{' '}
+                            {supplier.deliveryNotes || 'Няма описани условия'}
+                          </div>
+                          <div className="text-xs">
+                            <span className="font-medium text-textPrimary">Последна поръчка:</span>{' '}
+                            {supplier.lastOrderDate
+                              ? new Date(supplier.lastOrderDate).toLocaleDateString('bg-BG')
+                              : 'Няма'}
+                          </div>
+                        </div>
+                      </td>
                       <td className="py-3 px-3 sm:px-4">
                         {supplier.isActive ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
@@ -271,7 +331,7 @@ const Suppliers = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-textSecondary">
+                    <td colSpan={6} className="py-12 text-center text-textSecondary">
                       Няма намерени доставчици
                     </td>
                   </tr>

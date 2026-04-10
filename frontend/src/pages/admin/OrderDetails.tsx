@@ -434,7 +434,7 @@ const OrderDetails = () => {
                         <td colSpan={4} className="py-3 px-3 text-right font-semibold text-textPrimary">
                           Обща сума:
                         </td>
-                        <td className="py-3 px-3 text-right font-bold text-primary text-lg">
+                        <td className="py-3 px-3 text-right font-bold text-primary text-lg whitespace-nowrap">
                           {Number(order.totalPrice || 0).toFixed(2)} €
                         </td>
                       </tr>
@@ -523,8 +523,8 @@ const OrderDetails = () => {
                 )}
                 <div>
                   <p className="text-sm text-textSecondary">Обща сума</p>
-                  <div className="text-2xl font-bold text-primary">
-                  <div>{Number(order.totalPrice || 0).toFixed(2)} €</div>
+                  <div className="text-2xl font-bold text-primary whitespace-nowrap">
+                    {Number(order.totalPrice || 0).toFixed(2)} €
                   </div>
                 </div>
               </div>

@@ -35,6 +35,12 @@ const addDays = (date: Date, days: number): Date =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
 const cents = (value: number): number => Math.round(value * 100);
 const fromCents = (value: number): number => Number((value / 100).toFixed(2));
+const formatSeedDate = (value: Date): string => {
+  const day = String(value.getUTCDate()).padStart(2, '0');
+  const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+  const year = value.getUTCFullYear();
+  return `${day}.${month}.${year}`;
+};
 
 const scheduleStatusByOrder: Record<OrderStatus, ScheduleStatus> = {
   WAITING: ScheduleStatus.SCHEDULED,
@@ -151,10 +157,39 @@ async function main() {
     });
     serviceMap.set(s.index, company.id);
     const supplierRows = [
-      { type: SupplierType.PARTS, name: `${s.district} Партс Логистик` },
-      { type: SupplierType.CONSUMABLES, name: `${s.district} Флуид Център` },
-      { type: SupplierType.TIRES, name: `${s.district} Тайър Маркет` },
-      { type: SupplierType.SERVICES, name: `${s.district} Диагно Лаб` },
+      {
+        type: SupplierType.PARTS,
+        name: `${s.district} Партс Логистик`,
+        contactPerson: 'Ивайло Николов',
+        email: `parts.${s.uniqueCode.toLowerCase()}@automanager.bg`,
+        website: `https://parts-${s.uniqueCode.toLowerCase()}.bg`,
+        deliveryNotes: 'Доставка до 24 часа за налични части. Минимална поръчка 40 €.',
+      },
+      {
+        type: SupplierType.CONSUMABLES,
+        name: `${s.district} Флуид Център`,
+        contactPerson: 'Петя Маринова',
+        email: `fluids.${s.uniqueCode.toLowerCase()}@automanager.bg`,
+        website: `https://fluids-${s.uniqueCode.toLowerCase()}.bg`,
+        deliveryNotes: 'Доставка в рамките на работния ден за масла и течности.',
+      },
+      {
+        type: SupplierType.TIRES,
+        name: `${s.district} Тайър Маркет`,
+        contactPerson: 'Христо Георгиев',
+        email: `tires.${s.uniqueCode.toLowerCase()}@automanager.bg`,
+        website: `https://tires-${s.uniqueCode.toLowerCase()}.bg`,
+        deliveryNotes: 'Сезонни гуми и джанти с доставка до 48 часа.',
+      },
+      {
+        type: SupplierType.SERVICES,
+        name: `${s.district} Диагно Лаб`,
+        contactPerson: 'Мария Симеонова',
+        email: `services.${s.uniqueCode.toLowerCase()}@automanager.bg`,
+        website: `https://diagno-${s.uniqueCode.toLowerCase()}.bg`,
+        deliveryNotes:
+          'Външни диагностични услуги и специализирани тестове с предварителна заявка.',
+      },
     ];
     const refs: Array<{ id: string; type: SupplierType }> = [];
     for (let i = 0; i < supplierRows.length; i += 1) {
@@ -164,9 +199,18 @@ async function main() {
           serviceCompanyId: company.id,
           name: sr.name,
           type: sr.type,
+          contactPerson: sr.contactPerson,
           phonePrimary: `+359 88 5${s.index}${i} 100`,
-          city: 'Пловдив',
-          notes: '[DEMO] Реален тип доставчик за демонстрационни данни',
+          phoneSecondary: `+359 32 6${s.index}${i} 200`,
+          email: sr.email,
+          website: sr.website,
+          addressLine: `${s.address}, кв. ${s.district}`,
+          city: s.city,
+          eik: `20${s.index}${i}4567${i}`,
+          vatNumber: `BG20${s.index}${i}4567${i}`,
+          deliveryNotes: sr.deliveryNotes,
+          notes: '[DEMO] Доставчик за демонстрационни данни с пълно попълнени полета.',
+          isPreferred: i === 0,
         },
       });
       refs.push({ id: created.id, type: created.type });
@@ -350,6 +394,17 @@ async function main() {
             ...tpl.parts.map((p) => ({ type: 'PART' as const, name: p.name, quantity: p.quantity, unitPrice: p.unitPrice })),
             ...tpl.consumables.map((c) => ({ type: 'CONSUMABLE' as const, name: c.name, quantity: c.quantity, unitPrice: c.unitPrice })),
           ];
+          const buildItemDescription = (itemType: 'LABOR' | 'PART' | 'CONSUMABLE', itemName: string): string => {
+            if (itemType === 'LABOR') {
+              return `${tpl.title} - сервизна дейност`;
+            }
+
+            if (itemType === 'PART') {
+              return `Подменена част: ${itemName}`;
+            }
+
+            return `Използван консуматив: ${itemName}`;
+          };
           await prisma.orderItem.createMany({
             data: items.map((i) => ({
               orderId: order.id,
@@ -359,7 +414,7 @@ async function main() {
               quantity: i.quantity,
               unitPrice: i.unitPrice,
               totalPrice: i.quantity * i.unitPrice,
-              description: tpl.title,
+              description: buildItemDescription(i.type, i.name),
             })),
           });
           const total = Number(items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0).toFixed(2));
@@ -435,21 +490,82 @@ async function main() {
     const serviceId = serviceMap.get(s.index)!;
     for (let month = 1; month <= 4; month += 1) {
       const key = `${s.index}-${month}`;
-      const bucket = monthly.get(key) ?? { income: cents(2600), parts: cents(820), cons: cents(280) };
-      const date = toDate(month, 25, 11);
-      const laborIncome = fromCents(Math.round(bucket.income * 0.45));
-      const partsIncome = fromCents(Math.round(bucket.income * 0.4));
-      const otherIncome = fromCents(bucket.income - cents(laborIncome + partsIncome));
+      const bucket = monthly.get(key) ?? { income: cents(2400), parts: cents(760), cons: cents(240) };
+      const firstIncomeDate = toDate(month, 8, 10);
+      const secondIncomeDate = toDate(month, 22, 10);
+      const expenseDate = toDate(month, 25, 11);
+      const periodLabel = `${String(month).padStart(2, '0')}.${SEED_YEAR}`;
+
+      const normalizedPartsExpense = Math.min(
+        920,
+        Math.max(260, fromCents(Math.round(bucket.parts * 0.36)))
+      );
+      const normalizedConsumablesExpense = Math.min(
+        320,
+        Math.max(90, fromCents(Math.round(bucket.cons * 0.58)))
+      );
+
+      const adminFeeIncome = 65 + month * 7 + s.index * 9;
+      const diagnosticIncome = 95 + month * 10 + s.index * 11;
+
       await prisma.finance.createMany({
         data: [
-          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.LABOR, amount: laborIncome, description: `[DEMO] Приход от труд за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.PARTS, amount: partsIncome, description: `[DEMO] Приход от части за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.INCOME, category: FinanceCategory.OTHER, amount: otherIncome, description: `[DEMO] Допълнителен приход за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.PARTS, amount: fromCents(bucket.parts), description: `[DEMO] Разход за части за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.CONSUMABLES, amount: fromCents(bucket.cons), description: `[DEMO] Разход за консумативи за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.SALARIES, amount: 1850 + s.index * 220, description: `[DEMO] Разход за възнаграждения за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.UTILITIES, amount: 280 + month * 18 + s.index * 12, description: `[DEMO] Разход за комунални услуги за ${month}.${SEED_YEAR}`, date },
-          { serviceCompanyId: serviceId, type: FinanceType.EXPENSE, category: FinanceCategory.RENT, amount: 920 + s.index * 95, description: `[DEMO] Разход за наем за ${month}.${SEED_YEAR}`, date },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.INCOME,
+            category: FinanceCategory.OTHER,
+            amount: adminFeeIncome,
+            description: `[DEMO] Административна такса за прием на автомобили (${formatSeedDate(firstIncomeDate)})`,
+            date: firstIncomeDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.INCOME,
+            category: FinanceCategory.LABOR,
+            amount: diagnosticIncome,
+            description: `[DEMO] Платена външна диагностика (${formatSeedDate(secondIncomeDate)})`,
+            date: secondIncomeDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.EXPENSE,
+            category: FinanceCategory.PARTS,
+            amount: normalizedPartsExpense,
+            description: `[DEMO] Разход за резервни части (${periodLabel})`,
+            date: expenseDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.EXPENSE,
+            category: FinanceCategory.CONSUMABLES,
+            amount: normalizedConsumablesExpense,
+            description: `[DEMO] Разход за консумативи (${periodLabel})`,
+            date: expenseDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.EXPENSE,
+            category: FinanceCategory.SALARIES,
+            amount: 1180 + s.index * 130 + month * 25,
+            description: `[DEMO] Разход за възнаграждения (${periodLabel})`,
+            date: expenseDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.EXPENSE,
+            category: FinanceCategory.UTILITIES,
+            amount: 170 + month * 12 + s.index * 9,
+            description: `[DEMO] Разход за комунални услуги (${periodLabel})`,
+            date: expenseDate,
+          },
+          {
+            serviceCompanyId: serviceId,
+            type: FinanceType.EXPENSE,
+            category: FinanceCategory.RENT,
+            amount: 620 + s.index * 70,
+            description: `[DEMO] Разход за наем (${periodLabel})`,
+            date: expenseDate,
+          },
         ],
       });
     }

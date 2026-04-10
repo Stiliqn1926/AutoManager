@@ -67,6 +67,25 @@ const FinanceDashboard = () => {
     }
   };
 
+  const getPeriodDateRange = () => {
+    const now = new Date();
+    const formatDate = (value: Date) => value.toLocaleDateString('bg-BG');
+
+    if (period === 'month') {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    }
+
+    if (period === 'week') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - now.getDay() + 1);
+      return `${formatDate(start)} - ${formatDate(now)}`;
+    }
+
+    return `До ${formatDate(now)}`;
+  };
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -110,7 +129,8 @@ const FinanceDashboard = () => {
         </div>
 
         <div className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6">
-          <h2 className="text-lg font-semibold text-textPrimary mb-4">{getPeriodLabel()}</h2>
+          <h2 className="text-lg font-semibold text-textPrimary mb-1">{getPeriodLabel()}</h2>
+          <p className="text-sm text-textSecondary mb-4">Период: {getPeriodDateRange()}</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             
