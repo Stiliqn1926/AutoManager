@@ -127,7 +127,7 @@ const ScheduleEdit = () => {
           toast.error('Конфликт: механикът има друга задача в този период!');
         }
       } catch {
-
+        // Ignore transient conflict-check failures while user edits date/time fields.
       }
     };
 

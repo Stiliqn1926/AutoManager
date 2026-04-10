@@ -158,8 +158,16 @@ const OrderEdit = () => {
       await api.put(`/orders/${id}`, payload);
       toast.success('Поръчката е обновена');
       navigate(`/admin/orders/${id}`);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Грешка при обновяване");
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+
+      toast.error(message || 'Грешка при обновяване');
     } finally {
       setIsSaving(false);
     }

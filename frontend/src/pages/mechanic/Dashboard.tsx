@@ -85,16 +85,14 @@ const MechanicDashboard = () => {
         toast.error('Грешка при зареждане на данни');
       }
     } finally {
-      if (requestSeq !== requestSeqRef.current) {
-        return;
-      }
+      if (requestSeq === requestSeqRef.current) {
+        if (!silent) {
+          setIsLoading(false);
+        }
 
-      if (!silent) {
-        setIsLoading(false);
-      }
-
-      if (activeRequestRef.current === controller) {
-        activeRequestRef.current = null;
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
       }
     }
   }, []);

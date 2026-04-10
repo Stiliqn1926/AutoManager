@@ -114,16 +114,14 @@ const Orders = () => {
         toast.error('Възникна грешка при зареждане на поръчките');
       }
     } finally {
-      if (requestSeq !== requestSeqRef.current) {
-        return;
-      }
+      if (requestSeq === requestSeqRef.current) {
+        if (!silent) {
+          setIsLoading(false);
+        }
 
-      if (!silent) {
-        setIsLoading(false);
-      }
-
-      if (activeRequestRef.current === controller) {
-        activeRequestRef.current = null;
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
       }
     }
   }, [pagination.currentPage]);

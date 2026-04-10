@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         await api.post('/auth/refresh');
       } catch {
-
+        // Keep-alive failures are handled by guarded routes and next auth-required request.
       }
     };
 
