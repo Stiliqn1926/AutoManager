@@ -50,6 +50,31 @@ const mapStripeStatusToSubscriptionStatus = (
   }
 };
 
+const ALLOWED_SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
+  SubscriptionStatus.ACTIVE,
+  SubscriptionStatus.TRIALING,
+]);
+
+const shouldAdminAccountBeActive = (
+  subscriptionStatus: SubscriptionStatus | null | undefined
+): boolean => {
+  if (!subscriptionStatus) return false;
+  return ALLOWED_SUBSCRIPTION_STATUSES.has(subscriptionStatus);
+};
+
+const syncAdminAccountActivation = async (params: {
+  userId: string;
+  subscriptionStatus: SubscriptionStatus | null | undefined;
+}) => {
+  const { userId, subscriptionStatus } = params;
+  const shouldBeActive = shouldAdminAccountBeActive(subscriptionStatus);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isActive: shouldBeActive },
+  });
+};
+
 const unixToDate = (timestamp: number | null | undefined): Date | null => {
   if (!timestamp) return null;
   return new Date(timestamp * 1000);
@@ -181,6 +206,12 @@ const finalizePendingAdminRegistration = async (params: {
       await prisma.serviceCompany.update({
         where: { id: existingUser.serviceCompany.id },
         data: updateData,
+      });
+
+      await syncAdminAccountActivation({
+        userId: existingUser.id,
+        subscriptionStatus:
+          updateData.subscriptionStatus ?? existingUser.serviceCompany.subscriptionStatus,
       });
 
       await prisma.pendingAdminRegistration.update({
@@ -382,6 +413,11 @@ export const getSubscriptionStatus = async (
       data: updatePayload,
     });
 
+    await syncAdminAccountActivation({
+      userId: updatedCompany.userId,
+      subscriptionStatus: updatedCompany.subscriptionStatus,
+    });
+
     res.status(200).json({
       hasSubscription: true,
       status: updatedCompany.subscriptionStatus,
@@ -507,9 +543,14 @@ export const handleStripeWebhook = async (
           updateData.subscriptionStatus = SubscriptionStatus.ACTIVE;
         }
 
-        await prisma.serviceCompany.update({
+        const updatedCompany = await prisma.serviceCompany.update({
           where: { id: serviceCompanyId },
           data: updateData,
+        });
+
+        await syncAdminAccountActivation({
+          userId: updatedCompany.userId,
+          subscriptionStatus: updatedCompany.subscriptionStatus,
         });
         break;
       }
@@ -555,9 +596,14 @@ export const handleStripeWebhook = async (
           break;
         }
 
-        await prisma.serviceCompany.update({
+        const updatedCompany = await prisma.serviceCompany.update({
           where: { id: company.id },
           data: buildSubscriptionUpdatePayload(subscription),
+        });
+
+        await syncAdminAccountActivation({
+          userId: updatedCompany.userId,
+          subscriptionStatus: updatedCompany.subscriptionStatus,
         });
         break;
       }
@@ -592,16 +638,26 @@ export const handleStripeWebhook = async (
 
         if (subscriptionId) {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          await prisma.serviceCompany.update({
+          const updatedCompany = await prisma.serviceCompany.update({
             where: { id: company.id },
             data: buildSubscriptionUpdatePayload(subscription),
           });
+
+          await syncAdminAccountActivation({
+            userId: updatedCompany.userId,
+            subscriptionStatus: updatedCompany.subscriptionStatus,
+          });
         } else {
-          await prisma.serviceCompany.update({
+          const updatedCompany = await prisma.serviceCompany.update({
             where: { id: company.id },
             data: {
               subscriptionStatus: SubscriptionStatus.PAST_DUE,
             },
+          });
+
+          await syncAdminAccountActivation({
+            userId: updatedCompany.userId,
+            subscriptionStatus: updatedCompany.subscriptionStatus,
           });
         }
         break;

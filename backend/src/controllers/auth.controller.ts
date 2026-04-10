@@ -10,6 +10,7 @@ import {
   AdminRegistrationStatus,
   MembershipStatus,
   RequestType,
+  SubscriptionStatus,
 } from '@prisma/client';
 import crypto from 'crypto';
 import prisma from '../config/database';
@@ -36,6 +37,10 @@ const EMAIL_VERIFICATION_CODE_TTL_MINUTES = 10;
 const CODE_RESEND_COOLDOWN_SECONDS = 60;
 const CODE_GENERATION_MAX_ATTEMPTS = 5;
 const PENDING_ADMIN_REGISTRATION_TTL_HOURS = 24;
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
+  SubscriptionStatus.ACTIVE,
+  SubscriptionStatus.TRIALING,
+]);
 
 const getExpiryDate = (minutes: number): Date =>
   new Date(Date.now() + minutes * 60 * 1000);
@@ -626,6 +631,26 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     if (!user.isActive) {
+      if (user.role === 'ADMIN') {
+        const serviceCompany = await prisma.serviceCompany.findUnique({
+          where: { userId: user.id },
+          select: { subscriptionStatus: true },
+        });
+
+        if (
+          serviceCompany &&
+          serviceCompany.subscriptionStatus &&
+          !ACTIVE_SUBSCRIPTION_STATUSES.has(serviceCompany.subscriptionStatus)
+        ) {
+          res.status(403).json({
+            message:
+              'Абонаментът на сервиза не е активен. Завършете плащането, за да възстановите достъпа.',
+            code: 'NO_ACTIVE_SUBSCRIPTION',
+          });
+          return;
+        }
+      }
+
       res.status(403).json({ message: '\u0410\u043a\u0430\u0443\u043d\u0442\u044a\u0442 \u0435 \u0434\u0435\u0430\u043a\u0442\u0438\u0432\u0438\u0440\u0430\u043d.' });
       return;
     }
