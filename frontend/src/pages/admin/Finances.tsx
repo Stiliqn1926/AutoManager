@@ -60,12 +60,20 @@ const Finances = () => {
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
       PARTS: 'Авточасти',
+      LABOR: 'Труд',
       CONSUMABLES: 'Консумативи',
-      SALARY: 'Заплати',
       RENT: 'Наем',
       UTILITIES: 'Комунални услуги',
-      SERVICES: 'Външни услуги',
+      SALARIES: 'Възнаграждения',
+      TAXES: 'Данъци',
+      INSURANCE: 'Застраховки',
+      MARKETING: 'Маркетинг',
+      MAINTENANCE: 'Поддръжка',
+      SUPPLIES: 'Офис консумативи',
       OTHER: 'Друго',
+      // Backward compatibility for legacy values
+      SALARY: 'Възнаграждения',
+      SERVICES: 'Труд',
     };
     return labels[category] || category;
   };
@@ -170,11 +178,16 @@ const Finances = () => {
             >
               <option value="">Всички категории</option>
               <option value="PARTS">Авточасти</option>
+              <option value="LABOR">Труд</option>
               <option value="CONSUMABLES">Консумативи</option>
-              <option value="SALARY">Заплати</option>
               <option value="RENT">Наем</option>
               <option value="UTILITIES">Комунални услуги</option>
-              <option value="SERVICES">Външни услуги</option>
+              <option value="SALARIES">Възнаграждения</option>
+              <option value="TAXES">Данъци</option>
+              <option value="INSURANCE">Застраховки</option>
+              <option value="MARKETING">Маркетинг</option>
+              <option value="MAINTENANCE">Поддръжка</option>
+              <option value="SUPPLIES">Офис консумативи</option>
               <option value="OTHER">Друго</option>
             </select>
           </div>
@@ -324,11 +337,16 @@ const Finances = () => {
                       required
                     >
                       <option value="PARTS">Авточасти</option>
+                      <option value="LABOR">Труд</option>
                       <option value="CONSUMABLES">Консумативи</option>
-                      <option value="SALARY">Заплати</option>
                       <option value="RENT">Наем</option>
                       <option value="UTILITIES">Комунални услуги</option>
-                      <option value="SERVICES">Външни услуги</option>
+                      <option value="SALARIES">Възнаграждения</option>
+                      <option value="TAXES">Данъци</option>
+                      <option value="INSURANCE">Застраховки</option>
+                      <option value="MARKETING">Маркетинг</option>
+                      <option value="MAINTENANCE">Поддръжка</option>
+                      <option value="SUPPLIES">Офис консумативи</option>
                       <option value="OTHER">Друго</option>
                     </select>
                   </div>

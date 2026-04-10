@@ -97,11 +97,16 @@ const FinanceCreate = () => {
                   required
                 >
                   <option value="PARTS">Авточасти</option>
+                  <option value="LABOR">Труд</option>
                   <option value="CONSUMABLES">Консумативи</option>
-                  <option value="SALARY">Заплати</option>
                   <option value="RENT">Наем</option>
                   <option value="UTILITIES">Комунални услуги</option>
-                  <option value="SERVICES">Външни услуги</option>
+                  <option value="SALARIES">Възнаграждения</option>
+                  <option value="TAXES">Данъци</option>
+                  <option value="INSURANCE">Застраховки</option>
+                  <option value="MARKETING">Маркетинг</option>
+                  <option value="MAINTENANCE">Поддръжка</option>
+                  <option value="SUPPLIES">Офис консумативи</option>
                   <option value="OTHER">Друго</option>
                 </select>
               </div>
