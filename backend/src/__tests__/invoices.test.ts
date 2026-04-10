@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Invoices Endpoints', () => {
@@ -10,10 +11,10 @@ describe('Invoices Endpoints', () => {
   let invoiceId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     agent = createTestAgent();
     const timestamp = Date.now();
-    const adminEmail = `admin-invoice-${timestamp}@test.com`;
+    const adminEmail = `admin-invoice-${timestamp}@automanager-test.com`;
 
     await agent.post('/api/auth/register').send({
       email: adminEmail,
@@ -30,7 +31,7 @@ describe('Invoices Endpoints', () => {
       name: `Test Garage Invoice ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-invoice-${timestamp}@test.com`,
+      email: `garage-invoice-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -50,7 +51,7 @@ describe('Invoices Endpoints', () => {
       firstName: 'Ivan',
       lastName: 'Ivanov',
       phone: '0888111222',
-      email: `ivan-invoice-${timestamp}@test.com`,
+      email: `ivan-invoice-${timestamp}@automanager-test.com`,
     });
 
     if (clientResp.status !== 201 || !clientResp.body.client) {
@@ -155,4 +156,6 @@ describe('Invoices Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+
+
 

@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Suppliers Endpoints', () => {
@@ -6,10 +7,10 @@ describe('Suppliers Endpoints', () => {
   let supplierId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     agent = createTestAgent();
     const timestamp = Date.now();
-    const adminEmail = `admin-suppliers-${timestamp}@test.com`;
+    const adminEmail = `admin-suppliers-${timestamp}@automanager-test.com`;
 
     await agent.post('/api/auth/register').send({
       email: adminEmail,
@@ -26,7 +27,7 @@ describe('Suppliers Endpoints', () => {
       name: `Test Garage Suppliers ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-suppliers-${timestamp}@test.com`,
+      email: `garage-suppliers-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -47,7 +48,7 @@ describe('Suppliers Endpoints', () => {
       type: 'PARTS',
       phonePrimary: '0888123456',
       contactPerson: 'John Doe',
-      email: 'supplier@test.com',
+      email: 'supplier@automanager-test.com',
       city: 'Sofia',
     });
 
@@ -102,4 +103,6 @@ describe('Suppliers Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+
+
 

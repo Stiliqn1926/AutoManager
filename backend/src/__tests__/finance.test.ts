@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Finance Endpoints', () => {
@@ -6,10 +7,10 @@ describe('Finance Endpoints', () => {
   let financeId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     agent = createTestAgent();
     const timestamp = Date.now();
-    const adminEmail = `admin-finance-${timestamp}@test.com`;
+    const adminEmail = `admin-finance-${timestamp}@automanager-test.com`;
 
     await agent.post('/api/auth/register').send({
       email: adminEmail,
@@ -26,7 +27,7 @@ describe('Finance Endpoints', () => {
       name: `Test Garage Finance ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-finance-${timestamp}@test.com`,
+      email: `garage-finance-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -97,4 +98,6 @@ describe('Finance Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+
+
 

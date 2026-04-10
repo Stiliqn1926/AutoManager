@@ -1,20 +1,21 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Permission Tests', () => {
   let adminAgent: any;
   let mechanicAgent: any;
   let clientAgent: any;
-  let serviceCompanyId: string;
+  let uniqueCode: string;
 
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     const timestamp = Date.now();
 
     // ========== ADMIN SETUP ==========
     adminAgent = createTestAgent();
-    const adminEmail = `admin-perm-${timestamp}@test.com`;
+    const adminEmail = `admin-perm-${timestamp}@automanager-test.com`;
 
     await adminAgent.post('/api/auth/register').send({
       email: adminEmail,
@@ -22,43 +23,70 @@ describe('Permission Tests', () => {
       role: 'ADMIN',
     });
 
-    await adminAgent.post('/api/auth/login').send({
+    const adminLoginResponse = await adminAgent.post('/api/auth/login').send({
       email: adminEmail,
       password: 'Password123!',
     });
+    if (adminLoginResponse.status !== 200) {
+      throw new Error(
+        `Failed to login admin. Status: ${adminLoginResponse.status}, Body: ${JSON.stringify(adminLoginResponse.body)}`
+      );
+    }
 
 
     const companyResponse = await adminAgent.post('/api/service-company').send({
       name: `Test Garage Perm ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-perm-${timestamp}@test.com`,
+      email: `garage-perm-${timestamp}@automanager-test.com`,
     });
 
     if (companyResponse.status !== 201 || !companyResponse.body.serviceCompany) {
       throw new Error(`Failed to create service company. Status: ${companyResponse.status}, Body: ${JSON.stringify(companyResponse.body)}`);
     }
 
-    serviceCompanyId = companyResponse.body.serviceCompany.id;
-    const uniqueCode = companyResponse.body.serviceCompany.uniqueCode;
+    uniqueCode = companyResponse.body.serviceCompany.uniqueCode;
 
 
-    await adminAgent.post('/api/auth/login').send({
+    const adminReloginResponse = await adminAgent.post('/api/auth/login').send({
       email: adminEmail,
       password: 'Password123!',
     });
+    if (adminReloginResponse.status !== 200) {
+      throw new Error(
+        `Failed to relogin admin. Status: ${adminReloginResponse.status}, Body: ${JSON.stringify(adminReloginResponse.body)}`
+      );
+    }
 
     // ========== MECHANIC SETUP ==========
     mechanicAgent = createTestAgent();
-    const mechanicEmail = `mechanic-${timestamp}@test.com`;
+    const mechanicEmail = `mechanic-${timestamp}@automanager-test.com`;
 
-    await mechanicAgent.post('/api/auth/register-mechanic').send({
+    const mechanicRegisterResponse = await mechanicAgent.post('/api/auth/register-mechanic').send({
       email: mechanicEmail,
       password: 'Password123!',
-      firstName: 'Георги',
-      lastName: 'Механик',
+      firstName: 'Ivan',
+      lastName: 'Petrov',
       phone: '0888222333',
       uniqueCode,
+    });
+    if (mechanicRegisterResponse.status !== 201) {
+      throw new Error(
+        `Failed to register mechanic. Status: ${mechanicRegisterResponse.status}, Body: ${JSON.stringify(mechanicRegisterResponse.body)}`
+      );
+    }
+
+    const mechanicUser = await prisma.user.findUnique({
+      where: { email: mechanicEmail },
+      select: { id: true },
+    });
+    if (!mechanicUser) {
+      throw new Error('Mechanic user not found after registration');
+    }
+
+    await prisma.user.update({
+      where: { id: mechanicUser.id },
+      data: { emailVerified: true },
     });
 
 
@@ -67,32 +95,91 @@ describe('Permission Tests', () => {
     });
 
     if (pendingRequests.length > 0) {
-      await adminAgent
+      const approveMechanicResponse = await adminAgent
         .patch(`/api/pending-requests/${pendingRequests[0].id}/approve`)
         .send();
+      if (approveMechanicResponse.status !== 200) {
+        throw new Error(
+          `Failed to approve mechanic pending request. Status: ${approveMechanicResponse.status}, Body: ${JSON.stringify(approveMechanicResponse.body)}`
+        );
+      }
     }
 
 
-    await mechanicAgent.post('/api/auth/login').send({
+    const mechanicLoginResponse = await mechanicAgent.post('/api/auth/login').send({
       email: mechanicEmail,
       password: 'Password123!',
       role: 'MECHANIC',
     });
+    if (mechanicLoginResponse.status !== 200) {
+      throw new Error(
+        `Failed to login mechanic. Status: ${mechanicLoginResponse.status}, Body: ${JSON.stringify(mechanicLoginResponse.body)}`
+      );
+    }
 
     // ========== CLIENT SETUP ==========
     clientAgent = createTestAgent();
-    const clientEmail = `client-${timestamp}@test.com`;
+    const clientEmail = `client-${timestamp}@automanager-test.com`;
 
-    await clientAgent.post('/api/auth/register').send({
+    const clientRegisterResponse = await clientAgent.post('/api/auth/register-client').send({
+      email: clientEmail,
+      password: 'Password123!',
+      role: 'CLIENT',
+      firstName: 'Petar',
+      lastName: 'Dimitrov',
+      phone: '0888111222',
+      uniqueCode,
+    });
+    if (clientRegisterResponse.status !== 201) {
+      throw new Error(
+        `Failed to register client. Status: ${clientRegisterResponse.status}, Body: ${JSON.stringify(clientRegisterResponse.body)}`
+      );
+    }
+
+    const clientUser = await prisma.user.findUnique({
+      where: { email: clientEmail },
+      select: { id: true },
+    });
+    if (!clientUser) {
+      throw new Error('Client user not found after registration');
+    }
+
+    await prisma.user.update({
+      where: { id: clientUser.id },
+      data: { emailVerified: true },
+    });
+
+    const clientPendingRequest = await prisma.pendingRequest.findFirst({
+      where: {
+        email: clientEmail,
+        requestType: 'CLIENT',
+        status: 'PENDING',
+      },
+      select: { id: true },
+    });
+    if (!clientPendingRequest) {
+      throw new Error('Client pending request not found');
+    }
+
+    const approveClientResponse = await adminAgent
+      .patch(`/api/pending-requests/${clientPendingRequest.id}/approve`)
+      .send();
+    if (approveClientResponse.status !== 200) {
+      throw new Error(
+        `Failed to approve client pending request. Status: ${approveClientResponse.status}, Body: ${JSON.stringify(approveClientResponse.body)}`
+      );
+    }
+
+    const clientLoginResponse = await clientAgent.post('/api/auth/login').send({
       email: clientEmail,
       password: 'Password123!',
       role: 'CLIENT',
     });
-
-    await clientAgent.post('/api/auth/login').send({
-      email: clientEmail,
-      password: 'Password123!',
-    });
+    if (clientLoginResponse.status !== 200) {
+      throw new Error(
+        `Failed to login client. Status: ${clientLoginResponse.status}, Body: ${JSON.stringify(clientLoginResponse.body)}`
+      );
+    }
   });
 
   describe('ADMIN Permissions', () => {
@@ -133,7 +220,7 @@ describe('Permission Tests', () => {
         name: `Mechanic Garage ${timestamp}`,
         address: 'Street 789',
         phone: '0888555444',
-        email: `mechgarage-${timestamp}@test.com`,
+        email: `mechgarage-${timestamp}@automanager-test.com`,
       });
 
       expect(response.status).toBe(403);
@@ -198,4 +285,6 @@ describe('Permission Tests', () => {
     });
   });
 });
+
+
 

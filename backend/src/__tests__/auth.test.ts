@@ -1,11 +1,12 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 describe('Auth Endpoints', () => {
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
   });
 
   afterAll(async () => {
@@ -19,7 +20,7 @@ describe('Auth Endpoints', () => {
       const response = await agent
         .post('/api/auth/register')
         .send({
-          email: `admin${Date.now()}@test.com`,
+          email: `admin${Date.now()}@automanager-test.com`,
           password: 'Password123!',
           role: 'ADMIN',
         });
@@ -58,7 +59,7 @@ describe('Auth Endpoints', () => {
       const response = await agent
         .post('/api/auth/register')
         .send({
-          email: `admin-short-${Date.now()}@test.com`,
+          email: `admin-short-${Date.now()}@automanager-test.com`,
           password: '123',
           role: 'ADMIN',
         });
@@ -75,7 +76,7 @@ describe('Auth Endpoints', () => {
     beforeAll(async () => {
 
       const agent = createTestAgent();
-      testEmail = `login-${Date.now()}@test.com`;
+      testEmail = `login-${Date.now()}@automanager-test.com`;
 
       await agent.post('/api/auth/register').send({
         email: testEmail,
@@ -125,7 +126,7 @@ describe('Auth Endpoints', () => {
       const response = await agent
         .post('/api/auth/login')
         .send({
-          email: `nonexistent-${Date.now()}@test.com`,
+          email: `nonexistent-${Date.now()}@automanager-test.com`,
           password: 'Password123!',
         });
 
@@ -133,4 +134,6 @@ describe('Auth Endpoints', () => {
     });
   });
 });
+
+
 

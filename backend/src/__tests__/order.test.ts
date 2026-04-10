@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Order Endpoints', () => {
@@ -9,12 +10,12 @@ describe('Order Endpoints', () => {
 
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     agent = createTestAgent();
     const timestamp = Date.now();
 
 
-    const adminEmail = `admin-order-${timestamp}@test.com`;
+    const adminEmail = `admin-order-${timestamp}@automanager-test.com`;
     await agent
       .post('/api/auth/register')
       .send({
@@ -37,7 +38,7 @@ describe('Order Endpoints', () => {
         name: `Test Garage ${timestamp}`,
         address: 'Test Street 123',
         phone: '0888123456',
-        email: `garage-order-${timestamp}@test.com`,
+        email: `garage-order-${timestamp}@automanager-test.com`,
       });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -56,10 +57,10 @@ describe('Order Endpoints', () => {
     const clientResponse = await agent
       .post('/api/clients')
       .send({
-        firstName: 'Иван',
-        lastName: 'Иванов',
+        firstName: '????',
+        lastName: '??????',
         phone: '0888111222',
-        email: `ivan-${timestamp}@test.com`,
+        email: `ivan-${timestamp}@automanager-test.com`,
       });
 
     clientId = clientResponse.body.client.id;
@@ -84,12 +85,12 @@ describe('Order Endpoints', () => {
         .send({
           vehicleId,
           clientId,
-          description: 'Смяна на масло и филтри',
+          description: '????? ?? ????? ? ??????',
         });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('order');
-      expect(response.body.order.description).toBe('Смяна на масло и филтри');
+      expect(response.body.order.description).toBe('????? ?? ????? ? ??????');
       expect(response.body.order.status).toBe('WAITING');
     });
 
@@ -206,4 +207,6 @@ describe('Order Endpoints', () => {
     });
   });
 });
+
+
 

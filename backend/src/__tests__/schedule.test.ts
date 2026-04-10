@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Schedule Endpoints', () => {
@@ -7,11 +8,11 @@ describe('Schedule Endpoints', () => {
   let scheduleId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     const timestamp = Date.now();
 
     adminAgent = createTestAgent();
-    const adminEmail = `admin-schedule-${timestamp}@test.com`;
+    const adminEmail = `admin-schedule-${timestamp}@automanager-test.com`;
 
     await adminAgent.post('/api/auth/register').send({
       email: adminEmail,
@@ -28,7 +29,7 @@ describe('Schedule Endpoints', () => {
       name: `Test Garage Schedule ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-schedule-${timestamp}@test.com`,
+      email: `garage-schedule-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -44,7 +45,7 @@ describe('Schedule Endpoints', () => {
       password: 'Password123!',
     });
 
-    const mechanicEmail = `mechanic-schedule-${timestamp}@test.com`;
+    const mechanicEmail = `mechanic-schedule-${timestamp}@automanager-test.com`;
     const mechanicAgent = createTestAgent();
 
     await mechanicAgent.post('/api/auth/register-mechanic').send({
@@ -155,4 +156,6 @@ describe('Schedule Endpoints', () => {
     expect(response.status).toBe(200);
   });
 });
+
+
 

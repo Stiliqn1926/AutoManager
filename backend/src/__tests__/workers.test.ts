@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Workers Management', () => {
@@ -7,11 +8,11 @@ describe('Workers Management', () => {
   let pendingRequestId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     const timestamp = Date.now();
 
     adminAgent = createTestAgent();
-    const adminEmail = `admin-workers-${timestamp}@test.com`;
+    const adminEmail = `admin-workers-${timestamp}@automanager-test.com`;
 
     await adminAgent.post('/api/auth/register').send({
       email: adminEmail,
@@ -28,7 +29,7 @@ describe('Workers Management', () => {
       name: `Test Garage Workers ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-workers-${timestamp}@test.com`,
+      email: `garage-workers-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -44,7 +45,7 @@ describe('Workers Management', () => {
       password: 'Password123!',
     });
 
-    const mechanicEmail = `mechanic-workers-${timestamp}@test.com`;
+    const mechanicEmail = `mechanic-workers-${timestamp}@automanager-test.com`;
 
     const mechanicAgent = createTestAgent();
     await mechanicAgent.post('/api/auth/register-mechanic').send({
@@ -121,4 +122,6 @@ describe('Workers Management', () => {
     expect(response.body).toHaveProperty('worker');
   });
 });
+
+
 

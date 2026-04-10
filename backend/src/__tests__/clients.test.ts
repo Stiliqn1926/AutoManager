@@ -1,4 +1,5 @@
-﻿import { createTestAgent } from './setup';
+﻿import { resetIntegrationTestData } from './testDataCleanup';
+import { createTestAgent } from './setup';
 import prisma from '../config/database';
 
 describe('Clients CRUD', () => {
@@ -7,10 +8,10 @@ describe('Clients CRUD', () => {
   let clientId: string;
 
   beforeAll(async () => {
-    await prisma.$executeRawUnsafe('TRUNCATE TABLE "users" CASCADE');
+    await resetIntegrationTestData();
     agent = createTestAgent();
     const timestamp = Date.now();
-    const adminEmail = `admin-clients-${timestamp}@test.com`;
+    const adminEmail = `admin-clients-${timestamp}@automanager-test.com`;
 
     await agent.post('/api/auth/register').send({
       email: adminEmail,
@@ -27,7 +28,7 @@ describe('Clients CRUD', () => {
       name: `Test Garage Clients ${timestamp}`,
       address: 'Test Street 123',
       phone: '0888123456',
-      email: `garage-clients-${timestamp}@test.com`,
+      email: `garage-clients-${timestamp}@automanager-test.com`,
     });
 
     if (companyResp.status !== 201 || !companyResp.body.serviceCompany) {
@@ -50,7 +51,7 @@ describe('Clients CRUD', () => {
       firstName: 'Ivan',
       lastName: 'Ivanov',
       phone: '0888111222',
-      email: `ivan-${timestamp}@test.com`,
+      email: `ivan-${timestamp}@automanager-test.com`,
     });
 
     expect(response.status).toBe(201);
@@ -94,4 +95,6 @@ describe('Clients CRUD', () => {
     expect(response.status).toBe(200);
   });
 });
+
+
 
