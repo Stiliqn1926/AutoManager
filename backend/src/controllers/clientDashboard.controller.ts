@@ -3,6 +3,7 @@ import prisma from '../config/database';
 import path from 'path';
 import * as fs from 'fs';
 import { supabase, SUPABASE_BUCKET } from '../services/supabase.service';
+import { generateInvoicePDF } from '../services/pdf.service';
 
 interface AuthRequest extends Request {
   user?: {
@@ -1295,8 +1296,40 @@ export const downloadInvoicePDF = async (
       where: { invoiceNumber },
       include: {
         order: {
+          include: {
+            client: {
+              include: {
+                user: {
+                  select: {
+                    email: true,
+                  },
+                },
+              },
+            },
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                licensePlate: true,
+              },
+            },
+            orderItems: {
+              select: {
+                type: true,
+                name: true,
+                quantity: true,
+                unitPrice: true,
+                totalPrice: true,
+              },
+            },
+          },
+        },
+        serviceCompany: {
           select: {
-            clientId: true,
+            name: true,
+            address: true,
+            phone: true,
+            email: true,
           },
         },
       },
@@ -1337,7 +1370,57 @@ export const downloadInvoicePDF = async (
       return;
     }
 
-    res.status(404).json({ message: 'PDF file not found' });
+    const invoiceItems = invoice.order.orderItems;
+    if (!invoiceItems || invoiceItems.length === 0 || !invoice.order.vehicle) {
+      res.status(404).json({ message: 'PDF file not found' });
+      return;
+    }
+
+    const outputDir = path.join(process.cwd(), 'uploads', 'invoices');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const invoiceData = {
+      orderNumber: invoice.order.orderNumber,
+      invoiceNumber: invoice.invoiceNumber,
+      issueDate: invoice.issueDate,
+      clientName: `${invoice.order.client.firstName} ${invoice.order.client.lastName}`.trim(),
+      clientPhone: invoice.order.client.phone || '-',
+      clientEmail: invoice.order.client.user?.email || invoice.order.client.email || 'Няма email',
+      vehicleInfo: `${invoice.order.vehicle.brand} ${invoice.order.vehicle.model} (${invoice.order.vehicle.licensePlate})`,
+      orderItems: invoiceItems.map((item) => ({
+        type: item.type,
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unitPrice),
+        totalPrice: Number(item.totalPrice),
+      })),
+      totalPrice: Number(invoice.total),
+      serviceCompanyName: invoice.serviceCompany.name,
+      serviceCompanyAddress: invoice.serviceCompany.address || 'Адрес не е посочен',
+      serviceCompanyPhone: invoice.serviceCompany.phone,
+      serviceCompanyEmail: invoice.serviceCompany.email,
+    };
+
+    await generateInvoicePDF(invoiceData, pdfPath);
+
+    try {
+      const pdfBuffer = await fs.promises.readFile(pdfPath);
+      await supabase.storage
+        .from(SUPABASE_BUCKET)
+        .upload(`${invoiceNumber}.pdf`, pdfBuffer, {
+          contentType: 'application/pdf',
+          upsert: true,
+        });
+    } catch (uploadError) {
+      console.error('[downloadInvoicePDF] supabase upload failed:', uploadError);
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${invoiceNumber}.pdf"`);
+    const fileStream = fs.createReadStream(pdfPath);
+    fileStream.pipe(res);
   } catch (error) {
     console.error('[downloadInvoicePDF] error:', error);
     res.status(500).json({ message: 'Server error', error });

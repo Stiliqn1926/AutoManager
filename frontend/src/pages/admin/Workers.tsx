@@ -391,7 +391,7 @@ const Workers = () => {
                       </div>
                     </th>
                   ))}
-                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold">
+                  <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap w-[130px]">
                     Действия
                   </th>
                 </tr>
@@ -437,31 +437,31 @@ const Workers = () => {
                         </div>
                       </td>
 
-                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap">
                         {worker.membershipStatus === 'PENDING' ? (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap leading-none">
                             Изчаква одобрение
                           </span>
                         ) : worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 whitespace-nowrap leading-none">
                             Напуснал
                           </span>
                         ) : worker.isActive ? (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap leading-none">
                             Активен
                           </span>
                         ) : (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 whitespace-nowrap leading-none">
                             Неактивен
                           </span>
                         )}
                       </td>
 
                       <td
-                        className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base"
+                        className="px-3 sm:px-4 py-3 sm:py-4 text-right text-sm sm:text-base whitespace-nowrap min-w-[130px]"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="flex justify-end gap-2">
+                        <div className="flex flex-nowrap items-center justify-end gap-2">
                           
                           {worker.membershipStatus === 'INACTIVE' && worker.leftAt ? (
                             <button

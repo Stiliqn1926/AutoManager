@@ -1,6 +1,8 @@
 {
   "prisma.prismaPath": "backend\\node_modules\\prisma",
   "prisma.fileWatcher": false,
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },

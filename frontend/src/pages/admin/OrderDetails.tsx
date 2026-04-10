@@ -412,9 +412,9 @@ const OrderDetails = () => {
                       <tr className="border-b border-borderSubtle">
                         <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Тип</th>
                         <th className="text-left py-2 px-3 text-sm font-semibold text-textPrimary">Описание</th>
-                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Кол.</th>
-                        <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary">Ед. цена</th>
-                        <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary">Общо</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary whitespace-nowrap">Кол.</th>
+                          <th className="hidden sm:table-cell text-right py-2 px-3 text-sm font-semibold text-textPrimary whitespace-nowrap">Ед. цена</th>
+                          <th className="text-right py-2 px-3 text-sm font-semibold text-textPrimary whitespace-nowrap">Общо</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -422,10 +422,10 @@ const OrderDetails = () => {
                         <tr key={item.id} className="border-b border-borderSubtle">
                           <td className="py-3 px-3">{getItemTypeBadge(item.type)}</td>
                           <td className="py-3 px-3 text-textPrimary">{item.description}</td>
-                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{item.quantity}</td>
-                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary">{Number(item.unitPrice || 0).toFixed(2)} €
+                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary whitespace-nowrap">{item.quantity}</td>
+                          <td className="hidden sm:table-cell py-3 px-3 text-right text-textSecondary whitespace-nowrap">{Number(item.unitPrice || 0).toFixed(2)} €
                           </td>
-                          <td className="py-3 px-3 text-right font-medium text-textPrimary">
+                          <td className="py-3 px-3 text-right font-medium text-textPrimary whitespace-nowrap">
                             {Number(item.totalPrice || 0).toFixed(2)} €
                           </td>
                         </tr>
