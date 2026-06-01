@@ -254,6 +254,7 @@ Frontend URL по подразбиране: `http://localhost:5173`
 | `NODE_ENV` | да | `development` / `production` / `test` |
 | `FRONTEND_URL` | да | Frontend origin за CORS и redirect-и |
 | `DATABASE_URL` | да | PostgreSQL connection string |
+| `DIRECT_URL` | да (production) | Direct PostgreSQL URL (без pooler), използва се от Prisma Migrate |
 | `JWT_SECRET` | да | Secret за подписване на JWT |
 | `DEFAULT_TAX_RATE` | не | Default ДДС ставка |
 | `DEFAULT_PAGINATION_LIMIT` | не | Default лимит за списъци |
@@ -378,6 +379,9 @@ Base path: `/api`
 2. `STRIPE_SUCCESS_URL` и `STRIPE_CANCEL_URL` трябва да сочат към frontend домейна (Vercel), не към localhost.
 3. `FRONTEND_URL` в backend трябва да е production frontend домейнът.
 4. `VITE_API_URL` във frontend трябва да е production backend `/api` URL.
+5. За Prisma миграции в Railway:
+   - `DATABASE_URL` може да е Neon pooler URL (PgBouncer).
+   - `DIRECT_URL` трябва да е direct Neon URL (без `-pooler`), защото `npx prisma migrate deploy` изисква advisory locks.
 
 ---
 
