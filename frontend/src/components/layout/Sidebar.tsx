@@ -48,6 +48,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           { path: '/admin/vehicles', icon: Car, label: 'Автомобили' },
           { path: '/admin/orders', icon: ClipboardList, label: 'Поръчки' },
           { path: '/admin/schedules', icon: Calendar, label: 'График' },
+          { path: '/admin/appointment-requests', icon: Calendar, label: 'Заявки за час' },
           { path: '/admin/suppliers', icon: Truck, label: 'Доставчици' },
           { path: '/admin/finances', icon: DollarSign, label: 'Финанси' },
           { path: '/admin/settings', icon: Settings, label: 'Настройки' },
@@ -70,6 +71,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           { path: '/client/service-companies', icon: Building2, label: 'Моите сервизи' },
           { path: '/client/vehicles', icon: Car, label: 'Моите автомобили' },
           { path: '/client/orders', icon: ClipboardList, label: 'Поръчки' },
+          { path: '/client/appointments', icon: Calendar, label: 'Запази час' },
           { path: '/client/invoices', icon: FileText, label: 'Фактури' },
           { path: '/client/notifications', icon: Bell, label: 'Известия' },
           { path: '/client/profile', icon: User, label: 'Профил' },
@@ -148,7 +150,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
 
   return (
     <>
-      <div className="hidden md:flex w-64 bg-sidebar h-full flex-col">
+      <div className="hidden md:flex w-64 bg-sidebar h-full flex-col overflow-y-auto">
         {content}
       </div>
 
@@ -160,7 +162,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           onClick={onClose}
         />
         <div
-          className={`absolute left-0 top-0 h-full w-64 bg-sidebar transition-transform ${
+          className={`absolute left-0 top-0 h-full w-64 bg-sidebar overflow-y-auto transition-transform ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >

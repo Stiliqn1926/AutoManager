@@ -50,6 +50,7 @@ import ScheduleDaily from '../pages/admin/ScheduleDaily';
 import ScheduleMonthly from '../pages/admin/ScheduleMonthly';
 import ScheduleDetails from '../pages/admin/ScheduleDetails';
 import ScheduleEdit from '../pages/admin/ScheduleEdit';
+import AppointmentRequests from '../pages/admin/AppointmentRequests';
 
 // Suppliers
 import Suppliers from '../pages/admin/Suppliers';
@@ -87,6 +88,7 @@ import ClientOrderDetails from '../pages/client/OrderDetails';
 import ClientInvoices from '../pages/client/Invoices';
 import ClientNotifications from '../pages/client/Notifications';
 import ClientProfile from '../pages/client/Profile';
+import ClientAppointments from '../pages/client/Appointments';
 
 
 // ================= NOT FOUND =================
@@ -371,6 +373,14 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/appointment-requests"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+            <AppointmentRequests />
+          </ProtectedRoute>
+        }
+      />
 
       {/* -------- Suppliers -------- */}
       <Route
@@ -596,6 +606,15 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
             <ClientInvoices />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/client/appointments"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.CLIENT]}>
+            <ClientAppointments />
           </ProtectedRoute>
         }
       />

@@ -291,7 +291,8 @@ Frontend URL по подразбиране: `http://localhost:5173`
 cd backend
 npm run seed:demo
 ```
-
+0
+020000
 Създава:
 
 - 5 сервиза (София/Пловдив)
