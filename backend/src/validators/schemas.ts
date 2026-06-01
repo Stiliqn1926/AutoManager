@@ -415,6 +415,55 @@ export const updateScheduleSchema = Joi.object({
   notes: Joi.string().max(1000).optional().allow('', null),
 }).min(1);
 
+// ============================================
+// APPOINTMENT REQUEST SCHEMAS
+// ============================================
+
+export const createAppointmentRequestSchema = Joi.object({
+  serviceCompanyId: Joi.string().uuid().required().messages({
+    'any.required': 'Сервизът е задължителен',
+    'string.guid': 'Невалиден идентификатор на сервиз',
+  }),
+  requestedStart: Joi.date().iso().required().messages({
+    'any.required': 'Началният час е задължителен',
+    'date.format': 'Невалиден формат на начален час',
+  }),
+  requestedEnd: Joi.date().iso().greater(Joi.ref('requestedStart')).required().messages({
+    'any.required': 'Крайният час е задължителен',
+    'date.greater': 'Крайният час трябва да е след началния',
+    'date.format': 'Невалиден формат на краен час',
+  }),
+  preferredWorkerId: Joi.string().uuid().optional().allow('', null).messages({
+    'string.guid': 'Невалиден идентификатор на механик',
+  }),
+  message: Joi.string().max(1000).optional().allow('', null),
+});
+
+export const approveAppointmentRequestSchema = Joi.object({
+  startTime: Joi.date().iso().required().messages({
+    'any.required': 'Началният час е задължителен',
+    'date.format': 'Невалиден формат на начален час',
+  }),
+  endTime: Joi.date().iso().greater(Joi.ref('startTime')).required().messages({
+    'any.required': 'Крайният час е задължителен',
+    'date.greater': 'Крайният час трябва да е след началния',
+    'date.format': 'Невалиден формат на краен час',
+  }),
+  workerId: Joi.string().uuid().optional().allow('', null).messages({
+    'string.guid': 'Невалиден идентификатор на механик',
+  }),
+  title: Joi.string().min(3).max(120).optional(),
+  description: Joi.string().max(600).optional().allow('', null),
+  priority: Joi.string().valid('LOW', 'NORMAL', 'HIGH', 'URGENT').optional(),
+  estimatedDuration: Joi.number().integer().min(1).max(720).optional().allow(null),
+  notes: Joi.string().max(1000).optional().allow('', null),
+  adminComment: Joi.string().max(500).optional().allow('', null),
+});
+
+export const rejectAppointmentRequestSchema = Joi.object({
+  adminComment: Joi.string().min(2).max(500).optional().allow('', null),
+});
+
 
 // ============================================
 // FINANCE SCHEMAS

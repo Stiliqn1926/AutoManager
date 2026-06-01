@@ -54,6 +54,7 @@ model User {
   serviceCompany         ServiceCompany?
   clients                Client[]
   worker                 Worker?
+  approvedAppointments   AppointmentRequest[] @relation("AppointmentApprovedBy")
   refreshTokens          RefreshToken[]
   passwordResets         PasswordReset[]
   emailVerificationCodes EmailVerificationCode[]
@@ -168,6 +169,7 @@ model ServiceCompany {
   finances                 Finance[]
   pendingRequests          PendingRequest[]
   mechanicServiceCompanies MechanicServiceCompany[]
+  appointmentRequests      AppointmentRequest[]
 
   @@index([uniqueCode])
   @@index([userId])
@@ -225,6 +227,7 @@ model Client {
   vehicles      Vehicle[]
   orders        Order[]
   notifications Notification[]
+  appointmentRequests AppointmentRequest[]
 
   @@unique([userId, serviceCompanyId])
   @@index([userId])
@@ -255,6 +258,7 @@ model Worker {
   orders                   Order[]
   schedules                Schedule[]
   mechanicServiceCompanies MechanicServiceCompany[]
+  preferredAppointments    AppointmentRequest[] @relation("AppointmentPreferredWorker")
 
   @@index([serviceCompanyId])
   @@index([userId])
@@ -274,12 +278,12 @@ enum RequestStatus {
 
 model PendingRequest {
   id              String        @id @default(uuid())
-  requestType     RequestType   @default(MECHANIC) // 🆕 ДОБАВЕНО
+  requestType     RequestType   @default(MECHANIC) // ДОБАВЕНО
   email           String
   firstName       String
   lastName        String
   phone           String
-  specialization  String? // 🆕 Nullable (само за MECHANIC)
+  specialization  String? // Nullable (само за MECHANIC)
   skills          String?       @db.Text
   status          RequestStatus @default(PENDING)
   rejectionReason String?
@@ -291,7 +295,7 @@ model PendingRequest {
 
   @@index([serviceCompanyId])
   @@index([status])
-  @@index([requestType]) // 🆕 ДОБАВЕНО
+  @@index([requestType]) // ДОБАВЕНО
   @@map("pending_requests")
 }
 
@@ -504,6 +508,44 @@ enum SchedulePriority {
   URGENT
 }
 
+enum AppointmentRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model AppointmentRequest {
+  id             String                   @id @default(uuid())
+  requestedStart DateTime
+  requestedEnd   DateTime
+  message        String?                  @db.Text
+  status         AppointmentRequestStatus @default(PENDING)
+  adminComment   String?                  @db.Text
+  decidedAt      DateTime?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  clientId           String
+  serviceCompanyId   String
+  preferredWorkerId  String?
+  approvedByUserId   String?
+  approvedScheduleId String? @unique
+
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  serviceCompany  ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  preferredWorker Worker?       @relation("AppointmentPreferredWorker", fields: [preferredWorkerId], references: [id], onDelete: SetNull)
+  approvedBy      User?         @relation("AppointmentApprovedBy", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  approvedSchedule Schedule?    @relation(fields: [approvedScheduleId], references: [id], onDelete: SetNull)
+
+  @@index([serviceCompanyId])
+  @@index([clientId])
+  @@index([preferredWorkerId])
+  @@index([status])
+  @@index([requestedStart])
+  @@map("appointment_requests")
+}
+
 model Schedule {
   id          String  @id @default(uuid())
   title       String
@@ -534,6 +576,7 @@ model Schedule {
   worker         Worker?        @relation(fields: [workerId], references: [id], onDelete: SetNull)
   order          Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   serviceCompany ServiceCompany @relation(fields: [serviceCompanyId], references: [id], onDelete: Cascade)
+  appointmentRequest AppointmentRequest?
 
   @@index([serviceCompanyId])
   @@index([workerId])

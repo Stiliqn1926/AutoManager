@@ -15,6 +15,7 @@ import supplierRoutes from './supplier.routes';
 import financeRoutes from './finance.routes';
 import dashboardRoutes from './dashboard.routes';
 import billingRoutes from './billing.routes';
+import appointmentRequestRoutes from './appointmentRequest.routes';
 
 const router = Router();
 
@@ -68,6 +69,9 @@ router.use('/dashboard', dashboardRoutes);
 
 // Billing routes (Stripe subscription)
 router.use('/billing', billingRoutes);
+
+// Appointment request routes
+router.use('/appointment-requests', appointmentRequestRoutes);
 
 // Health check
 router.get('/health', (req, res) => {
