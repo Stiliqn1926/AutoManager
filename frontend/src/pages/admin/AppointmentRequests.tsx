@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Calendar, CheckCircle2, Clock, User, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -133,7 +133,7 @@ const AppointmentRequests = () => {
     }
 
     if (!values.date || !values.startTime || !values.endTime) {
-      toast.error('Попълни дата и час');
+      toast.error('Попълни дата, начален и краен час');
       return;
     }
 
@@ -153,7 +153,7 @@ const AppointmentRequests = () => {
         workerId: values.workerId || undefined,
         adminComment: values.adminComment.trim() || undefined,
       });
-      toast.success('Заявката е одобрена и добавена в графика');
+      toast.success('Заявката е одобрена');
       await fetchData();
     } catch (error) {
       toast.error(getErrorMessage(error, 'Грешка при одобряване на заявката'));
@@ -194,10 +194,6 @@ const AppointmentRequests = () => {
       <div className="space-y-4 sm:space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Заявки за час</h1>
-          <p className="text-textSecondary mt-1">
-            Одобри заявката, за да се добави автоматично в графика и да може да се възложи
-            към механик.
-          </p>
         </div>
 
         {requests.length === 0 ? (
@@ -240,81 +236,88 @@ const AppointmentRequests = () => {
                             {request.preferredWorker.lastName}
                           </div>
                         )}
-                        {request.message && <div>Описание: {request.message}</div>}
+                        {request.message && (
+                          <div className="whitespace-pre-line">Описание: {request.message}</div>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {values && (
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
+                    <div className="space-y-3 mb-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-textPrimary mb-1">
+                            Дата
+                          </label>
+                          <input
+                            type="date"
+                            value={values.date}
+                            onChange={(event) =>
+                              updateDecision(request.id, { date: event.target.value })
+                            }
+                            className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-textPrimary mb-1">
+                            Начало
+                          </label>
+                          <input
+                            type="time"
+                            value={values.startTime}
+                            onChange={(event) =>
+                              updateDecision(request.id, { startTime: event.target.value })
+                            }
+                            className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-textPrimary mb-1">
+                            Краен час на поръчката *
+                          </label>
+                          <input
+                            type="time"
+                            value={values.endTime}
+                            onChange={(event) =>
+                              updateDecision(request.id, { endTime: event.target.value })
+                            }
+                            className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-textPrimary mb-1">
+                            Механик
+                          </label>
+                          <select
+                            value={values.workerId}
+                            onChange={(event) =>
+                              updateDecision(request.id, { workerId: event.target.value })
+                            }
+                            className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          >
+                            <option value="">Без механик</option>
+                            {activeWorkers.map((worker) => (
+                              <option key={worker.id} value={worker.id}>
+                                {worker.firstName} {worker.lastName}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
                       <div>
                         <label className="block text-sm font-medium text-textPrimary mb-1">
-                          Дата
+                          Съобщение до клиента (допълнителна информация)
                         </label>
-                        <input
-                          type="date"
-                          value={values.date}
-                          onChange={(event) =>
-                            updateDecision(request.id, { date: event.target.value })
-                          }
-                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-textPrimary mb-1">
-                          Начало
-                        </label>
-                        <input
-                          type="time"
-                          value={values.startTime}
-                          onChange={(event) =>
-                            updateDecision(request.id, { startTime: event.target.value })
-                          }
-                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-textPrimary mb-1">Край</label>
-                        <input
-                          type="time"
-                          value={values.endTime}
-                          onChange={(event) =>
-                            updateDecision(request.id, { endTime: event.target.value })
-                          }
-                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-textPrimary mb-1">
-                          Механик
-                        </label>
-                        <select
-                          value={values.workerId}
-                          onChange={(event) =>
-                            updateDecision(request.id, { workerId: event.target.value })
-                          }
-                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        >
-                          <option value="">Без механик</option>
-                          {activeWorkers.map((worker) => (
-                            <option key={worker.id} value={worker.id}>
-                              {worker.firstName} {worker.lastName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-textPrimary mb-1">
-                          Коментар
-                        </label>
-                        <input
-                          type="text"
+                        <textarea
                           value={values.adminComment}
                           onChange={(event) =>
                             updateDecision(request.id, { adminComment: event.target.value })
                           }
                           placeholder="Опционално"
-                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                          rows={2}
+                          className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
                       </div>
                     </div>
@@ -327,7 +330,7 @@ const AppointmentRequests = () => {
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      {processingId === request.id ? 'Обработка...' : 'Одобри и добави в график'}
+                      {processingId === request.id ? 'Обработка...' : 'Одобри'}
                     </button>
                     <button
                       onClick={() => handleReject(request)}
@@ -343,20 +346,6 @@ const AppointmentRequests = () => {
             })}
           </div>
         )}
-
-        <div className="bg-cardBg rounded-2xl shadow-card p-4 text-sm text-textSecondary">
-          <div className="flex items-start gap-2">
-            <Calendar className="w-4 h-4 mt-0.5" />
-            <p>
-              При одобрение системата създава задача в графика. Ако не избереш механик при
-              одобрението, задачата остава в графика и можеш да възложиш механик по-късно.
-            </p>
-          </div>
-          <div className="flex items-start gap-2 mt-2">
-            <User className="w-4 h-4 mt-0.5" />
-            <p>Клиентът получава известие в системата и имейл за решението.</p>
-          </div>
-        </div>
       </div>
     </MainLayout>
   );

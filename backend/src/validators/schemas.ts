@@ -428,8 +428,7 @@ export const createAppointmentRequestSchema = Joi.object({
     'any.required': 'Началният час е задължителен',
     'date.format': 'Невалиден формат на начален час',
   }),
-  requestedEnd: Joi.date().iso().greater(Joi.ref('requestedStart')).required().messages({
-    'any.required': 'Крайният час е задължителен',
+  requestedEnd: Joi.date().iso().greater(Joi.ref('requestedStart')).optional().messages({
     'date.greater': 'Крайният час трябва да е след началния',
     'date.format': 'Невалиден формат на краен час',
   }),

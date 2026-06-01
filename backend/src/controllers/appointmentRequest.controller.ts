@@ -118,7 +118,7 @@ export const createAppointmentRequest = async (
     } = req.body as {
       serviceCompanyId: string;
       requestedStart: string;
-      requestedEnd: string;
+      requestedEnd?: string;
       preferredWorkerId?: string | null;
       message?: string | null;
     };
@@ -129,7 +129,9 @@ export const createAppointmentRequest = async (
     }
 
     const start = new Date(requestedStart);
-    const end = new Date(requestedEnd);
+    const end = requestedEnd
+      ? new Date(requestedEnd)
+      : new Date(start.getTime() + 60 * 60 * 1000);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       res.status(400).json({ message: 'Невалиден формат на дата' });

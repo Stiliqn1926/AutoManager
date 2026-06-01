@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Calendar, Clock, MessageSquare, XCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, CheckCircle2, Clock, Car, XCircle } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { useServiceCompany } from '../../hooks/useServiceCompany';
 import NoServiceScreen from './NoServiceScreen';
@@ -8,6 +8,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 type AppointmentStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+type VehicleMode = 'EXISTING' | 'NEW';
 
 interface AppointmentRequest {
   id: string;
@@ -39,15 +40,30 @@ interface AppointmentRequest {
   } | null;
 }
 
+interface ClientVehicle {
+  id: string;
+  brand: string;
+  model: string;
+  year: number | null;
+  licensePlate: string;
+}
+
 const Appointments = () => {
   const { selectedServiceCompany, serviceCompanies } = useServiceCompany();
   const [requests, setRequests] = useState<AppointmentRequest[]>([]);
+  const [vehicles, setVehicles] = useState<ClientVehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [message, setMessage] = useState('');
+  const [problemDescription, setProblemDescription] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState('');
+  const [vehicleMode, setVehicleMode] = useState<VehicleMode>('EXISTING');
+  const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const [newVehicleBrand, setNewVehicleBrand] = useState('');
+  const [newVehicleModel, setNewVehicleModel] = useState('');
+  const [newVehicleYear, setNewVehicleYear] = useState('');
 
   const fetchRequests = useCallback(async () => {
     if (!selectedServiceCompany) {
@@ -69,9 +85,74 @@ const Appointments = () => {
     }
   }, [selectedServiceCompany]);
 
+  const fetchVehicles = useCallback(async () => {
+    if (!selectedServiceCompany) {
+      setVehicles([]);
+      return;
+    }
+
+    setIsLoadingVehicles(true);
+    try {
+      const response = await api.get('/client/vehicles', {
+        params: { serviceCompanyId: selectedServiceCompany.id },
+      });
+      const loadedVehicles: ClientVehicle[] = response.data.vehicles || [];
+      setVehicles(loadedVehicles);
+
+      if (loadedVehicles.length === 0) {
+        setVehicleMode('NEW');
+        setSelectedVehicleId('');
+      } else {
+        setSelectedVehicleId((current) => current || loadedVehicles[0]!.id);
+      }
+    } catch {
+      toast.error('Грешка при зареждане на автомобилите');
+      setVehicles([]);
+      setVehicleMode('NEW');
+      setSelectedVehicleId('');
+    } finally {
+      setIsLoadingVehicles(false);
+    }
+  }, [selectedServiceCompany]);
+
   useEffect(() => {
-    fetchRequests();
-  }, [fetchRequests]);
+    void fetchRequests();
+    void fetchVehicles();
+  }, [fetchRequests, fetchVehicles]);
+
+  const buildVehicleSummary = (): string | null => {
+    if (vehicleMode === 'EXISTING') {
+      if (!selectedVehicleId) {
+        toast.error('Избери регистриран автомобил');
+        return null;
+      }
+
+      const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId);
+      if (!selectedVehicle) {
+        toast.error('Избраният автомобил не е намерен');
+        return null;
+      }
+
+      const yearPart = selectedVehicle.year ? `, ${selectedVehicle.year}` : '';
+      return `Автомобил: ${selectedVehicle.brand} ${selectedVehicle.model}${yearPart} (${selectedVehicle.licensePlate})`;
+    }
+
+    const brand = newVehicleBrand.trim();
+    const model = newVehicleModel.trim();
+    const yearNumber = Number(newVehicleYear);
+
+    if (!brand || !model || !newVehicleYear) {
+      toast.error('Попълни марка, модел и година за нов автомобил');
+      return null;
+    }
+
+    if (!Number.isInteger(yearNumber) || yearNumber < 1900 || yearNumber > new Date().getFullYear() + 1) {
+      toast.error('Невалидна година за нов автомобил');
+      return null;
+    }
+
+    return `Нов автомобил: ${brand} ${model}, ${yearNumber}`;
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -81,17 +162,28 @@ const Appointments = () => {
       return;
     }
 
-    if (!date || !startTime || !endTime) {
-      toast.error('Попълни дата и час');
+    if (!date || !startTime) {
+      toast.error('Попълни дата и начален час');
       return;
     }
 
     const start = new Date(`${date}T${startTime}`);
-    const end = new Date(`${date}T${endTime}`);
-
-    if (end <= start) {
-      toast.error('Крайният час трябва да е след началния');
+    if (isNaN(start.getTime())) {
+      toast.error('Невалиден формат за дата и час');
       return;
+    }
+
+    const vehicleSummary = buildVehicleSummary();
+    if (!vehicleSummary) {
+      return;
+    }
+
+    const messageParts: string[] = [vehicleSummary];
+    if (problemDescription.trim()) {
+      messageParts.push(`Описание на проблема: ${problemDescription.trim()}`);
+    }
+    if (additionalInfo.trim()) {
+      messageParts.push(`Допълнителна информация: ${additionalInfo.trim()}`);
     }
 
     setIsSubmitting(true);
@@ -99,15 +191,23 @@ const Appointments = () => {
       await api.post('/appointment-requests', {
         serviceCompanyId: selectedServiceCompany.id,
         requestedStart: start.toISOString(),
-        requestedEnd: end.toISOString(),
-        message: message.trim() || undefined,
+        message: messageParts.join('\n'),
       });
 
       toast.success('Заявката е изпратена и чака одобрение');
       setDate('');
       setStartTime('');
-      setEndTime('');
-      setMessage('');
+      setProblemDescription('');
+      setAdditionalInfo('');
+      setVehicleMode(vehicles.length > 0 ? 'EXISTING' : 'NEW');
+      if (vehicles.length > 0) {
+        setSelectedVehicleId(vehicles[0]!.id);
+      } else {
+        setSelectedVehicleId('');
+      }
+      setNewVehicleBrand('');
+      setNewVehicleModel('');
+      setNewVehicleYear('');
       await fetchRequests();
     } catch {
       toast.error('Грешка при изпращане на заявка');
@@ -188,17 +288,13 @@ const Appointments = () => {
       <div className="space-y-4 sm:space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-textPrimary">Запази час</h1>
-          <p className="text-textSecondary mt-1">
-            Изпрати заявка към {selectedServiceCompany.name}. След това ще виждаш статус:
-            „чака одобрение“, „одобрена“ или „отхвърлена“.
-          </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
           className="bg-cardBg rounded-2xl shadow-card p-4 sm:p-6 space-y-4"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-textPrimary mb-2">Дата *</label>
               <input
@@ -219,16 +315,96 @@ const Appointments = () => {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-textPrimary mb-2">Край *</label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(event) => setEndTime(event.target.value)}
-                className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
+          </div>
+
+          <div className="border border-borderSubtle rounded-lg p-4">
+            <label className="block text-sm font-medium text-textPrimary mb-3">Автомобил *</label>
+            <div className="flex flex-col sm:flex-row gap-4 mb-3">
+              <label className="inline-flex items-center gap-2 text-sm text-textPrimary">
+                <input
+                  type="radio"
+                  name="vehicleMode"
+                  value="EXISTING"
+                  checked={vehicleMode === 'EXISTING'}
+                  onChange={() => setVehicleMode('EXISTING')}
+                  disabled={vehicles.length === 0}
+                />
+                Регистриран автомобил
+              </label>
+              <label className="inline-flex items-center gap-2 text-sm text-textPrimary">
+                <input
+                  type="radio"
+                  name="vehicleMode"
+                  value="NEW"
+                  checked={vehicleMode === 'NEW'}
+                  onChange={() => setVehicleMode('NEW')}
+                />
+                Нов автомобил
+              </label>
             </div>
+
+            {vehicleMode === 'EXISTING' ? (
+              <div>
+                <label className="block text-sm font-medium text-textPrimary mb-2">
+                  Избери автомобил
+                </label>
+                <select
+                  value={selectedVehicleId}
+                  onChange={(event) => setSelectedVehicleId(event.target.value)}
+                  disabled={isLoadingVehicles || vehicles.length === 0}
+                  className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+                >
+                  {vehicles.length === 0 ? (
+                    <option value="">Нямаш регистрирани автомобили</option>
+                  ) : (
+                    vehicles.map((vehicle) => (
+                      <option key={vehicle.id} value={vehicle.id}>
+                        {vehicle.brand} {vehicle.model}
+                        {vehicle.year ? `, ${vehicle.year}` : ''} ({vehicle.licensePlate})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-textPrimary mb-2">Марка *</label>
+                  <input
+                    type="text"
+                    value={newVehicleBrand}
+                    onChange={(event) => setNewVehicleBrand(event.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Напр. BMW"
+                    required={vehicleMode === 'NEW'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-textPrimary mb-2">Модел *</label>
+                  <input
+                    type="text"
+                    value={newVehicleModel}
+                    onChange={(event) => setNewVehicleModel(event.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Напр. 320d"
+                    required={vehicleMode === 'NEW'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-textPrimary mb-2">Година *</label>
+                  <input
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear() + 1}
+                    value={newVehicleYear}
+                    onChange={(event) => setNewVehicleYear(event.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Напр. 2018"
+                    required={vehicleMode === 'NEW'}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -236,11 +412,25 @@ const Appointments = () => {
               Описание на проблема
             </label>
             <textarea
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              value={problemDescription}
+              onChange={(event) => setProblemDescription(event.target.value)}
               rows={3}
               maxLength={1000}
               placeholder="Напр. шум от предницата, смяна на накладки..."
+              className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-textPrimary mb-2">
+              Допълнителна информация
+            </label>
+            <textarea
+              value={additionalInfo}
+              onChange={(event) => setAdditionalInfo(event.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder="Напр. желая автомобилът да е готов в същия ден..."
               className="w-full px-3 py-2 text-sm border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
           </div>
@@ -281,18 +471,12 @@ const Appointments = () => {
                       </div>
                       <div className="text-sm text-textPrimary">
                         <span className="font-medium">Желан час:</span>{' '}
-                        {new Date(request.requestedStart).toLocaleString('bg-BG')} -{' '}
-                        {new Date(request.requestedEnd).toLocaleString('bg-BG', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {new Date(request.requestedStart).toLocaleString('bg-BG')}
                       </div>
-                      {request.message && (
-                        <div className="flex items-start gap-2 text-sm text-textSecondary">
-                          <MessageSquare className="w-4 h-4 mt-0.5" />
-                          <span>{request.message}</span>
-                        </div>
-                      )}
+                      <div className="text-sm text-textSecondary flex items-start gap-2">
+                        <Car className="w-4 h-4 mt-0.5" />
+                        <span className="whitespace-pre-line">{request.message || '-'}</span>
+                      </div>
                       {request.adminComment && (
                         <div className="text-sm text-textSecondary">
                           <span className="font-medium">Коментар от сервиза:</span>{' '}
